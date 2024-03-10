@@ -31,7 +31,7 @@ class ItemTemplate(BaseModel):
     ItemTemplate
     """
     card: Optional[ItemCard] = None
-    collection_ids: Optional[conlist(StrictStr)] = Field(None, alias="collectionIds")
+    collection_ids: Optional[conlist(StrictStr)] = Field(default=None, alias="collectionIds")
     favorite: Optional[StrictBool] = None
     fields: Optional[conlist(Field)] = None
     folder_id: Optional[StrictStr] = Field(None, alias="folderId")

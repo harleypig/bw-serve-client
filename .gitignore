@@ -1,3 +1,7 @@
 .aider*
 !.aider.conf.yml
 !.aiderignore
+
+node_modules/**
+package-lock.json
+openapitools.json

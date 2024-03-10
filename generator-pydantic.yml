@@ -1,0 +1,4 @@
+packageName: bw_serve_client
+packageVersion: 0.0.2
+generateSourceCodeOnly: false
+disallowAdditionalPropertiesIfNotPresent: false

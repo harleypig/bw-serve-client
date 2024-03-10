@@ -39,7 +39,7 @@ class ItemTemplate(BaseModel):
     login: Optional[ItemLogin] = None
     name: Optional[StrictStr] = None
     notes: Optional[StrictStr] = None
-    organization_id: Optional[StrictStr] = Field(None, alias="organizationId")
+    organization_id: Optional[StrictStr] = Field(default=None, alias="organizationId")
     reprompt: Optional[StrictInt] = None
     secure_note: Optional[ItemSecureNote] = Field(None, alias="secureNote")
     type: Optional[Int] = None

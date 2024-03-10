@@ -34,7 +34,7 @@ class ItemTemplate(BaseModel):
     collection_ids: Optional[conlist(StrictStr)] = Field(default=None, alias="collectionIds")
     favorite: Optional[StrictBool] = None
     fields: Optional[conlist(Field)] = None
-    folder_id: Optional[StrictStr] = Field(None, alias="folderId")
+    folder_id: Optional[StrictStr] = Field(default=None, alias="folderId")
     identity: Optional[ItemIdentity] = None
     login: Optional[ItemLogin] = None
     name: Optional[StrictStr] = None

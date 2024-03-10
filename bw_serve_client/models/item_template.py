@@ -41,7 +41,7 @@ class ItemTemplate(BaseModel):
     notes: Optional[StrictStr] = None
     organization_id: Optional[StrictStr] = Field(default=None, alias="organizationId")
     reprompt: Optional[StrictInt] = None
-    secure_note: Optional[ItemSecureNote] = Field(None, alias="secureNote")
+    secure_note: Optional[ItemSecureNote] = Field(default=None, alias="secureNote")
     type: Optional[Int] = None
     additional_properties: Dict[str, Any] = {}
     __properties = ["card", "collectionIds", "favorite", "fields", "folderId", "identity", "login", "name", "notes", "organizationId", "reprompt", "secureNote", "type"]

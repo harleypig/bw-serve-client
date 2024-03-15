@@ -24,10 +24,10 @@ Python 3.7+
 If the python package is hosted on a repository, you can install directly
 using:
 ```sh
-pip install git+https://github.com/harleypig/bw-tui.git
+pip install git+https://github.com/harleypig/bw_serve_client.git
 ```
 (you may need to run `pip` with root permission: `sudo pip install
-git+https://github.com/harleypig/bw-tui.git`)
+git+https://github.com/harleypig/bw_serve_client.git`)
 
 Then import the package:
 ```python

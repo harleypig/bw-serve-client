@@ -4,15 +4,18 @@
 # https://openapi-generator.tech/docs/generators/python-pydantic-v1
 
 export PATH="$PATH:node_modules/.bin"
-swagger_file='vault-management-api.json'
-modified_swagger_file='vault-management-api-modified.json'
+
 config_file='generator-pydantic.yml'
 dirname='bw_tui'
+modified_swagger_file='vault-management-api-modified.json'
+swagger_file='vault-management-api.json'
+template_dir='./templates'
 
 declare -a genopts
 genopts+=('--generator-name' 'python-pydantic-v1')
 genopts+=('--config' "$config_file")
 genopts+=('--input-spec' "$modified_swagger_file")
+genopts+=('--template-dir' "$template_dir")
 #genopts+=('--output' "$dirname")
 
 # openapi-generator-cli validate $swagger_file

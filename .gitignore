@@ -1,8 +1,9 @@
+node_modules/**
+
 .aider*
 !.aider.conf.yml
 !.aiderignore
 
-node_modules/**
 openapitools.json
 package-lock.json
 vault-management-api-modified.json

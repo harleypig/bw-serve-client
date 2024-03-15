@@ -1,4 +1,14 @@
 packageName: bw_serve_client
 packageVersion: 0.0.2
-generateSourceCodeOnly: false
+
+gitUserId: harleypig
+gitRepoId: bw-serve-client
+
+hideGenerationTimestamp: false
+hideBuildPackage: true
+
 disallowAdditionalPropertiesIfNotPresent: false
+generateSourceCodeOnly: false
+library: urllib3
+mapNumberTo: Union[StrictFloat, StrictInt]
+useOneOfDiscriminatorLookup: false

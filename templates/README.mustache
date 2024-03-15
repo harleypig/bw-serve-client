@@ -13,7 +13,9 @@ Generator](https://openapi-generator.tech) project:
 - Build date: {{generatedDate}}
 {{/hideGenerationTimestamp}}
 - Generator version: {{generatorVersion}}
+{{^hideBuildPackage}}
 - Build package: {{generatorClass}}
+{{/hideBuildPackage}}
 {{#infoUrl}}
 For more information, please visit [{{{infoUrl}}}]({{{infoUrl}}})
 {{/infoUrl}}

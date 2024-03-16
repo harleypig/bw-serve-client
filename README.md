@@ -7,7 +7,7 @@ Generator](https://openapi-generator.tech) project:
 
 - API version: latest
 - Package version: 0.0.2
-- Build date: 2024-03-15T01:41:00.174347867-06:00[America/Boise]
+- Build date: 2024-03-15T21:42:37.288022719-06:00[America/Boise]
 - Generator version: 7.3.0
 
 ## Requirements.
@@ -51,7 +51,6 @@ Execute `pytest` to run the tests.
 
 Please follow the [installation procedure](#installation--usage) and then run the following:
 
-TESTING
 ```python
 
 import time
@@ -84,80 +83,43 @@ with bw_serve_client.ApiClient(configuration) as api_client:
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://localhost*
-
-Class | Method | HTTP request | Description
------------- | ------------- | ------------- | -------------
-*AttachmentsFieldsApi* | [**attachment_post**](docs/AttachmentsFieldsApi.md#attachment_post) | **POST** /attachment | Attach a file to an existing vault item.
-*AttachmentsFieldsApi* | [**object_attachment_id_delete**](docs/AttachmentsFieldsApi.md#object_attachment_id_delete) | **DELETE** /object/attachment/{id} | Delete an attachment.
-*AttachmentsFieldsApi* | [**object_attachment_id_get**](docs/AttachmentsFieldsApi.md#object_attachment_id_get) | **GET** /object/attachment/{id} | Retrieve an attachment.
-*AttachmentsFieldsApi* | [**object_exposed_id_get**](docs/AttachmentsFieldsApi.md#object_exposed_id_get) | **GET** /object/exposed/{id} | Retrieve the number of times a password has been exposed for a login item.
-*AttachmentsFieldsApi* | [**object_notes_id_get**](docs/AttachmentsFieldsApi.md#object_notes_id_get) | **GET** /object/notes/{id} | Retrieve the notes of an item.
-*AttachmentsFieldsApi* | [**object_password_id_get**](docs/AttachmentsFieldsApi.md#object_password_id_get) | **GET** /object/password/{id} | Retrieve the password of a login item.
-*AttachmentsFieldsApi* | [**object_totp_id_get**](docs/AttachmentsFieldsApi.md#object_totp_id_get) | **GET** /object/totp/{id} | Retrieve the TOTP code of a login item.
-*AttachmentsFieldsApi* | [**object_uri_id_get**](docs/AttachmentsFieldsApi.md#object_uri_id_get) | **GET** /object/uri/{id} | Retrieve the URI of a login item.
-*AttachmentsFieldsApi* | [**object_username_id_get**](docs/AttachmentsFieldsApi.md#object_username_id_get) | **GET** /object/username/{id} | Retrieve the username of a login item.
-*CollectionsOrganizationsApi* | [**confirm_org_member_id_post**](docs/CollectionsOrganizationsApi.md#confirm_org_member_id_post) | **POST** /confirm/org-member/{id} | Confirm a member to a specified Organization.
-*CollectionsOrganizationsApi* | [**list_object_collections_get**](docs/CollectionsOrganizationsApi.md#list_object_collections_get) | **GET** /list/object/collections | List Collections from all member Organizations.
-*CollectionsOrganizationsApi* | [**list_object_org_collections_get**](docs/CollectionsOrganizationsApi.md#list_object_org_collections_get) | **GET** /list/object/org-collections | List Collections from a specified Organization.
-*CollectionsOrganizationsApi* | [**list_object_org_members_get**](docs/CollectionsOrganizationsApi.md#list_object_org_members_get) | **GET** /list/object/org-members | List members of a specified Organization.
-*CollectionsOrganizationsApi* | [**list_object_organizations_get**](docs/CollectionsOrganizationsApi.md#list_object_organizations_get) | **GET** /list/object/organizations | List Organizations of which you are a member.
-*CollectionsOrganizationsApi* | [**object_org_collection_id_delete**](docs/CollectionsOrganizationsApi.md#object_org_collection_id_delete) | **DELETE** /object/org-collection/{id} | Delete a Collection from a specified Organization.
-*CollectionsOrganizationsApi* | [**object_org_collection_id_get**](docs/CollectionsOrganizationsApi.md#object_org_collection_id_get) | **GET** /object/org-collection/{id} | Retrieve a Collection from a specified Organization.
-*CollectionsOrganizationsApi* | [**object_org_collection_id_put**](docs/CollectionsOrganizationsApi.md#object_org_collection_id_put) | **PUT** /object/org-collection/{id} | Edit a Collection in a specified Organization.
-*CollectionsOrganizationsApi* | [**object_org_collection_post**](docs/CollectionsOrganizationsApi.md#object_org_collection_post) | **POST** /object/org-collection | Create a Collection for a specified Organization.
-*FoldersApi* | [**list_object_folders_get**](docs/FoldersApi.md#list_object_folders_get) | **GET** /list/object/folders | Retrieve a list of folders in your vault.
-*FoldersApi* | [**object_folder_id_delete**](docs/FoldersApi.md#object_folder_id_delete) | **DELETE** /object/folder/{id} | Delete a folder from your vault.
-*FoldersApi* | [**object_folder_id_get**](docs/FoldersApi.md#object_folder_id_get) | **GET** /object/folder/{id} | Retrieve a folder from your vault.
-*FoldersApi* | [**object_folder_id_put**](docs/FoldersApi.md#object_folder_id_put) | **PUT** /object/folder/{id} | Edit a folder in your vault.
-*FoldersApi* | [**object_folder_post**](docs/FoldersApi.md#object_folder_post) | **POST** /object/folder | Add a folder to your vault.
-*LockUnlockApi* | [**lock_post**](docs/LockUnlockApi.md#lock_post) | **POST** /lock | Lock your vault.
-*LockUnlockApi* | [**unlock_post**](docs/LockUnlockApi.md#unlock_post) | **POST** /unlock | Unlock your vault.
-*MiscellaneousApi* | [**generate_get**](docs/MiscellaneousApi.md#generate_get) | **GET** /generate | Generate a password or passphrase.
-*MiscellaneousApi* | [**object_fingerprint_me_get**](docs/MiscellaneousApi.md#object_fingerprint_me_get) | **GET** /object/fingerprint/me | Retrieve your fingerprint phrase.
-*MiscellaneousApi* | [**object_template_type_get**](docs/MiscellaneousApi.md#object_template_type_get) | **GET** /object/template/{type} | Retrieve a JSON template for any object.
-*MiscellaneousApi* | [**status_get**](docs/MiscellaneousApi.md#status_get) | **GET** /status | Get the status of the Bitwarden CLI.
-*MiscellaneousApi* | [**sync_post**](docs/MiscellaneousApi.md#sync_post) | **POST** /sync | Sync your vault.
-*SendApi* | [**list_object_send_get**](docs/SendApi.md#list_object_send_get) | **GET** /list/object/send | Retrieve a list of Sends.
-*SendApi* | [**object_send_id_delete**](docs/SendApi.md#object_send_id_delete) | **DELETE** /object/send/{id} | Delete a Send.
-*SendApi* | [**object_send_id_get**](docs/SendApi.md#object_send_id_get) | **GET** /object/send/{id} | Retrieve a Send.
-*SendApi* | [**object_send_id_put**](docs/SendApi.md#object_send_id_put) | **PUT** /object/send/{id} | Edit a Send.
-*SendApi* | [**object_send_post**](docs/SendApi.md#object_send_post) | **POST** /object/send | Create a Send.
-*SendApi* | [**send_id_remove_password_post**](docs/SendApi.md#send_id_remove_password_post) | **POST** /send/{id}/remove-password | Remove the password from a Send.
-*VaultItemsApi* | [**list_object_items_get**](docs/VaultItemsApi.md#list_object_items_get) | **GET** /list/object/items | Retrieve a list of items in your vault.
-*VaultItemsApi* | [**object_item_id_delete**](docs/VaultItemsApi.md#object_item_id_delete) | **DELETE** /object/item/{id} | Delete an item from your vault.
-*VaultItemsApi* | [**object_item_id_get**](docs/VaultItemsApi.md#object_item_id_get) | **GET** /object/item/{id} | Retrieve an item from your vault.
-*VaultItemsApi* | [**object_item_id_put**](docs/VaultItemsApi.md#object_item_id_put) | **PUT** /object/item/{id} | Edit an item in your Vault.
-*VaultItemsApi* | [**object_item_post**](docs/VaultItemsApi.md#object_item_post) | **POST** /object/item | Add a new item to your vault.
-*VaultItemsApi* | [**restore_item_id_post**](docs/VaultItemsApi.md#restore_item_id_post) | **POST** /restore/item/{id} | Restore a deleted item.
+* [AttachmentsFieldsApi](docs/AttachmentsFieldsApi.md)
+* [CollectionsOrganizationsApi](docs/CollectionsOrganizationsApi.md)
+* [FoldersApi](docs/FoldersApi.md)
+* [LockUnlockApi](docs/LockUnlockApi.md)
+* [MiscellaneousApi](docs/MiscellaneousApi.md)
+* [SendApi](docs/SendApi.md)
+* [VaultItemsApi](docs/VaultItemsApi.md)
 
 
 ## Documentation For Models
 
- - [Collection](docs/Collection.md)
- - [Field](docs/Field.md)
- - [Folder](docs/Folder.md)
- - [Group](docs/Group.md)
- - [ItemCard](docs/ItemCard.md)
- - [ItemIdentity](docs/ItemIdentity.md)
- - [ItemLogin](docs/ItemLogin.md)
- - [ItemSecureNote](docs/ItemSecureNote.md)
- - [ItemTemplate](docs/ItemTemplate.md)
- - [LockunlockSuccess](docs/LockunlockSuccess.md)
- - [LockunlockSuccessData](docs/LockunlockSuccessData.md)
- - [SendTemplate](docs/SendTemplate.md)
- - [SendText](docs/SendText.md)
- - [Status](docs/Status.md)
- - [StatusData](docs/StatusData.md)
- - [StatusDataTemplate](docs/StatusDataTemplate.md)
- - [UnlockPostRequest](docs/UnlockPostRequest.md)
- - [Uris](docs/Uris.md)
+* [Collection](docs/Collection.md)
+* [Field](docs/Field.md)
+* [Folder](docs/Folder.md)
+* [Group](docs/Group.md)
+* [ItemCard](docs/ItemCard.md)
+* [ItemIdentity](docs/ItemIdentity.md)
+* [ItemLogin](docs/ItemLogin.md)
+* [ItemSecureNote](docs/ItemSecureNote.md)
+* [ItemTemplate](docs/ItemTemplate.md)
+* [LockunlockSuccess](docs/LockunlockSuccess.md)
+* [LockunlockSuccessData](docs/LockunlockSuccessData.md)
+* [SendTemplate](docs/SendTemplate.md)
+* [SendText](docs/SendText.md)
+* [Status](docs/Status.md)
+* [StatusData](docs/StatusData.md)
+* [StatusDataTemplate](docs/StatusDataTemplate.md)
+* [UnlockPostRequest](docs/UnlockPostRequest.md)
+* [Uris](docs/Uris.md)
 
 
 <a id="documentation-for-authorization"></a>
 ## Documentation For Authorization
 
 Endpoints do not require authorization.
+
+
 
 
 ## Author

@@ -1,0 +1,63 @@
+#!/bin/bash
+
+declare -a sopts
+
+# What's the difference?
+#  --sep                 if specified, separate source and build dirs
+#  --no-sep              if specified, create build dir under source dir
+
+sopts+=('--no-sep')
+sopts+=('--project' 'bw-serve-client')
+sopts+=('--author' 'Alan Young')
+sopts+=('--language' 'en')
+sopts+=('--no-batchfile') # do not create batchfile
+
+# What's the difference between these two?
+sopts+=('--v' 'v0.0.2')
+sopts+=('--release' 'v0.0.2') # What's the difference
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+sopts+=('--ext-autodoc') # enable autodoc extension
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/todo.html
+sopts+=('--ext-todo') # enable todo extension
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/coverage.html
+sopts+=('--ext-coverage') # enable coverage extension
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
+sopts+=('--ext-viewcode') # enable viewcode extension
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/githubpages.html
+sopts+=('--ext-githubpages') # enable githubpages extension
+
+sopts+=('--extensions')
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
+sopts+=('sphinx.ext.autosummary')
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html
+sopts+=('sphinx.ext.extlinks')
+
+# https://github.com/sphinx-contrib/email
+sopts+=('sphinx-contrib.email')
+
+# https://github.com/sphinx-contrib/requirements-txt
+sopts+=('sphinx-contrib.requirements_txt')
+
+# https://github.com/sphinx-contrib/openapi
+sopts+=('sphinx-contrib.openapi')
+
+# https://releases.readthedocs.io/en/latest/
+sopts+=('sphinx_autodoc_typehints')
+
+# Moar extensions
+# https://github.com/yoloseem/awesome-sphinxdoc
+# https://sphinx-extensions.readthedocs.io/en/latest/
+
+#Project templating:
+#  -t TEMPLATEDIR, --templatedir TEMPLATEDIR
+#                        template directory for template files
+#  -d NAME=VALUE         define a template variable
+
+sphinx-quickstart "${sopts[@]}" ..

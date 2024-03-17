@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# XXX: Experimenting with poetry-bumpversion plugin, can still use this to tag
+#      and push unless some other poetry setting can do that.
+
 #-----------------------------------------------------------------------------
 # poetry version doesn't update the package, so we'll do it ourselves
 [[ -z $POETRY_ACTIVE ]] && {
@@ -58,18 +61,16 @@ poetry version "${popts[@]}" || {
 
 version="$(poetry version -s)"
 
-printf 'version: %s' "$version"
-exit 1
-
-# Update the __version__ variable in __init__.py
-sed -i "s/^__version__ = .*/__version__ = '${VERSION}'/" bw_serve_client/__init__.py
+# Determining if poetry-bumpversion works better
+## Update the __version__ variable in __init__.py
+#sed -i "s/^__version__ = .*/__version__ = '$version'/" bw_serve_client/__init__.py
 
 # Commit the change
-git add bw_serve_client/__init__.py
-git commit -m "Update version to ${VERSION}"
+git add pyproject.toml bw_serve_client/__init__.py
+git commit -m "Update version to $version"
 
 # Tag the commit with the provided message
-git tag -a "$1" -m "$2"
+git tag -a "$version" -m "$message"
 
 # Push the changes and tags to the remote repository
-git push origin main --tags
+#git push origin main --tags

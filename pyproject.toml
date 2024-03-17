@@ -39,3 +39,5 @@ build-backend = "setuptools.build_meta"
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
+
+[tool.poetry_bumpversion.file."bw_serve_client/__init__.py"]

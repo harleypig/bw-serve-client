@@ -33,7 +33,7 @@
 export PATH="$PATH:node_modules/.bin"
 export PYTHON_POST_PROCESS_FILE="yapf -i"
 
-config_file='.generator-pydantic.yml'
+config_file='config/.generator-pydantic.yml'
 modified_swagger_file='vault-management-api-modified.json'
 swagger_file='vault-management-api.json'
 template_dir='./templates'

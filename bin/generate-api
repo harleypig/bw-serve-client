@@ -15,11 +15,11 @@
 #       first.
 
 # XXX: Add a diff for specifications
-# XXX: Add a validation check
 # XXX: Is there a way to make the models and api documentation are in
 #      docs/{models,apis}?
 # XXX: https://github.com/schemathesis/schemathesis
 
+#-----------------------------------------------------------------------------
 [[ -x "$(command -v openapi-generator-cli)" ]] || {
   echo "openapi-generator-cli is not installed"
   exit 1
@@ -30,32 +30,48 @@
   exit 1
 }
 
-export PATH="$PATH:node_modules/.bin"
-export PYTHON_POST_PROCESS_FILE="yapf -i"
+#-----------------------------------------------------------------------------
+openapi_dir='.openapi'
+config_file="$openapi_dir/.generator-pydantic.yml"
+modified_swagger_file="vault-management-api-modified.json"
+swagger_file="$openapi_dir/vault-management-api.json"
+template_dir="$openapi_dir/templates"
+openapi_ignore="$openapi_dir/.openapi-generator-ignore"
 
-config_file='config/.generator-pydantic.yml'
-modified_swagger_file='vault-management-api-modified.json'
-swagger_file='vault-management-api.json'
-template_dir='./templates'
+#-----------------------------------------------------------------------------
+# openapi-generator-cli validate $swagger_file reports errors and I'm not
+# using organization tools
+jq -S 'del(.paths."/move/{itemid}/{organizationId}")' "$swagger_file" > "$modified_swagger_file"
 
+[[ $? -ne 0 ]] && {
+  echo "Problem removing organizationId from spec"
+  exit 1
+}
+
+#-----------------------------------------------------------------------------
 declare -a genopts
-genopts+=('--generator-name' 'python-pydantic-v1')
 genopts+=('--config' "$config_file")
+genopts+=('--generator-name' 'python-pydantic-v1')
+genopts+=('--ignore-file-override' "$openapi_ignore")
 genopts+=('--input-spec' "$modified_swagger_file")
+genopts+=('--input-spec-root-directory' "$openapi_dir")
 genopts+=('--template-dir' "$template_dir")
+
+[[ -x "$(command -v yapf)" ]] && {
+  export PYTHON_POST_PROCESS_FILE="yapf -i"
+  genopts+=('--enable-post-process-file')
+}
 
 # Debugging
 #export JAVA_OPTS="$JAVA_OPTS -Dlog.level=debug"
 #genopts+=('--global-property' 'debugSupportingFiles=true')
 
-# openapi-generator-cli validate $swagger_file reports errors and I'm not
-# using organization tools
-jq -S 'del(.paths."/move/{itemid}/{organizationId}")' "$swagger_file" > "$modified_swagger_file"
-
+#-----------------------------------------------------------------------------
 openapi-generator-cli generate "${genopts[@]}"
 
 rm "$modified_swagger_file"
 
+#-----------------------------------------------------------------------------
 # Is there a way to not generate these files?
 
 rm -fr .github

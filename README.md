@@ -5,7 +5,7 @@ API](https://bitwarden.com/help/vault-management-api/), available via
 Bitwarden CLI's `bw serve` command.
 
 If you're looking for Bitwarden's public api (for organizational tools and
-stuff) that API is [here](https://bitwarden.com/help/api/)
+stuff) that API is [here](https://bitwarden.com/help/api/).
 
 Please note that this module won't be supporting email and master password
 login to start with. It's not the most secure method, but pull requests are
@@ -19,7 +19,7 @@ Generator](https://openapi-generator.tech) project:
 
 - API version: latest
 - Package version: 0.0.2
-- Build date: 2024-03-17T07:01:30.096638384-06:00[America/Boise]
+- Build date: 2024-03-17T07:58:05.567527989-06:00[America/Boise]
 - Generator version: 7.3.0
 
 ## Requirements.
@@ -129,5 +129,4 @@ with bw_serve_client.ApiClient(configuration) as api_client:
 * [StatusDataTemplate](docs/StatusDataTemplate.md)
 * [UnlockPostRequest](docs/UnlockPostRequest.md)
 * [Uris](docs/Uris.md)
-
 

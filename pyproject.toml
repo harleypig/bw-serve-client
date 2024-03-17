@@ -10,28 +10,28 @@ keywords = ["OpenAPI", "OpenAPI-Generator", "Vault Management API"]
 include = ["bw_serve_client/py.typed"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-urllib3 = ">= 1.25.3, < 2.0.0"
-python-dateutil = ">= 2.5.3"
-pydantic = "^1.10.5, <2"
 aenum = ">=3.1.11"
+pydantic = "^1.10.5, <2"
+python = "^3.9"
+python-dateutil = ">= 2.5.3"
+urllib3 = ">= 1.25.3, < 2.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "7.2.1"
+flake8 = ">=4.0.0"
+pytest = ">=7.2.1"
 pytest-cov = ">=2.8.1"
 pytest-randomly = ">=3.12.0"
 tox = ">=3.9.0"
-flake8 = ">=4.0.0"
-yapf = "*"
+yapf = "^0.40.2"
+pytest-mock = "^3.12.0"
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "4.0.0"
-sphinxcontrib-email = "*"
-sphinx-lint = "*"
-sphinxcontrib-requirements_txt = "*"
-sphinxcontrib-openapi = "*"
-sphinx-autodoc-typehints = "*"
-mkdocs = "*"
+mkdocs = "^1.5.3"
+sphinx = "^7.2.6"
+sphinx-autodoc-typehints = "^2.0.0"
+sphinxcontrib-email = "^0.3.6"
+sphinxcontrib-openapi = "^0.8.4"
+sphinx-lint = "^0.9.1"
 
 [build-system]
 requires = ["setuptools"]

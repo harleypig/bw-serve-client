@@ -1,9 +1,9 @@
 #!/bin/bash
 
-npm install @openapitools/openapi-generator-cli 
+npm install -g @openapitools/openapi-generator-cli 
 
 # Nope. Can't figure out how to use from command line.
-#npm install api-diff-viewer
+#npm install -g api-diff-viewer
 
 # https://pb33f.io/openapi-changes/
-npm install @pb33f/openapi-changes
+npm install -g @pb33f/openapi-changes

@@ -1,7 +1,15 @@
-# move various requirements.txt files to poetry toml file
-- `requirements.txt`: Used for pip requirements, not needed as Poetry manages dependencies in `pyproject.toml`.
-- `test-requirements.txt`: Used for pip requirements for testing, not needed as Poetry can handle test dependencies in `pyproject.toml`.
-- `doc-requirements.txt`: Requirements for documentation, not needed as Poetry can handle documentation dependencies in `pyproject.toml`.
+## poetry
+
+* Install dependencies
+  - poetry install [--with groupname[,groupname]] [--without groupname]
+* Add dependency
+  - poetry add [--with groupname] package[@latest] [package ...]
+* Update dependencies
+  - poetry update [--with groupname[,groupname]]
+* Remove dependencies
+  - poetry remove [--group groupname] package
+* Make sure things are correctly installed
+  - poetry install --sync [--with groupname[,groupname]]
 
 # Can poetry handle version management in git and python files too?
 - `.bumpversion.toml`: Configuration for version bumping, not needed as Poetry can handle version management.

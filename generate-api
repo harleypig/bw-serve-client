@@ -20,6 +20,11 @@
 #      docs/{models,apis}?
 # XXX: https://github.com/schemathesis/schemathesis
 
+[[ -x "$(command -v openapi-generator-cli)" ]] || {
+  echo "openapi-generator-cli is not installed"
+  exit 1
+}
+
 [[ -z $VIRTUAL_ENV ]] && [[ -z $POETRY_ACTIVE ]] && {
   echo "You must be in a virtual environment to run this script."
   exit 1
@@ -53,8 +58,10 @@ rm "$modified_swagger_file"
 
 # Is there a way to not generate these files?
 
+rm -fr .github
 rm .gitlab-ci.yml
 rm git_push.sh
 rm requirements.txt
+rm setup.cfg
+rm setup.py
 rm test-requirements.txt
-rm -fr .github

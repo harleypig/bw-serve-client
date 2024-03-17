@@ -1,24 +1,8 @@
-# Notes
+# Hey there, welcome to the Vault Management API module!
 
-This schema documents the endpoints available to the Vault Management API,
-accessible from the Bitwarden CLI using the `bw serve` command ([learn
-more](https://bitwarden.com/help/cli/)). If you're looking for the
-**Organization Management** API, refer instead to [this
-document](https://bitwarden.com/help/api/).
+We're here to guide you through using the Bitwarden CLI's `bw serve` command to access the Vault Management API. If you're after the Organization Management API, you might want to check out [this resource](https://bitwarden.com/help/api/) instead. For all the nitty-gritty details on the API we're using, take a peek at the [official documentation](https://bitwarden.com/help/vault-management-api/).
 
-The documentation for the API being used is
-[here](https://bitwarden.com/help/vault-management-api/).
-
-* User must [download and
-    install](https://bitwarden.com/download/#downloads-command-line-interface)
-    application themselves.
-* This module won't be supporting email and master password login, at least
-    initially. And it's a bad idea, so would require some discussion to change
-    my mind.
-* This module won't be supporting SSO initially ... I don't use it and the
-    docs suggest you can still use an api key.
-* That leaves [using an api
-    key](https://bitwarden.com/help/cli/#using-an-api-key).
+Before diving in, you'll need to [download and install](https://bitwarden.com/download/#downloads-command-line-interface) the Bitwarden CLI on your own. Now, let's talk about what this module doesn't do. We're not going to support email and master password login to start with. It's not the most secure method, and we'd need a pretty compelling argument to consider it. Also, we're skipping SSO support for the time being. But don't worry, we've got you covered with the API key method, which is secure and straightforward. You can get the scoop on [using an API key here](https://bitwarden.com/help/cli/#using-an-api-key).
 
 ## Steps
 

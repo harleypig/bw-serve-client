@@ -1,14 +1,13 @@
 # Notes
 
-## API Source
+This schema documents the endpoints available to the Vault Management API,
+accessible from the Bitwarden CLI using the `bw serve` command ([learn
+more](https://bitwarden.com/help/cli/)). If you're looking for the
+**Organization Management** API, refer instead to [this
+document](https://bitwarden.com/help/api/).
 
-[API](https://bitwarden.com/help/vault-management-api/) source
-
-## Bitwarden CLI Docs
-
-[CLI](https://bitwarden.com/help/cli/)
-
-## Expectations
+The documentation for the API being used is
+[here](https://bitwarden.com/help/vault-management-api/).
 
 * User must [download and
     install](https://bitwarden.com/download/#downloads-command-line-interface)

@@ -11,9 +11,8 @@ include = ["{{packageName}}/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-
-urllib3 = ">= 1.25.3"
-python-dateutil = ">=2.8.2"
+urllib3 = ">= 1.25.3, < 2.1.0"
+python-dateutil = ">= 2.5.3"
 {{#asyncio}}
 aiohttp = ">= 3.8.4"
 {{/asyncio}}

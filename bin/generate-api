@@ -81,3 +81,4 @@ rm requirements.txt
 rm setup.cfg
 rm setup.py
 rm test-requirements.txt
+rm .travis.yml

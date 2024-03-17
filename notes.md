@@ -1,8 +1,26 @@
-# Hey there, welcome to the Vault Management API module!
+# Bitwarden CLI Vault Management API
 
-We're here to guide you through using the Bitwarden CLI's `bw serve` command to access the Vault Management API. If you're after the Organization Management API, you might want to check out [this resource](https://bitwarden.com/help/api/) instead. For all the nitty-gritty details on the API we're using, take a peek at the [official documentation](https://bitwarden.com/help/vault-management-api/).
+This module supports the [Bitwarden CLI Vault Management
+API](https://bitwarden.com/help/vault-management-api/), available via
+Bitwarden CLI's `bw serve` command.
 
-Before diving in, you'll need to [download and install](https://bitwarden.com/download/#downloads-command-line-interface) the Bitwarden CLI on your own. Now, let's talk about what this module doesn't do. We're not going to support email and master password login to start with. It's not the most secure method, and we'd need a pretty compelling argument to consider it. Also, we're skipping SSO support for the time being. But don't worry, we've got you covered with the API key method, which is secure and straightforward. You can get the scoop on [using an API key here](https://bitwarden.com/help/cli/#using-an-api-key).
+If you're looking for Bitwarden's public api (for organizational tools and
+stuff) that API is [here](https://bitwarden.com/help/api/)
+
+You'll need to [download and
+install](https://bitwarden.com/help/cli/#download-and-install) the [Bitwarden
+CLI](https://bitwarden.com/download/#downloads-command-line-interface) on your
+own.
+
+Please note that this module won't be supporting email and master password
+login to start with. It's not the most secure method, but pull requests are
+welcome. Also, SSO support is low on the todo list, as the author doesn't use
+it.
+
+
+got you covered with the API key method,
+which is secure and straightforward. You can get the scoop on [using an API
+key here](https://bitwarden.com/help/cli/#using-an-api-key).
 
 ## Steps
 

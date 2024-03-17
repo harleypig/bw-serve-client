@@ -1,13 +1,65 @@
 #!/bin/bash
 
-# Check if a version number is provided
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 vX.Y.Z 'message'"
-    exit 1
-fi
+#-----------------------------------------------------------------------------
+# poetry version doesn't update the package, so we'll do it ourselves
+[[ -z $POETRY_ACTIVE ]] && {
+  echo "You must be in a poetry shell to bump a version."
+  exit 1
+}
 
-# Extract the version number without the 'v' prefix
-VERSION=${1#v}
+valid_options='major|minor|patch|premajor|preminor|prepatch|prerelease'
+
+#-----------------------------------------------------------------------------
+usage() {
+  msg="$@"
+  cat << EOT
+
+usage: ${0##*/} option [--next-phase] "message"
+
+Valid options is one of ${valid_options//|/, }
+
+'prerelease' also allows '--next-phase'
+
+${0##*/} calls 'poetry version option [--next-phase]', updates
+'bw_serve_client/__init__.py:__version__', then performs a git add, commit,
+tag, and push.
+
+EOT
+
+  [[ -n $msg ]] && echo "!!! $msg"
+
+  exit 1
+}
+
+#-----------------------------------------------------------------------------
+declare -a popts
+option="$1"
+shift
+
+echo "$option" | grep -qE "$valid_options" || usage "Invalid option: $option"
+popts=("$option")
+
+nextphase=
+echo "$1" | grep -qE -- '-*next-?phase' && {
+  [[ $option != 'prerelease' ]] \
+    && usage "--next-phase only allowed with 'prerelease' option"
+
+  popts+=('--next-phase')
+  shift
+}
+
+message="$@"
+[[ -z $message ]] && usage "tag message is required"
+
+poetry version "${popts[@]}" || {
+  echo "Problem bumping poetry version"
+  exit 1
+}
+
+version="$(poetry version -s)"
+
+printf 'version: %s' "$version"
+exit 1
 
 # Update the __version__ variable in __init__.py
 sed -i "s/^__version__ = .*/__version__ = '${VERSION}'/" bw_serve_client/__init__.py

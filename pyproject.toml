@@ -29,6 +29,12 @@ yapf = "*"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "*"
+sphinxcontrib-email = "*"
+sphinx-lint = "*"
+sphinxcontrib-requirements_txt = "*"
+sphinxcontrib-openapi = "*"
+sphinx-autodoc-typehints = "*"
+sphinx = "*"
 mkdocs = "*"
 [build-system]
 requires = ["setuptools"]

@@ -14,7 +14,7 @@
 """  # noqa: E501
 
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 # import apis into sdk package
 from bw_serve_client.api.attachments_fields_api import AttachmentsFieldsApi

@@ -20,6 +20,11 @@
 #      docs/{models,apis}?
 # XXX: https://github.com/schemathesis/schemathesis
 
+[[ -z $VIRTUAL_ENV ]] && [[ -z $POETRY_ACTIVE ]] && {
+  echo "You must be in a virtual environment to run this script."
+  exit 1
+}
+
 export PATH="$PATH:node_modules/.bin"
 export PYTHON_POST_PROCESS_FILE="yapf -i"
 

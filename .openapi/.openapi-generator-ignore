@@ -21,3 +21,6 @@
 #docs/*.md
 # Then explicitly reverse the ignore rule for a single file:
 #!docs/README.md
+# Files to ignore by openapi-generator-cli
+setup.cfg
+setup.py

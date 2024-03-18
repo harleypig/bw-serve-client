@@ -22,14 +22,61 @@ Generator](https://openapi-generator.tech) project:
 - Build date: 2024-03-17T08:05:49.068805798-06:00[America/Boise]
 - Generator version: 7.3.0
 
-## Requirements.
+## Requirements
 
-* Python 3.7+
+* Python 3.9+
 
 * [Bitwarden
     CLI](https://bitwarden.com/download/#downloads-command-line-interface)
   - Instructions can be found
     [here](https://bitwarden.com/help/cli/#download-and-install)
+
+## `bw serve` Configuration
+
+This module expects the user of this module to manage the configuration and
+setup of the `bw serve` server. Documentation is
+[here](https://bitwarden.com/help/cli/#serve).
+
+### Authentication Steps
+
+These authentication steps are required for the `bw` cli tool regardless of
+how it's being used. I'm including the basic steps you'll need to use this
+module here for completeness. Be sure to read the
+[documentation](https://bitwarden.com/help/cli/).
+
+* Check status
+  - unauthenticated, need to run `bw login --apikey`
+  - locked, need to run `bw unlock`
+  - unlocked, nothing needs to be done
+
+#### `bw login --apikey`
+
+* [docs](https://bitwarden.com/help/cli/#using-an-api-key)
+
+Environment variables (both required):
+* BW_CLIENTID
+* BW_CLIENTSECRET
+
+#### `bw unlock`
+
+[docs](https://bitwarden.com/help/cli/#unlock)
+
+* --passwordenv <ENVIRONMENT_VARIABLE>
+* --passwordfile /path/to/file
+* prompt for password
+
+Capture BW_SESSION and set it.
+
+In bash, only bash scripts can be sourced, so we can't set the environment
+variable outside of the script. Provide an option for the user to be to do
+something like the following.
+```
+BW_SESSION="$(bw-serve-client unlock [--passwordenv|--passwordfile|prompt])"
+```
+So they aren't stomping all over themselves when using both the command line
+and this module.
+
+There is a --session option for each command, but I'm not supporting that.
 
 ## Installation
 
@@ -129,4 +176,3 @@ with bw_serve_client.ApiClient(configuration) as api_client:
 * [StatusDataTemplate](docs/StatusDataTemplate.md)
 * [UnlockPostRequest](docs/UnlockPostRequest.md)
 * [Uris](docs/Uris.md)
-

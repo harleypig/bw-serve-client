@@ -11,51 +11,13 @@
 * Make sure things are correctly installed
   - poetry install --sync [--with groupname[,groupname]]
 
-# Can poetry handle version management in git and python files too?
-- `.bumpversion.toml`: Configuration for version bumping, not needed as Poetry can handle version management.
-- `bump_version`: Script for version bumping, not needed as Poetry can handle version management.
+### bumpversion
 
-## Steps
+The `poetry-bumpversion` plugin will update the `__init__.py` `__version__`
+variable.
 
-* Probably want to support this.
-  - bw config server (see help)
-
-* Check status
-* - unauthenticated, need to login --apikey
-* - locked, need to unlock
-* - unlocked, nothing needs to be done
-
-* Is there an api options for sync?
-* bw serve
-
-### login --apikey
-
-[docs](https://bitwarden.com/help/cli/#using-an-api-key)
-
-Environment variables (both required):
-* BW_CLIENTID
-* BW_CLIENTSECRET
-
-### unlock
-
-[docs](https://bitwarden.com/help/cli/#unlock)
-
-* --passwordenv <ENVIRONMENT_VARIABLE>
-* --passwordfile /path/to/file
-* prompt for password
-
-Capture BW_SESSION and set it.
-
-In bash, only bash scripts can be sourced, so we can't set the environment
-variable outside of the script. Provide an option for the user to be to do
-something like the following.
-```
-BW_SESSION="$(bw-serve-client unlock [--passwordenv|--passwordfile|prompt])"
-```
-So they aren't stomping all over themselves when using both the command line
-and this module.
-
-There is a --session option for each command, but I'm not supporting that.
+I've created a script, `bin/bumpversion` that will bump the version via `poetry
+version` then `tag` and `push` the current state of the code.
 
 ## TODO?
 

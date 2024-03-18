@@ -32,11 +32,11 @@
 
 #-----------------------------------------------------------------------------
 openapi_dir='.openapi'
-config_file="$openapi_dir/.generator-pydantic.yml"
+config_file="$openapi_dir/generator-pydantic.yml"
 modified_swagger_file="vault-management-api-modified.json"
 swagger_file="$openapi_dir/vault-management-api.json"
 template_dir="$openapi_dir/templates"
-openapi_ignore="$openapi_dir/.openapi-generator-ignore"
+openapi_ignore="$openapi_dir/openapi-generator-ignore"
 
 #-----------------------------------------------------------------------------
 # openapi-generator-cli validate $swagger_file reports errors and I'm not
@@ -74,11 +74,11 @@ rm "$modified_swagger_file"
 #-----------------------------------------------------------------------------
 # Is there a way to not generate these files?
 
-rm -fr .github
-rm .gitlab-ci.yml
-rm git_push.sh
-rm requirements.txt
-rm setup.cfg
-rm setup.py
-rm test-requirements.txt
-rm .travis.yml
+#rm -fr .github
+#rm .gitlab-ci.yml
+#rm git_push.sh
+#rm requirements.txt
+#rm setup.cfg
+#rm setup.py
+#rm test-requirements.txt
+#rm .travis.yml

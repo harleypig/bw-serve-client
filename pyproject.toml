@@ -41,3 +41,7 @@ build-backend = "setuptools.build_meta"
 extension-pkg-whitelist = "pydantic"
 
 [tool.poetry_bumpversion.file."bw_serve_client/__init__.py"]
+
+[tool.poetry_bumpversion.replacements]
+files = [".openapi/generator-pydantic.yml"]
+

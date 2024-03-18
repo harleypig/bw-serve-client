@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import re  # noqa: F401
 import io
 import warnings
@@ -28,9 +27,7 @@ from bw_serve_client.models.status import Status
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.exceptions import (  # noqa: F401
-    ApiTypeError,
-    ApiValueError
-)
+    ApiTypeError, ApiValueError)
 
 
 class MiscellaneousApi:
@@ -46,7 +43,54 @@ class MiscellaneousApi:
         self.api_client = api_client
 
     @validate_arguments
-    def generate_get(self, length : Annotated[Optional[StrictInt], Field(description="Number of characters in the **password**.")] = None, uppercase : Annotated[Optional[StrictBool], Field(description="Include uppercase characters in the **password**.")] = None, lowercase : Annotated[Optional[StrictBool], Field(description="Include lowercase characters in the **password**.")] = None, number : Annotated[Optional[StrictBool], Field(description="Include numbers in the **password**.")] = None, special : Annotated[Optional[StrictBool], Field(description="Include special characters in the **password**.")] = None, passphrase : Annotated[Optional[StrictBool], Field(description="Generate passphrase (by default, `/generate` will generate a password).")] = None, words : Annotated[Optional[StrictInt], Field(description="Number of words in the **passphrase**.")] = None, separator : Annotated[Optional[StrictStr], Field(description="Separator character in the **passphrase**.")] = None, capitalize : Annotated[Optional[StrictBool], Field(description="Title-case the **passphrase**.")] = None, include_number : Annotated[Optional[StrictBool], Field(description="Include numbers in the **passphrase**.")] = None, **kwargs) -> None:  # noqa: E501
+    def generate_get(
+            self,
+            length: Annotated[
+                Optional[StrictInt],
+                Field(description="Number of characters in the **password**."
+                      )] = None,
+            uppercase: Annotated[
+                Optional[StrictBool],
+                Field(description=
+                      "Include uppercase characters in the **password**."
+                      )] = None,
+            lowercase: Annotated[
+                Optional[StrictBool],
+                Field(description=
+                      "Include lowercase characters in the **password**."
+                      )] = None,
+            number: Annotated[
+                Optional[StrictBool],
+                Field(description="Include numbers in the **password**."
+                      )] = None,
+            special: Annotated[
+                Optional[StrictBool],
+                Field(
+                    description=
+                    "Include special characters in the **password**.")] = None,
+            passphrase:
+        Annotated[
+            Optional[StrictBool],
+            Field(
+                description=
+                "Generate passphrase (by default, `/generate` will generate a password)."
+            )] = None,
+            words: Annotated[
+                Optional[StrictInt],
+                Field(description="Number of words in the **passphrase**."
+                      )] = None,
+            separator: Annotated[
+                Optional[StrictStr],
+                Field(description="Separator character in the **passphrase**."
+                      )] = None,
+            capitalize: Annotated[
+                Optional[StrictBool],
+                Field(description="Title-case the **passphrase**.")] = None,
+            include_number: Annotated[
+                Optional[StrictBool],
+                Field(description="Include numbers in the **passphrase**."
+                      )] = None,
+            **kwargs) -> None:  # noqa: E501
         """Generate a password or passphrase.  # noqa: E501
 
         Generate a password or passphrase. By default, `/generate` will generate a 14-character password with uppercase characters, lowercase characters, and numbers.  # noqa: E501
@@ -91,10 +135,61 @@ class MiscellaneousApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the generate_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.generate_get_with_http_info(length, uppercase, lowercase, number, special, passphrase, words, separator, capitalize, include_number, **kwargs)  # noqa: E501
+        return self.generate_get_with_http_info(length, uppercase, lowercase,
+                                                number, special, passphrase,
+                                                words, separator, capitalize,
+                                                include_number,
+                                                **kwargs)  # noqa: E501
 
     @validate_arguments
-    def generate_get_with_http_info(self, length : Annotated[Optional[StrictInt], Field(description="Number of characters in the **password**.")] = None, uppercase : Annotated[Optional[StrictBool], Field(description="Include uppercase characters in the **password**.")] = None, lowercase : Annotated[Optional[StrictBool], Field(description="Include lowercase characters in the **password**.")] = None, number : Annotated[Optional[StrictBool], Field(description="Include numbers in the **password**.")] = None, special : Annotated[Optional[StrictBool], Field(description="Include special characters in the **password**.")] = None, passphrase : Annotated[Optional[StrictBool], Field(description="Generate passphrase (by default, `/generate` will generate a password).")] = None, words : Annotated[Optional[StrictInt], Field(description="Number of words in the **passphrase**.")] = None, separator : Annotated[Optional[StrictStr], Field(description="Separator character in the **passphrase**.")] = None, capitalize : Annotated[Optional[StrictBool], Field(description="Title-case the **passphrase**.")] = None, include_number : Annotated[Optional[StrictBool], Field(description="Include numbers in the **passphrase**.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def generate_get_with_http_info(
+            self,
+            length: Annotated[
+                Optional[StrictInt],
+                Field(description="Number of characters in the **password**."
+                      )] = None,
+            uppercase: Annotated[
+                Optional[StrictBool],
+                Field(description=
+                      "Include uppercase characters in the **password**."
+                      )] = None,
+            lowercase: Annotated[
+                Optional[StrictBool],
+                Field(description=
+                      "Include lowercase characters in the **password**."
+                      )] = None,
+            number: Annotated[
+                Optional[StrictBool],
+                Field(description="Include numbers in the **password**."
+                      )] = None,
+            special: Annotated[
+                Optional[StrictBool],
+                Field(
+                    description=
+                    "Include special characters in the **password**.")] = None,
+            passphrase:
+        Annotated[
+            Optional[StrictBool],
+            Field(
+                description=
+                "Generate passphrase (by default, `/generate` will generate a password)."
+            )] = None,
+            words: Annotated[
+                Optional[StrictInt],
+                Field(description="Number of words in the **passphrase**."
+                      )] = None,
+            separator: Annotated[
+                Optional[StrictStr],
+                Field(description="Separator character in the **passphrase**."
+                      )] = None,
+            capitalize: Annotated[
+                Optional[StrictBool],
+                Field(description="Title-case the **passphrase**.")] = None,
+            include_number: Annotated[
+                Optional[StrictBool],
+                Field(description="Include numbers in the **passphrase**."
+                      )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Generate a password or passphrase.  # noqa: E501
 
         Generate a password or passphrase. By default, `/generate` will generate a 14-character password with uppercase characters, lowercase characters, and numbers.  # noqa: E501
@@ -152,36 +247,19 @@ class MiscellaneousApi:
         _params = locals()
 
         _all_params = [
-            'length',
-            'uppercase',
-            'lowercase',
-            'number',
-            'special',
-            'passphrase',
-            'words',
-            'separator',
-            'capitalize',
-            'include_number'
+            'length', 'uppercase', 'lowercase', 'number', 'special',
+            'passphrase', 'words', 'separator', 'capitalize', 'include_number'
         ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method generate_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method generate_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -239,7 +317,8 @@ class MiscellaneousApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/generate', 'GET',
+            '/generate',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -249,7 +328,8 @@ class MiscellaneousApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
@@ -281,10 +361,12 @@ class MiscellaneousApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_fingerprint_me_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_fingerprint_me_get_with_http_info(**kwargs)  # noqa: E501
+        return self.object_fingerprint_me_get_with_http_info(
+            **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_fingerprint_me_get_with_http_info(self, **kwargs) -> ApiResponse:  # noqa: E501
+    def object_fingerprint_me_get_with_http_info(
+            self, **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve your fingerprint phrase.  # noqa: E501
 
         Retrieve your fingerprint phrase.  # noqa: E501
@@ -321,27 +403,18 @@ class MiscellaneousApi:
 
         _params = locals()
 
-        _all_params = [
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = []
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_fingerprint_me_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_fingerprint_me_get" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -369,7 +442,8 @@ class MiscellaneousApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/fingerprint/me', 'GET',
+            '/object/fingerprint/me',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -379,14 +453,16 @@ class MiscellaneousApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_template_type_get(self, type : StrictStr, **kwargs) -> None:  # noqa: E501
+    def object_template_type_get(self, type: StrictStr,
+                                 **kwargs) -> None:  # noqa: E501
         """Retrieve a JSON template for any object.  # noqa: E501
 
         Retreive a JSON template for any object, including vault items, sends, folders, and more. Templates can be used to guide you in creation of new objects.  # noqa: E501
@@ -413,10 +489,12 @@ class MiscellaneousApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_template_type_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_template_type_get_with_http_info(type, **kwargs)  # noqa: E501
+        return self.object_template_type_get_with_http_info(
+            type, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_template_type_get_with_http_info(self, type : StrictStr, **kwargs) -> ApiResponse:  # noqa: E501
+    def object_template_type_get_with_http_info(
+            self, type: StrictStr, **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve a JSON template for any object.  # noqa: E501
 
         Retreive a JSON template for any object, including vault items, sends, folders, and more. Templates can be used to guide you in creation of new objects.  # noqa: E501
@@ -455,28 +533,18 @@ class MiscellaneousApi:
 
         _params = locals()
 
-        _all_params = [
-            'type'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['type']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_template_type_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_template_type_get" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -486,7 +554,6 @@ class MiscellaneousApi:
         _path_params = {}
         if _params['type'] is not None:
             _path_params['type'] = _params['type']
-
 
         # process the query parameters
         _query_params = []
@@ -507,7 +574,8 @@ class MiscellaneousApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/template/{type}', 'GET',
+            '/object/template/{type}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -517,7 +585,8 @@ class MiscellaneousApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
@@ -589,27 +658,17 @@ class MiscellaneousApi:
 
         _params = locals()
 
-        _all_params = [
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = []
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method status_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method status_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -642,7 +701,8 @@ class MiscellaneousApi:
         }
 
         return self.api_client.call_api(
-            '/status', 'GET',
+            '/status',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -652,7 +712,8 @@ class MiscellaneousApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
@@ -724,27 +785,17 @@ class MiscellaneousApi:
 
         _params = locals()
 
-        _all_params = [
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = []
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method sync_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method sync_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -772,7 +823,8 @@ class MiscellaneousApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/sync', 'POST',
+            '/sync',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -782,7 +834,8 @@ class MiscellaneousApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,

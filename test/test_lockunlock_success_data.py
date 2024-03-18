@@ -11,11 +11,11 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import unittest
 import datetime
 
 from bw_serve_client.models.lockunlock_success_data import LockunlockSuccessData  # noqa: E501
+
 
 class TestLockunlockSuccessData(unittest.TestCase):
     """LockunlockSuccessData unit test stubs"""
@@ -50,6 +50,7 @@ class TestLockunlockSuccessData(unittest.TestCase):
         """Test LockunlockSuccessData"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
+
 
 if __name__ == '__main__':
     unittest.main()

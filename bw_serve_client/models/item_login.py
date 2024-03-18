@@ -11,16 +11,15 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
 import json
 
-
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, StrictStr
 from bw_serve_client.models.uris import Uris
+
 
 class ItemLogin(BaseModel):
     """
@@ -54,9 +53,7 @@ class ItemLogin(BaseModel):
     def to_dict(self):
         """Returns the dictionary representation of the model using alias"""
         _dict = self.dict(by_alias=True,
-                          exclude={
-                            "additional_properties"
-                          },
+                          exclude={"additional_properties"},
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of uris
         if self.uris:
@@ -78,10 +75,15 @@ class ItemLogin(BaseModel):
             return ItemLogin.parse_obj(obj)
 
         _obj = ItemLogin.parse_obj({
-            "password": obj.get("password"),
-            "totp": obj.get("totp"),
-            "uris": Uris.from_dict(obj.get("uris")) if obj.get("uris") is not None else None,
-            "username": obj.get("username")
+            "password":
+            obj.get("password"),
+            "totp":
+            obj.get("totp"),
+            "uris":
+            Uris.from_dict(obj.get("uris"))
+            if obj.get("uris") is not None else None,
+            "username":
+            obj.get("username")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():
@@ -89,5 +91,3 @@ class ItemLogin(BaseModel):
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
-

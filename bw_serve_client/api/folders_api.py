@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import re  # noqa: F401
 import io
 import warnings
@@ -28,9 +27,7 @@ from bw_serve_client.models.folder import Folder
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.exceptions import (  # noqa: F401
-    ApiTypeError,
-    ApiValueError
-)
+    ApiTypeError, ApiValueError)
 
 
 class FoldersApi:
@@ -46,7 +43,14 @@ class FoldersApi:
         self.api_client = api_client
 
     @validate_arguments
-    def list_object_folders_get(self, search : Annotated[Optional[StrictStr], Field(description="List all folders that contain this search term.")] = None, **kwargs) -> None:  # noqa: E501
+    def list_object_folders_get(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description=
+                    "List all folders that contain this search term.")] = None,
+            **kwargs) -> None:  # noqa: E501
         """Retrieve a list of folders in your vault.  # noqa: E501
 
         Retrieve a list of folders in your vault. By default, this will return a list of all folders, however you can specify search terms as query parameters to narrow list results.  # noqa: E501
@@ -73,10 +77,18 @@ class FoldersApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the list_object_folders_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.list_object_folders_get_with_http_info(search, **kwargs)  # noqa: E501
+        return self.list_object_folders_get_with_http_info(
+            search, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def list_object_folders_get_with_http_info(self, search : Annotated[Optional[StrictStr], Field(description="List all folders that contain this search term.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def list_object_folders_get_with_http_info(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description=
+                    "List all folders that contain this search term.")] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve a list of folders in your vault.  # noqa: E501
 
         Retrieve a list of folders in your vault. By default, this will return a list of all folders, however you can specify search terms as query parameters to narrow list results.  # noqa: E501
@@ -115,28 +127,17 @@ class FoldersApi:
 
         _params = locals()
 
-        _all_params = [
-            'search'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['search']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_object_folders_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method list_object_folders_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -167,7 +168,8 @@ class FoldersApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/list/object/folders', 'GET',
+            '/list/object/folders',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -177,14 +179,18 @@ class FoldersApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_folder_id_delete(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to retrieve.")], **kwargs) -> None:  # noqa: E501
+    def object_folder_id_delete(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to retrieve.")],
+                                **kwargs) -> None:  # noqa: E501
         """Delete a folder from your vault.  # noqa: E501
 
         Delete an existing folder from your vault by specifying the unique folder identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.<br><br>Deleting a folder **will not** delete the items in it.  # noqa: E501
@@ -211,10 +217,15 @@ class FoldersApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_folder_id_delete_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_folder_id_delete_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_folder_id_delete_with_http_info(
+            id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_folder_id_delete_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to retrieve.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_folder_id_delete_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to retrieve.")],
+                                               **kwargs
+                                               ) -> ApiResponse:  # noqa: E501
         """Delete a folder from your vault.  # noqa: E501
 
         Delete an existing folder from your vault by specifying the unique folder identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.<br><br>Deleting a folder **will not** delete the items in it.  # noqa: E501
@@ -253,28 +264,17 @@ class FoldersApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_folder_id_delete" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_folder_id_delete" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -284,7 +284,6 @@ class FoldersApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -305,7 +304,8 @@ class FoldersApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/folder/{id}', 'DELETE',
+            '/object/folder/{id}',
+            'DELETE',
             _path_params,
             _query_params,
             _header_params,
@@ -315,14 +315,18 @@ class FoldersApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_folder_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to retrieve.")], **kwargs) -> None:  # noqa: E501
+    def object_folder_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to retrieve.")],
+                             **kwargs) -> None:  # noqa: E501
         """Retrieve a folder from your vault.  # noqa: E501
 
         Retrieve an existing folder from your vault by specifying the unique folder identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -349,10 +353,15 @@ class FoldersApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_folder_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_folder_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_folder_id_get_with_http_info(id,
+                                                        **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_folder_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to retrieve.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_folder_id_get_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to retrieve.")],
+                                            **kwargs
+                                            ) -> ApiResponse:  # noqa: E501
         """Retrieve a folder from your vault.  # noqa: E501
 
         Retrieve an existing folder from your vault by specifying the unique folder identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -391,28 +400,17 @@ class FoldersApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_folder_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_folder_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -422,7 +420,6 @@ class FoldersApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -443,7 +440,8 @@ class FoldersApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/folder/{id}', 'GET',
+            '/object/folder/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -453,14 +451,18 @@ class FoldersApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_folder_id_put(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to edit.")], folder : Folder, **kwargs) -> None:  # noqa: E501
+    def object_folder_id_put(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to edit.")],
+                             folder: Folder, **kwargs) -> None:  # noqa: E501
         """Edit a folder in your vault.  # noqa: E501
 
         Edit an existing folder in your vault by specifying the unique folder identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the new folder `\"name\":` in the request body.  # noqa: E501
@@ -489,10 +491,15 @@ class FoldersApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_folder_id_put_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_folder_id_put_with_http_info(id, folder, **kwargs)  # noqa: E501
+        return self.object_folder_id_put_with_http_info(id, folder,
+                                                        **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_folder_id_put_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to edit.")], folder : Folder, **kwargs) -> ApiResponse:  # noqa: E501
+    def object_folder_id_put_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to edit.")],
+                                            folder: Folder, **kwargs
+                                            ) -> ApiResponse:  # noqa: E501
         """Edit a folder in your vault.  # noqa: E501
 
         Edit an existing folder in your vault by specifying the unique folder identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the new folder `\"name\":` in the request body.  # noqa: E501
@@ -533,29 +540,17 @@ class FoldersApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'folder'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'folder']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_folder_id_put" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_folder_id_put" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -565,7 +560,6 @@ class FoldersApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -584,11 +578,11 @@ class FoldersApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -596,7 +590,8 @@ class FoldersApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/folder/{id}', 'PUT',
+            '/object/folder/{id}',
+            'PUT',
             _path_params,
             _query_params,
             _header_params,
@@ -606,14 +601,21 @@ class FoldersApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_folder_post(self, folder : Annotated[Folder, Field(..., description="The request body must contain an object representing the name for the folder to add.")], **kwargs) -> None:  # noqa: E501
+    def object_folder_post(self, folder: Annotated[
+        Folder,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object representing the name for the folder to add."
+        )], **kwargs) -> None:  # noqa: E501
         """Add a folder to your vault.  # noqa: E501
 
         Add a folder to your vault.  # noqa: E501
@@ -640,10 +642,17 @@ class FoldersApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_folder_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_folder_post_with_http_info(folder, **kwargs)  # noqa: E501
+        return self.object_folder_post_with_http_info(folder,
+                                                      **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_folder_post_with_http_info(self, folder : Annotated[Folder, Field(..., description="The request body must contain an object representing the name for the folder to add.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_folder_post_with_http_info(self, folder: Annotated[
+        Folder,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object representing the name for the folder to add."
+        )], **kwargs) -> ApiResponse:  # noqa: E501
         """Add a folder to your vault.  # noqa: E501
 
         Add a folder to your vault.  # noqa: E501
@@ -682,28 +691,17 @@ class FoldersApi:
 
         _params = locals()
 
-        _all_params = [
-            'folder'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['folder']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_folder_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_folder_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -729,11 +727,11 @@ class FoldersApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -741,7 +739,8 @@ class FoldersApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/folder', 'POST',
+            '/object/folder',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -751,7 +750,8 @@ class FoldersApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,

@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import re  # noqa: F401
 import io
 import warnings
@@ -27,9 +26,7 @@ from bw_serve_client.models.unlock_post_request import UnlockPostRequest
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.exceptions import (  # noqa: F401
-    ApiTypeError,
-    ApiValueError
-)
+    ApiTypeError, ApiValueError)
 
 
 class LockUnlockApi:
@@ -110,27 +107,17 @@ class LockUnlockApi:
 
         _params = locals()
 
-        _all_params = [
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = []
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method lock_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method lock_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -163,7 +150,8 @@ class LockUnlockApi:
         }
 
         return self.api_client.call_api(
-            '/lock', 'POST',
+            '/lock',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -173,14 +161,21 @@ class LockUnlockApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def unlock_post(self, unlock_post_request : Annotated[UnlockPostRequest, Field(..., description="The request body must contain an object containing your master password.")], **kwargs) -> LockunlockSuccess:  # noqa: E501
+    def unlock_post(self, unlock_post_request: Annotated[
+        UnlockPostRequest,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object containing your master password."
+        )], **kwargs) -> LockunlockSuccess:  # noqa: E501
         """Unlock your vault.  # noqa: E501
 
         Unlock your vault. This action will create the session key required to authorize requests to most endpoints.  # noqa: E501
@@ -207,10 +202,17 @@ class LockUnlockApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the unlock_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.unlock_post_with_http_info(unlock_post_request, **kwargs)  # noqa: E501
+        return self.unlock_post_with_http_info(unlock_post_request,
+                                               **kwargs)  # noqa: E501
 
     @validate_arguments
-    def unlock_post_with_http_info(self, unlock_post_request : Annotated[UnlockPostRequest, Field(..., description="The request body must contain an object containing your master password.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def unlock_post_with_http_info(self, unlock_post_request: Annotated[
+        UnlockPostRequest,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object containing your master password."
+        )], **kwargs) -> ApiResponse:  # noqa: E501
         """Unlock your vault.  # noqa: E501
 
         Unlock your vault. This action will create the session key required to authorize requests to most endpoints.  # noqa: E501
@@ -249,28 +251,17 @@ class LockUnlockApi:
 
         _params = locals()
 
-        _all_params = [
-            'unlock_post_request'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['unlock_post_request']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method unlock_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method unlock_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -296,11 +287,11 @@ class LockUnlockApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -313,7 +304,8 @@ class LockUnlockApi:
         }
 
         return self.api_client.call_api(
-            '/unlock', 'POST',
+            '/unlock',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -323,7 +315,8 @@ class LockUnlockApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,

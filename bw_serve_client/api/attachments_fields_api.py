@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import re  # noqa: F401
 import io
 import warnings
@@ -23,13 +22,10 @@ from pydantic import Field, StrictBytes, StrictStr
 
 from typing import Optional, Union
 
-
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.exceptions import (  # noqa: F401
-    ApiTypeError,
-    ApiValueError
-)
+    ApiTypeError, ApiValueError)
 
 
 class AttachmentsFieldsApi:
@@ -45,7 +41,16 @@ class AttachmentsFieldsApi:
         self.api_client = api_client
 
     @validate_arguments
-    def attachment_post(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to attach a file to.")], file : Optional[Union[StrictBytes, StrictStr]] = None, **kwargs) -> None:  # noqa: E501
+    def attachment_post(
+            self,
+            id: Annotated[
+                StrictStr,
+                Field(
+                    ...,
+                    description=
+                    "Unique identifier of the item to attach a file to.")],
+            file: Optional[Union[StrictBytes, StrictStr]] = None,
+            **kwargs) -> None:  # noqa: E501
         """Attach a file to an existing vault item.  # noqa: E501
 
         Attach a file to an existing vault item by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the file in the request body.  # noqa: E501
@@ -74,10 +79,20 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the attachment_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.attachment_post_with_http_info(id, file, **kwargs)  # noqa: E501
+        return self.attachment_post_with_http_info(id, file,
+                                                   **kwargs)  # noqa: E501
 
     @validate_arguments
-    def attachment_post_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to attach a file to.")], file : Optional[Union[StrictBytes, StrictStr]] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def attachment_post_with_http_info(
+            self,
+            id: Annotated[
+                StrictStr,
+                Field(
+                    ...,
+                    description=
+                    "Unique identifier of the item to attach a file to.")],
+            file: Optional[Union[StrictBytes, StrictStr]] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Attach a file to an existing vault item.  # noqa: E501
 
         Attach a file to an existing vault item by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the file in the request body.  # noqa: E501
@@ -118,29 +133,17 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'file'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'file']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method attachment_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method attachment_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -169,11 +172,12 @@ class AttachmentsFieldsApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['multipart/form-data']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['multipart/form-data'
+                                                        ]))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -181,7 +185,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/attachment', 'POST',
+            '/attachment',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -191,14 +196,26 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_attachment_id_delete(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the attachment.")], itemid : Annotated[StrictStr, Field(..., description="Unique identifier of the item the file is attached to.")], **kwargs) -> None:  # noqa: E501
+    def object_attachment_id_delete(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the attachment."
+                      )],
+            itemid: Annotated[
+                StrictStr,
+                Field(
+                    ...,
+                    description=
+                    "Unique identifier of the item the file is attached to.")],
+            **kwargs) -> None:  # noqa: E501
         """Delete an attachment.  # noqa: E501
 
         Delete an attachment by specifying the attachment id (e.g. `o4lrz575u84koanvu9f5gqv9a9ab92gf`) in the path and item id (e.g. `ba624b21-1c8a-43b3-a713-ae0000eabdec`) as a query parameter.  # noqa: E501
@@ -227,10 +244,22 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_attachment_id_delete_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_attachment_id_delete_with_http_info(id, itemid, **kwargs)  # noqa: E501
+        return self.object_attachment_id_delete_with_http_info(
+            id, itemid, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_attachment_id_delete_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the attachment.")], itemid : Annotated[StrictStr, Field(..., description="Unique identifier of the item the file is attached to.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_attachment_id_delete_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the attachment."
+                      )],
+            itemid: Annotated[
+                StrictStr,
+                Field(
+                    ...,
+                    description=
+                    "Unique identifier of the item the file is attached to.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Delete an attachment.  # noqa: E501
 
         Delete an attachment by specifying the attachment id (e.g. `o4lrz575u84koanvu9f5gqv9a9ab92gf`) in the path and item id (e.g. `ba624b21-1c8a-43b3-a713-ae0000eabdec`) as a query parameter.  # noqa: E501
@@ -271,29 +300,18 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'itemid'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'itemid']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_attachment_id_delete" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_attachment_id_delete" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -303,7 +321,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -327,7 +344,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/attachment/{id}', 'DELETE',
+            '/object/attachment/{id}',
+            'DELETE',
             _path_params,
             _query_params,
             _header_params,
@@ -337,14 +355,26 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_attachment_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the attachment.")], itemid : Annotated[StrictStr, Field(..., description="Unique identifier of the item the file is attached to.")], **kwargs) -> None:  # noqa: E501
+    def object_attachment_id_get(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the attachment."
+                      )],
+            itemid: Annotated[
+                StrictStr,
+                Field(
+                    ...,
+                    description=
+                    "Unique identifier of the item the file is attached to.")],
+            **kwargs) -> None:  # noqa: E501
         """Retrieve an attachment.  # noqa: E501
 
         Retreive an attachment by specifying the attachment id (e.g. `o4lrz575u84koanvu9f5gqv9a9ab92gf`) in the path and item id (e.g. `ba624b21-1c8a-43b3-a713-ae0000eabdec`) as a query parameter.<br><br>If you're retrieving any file type other than plaintext, we recommend posting the request through a browser window for immediate download.  # noqa: E501
@@ -373,10 +403,22 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_attachment_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_attachment_id_get_with_http_info(id, itemid, **kwargs)  # noqa: E501
+        return self.object_attachment_id_get_with_http_info(
+            id, itemid, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_attachment_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the attachment.")], itemid : Annotated[StrictStr, Field(..., description="Unique identifier of the item the file is attached to.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_attachment_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the attachment."
+                      )],
+            itemid: Annotated[
+                StrictStr,
+                Field(
+                    ...,
+                    description=
+                    "Unique identifier of the item the file is attached to.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve an attachment.  # noqa: E501
 
         Retreive an attachment by specifying the attachment id (e.g. `o4lrz575u84koanvu9f5gqv9a9ab92gf`) in the path and item id (e.g. `ba624b21-1c8a-43b3-a713-ae0000eabdec`) as a query parameter.<br><br>If you're retrieving any file type other than plaintext, we recommend posting the request through a browser window for immediate download.  # noqa: E501
@@ -417,29 +459,18 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'itemid'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'itemid']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_attachment_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_attachment_id_get" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -449,7 +480,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -469,7 +499,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/attachment/{id}', 'GET',
+            '/object/attachment/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -479,14 +510,18 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_exposed_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> None:  # noqa: E501
+    def object_exposed_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item.")],
+                              **kwargs) -> None:  # noqa: E501
         """Retrieve the number of times a password has been exposed for a login item.  # noqa: E501
 
         Retrieve the number of times a password has been exposed for a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -513,10 +548,15 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_exposed_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_exposed_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_exposed_id_get_with_http_info(
+            id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_exposed_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_exposed_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the item.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve the number of times a password has been exposed for a login item.  # noqa: E501
 
         Retrieve the number of times a password has been exposed for a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -555,28 +595,17 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_exposed_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_exposed_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -586,7 +615,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -607,7 +635,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/exposed/{id}', 'GET',
+            '/object/exposed/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -617,14 +646,18 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_notes_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> None:  # noqa: E501
+    def object_notes_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item.")],
+                            **kwargs) -> None:  # noqa: E501
         """Retrieve the notes of an item.  # noqa: E501
 
         Retrieve the notes of an item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -651,10 +684,15 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_notes_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_notes_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_notes_id_get_with_http_info(id,
+                                                       **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_notes_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_notes_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the item.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve the notes of an item.  # noqa: E501
 
         Retrieve the notes of an item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -693,28 +731,17 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_notes_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_notes_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -724,7 +751,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -745,7 +771,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/notes/{id}', 'GET',
+            '/object/notes/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -755,14 +782,18 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_password_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> None:  # noqa: E501
+    def object_password_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item.")],
+                               **kwargs) -> None:  # noqa: E501
         """Retrieve the password of a login item.  # noqa: E501
 
         Retrieve the password of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -789,10 +820,15 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_password_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_password_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_password_id_get_with_http_info(
+            id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_password_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_password_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the item.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve the password of a login item.  # noqa: E501
 
         Retrieve the password of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -831,28 +867,17 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_password_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_password_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -862,7 +887,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -883,7 +907,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/password/{id}', 'GET',
+            '/object/password/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -893,14 +918,18 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_totp_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> None:  # noqa: E501
+    def object_totp_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item.")],
+                           **kwargs) -> None:  # noqa: E501
         """Retrieve the TOTP code of a login item.  # noqa: E501
 
         Retrieve the TOTP code of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -927,10 +956,15 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_totp_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_totp_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_totp_id_get_with_http_info(id,
+                                                      **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_totp_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_totp_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the item.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve the TOTP code of a login item.  # noqa: E501
 
         Retrieve the TOTP code of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -969,28 +1003,17 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_totp_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_totp_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -1000,7 +1023,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -1021,7 +1043,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/totp/{id}', 'GET',
+            '/object/totp/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1031,14 +1054,18 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_uri_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> None:  # noqa: E501
+    def object_uri_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item.")],
+                          **kwargs) -> None:  # noqa: E501
         """Retrieve the URI of a login item.  # noqa: E501
 
         Retrieve the URI of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -1065,10 +1092,15 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_uri_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_uri_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_uri_id_get_with_http_info(id,
+                                                     **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_uri_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_uri_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the item.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve the URI of a login item.  # noqa: E501
 
         Retrieve the URI of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -1107,28 +1139,17 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_uri_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_uri_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -1138,7 +1159,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -1159,7 +1179,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/uri/{id}', 'GET',
+            '/object/uri/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1169,14 +1190,18 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_username_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> None:  # noqa: E501
+    def object_username_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item.")],
+                               **kwargs) -> None:  # noqa: E501
         """Retrieve the username of a login item.  # noqa: E501
 
         Retrieve the username of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -1203,10 +1228,15 @@ class AttachmentsFieldsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_username_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_username_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_username_id_get_with_http_info(
+            id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_username_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_username_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the item.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve the username of a login item.  # noqa: E501
 
         Retrieve the username of a login item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -1245,28 +1275,17 @@ class AttachmentsFieldsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_username_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_username_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -1276,7 +1295,6 @@ class AttachmentsFieldsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -1297,7 +1315,8 @@ class AttachmentsFieldsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/username/{id}', 'GET',
+            '/object/username/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1307,7 +1326,8 @@ class AttachmentsFieldsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,

@@ -11,16 +11,15 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
 import json
 
-
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, StrictBool
 from bw_serve_client.models.status_data import StatusData
+
 
 class Status(BaseModel):
     """
@@ -52,9 +51,7 @@ class Status(BaseModel):
     def to_dict(self):
         """Returns the dictionary representation of the model using alias"""
         _dict = self.dict(by_alias=True,
-                          exclude={
-                            "additional_properties"
-                          },
+                          exclude={"additional_properties"},
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of data
         if self.data:
@@ -76,8 +73,11 @@ class Status(BaseModel):
             return Status.parse_obj(obj)
 
         _obj = Status.parse_obj({
-            "data": StatusData.from_dict(obj.get("data")) if obj.get("data") is not None else None,
-            "success": obj.get("success")
+            "data":
+            StatusData.from_dict(obj.get("data"))
+            if obj.get("data") is not None else None,
+            "success":
+            obj.get("success")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():
@@ -85,5 +85,3 @@ class Status(BaseModel):
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
-

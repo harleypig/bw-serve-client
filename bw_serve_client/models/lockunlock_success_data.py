@@ -11,15 +11,14 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
 import json
 
-
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field, StrictBool, StrictStr
+
 
 class LockunlockSuccessData(BaseModel):
     """
@@ -53,9 +52,7 @@ class LockunlockSuccessData(BaseModel):
     def to_dict(self):
         """Returns the dictionary representation of the model using alias"""
         _dict = self.dict(by_alias=True,
-                          exclude={
-                            "additional_properties"
-                          },
+                          exclude={"additional_properties"},
                           exclude_none=True)
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
@@ -85,5 +82,3 @@ class LockunlockSuccessData(BaseModel):
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
-

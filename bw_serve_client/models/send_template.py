@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -21,6 +20,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field, StrictBool, StrictInt, StrictStr, validator
 from bw_serve_client.models.send_text import SendText
+
 
 class SendTemplate(BaseModel):
     """
@@ -38,7 +38,10 @@ class SendTemplate(BaseModel):
     text: Optional[SendText] = None
     type: Optional[StrictInt] = None
     additional_properties: Dict[str, Any] = {}
-    __properties = ["deletionDate", "disabled", "expirationDate", "file", "hideEmail", "maxAccessCount", "name", "notes", "password", "text", "type"]
+    __properties = [
+        "deletionDate", "disabled", "expirationDate", "file", "hideEmail",
+        "maxAccessCount", "name", "notes", "password", "text", "type"
+    ]
 
     @validator('type')
     def type_validate_enum(cls, value):
@@ -71,9 +74,7 @@ class SendTemplate(BaseModel):
     def to_dict(self):
         """Returns the dictionary representation of the model using alias"""
         _dict = self.dict(by_alias=True,
-                          exclude={
-                            "additional_properties"
-                          },
+                          exclude={"additional_properties"},
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of text
         if self.text:
@@ -95,17 +96,29 @@ class SendTemplate(BaseModel):
             return SendTemplate.parse_obj(obj)
 
         _obj = SendTemplate.parse_obj({
-            "deletion_date": obj.get("deletionDate"),
-            "disabled": obj.get("disabled"),
-            "expiration_date": obj.get("expirationDate"),
-            "file": obj.get("file"),
-            "hide_email": obj.get("hideEmail"),
-            "max_access_count": obj.get("maxAccessCount"),
-            "name": obj.get("name"),
-            "notes": obj.get("notes"),
-            "password": obj.get("password"),
-            "text": SendText.from_dict(obj.get("text")) if obj.get("text") is not None else None,
-            "type": obj.get("type")
+            "deletion_date":
+            obj.get("deletionDate"),
+            "disabled":
+            obj.get("disabled"),
+            "expiration_date":
+            obj.get("expirationDate"),
+            "file":
+            obj.get("file"),
+            "hide_email":
+            obj.get("hideEmail"),
+            "max_access_count":
+            obj.get("maxAccessCount"),
+            "name":
+            obj.get("name"),
+            "notes":
+            obj.get("notes"),
+            "password":
+            obj.get("password"),
+            "text":
+            SendText.from_dict(obj.get("text"))
+            if obj.get("text") is not None else None,
+            "type":
+            obj.get("type")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():
@@ -113,5 +126,3 @@ class SendTemplate(BaseModel):
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
-

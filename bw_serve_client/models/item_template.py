@@ -11,12 +11,10 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
 import json
-
 
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, StrictBool, StrictInt, StrictStr, conlist, validator
@@ -26,25 +24,31 @@ from bw_serve_client.models.item_identity import ItemIdentity
 from bw_serve_client.models.item_login import ItemLogin
 from bw_serve_client.models.item_secure_note import ItemSecureNote
 
+
 class ItemTemplate(BaseModel):
     """
     ItemTemplate
     """
     card: Optional[ItemCard] = None
-    collection_ids: Optional[conlist(StrictStr)] = Field(default=None, alias="collectionIds")
+    collection_ids: Optional[conlist(StrictStr)] = Field(None,
+                                                         alias="collectionIds")
     favorite: Optional[StrictBool] = None
     fields: Optional[conlist(Field)] = None
-    folder_id: Optional[StrictStr] = Field(default=None, alias="folderId")
+    folder_id: Optional[StrictStr] = Field(None, alias="folderId")
     identity: Optional[ItemIdentity] = None
     login: Optional[ItemLogin] = None
     name: Optional[StrictStr] = None
     notes: Optional[StrictStr] = None
-    organization_id: Optional[StrictStr] = Field(default=None, alias="organizationId")
+    organization_id: Optional[StrictStr] = Field(None, alias="organizationId")
     reprompt: Optional[StrictInt] = None
-    secure_note: Optional[ItemSecureNote] = Field(default=None, alias="secureNote")
+    secure_note: Optional[ItemSecureNote] = Field(None, alias="secureNote")
     type: Optional[Int] = None
     additional_properties: Dict[str, Any] = {}
-    __properties = ["card", "collectionIds", "favorite", "fields", "folderId", "identity", "login", "name", "notes", "organizationId", "reprompt", "secureNote", "type"]
+    __properties = [
+        "card", "collectionIds", "favorite", "fields", "folderId", "identity",
+        "login", "name", "notes", "organizationId", "reprompt", "secureNote",
+        "type"
+    ]
 
     @validator('reprompt')
     def reprompt_validate_enum(cls, value):
@@ -87,9 +91,7 @@ class ItemTemplate(BaseModel):
     def to_dict(self):
         """Returns the dictionary representation of the model using alias"""
         _dict = self.dict(by_alias=True,
-                          exclude={
-                            "additional_properties"
-                          },
+                          exclude={"additional_properties"},
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of card
         if self.card:
@@ -127,19 +129,36 @@ class ItemTemplate(BaseModel):
             return ItemTemplate.parse_obj(obj)
 
         _obj = ItemTemplate.parse_obj({
-            "card": ItemCard.from_dict(obj.get("card")) if obj.get("card") is not None else None,
-            "collection_ids": obj.get("collectionIds"),
-            "favorite": obj.get("favorite"),
-            "fields": [Field.from_dict(_item) for _item in obj.get("fields")] if obj.get("fields") is not None else None,
-            "folder_id": obj.get("folderId"),
-            "identity": ItemIdentity.from_dict(obj.get("identity")) if obj.get("identity") is not None else None,
-            "login": ItemLogin.from_dict(obj.get("login")) if obj.get("login") is not None else None,
-            "name": obj.get("name"),
-            "notes": obj.get("notes"),
-            "organization_id": obj.get("organizationId"),
-            "reprompt": obj.get("reprompt"),
-            "secure_note": ItemSecureNote.from_dict(obj.get("secureNote")) if obj.get("secureNote") is not None else None,
-            "type": obj.get("type")
+            "card":
+            ItemCard.from_dict(obj.get("card"))
+            if obj.get("card") is not None else None,
+            "collection_ids":
+            obj.get("collectionIds"),
+            "favorite":
+            obj.get("favorite"),
+            "fields": [Field.from_dict(_item) for _item in obj.get("fields")]
+            if obj.get("fields") is not None else None,
+            "folder_id":
+            obj.get("folderId"),
+            "identity":
+            ItemIdentity.from_dict(obj.get("identity"))
+            if obj.get("identity") is not None else None,
+            "login":
+            ItemLogin.from_dict(obj.get("login"))
+            if obj.get("login") is not None else None,
+            "name":
+            obj.get("name"),
+            "notes":
+            obj.get("notes"),
+            "organization_id":
+            obj.get("organizationId"),
+            "reprompt":
+            obj.get("reprompt"),
+            "secure_note":
+            ItemSecureNote.from_dict(obj.get("secureNote"))
+            if obj.get("secureNote") is not None else None,
+            "type":
+            obj.get("type")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():
@@ -147,5 +166,3 @@ class ItemTemplate(BaseModel):
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
-

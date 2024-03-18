@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import unittest
 
 from bw_serve_client.api.attachments_fields_api import AttachmentsFieldsApi  # noqa: E501

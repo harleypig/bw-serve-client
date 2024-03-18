@@ -11,15 +11,14 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
 import json
 
-
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, StrictStr
+
 
 class Folder(BaseModel):
     """
@@ -50,9 +49,7 @@ class Folder(BaseModel):
     def to_dict(self):
         """Returns the dictionary representation of the model using alias"""
         _dict = self.dict(by_alias=True,
-                          exclude={
-                            "additional_properties"
-                          },
+                          exclude={"additional_properties"},
                           exclude_none=True)
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
@@ -70,14 +67,10 @@ class Folder(BaseModel):
         if not isinstance(obj, dict):
             return Folder.parse_obj(obj)
 
-        _obj = Folder.parse_obj({
-            "name": obj.get("name")
-        })
+        _obj = Folder.parse_obj({"name": obj.get("name")})
         # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
-

@@ -11,11 +11,11 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import unittest
 import datetime
 
 from bw_serve_client.models.item_card import ItemCard  # noqa: E501
+
 
 class TestItemCard(unittest.TestCase):
     """ItemCard unit test stubs"""
@@ -52,6 +52,7 @@ class TestItemCard(unittest.TestCase):
         """Test ItemCard"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
+
 
 if __name__ == '__main__':
     unittest.main()

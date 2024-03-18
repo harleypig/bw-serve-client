@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import re  # noqa: F401
 import io
 import warnings
@@ -28,9 +27,7 @@ from bw_serve_client.models.item_template import ItemTemplate
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.exceptions import (  # noqa: F401
-    ApiTypeError,
-    ApiValueError
-)
+    ApiTypeError, ApiValueError)
 
 
 class VaultItemsApi:
@@ -46,7 +43,41 @@ class VaultItemsApi:
         self.api_client = api_client
 
     @validate_arguments
-    def list_object_items_get(self, organization_id : Annotated[Optional[StrictStr], Field(description="List all items with this unique Organization identifier.")] = None, collection_id : Annotated[Optional[StrictStr], Field(description="List all items with this unique collection identifier.")] = None, folderid : Annotated[Optional[StrictStr], Field(description="List all items with this unique folder identifier.")] = None, url : Annotated[Optional[StrictStr], Field(description="List all items with this URL/URI value.")] = None, trash : Annotated[Optional[StrictBool], Field(description="List all items in the trash. This query parameter is not a true boolean, in that `?trash`, `?trash=true`, and `?trash=false` will all be interpretted as a request to list items in the trash.")] = None, search : Annotated[Optional[StrictStr], Field(description="List all items that contain this search term.")] = None, **kwargs) -> None:  # noqa: E501
+    def list_object_items_get(
+            self,
+            organization_id: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description=
+                    "List all items with this unique Organization identifier."
+                )] = None,
+            collection_id: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List all items with this unique collection identifier."
+                      )] = None,
+            folderid: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List all items with this unique folder identifier."
+                      )] = None,
+            url: Annotated[
+                Optional[StrictStr],
+                Field(description="List all items with this URL/URI value."
+                      )] = None,
+            trash:
+        Annotated[
+            Optional[StrictBool],
+            Field(
+                description=
+                "List all items in the trash. This query parameter is not a true boolean, in that `?trash`, `?trash=true`, and `?trash=false` will all be interpretted as a request to list items in the trash."
+            )] = None,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description="List all items that contain this search term."
+                )] = None,
+            **kwargs) -> None:  # noqa: E501
         """Retrieve a list of items in your vault.  # noqa: E501
 
         Retrieve a list of existing items in your vault. By default, this will return a list of all existing items in your vault, however you can specify filters or search terms as query parameters to narrow list results.<br><br>Using multiple filters will perform a logical `OR` operation. Using filters **and** search terms will perform a logical `AND` operation.  # noqa: E501
@@ -83,10 +114,46 @@ class VaultItemsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the list_object_items_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.list_object_items_get_with_http_info(organization_id, collection_id, folderid, url, trash, search, **kwargs)  # noqa: E501
+        return self.list_object_items_get_with_http_info(
+            organization_id, collection_id, folderid, url, trash, search,
+            **kwargs)  # noqa: E501
 
     @validate_arguments
-    def list_object_items_get_with_http_info(self, organization_id : Annotated[Optional[StrictStr], Field(description="List all items with this unique Organization identifier.")] = None, collection_id : Annotated[Optional[StrictStr], Field(description="List all items with this unique collection identifier.")] = None, folderid : Annotated[Optional[StrictStr], Field(description="List all items with this unique folder identifier.")] = None, url : Annotated[Optional[StrictStr], Field(description="List all items with this URL/URI value.")] = None, trash : Annotated[Optional[StrictBool], Field(description="List all items in the trash. This query parameter is not a true boolean, in that `?trash`, `?trash=true`, and `?trash=false` will all be interpretted as a request to list items in the trash.")] = None, search : Annotated[Optional[StrictStr], Field(description="List all items that contain this search term.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def list_object_items_get_with_http_info(
+            self,
+            organization_id: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description=
+                    "List all items with this unique Organization identifier."
+                )] = None,
+            collection_id: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List all items with this unique collection identifier."
+                      )] = None,
+            folderid: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List all items with this unique folder identifier."
+                      )] = None,
+            url: Annotated[
+                Optional[StrictStr],
+                Field(description="List all items with this URL/URI value."
+                      )] = None,
+            trash:
+        Annotated[
+            Optional[StrictBool],
+            Field(
+                description=
+                "List all items in the trash. This query parameter is not a true boolean, in that `?trash`, `?trash=true`, and `?trash=false` will all be interpretted as a request to list items in the trash."
+            )] = None,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description="List all items that contain this search term."
+                )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve a list of items in your vault.  # noqa: E501
 
         Retrieve a list of existing items in your vault. By default, this will return a list of all existing items in your vault, however you can specify filters or search terms as query parameters to narrow list results.<br><br>Using multiple filters will perform a logical `OR` operation. Using filters **and** search terms will perform a logical `AND` operation.  # noqa: E501
@@ -136,32 +203,19 @@ class VaultItemsApi:
         _params = locals()
 
         _all_params = [
-            'organization_id',
-            'collection_id',
-            'folderid',
-            'url',
-            'trash',
+            'organization_id', 'collection_id', 'folderid', 'url', 'trash',
             'search'
         ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_object_items_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method list_object_items_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -173,7 +227,8 @@ class VaultItemsApi:
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         if _params.get('collection_id') is not None:  # noqa: E501
             _query_params.append(('collectionId', _params['collection_id']))
@@ -207,7 +262,8 @@ class VaultItemsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/list/object/items', 'GET',
+            '/list/object/items',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -217,14 +273,18 @@ class VaultItemsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_item_id_delete(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to delete.")], **kwargs) -> None:  # noqa: E501
+    def object_item_id_delete(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to delete.")],
+                              **kwargs) -> None:  # noqa: E501
         """Delete an item from your vault.  # noqa: E501
 
         Delete an existing item from your vault by specifying the unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -251,10 +311,15 @@ class VaultItemsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_item_id_delete_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_item_id_delete_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_item_id_delete_with_http_info(
+            id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_item_id_delete_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to delete.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_item_id_delete_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to delete.")],
+                                             **kwargs
+                                             ) -> ApiResponse:  # noqa: E501
         """Delete an item from your vault.  # noqa: E501
 
         Delete an existing item from your vault by specifying the unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -293,28 +358,17 @@ class VaultItemsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_item_id_delete" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_item_id_delete" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -324,7 +378,6 @@ class VaultItemsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -345,7 +398,8 @@ class VaultItemsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/item/{id}', 'DELETE',
+            '/object/item/{id}',
+            'DELETE',
             _path_params,
             _query_params,
             _header_params,
@@ -355,14 +409,18 @@ class VaultItemsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_item_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to retrieve.")], **kwargs) -> None:  # noqa: E501
+    def object_item_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to retrieve.")],
+                           **kwargs) -> None:  # noqa: E501
         """Retrieve an item from your vault.  # noqa: E501
 
         Retrieve an existing item from your vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -389,10 +447,15 @@ class VaultItemsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_item_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_item_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_item_id_get_with_http_info(id,
+                                                      **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_item_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to retrieve.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_item_id_get_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to retrieve.")],
+                                          **kwargs
+                                          ) -> ApiResponse:  # noqa: E501
         """Retrieve an item from your vault.  # noqa: E501
 
         Retrieve an existing item from your vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -431,28 +494,17 @@ class VaultItemsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_item_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_item_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -462,7 +514,6 @@ class VaultItemsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -483,7 +534,8 @@ class VaultItemsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/item/{id}', 'GET',
+            '/object/item/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -493,14 +545,25 @@ class VaultItemsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_item_id_put(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to edit.")], item_template : Annotated[ItemTemplate, Field(..., description="The request body must contain an object representing the edits to make to the item.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing object.")], **kwargs) -> None:  # noqa: E501
+    def object_item_id_put(self, id: Annotated[
+        StrictStr,
+        Field(
+            ..., description="Unique identifier of the item to edit."
+        )], item_template: Annotated[
+            ItemTemplate,
+            Field(
+                ...,
+                description=
+                "The request body must contain an object representing the edits to make to the item.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing object."
+            )], **kwargs) -> None:  # noqa: E501
         """Edit an item in your Vault.  # noqa: E501
 
         Edit an existing login, card, secure note, or identity in your Vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the new object contents in the request body.  # noqa: E501
@@ -529,10 +592,21 @@ class VaultItemsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_item_id_put_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_item_id_put_with_http_info(id, item_template, **kwargs)  # noqa: E501
+        return self.object_item_id_put_with_http_info(id, item_template,
+                                                      **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_item_id_put_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to edit.")], item_template : Annotated[ItemTemplate, Field(..., description="The request body must contain an object representing the edits to make to the item.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing object.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_item_id_put_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(
+            ..., description="Unique identifier of the item to edit."
+        )], item_template: Annotated[
+            ItemTemplate,
+            Field(
+                ...,
+                description=
+                "The request body must contain an object representing the edits to make to the item.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing object."
+            )], **kwargs) -> ApiResponse:  # noqa: E501
         """Edit an item in your Vault.  # noqa: E501
 
         Edit an existing login, card, secure note, or identity in your Vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the new object contents in the request body.  # noqa: E501
@@ -573,29 +647,17 @@ class VaultItemsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'item_template'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'item_template']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_item_id_put" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_item_id_put" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -605,7 +667,6 @@ class VaultItemsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -624,11 +685,11 @@ class VaultItemsApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -636,7 +697,8 @@ class VaultItemsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/item/{id}', 'PUT',
+            '/object/item/{id}',
+            'PUT',
             _path_params,
             _query_params,
             _header_params,
@@ -646,14 +708,21 @@ class VaultItemsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_item_post(self, item_template : Annotated[ItemTemplate, Field(..., description="The request body must contain an object representing the item to add to your Vault. Indicate [item type](https://bitwarden.com/help/cli/#item-types) with `\"type\":` and only provide data in the appropriate type's object (e.g. `\"login\":{}` or `\"identity\":{}`). See the **Examples** for help.")], **kwargs) -> None:  # noqa: E501
+    def object_item_post(self, item_template: Annotated[
+        ItemTemplate,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object representing the item to add to your Vault. Indicate [item type](https://bitwarden.com/help/cli/#item-types) with `\"type\":` and only provide data in the appropriate type's object (e.g. `\"login\":{}` or `\"identity\":{}`). See the **Examples** for help."
+        )], **kwargs) -> None:  # noqa: E501
         """Add a new item to your vault.  # noqa: E501
 
         Add a new login, card, secure note, or identity to your vault.  # noqa: E501
@@ -680,10 +749,17 @@ class VaultItemsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_item_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_item_post_with_http_info(item_template, **kwargs)  # noqa: E501
+        return self.object_item_post_with_http_info(item_template,
+                                                    **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_item_post_with_http_info(self, item_template : Annotated[ItemTemplate, Field(..., description="The request body must contain an object representing the item to add to your Vault. Indicate [item type](https://bitwarden.com/help/cli/#item-types) with `\"type\":` and only provide data in the appropriate type's object (e.g. `\"login\":{}` or `\"identity\":{}`). See the **Examples** for help.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_item_post_with_http_info(self, item_template: Annotated[
+        ItemTemplate,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object representing the item to add to your Vault. Indicate [item type](https://bitwarden.com/help/cli/#item-types) with `\"type\":` and only provide data in the appropriate type's object (e.g. `\"login\":{}` or `\"identity\":{}`). See the **Examples** for help."
+        )], **kwargs) -> ApiResponse:  # noqa: E501
         """Add a new item to your vault.  # noqa: E501
 
         Add a new login, card, secure note, or identity to your vault.  # noqa: E501
@@ -722,28 +798,17 @@ class VaultItemsApi:
 
         _params = locals()
 
-        _all_params = [
-            'item_template'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['item_template']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_item_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_item_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -769,11 +834,11 @@ class VaultItemsApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -781,7 +846,8 @@ class VaultItemsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/item', 'POST',
+            '/object/item',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -791,14 +857,18 @@ class VaultItemsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def restore_item_id_post(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to restore.")], **kwargs) -> None:  # noqa: E501
+    def restore_item_id_post(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to restore.")],
+                             **kwargs) -> None:  # noqa: E501
         """Restore a deleted item.  # noqa: E501
 
         Restore an item that was sent to the trash by specifying the unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -825,10 +895,15 @@ class VaultItemsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the restore_item_id_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.restore_item_id_post_with_http_info(id, **kwargs)  # noqa: E501
+        return self.restore_item_id_post_with_http_info(id,
+                                                        **kwargs)  # noqa: E501
 
     @validate_arguments
-    def restore_item_id_post_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the item to restore.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def restore_item_id_post_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the item to restore.")],
+                                            **kwargs
+                                            ) -> ApiResponse:  # noqa: E501
         """Restore a deleted item.  # noqa: E501
 
         Restore an item that was sent to the trash by specifying the unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.  # noqa: E501
@@ -867,28 +942,17 @@ class VaultItemsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method restore_item_id_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method restore_item_id_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -898,7 +962,6 @@ class VaultItemsApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -919,7 +982,8 @@ class VaultItemsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/restore/item/{id}', 'POST',
+            '/restore/item/{id}',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -929,7 +993,8 @@ class VaultItemsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,

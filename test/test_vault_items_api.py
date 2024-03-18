@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import unittest
 
 from bw_serve_client.api.vault_items_api import VaultItemsApi  # noqa: E501

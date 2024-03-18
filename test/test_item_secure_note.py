@@ -11,11 +11,11 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import unittest
 import datetime
 
 from bw_serve_client.models.item_secure_note import ItemSecureNote  # noqa: E501
+
 
 class TestItemSecureNote(unittest.TestCase):
     """ItemSecureNote unit test stubs"""
@@ -47,6 +47,7 @@ class TestItemSecureNote(unittest.TestCase):
         """Test ItemSecureNote"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
+
 
 if __name__ == '__main__':
     unittest.main()

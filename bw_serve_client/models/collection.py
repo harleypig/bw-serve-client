@@ -11,16 +11,15 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
 import json
 
-
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, StrictStr, conlist
 from bw_serve_client.models.group import Group
+
 
 class Collection(BaseModel):
     """
@@ -54,9 +53,7 @@ class Collection(BaseModel):
     def to_dict(self):
         """Returns the dictionary representation of the model using alias"""
         _dict = self.dict(by_alias=True,
-                          exclude={
-                            "additional_properties"
-                          },
+                          exclude={"additional_properties"},
                           exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in groups (list)
         _items = []
@@ -82,10 +79,14 @@ class Collection(BaseModel):
             return Collection.parse_obj(obj)
 
         _obj = Collection.parse_obj({
-            "external_id": obj.get("externalId"),
-            "groups": [Group.from_dict(_item) for _item in obj.get("groups")] if obj.get("groups") is not None else None,
-            "name": obj.get("name"),
-            "organization_id": obj.get("organizationId")
+            "external_id":
+            obj.get("externalId"),
+            "groups": [Group.from_dict(_item) for _item in obj.get("groups")]
+            if obj.get("groups") is not None else None,
+            "name":
+            obj.get("name"),
+            "organization_id":
+            obj.get("organizationId")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():
@@ -93,5 +94,3 @@ class Collection(BaseModel):
                 _obj.additional_properties[_key] = obj.get(_key)
 
         return _obj
-
-

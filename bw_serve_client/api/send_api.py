@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import re  # noqa: F401
 import io
 import warnings
@@ -28,9 +27,7 @@ from bw_serve_client.models.send_template import SendTemplate
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.exceptions import (  # noqa: F401
-    ApiTypeError,
-    ApiValueError
-)
+    ApiTypeError, ApiValueError)
 
 
 class SendApi:
@@ -46,7 +43,14 @@ class SendApi:
         self.api_client = api_client
 
     @validate_arguments
-    def list_object_send_get(self, search : Annotated[Optional[StrictStr], Field(description="List all Sends that contain this search term.")] = None, **kwargs) -> None:  # noqa: E501
+    def list_object_send_get(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description="List all Sends that contain this search term."
+                )] = None,
+            **kwargs) -> None:  # noqa: E501
         """Retrieve a list of Sends.  # noqa: E501
 
         Retrieve a list of Sends. By default, this will return a list of all Send objects, however you can specify search terms as query parameters to narrow list results.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -73,10 +77,18 @@ class SendApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the list_object_send_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.list_object_send_get_with_http_info(search, **kwargs)  # noqa: E501
+        return self.list_object_send_get_with_http_info(search,
+                                                        **kwargs)  # noqa: E501
 
     @validate_arguments
-    def list_object_send_get_with_http_info(self, search : Annotated[Optional[StrictStr], Field(description="List all Sends that contain this search term.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def list_object_send_get_with_http_info(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(
+                    description="List all Sends that contain this search term."
+                )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve a list of Sends.  # noqa: E501
 
         Retrieve a list of Sends. By default, this will return a list of all Send objects, however you can specify search terms as query parameters to narrow list results.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -115,28 +127,17 @@ class SendApi:
 
         _params = locals()
 
-        _all_params = [
-            'search'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['search']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_object_send_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method list_object_send_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -167,7 +168,8 @@ class SendApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/list/object/send', 'GET',
+            '/list/object/send',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -177,14 +179,18 @@ class SendApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_send_id_delete(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send to delete.")], **kwargs) -> None:  # noqa: E501
+    def object_send_id_delete(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Send to delete.")],
+                              **kwargs) -> None:  # noqa: E501
         """Delete a Send.  # noqa: E501
 
         Delete an existing Send by specifying the unique object identifier (e.g. `e813e187-70e3-4feb-950a-ae52010c4b56`) in the path.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -211,10 +217,15 @@ class SendApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_send_id_delete_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_send_id_delete_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_send_id_delete_with_http_info(
+            id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_send_id_delete_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send to delete.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_send_id_delete_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Send to delete.")],
+                                             **kwargs
+                                             ) -> ApiResponse:  # noqa: E501
         """Delete a Send.  # noqa: E501
 
         Delete an existing Send by specifying the unique object identifier (e.g. `e813e187-70e3-4feb-950a-ae52010c4b56`) in the path.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -253,28 +264,17 @@ class SendApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_send_id_delete" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_send_id_delete" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -284,7 +284,6 @@ class SendApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -305,7 +304,8 @@ class SendApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/send/{id}', 'DELETE',
+            '/object/send/{id}',
+            'DELETE',
             _path_params,
             _query_params,
             _header_params,
@@ -315,14 +315,18 @@ class SendApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_send_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send to retrieve.")], **kwargs) -> None:  # noqa: E501
+    def object_send_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Send to retrieve.")],
+                           **kwargs) -> None:  # noqa: E501
         """Retrieve a Send.  # noqa: E501
 
         Retrieve a Send by specifying the unique object identifier (e.g. `e813e187-70e3-4feb-950a-ae52010c4b56`) in the path.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -349,10 +353,15 @@ class SendApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_send_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_send_id_get_with_http_info(id, **kwargs)  # noqa: E501
+        return self.object_send_id_get_with_http_info(id,
+                                                      **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_send_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send to retrieve.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_send_id_get_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Send to retrieve.")],
+                                          **kwargs
+                                          ) -> ApiResponse:  # noqa: E501
         """Retrieve a Send.  # noqa: E501
 
         Retrieve a Send by specifying the unique object identifier (e.g. `e813e187-70e3-4feb-950a-ae52010c4b56`) in the path.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -391,28 +400,17 @@ class SendApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_send_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_send_id_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -422,7 +420,6 @@ class SendApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -443,7 +440,8 @@ class SendApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/send/{id}', 'GET',
+            '/object/send/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -453,14 +451,25 @@ class SendApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_send_id_put(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send to edit.")], send_template : Annotated[SendTemplate, Field(..., description="The request body must contain an object representing the edits to make to the Send.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing Send object.")], **kwargs) -> None:  # noqa: E501
+    def object_send_id_put(self, id: Annotated[
+        StrictStr,
+        Field(
+            ..., description="Unique identifier of the Send to edit."
+        )], send_template: Annotated[
+            SendTemplate,
+            Field(
+                ...,
+                description=
+                "The request body must contain an object representing the edits to make to the Send.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing Send object."
+            )], **kwargs) -> None:  # noqa: E501
         """Edit a Send.  # noqa: E501
 
         Edit an existing Send by specifying the unique object identifier (e.g. `e813e187-70e3-4feb-950a-ae52010c4b56`) in the path and the new object contents in the request body.<br><br> **Only Text Sends are supported.**  # noqa: E501
@@ -489,10 +498,21 @@ class SendApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_send_id_put_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_send_id_put_with_http_info(id, send_template, **kwargs)  # noqa: E501
+        return self.object_send_id_put_with_http_info(id, send_template,
+                                                      **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_send_id_put_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send to edit.")], send_template : Annotated[SendTemplate, Field(..., description="The request body must contain an object representing the edits to make to the Send.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing Send object.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_send_id_put_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(
+            ..., description="Unique identifier of the Send to edit."
+        )], send_template: Annotated[
+            SendTemplate,
+            Field(
+                ...,
+                description=
+                "The request body must contain an object representing the edits to make to the Send.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing Send object."
+            )], **kwargs) -> ApiResponse:  # noqa: E501
         """Edit a Send.  # noqa: E501
 
         Edit an existing Send by specifying the unique object identifier (e.g. `e813e187-70e3-4feb-950a-ae52010c4b56`) in the path and the new object contents in the request body.<br><br> **Only Text Sends are supported.**  # noqa: E501
@@ -533,29 +553,17 @@ class SendApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'send_template'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'send_template']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_send_id_put" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_send_id_put" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -565,7 +573,6 @@ class SendApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -584,11 +591,11 @@ class SendApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -596,7 +603,8 @@ class SendApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/send/{id}', 'PUT',
+            '/object/send/{id}',
+            'PUT',
             _path_params,
             _query_params,
             _header_params,
@@ -606,14 +614,21 @@ class SendApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_send_post(self, send_template : Annotated[SendTemplate, Field(..., description="The request body must contain an object representing the Send to create. Use `\"type\":0` to indicate text and provide the `\"text\":{}` object.")], **kwargs) -> None:  # noqa: E501
+    def object_send_post(self, send_template: Annotated[
+        SendTemplate,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object representing the Send to create. Use `\"type\":0` to indicate text and provide the `\"text\":{}` object."
+        )], **kwargs) -> None:  # noqa: E501
         """Create a Send.  # noqa: E501
 
         Create a Send.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -640,10 +655,17 @@ class SendApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_send_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_send_post_with_http_info(send_template, **kwargs)  # noqa: E501
+        return self.object_send_post_with_http_info(send_template,
+                                                    **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_send_post_with_http_info(self, send_template : Annotated[SendTemplate, Field(..., description="The request body must contain an object representing the Send to create. Use `\"type\":0` to indicate text and provide the `\"text\":{}` object.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_send_post_with_http_info(self, send_template: Annotated[
+        SendTemplate,
+        Field(
+            ...,
+            description=
+            "The request body must contain an object representing the Send to create. Use `\"type\":0` to indicate text and provide the `\"text\":{}` object."
+        )], **kwargs) -> ApiResponse:  # noqa: E501
         """Create a Send.  # noqa: E501
 
         Create a Send.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -682,28 +704,17 @@ class SendApi:
 
         _params = locals()
 
-        _all_params = [
-            'send_template'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['send_template']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_send_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_send_post" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -729,11 +740,11 @@ class SendApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -741,7 +752,8 @@ class SendApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/send', 'POST',
+            '/object/send',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -751,14 +763,18 @@ class SendApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def send_id_remove_password_post(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send.")], **kwargs) -> None:  # noqa: E501
+    def send_id_remove_password_post(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Send.")],
+                                     **kwargs) -> None:  # noqa: E501
         """Remove the password from a Send.  # noqa: E501
 
         Remove the password from a Send.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -785,10 +801,15 @@ class SendApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the send_id_remove_password_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.send_id_remove_password_post_with_http_info(id, **kwargs)  # noqa: E501
+        return self.send_id_remove_password_post_with_http_info(
+            id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def send_id_remove_password_post_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Send.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def send_id_remove_password_post_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the Send.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Remove the password from a Send.  # noqa: E501
 
         Remove the password from a Send.<br><br>**Only Text Sends are supported.**  # noqa: E501
@@ -827,28 +848,18 @@ class SendApi:
 
         _params = locals()
 
-        _all_params = [
-            'id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method send_id_remove_password_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method send_id_remove_password_post" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -858,7 +869,6 @@ class SendApi:
         _path_params = {}
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
-
 
         # process the query parameters
         _query_params = []
@@ -879,7 +889,8 @@ class SendApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/send/{id}/remove-password', 'POST',
+            '/send/{id}/remove-password',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -889,7 +900,8 @@ class SendApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,

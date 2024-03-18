@@ -11,7 +11,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 import re  # noqa: F401
 import io
 import warnings
@@ -28,9 +27,7 @@ from bw_serve_client.models.collection import Collection
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.exceptions import (  # noqa: F401
-    ApiTypeError,
-    ApiValueError
-)
+    ApiTypeError, ApiValueError)
 
 
 class CollectionsOrganizationsApi:
@@ -46,7 +43,14 @@ class CollectionsOrganizationsApi:
         self.api_client = api_client
 
     @validate_arguments
-    def confirm_org_member_id_post(self, id : Annotated[StrictStr, Field(..., description="A unique identifier for the user to confirm.")], organization_id : Annotated[StrictStr, Field(..., description="A unique identifier for the Organization.")], **kwargs) -> None:  # noqa: E501
+    def confirm_org_member_id_post(self, id: Annotated[
+        StrictStr,
+        Field(
+            ..., description="A unique identifier for the user to confirm."
+        )], organization_id: Annotated[
+            StrictStr,
+            Field(..., description="A unique identifier for the Organization."
+                  )], **kwargs) -> None:  # noqa: E501
         """Confirm a member to a specified Organization.  # noqa: E501
 
         Confirm a member to a specified Organization by specifying a user identifier (e.g. `6b39c966-c776-4ba9-9489-ae320149af01`) in the path and the Organization identifier (e.g. `b64d6e40-adf2-4f46-b4d2-acd40147548a`) as a query parameter.  # noqa: E501
@@ -75,10 +79,18 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the confirm_org_member_id_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.confirm_org_member_id_post_with_http_info(id, organization_id, **kwargs)  # noqa: E501
+        return self.confirm_org_member_id_post_with_http_info(
+            id, organization_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def confirm_org_member_id_post_with_http_info(self, id : Annotated[StrictStr, Field(..., description="A unique identifier for the user to confirm.")], organization_id : Annotated[StrictStr, Field(..., description="A unique identifier for the Organization.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def confirm_org_member_id_post_with_http_info(self, id: Annotated[
+        StrictStr,
+        Field(
+            ..., description="A unique identifier for the user to confirm."
+        )], organization_id: Annotated[
+            StrictStr,
+            Field(..., description="A unique identifier for the Organization."
+                  )], **kwargs) -> ApiResponse:  # noqa: E501
         """Confirm a member to a specified Organization.  # noqa: E501
 
         Confirm a member to a specified Organization by specifying a user identifier (e.g. `6b39c966-c776-4ba9-9489-ae320149af01`) in the path and the Organization identifier (e.g. `b64d6e40-adf2-4f46-b4d2-acd40147548a`) as a query parameter.  # noqa: E501
@@ -119,29 +131,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'organization_id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'organization_id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method confirm_org_member_id_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method confirm_org_member_id_post" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -152,11 +153,11 @@ class CollectionsOrganizationsApi:
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
 
-
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -175,7 +176,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/confirm/org-member/{id}', 'POST',
+            '/confirm/org-member/{id}',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -185,14 +187,22 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def list_object_collections_get(self, search : Annotated[Optional[StrictStr], Field(description="List only Collections that contain this search term.")] = None, **kwargs) -> None:  # noqa: E501
+    def list_object_collections_get(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List only Collections that contain this search term."
+                      )] = None,
+            **kwargs) -> None:  # noqa: E501
         """List Collections from all member Organizations.  # noqa: E501
 
         List Collections from all Organizations of which you are a member. Collections you do not have access to will not be listed.<br><br>By default, this will return a list of all Collections, however you can specify search terms as query parameters to narrow list results.  # noqa: E501
@@ -219,10 +229,18 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the list_object_collections_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.list_object_collections_get_with_http_info(search, **kwargs)  # noqa: E501
+        return self.list_object_collections_get_with_http_info(
+            search, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def list_object_collections_get_with_http_info(self, search : Annotated[Optional[StrictStr], Field(description="List only Collections that contain this search term.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def list_object_collections_get_with_http_info(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List only Collections that contain this search term."
+                      )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """List Collections from all member Organizations.  # noqa: E501
 
         List Collections from all Organizations of which you are a member. Collections you do not have access to will not be listed.<br><br>By default, this will return a list of all Collections, however you can specify search terms as query parameters to narrow list results.  # noqa: E501
@@ -261,28 +279,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'search'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['search']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_object_collections_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method list_object_collections_get" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -313,7 +321,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/list/object/collections', 'GET',
+            '/list/object/collections',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -323,14 +332,26 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def list_object_org_collections_get(self, organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], search : Annotated[Optional[StrictStr], Field(description="List only Collections that contain this search term.")] = None, **kwargs) -> None:  # noqa: E501
+    def list_object_org_collections_get(
+            self,
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            search: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List only Collections that contain this search term."
+                      )] = None,
+            **kwargs) -> None:  # noqa: E501
         """List Collections from a specified Organization.  # noqa: E501
 
         List existing Collections from a specified Organization by specifying an Organization idenfitier as a query parameter. Collections you do not have access to will not be listed.<br><br>By default, this will return a list of all Collections, however you can specify search terms as additional query parameters to narrow list results.  # noqa: E501
@@ -359,10 +380,22 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the list_object_org_collections_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.list_object_org_collections_get_with_http_info(organization_id, search, **kwargs)  # noqa: E501
+        return self.list_object_org_collections_get_with_http_info(
+            organization_id, search, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def list_object_org_collections_get_with_http_info(self, organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], search : Annotated[Optional[StrictStr], Field(description="List only Collections that contain this search term.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def list_object_org_collections_get_with_http_info(
+            self,
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            search: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List only Collections that contain this search term."
+                      )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """List Collections from a specified Organization.  # noqa: E501
 
         List existing Collections from a specified Organization by specifying an Organization idenfitier as a query parameter. Collections you do not have access to will not be listed.<br><br>By default, this will return a list of all Collections, however you can specify search terms as additional query parameters to narrow list results.  # noqa: E501
@@ -403,29 +436,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'organization_id',
-            'search'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['organization_id', 'search']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method list_object_org_collections_get" % _key
-                )
+                    " to method list_object_org_collections_get" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -437,7 +459,8 @@ class CollectionsOrganizationsApi:
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         if _params.get('search') is not None:  # noqa: E501
             _query_params.append(('search', _params['search']))
@@ -459,7 +482,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/list/object/org-collections', 'GET',
+            '/list/object/org-collections',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -469,14 +493,18 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def list_object_org_members_get(self, organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], **kwargs) -> None:  # noqa: E501
+    def list_object_org_members_get(self, organization_id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Organization.")],
+                                    **kwargs) -> None:  # noqa: E501
         """List members of a specified Organization.  # noqa: E501
 
         List members of a specified Organization by specifying an Organization identifier as a query parameter.  # noqa: E501
@@ -503,10 +531,16 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the list_object_org_members_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.list_object_org_members_get_with_http_info(organization_id, **kwargs)  # noqa: E501
+        return self.list_object_org_members_get_with_http_info(
+            organization_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def list_object_org_members_get_with_http_info(self, organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def list_object_org_members_get_with_http_info(
+            self, organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """List members of a specified Organization.  # noqa: E501
 
         List members of a specified Organization by specifying an Organization identifier as a query parameter.  # noqa: E501
@@ -545,28 +579,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'organization_id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['organization_id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_object_org_members_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method list_object_org_members_get" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -578,7 +602,8 @@ class CollectionsOrganizationsApi:
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -597,7 +622,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/list/object/org-members', 'GET',
+            '/list/object/org-members',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -607,14 +633,22 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def list_object_organizations_get(self, search : Annotated[Optional[StrictStr], Field(description="List only Organizations that contain this search term.")] = None, **kwargs) -> None:  # noqa: E501
+    def list_object_organizations_get(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List only Organizations that contain this search term."
+                      )] = None,
+            **kwargs) -> None:  # noqa: E501
         """List Organizations of which you are a member.  # noqa: E501
 
         List Organizations of which you are a member. By default, this will return a list of all Organizations, however you can specify search terms as query parameters to narrow list results.  # noqa: E501
@@ -641,10 +675,18 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the list_object_organizations_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.list_object_organizations_get_with_http_info(search, **kwargs)  # noqa: E501
+        return self.list_object_organizations_get_with_http_info(
+            search, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def list_object_organizations_get_with_http_info(self, search : Annotated[Optional[StrictStr], Field(description="List only Organizations that contain this search term.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def list_object_organizations_get_with_http_info(
+            self,
+            search: Annotated[
+                Optional[StrictStr],
+                Field(description=
+                      "List only Organizations that contain this search term."
+                      )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """List Organizations of which you are a member.  # noqa: E501
 
         List Organizations of which you are a member. By default, this will return a list of all Organizations, however you can specify search terms as query parameters to narrow list results.  # noqa: E501
@@ -683,28 +725,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'search'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['search']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_object_organizations_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method list_object_organizations_get" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -735,7 +767,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/list/object/organizations', 'GET',
+            '/list/object/organizations',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -745,14 +778,22 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_org_collection_id_delete(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Collection.")], organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], **kwargs) -> None:  # noqa: E501
+    def object_org_collection_id_delete(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Collection."
+              )], organization_id: Annotated[
+                  StrictStr,
+                  Field(...,
+                        description="Unique identifier of the Organization.")],
+                                        **kwargs) -> None:  # noqa: E501
         """Delete a Collection from a specified Organization.  # noqa: E501
 
         Delete an existing Collection from a specified Organization by specifying the unique Collection identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and an Organization identifier as a query parameter.<br><br>Deleting a Collection **will not** delete the items in it.  # noqa: E501
@@ -781,10 +822,20 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_org_collection_id_delete_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_org_collection_id_delete_with_http_info(id, organization_id, **kwargs)  # noqa: E501
+        return self.object_org_collection_id_delete_with_http_info(
+            id, organization_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_org_collection_id_delete_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Collection.")], organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_org_collection_id_delete_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the Collection."
+                      )],
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Delete a Collection from a specified Organization.  # noqa: E501
 
         Delete an existing Collection from a specified Organization by specifying the unique Collection identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and an Organization identifier as a query parameter.<br><br>Deleting a Collection **will not** delete the items in it.  # noqa: E501
@@ -825,29 +876,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'organization_id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'organization_id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method object_org_collection_id_delete" % _key
-                )
+                    " to method object_org_collection_id_delete" % _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -858,11 +898,11 @@ class CollectionsOrganizationsApi:
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
 
-
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -881,7 +921,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/org-collection/{id}', 'DELETE',
+            '/object/org-collection/{id}',
+            'DELETE',
             _path_params,
             _query_params,
             _header_params,
@@ -891,14 +932,22 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_org_collection_id_get(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Collection.")], organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], **kwargs) -> None:  # noqa: E501
+    def object_org_collection_id_get(self, id: Annotated[
+        StrictStr,
+        Field(..., description="Unique identifier of the Collection."
+              )], organization_id: Annotated[
+                  StrictStr,
+                  Field(...,
+                        description="Unique identifier of the Organization.")],
+                                     **kwargs) -> None:  # noqa: E501
         """Retrieve a Collection from a specified Organization.  # noqa: E501
 
         Retrieve an existing collection from a specified Organization by specifying the unique Collection identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and an Organization identifier as a query parameter .  # noqa: E501
@@ -927,10 +976,20 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_org_collection_id_get_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_org_collection_id_get_with_http_info(id, organization_id, **kwargs)  # noqa: E501
+        return self.object_org_collection_id_get_with_http_info(
+            id, organization_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_org_collection_id_get_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Collection.")], organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], **kwargs) -> ApiResponse:  # noqa: E501
+    def object_org_collection_id_get_with_http_info(
+            self, id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the Collection."
+                      )],
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Retrieve a Collection from a specified Organization.  # noqa: E501
 
         Retrieve an existing collection from a specified Organization by specifying the unique Collection identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and an Organization identifier as a query parameter .  # noqa: E501
@@ -971,29 +1030,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'organization_id'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'organization_id']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_org_collection_id_get" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_org_collection_id_get" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -1004,11 +1052,11 @@ class CollectionsOrganizationsApi:
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
 
-
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1027,7 +1075,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/org-collection/{id}', 'GET',
+            '/object/org-collection/{id}',
+            'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1037,14 +1086,32 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_org_collection_id_put(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Collection.")], organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], collection : Annotated[Optional[Collection], Field(description="The request body must contain an object representing the Collection to edit. Specifying `\"groups\":` is optional.")] = None, **kwargs) -> None:  # noqa: E501
+    def object_org_collection_id_put(
+            self,
+            id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the Collection."
+                      )],
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            collection:
+        Annotated[
+            Optional[Collection],
+            Field(
+                description=
+                "The request body must contain an object representing the Collection to edit. Specifying `\"groups\":` is optional."
+            )] = None,
+            **kwargs) -> None:  # noqa: E501
         """Edit a Collection in a specified Organization.  # noqa: E501
 
         Edit an existing Collection in a specified Organization by specifying the unique collection identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path, an Organization identifier as a query parameter, and Collection information in the request body.  # noqa: E501
@@ -1075,10 +1142,28 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_org_collection_id_put_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_org_collection_id_put_with_http_info(id, organization_id, collection, **kwargs)  # noqa: E501
+        return self.object_org_collection_id_put_with_http_info(
+            id, organization_id, collection, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_org_collection_id_put_with_http_info(self, id : Annotated[StrictStr, Field(..., description="Unique identifier of the Collection.")], organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], collection : Annotated[Optional[Collection], Field(description="The request body must contain an object representing the Collection to edit. Specifying `\"groups\":` is optional.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def object_org_collection_id_put_with_http_info(
+            self,
+            id: Annotated[
+                StrictStr,
+                Field(..., description="Unique identifier of the Collection."
+                      )],
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            collection:
+        Annotated[
+            Optional[Collection],
+            Field(
+                description=
+                "The request body must contain an object representing the Collection to edit. Specifying `\"groups\":` is optional."
+            )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Edit a Collection in a specified Organization.  # noqa: E501
 
         Edit an existing Collection in a specified Organization by specifying the unique collection identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path, an Organization identifier as a query parameter, and Collection information in the request body.  # noqa: E501
@@ -1121,30 +1206,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'id',
-            'organization_id',
-            'collection'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['id', 'organization_id', 'collection']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_org_collection_id_put" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_org_collection_id_put" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -1155,11 +1228,11 @@ class CollectionsOrganizationsApi:
         if _params['id'] is not None:
             _path_params['id'] = _params['id']
 
-
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1176,11 +1249,11 @@ class CollectionsOrganizationsApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -1188,7 +1261,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/org-collection/{id}', 'PUT',
+            '/object/org-collection/{id}',
+            'PUT',
             _path_params,
             _query_params,
             _header_params,
@@ -1198,14 +1272,28 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def object_org_collection_post(self, organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], collection : Annotated[Optional[Collection], Field(description="The request body must contain an object representing the Collection to add. Specifying `\"groups\":` is optional.")] = None, **kwargs) -> None:  # noqa: E501
+    def object_org_collection_post(
+            self,
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            collection:
+        Annotated[
+            Optional[Collection],
+            Field(
+                description=
+                "The request body must contain an object representing the Collection to add. Specifying `\"groups\":` is optional."
+            )] = None,
+            **kwargs) -> None:  # noqa: E501
         """Create a Collection for a specified Organization.  # noqa: E501
 
         Create a collection for a specified Organization by specifying a unique Organization identifier as a query parameter and Collection information in the request body, including its `\"name\":` and an array of `\"groups\":` to add it to.  # noqa: E501
@@ -1234,10 +1322,24 @@ class CollectionsOrganizationsApi:
         if '_preload_content' in kwargs:
             message = "Error! Please call the object_org_collection_post_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"  # noqa: E501
             raise ValueError(message)
-        return self.object_org_collection_post_with_http_info(organization_id, collection, **kwargs)  # noqa: E501
+        return self.object_org_collection_post_with_http_info(
+            organization_id, collection, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def object_org_collection_post_with_http_info(self, organization_id : Annotated[StrictStr, Field(..., description="Unique identifier of the Organization.")], collection : Annotated[Optional[Collection], Field(description="The request body must contain an object representing the Collection to add. Specifying `\"groups\":` is optional.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def object_org_collection_post_with_http_info(
+            self,
+            organization_id: Annotated[
+                StrictStr,
+                Field(...,
+                      description="Unique identifier of the Organization.")],
+            collection:
+        Annotated[
+            Optional[Collection],
+            Field(
+                description=
+                "The request body must contain an object representing the Collection to add. Specifying `\"groups\":` is optional."
+            )] = None,
+            **kwargs) -> ApiResponse:  # noqa: E501
         """Create a Collection for a specified Organization.  # noqa: E501
 
         Create a collection for a specified Organization by specifying a unique Organization identifier as a query parameter and Collection information in the request body, including its `\"name\":` and an array of `\"groups\":` to add it to.  # noqa: E501
@@ -1278,29 +1380,18 @@ class CollectionsOrganizationsApi:
 
         _params = locals()
 
-        _all_params = [
-            'organization_id',
-            'collection'
-        ]
-        _all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
-            ]
-        )
+        _all_params = ['organization_id', 'collection']
+        _all_params.extend([
+            'async_req', '_return_http_data_only', '_preload_content',
+            '_request_timeout', '_request_auth', '_content_type', '_headers'
+        ])
 
         # validate the arguments
         for _key, _val in _params['kwargs'].items():
             if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method object_org_collection_post" % _key
-                )
+                raise ApiTypeError("Got an unexpected keyword argument '%s'"
+                                   " to method object_org_collection_post" %
+                                   _key)
             _params[_key] = _val
         del _params['kwargs']
 
@@ -1312,7 +1403,8 @@ class CollectionsOrganizationsApi:
         # process the query parameters
         _query_params = []
         if _params.get('organization_id') is not None:  # noqa: E501
-            _query_params.append(('organizationId', _params['organization_id']))
+            _query_params.append(
+                ('organizationId', _params['organization_id']))
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -1329,11 +1421,11 @@ class CollectionsOrganizationsApi:
             ['application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            '_content_type',
+            self.api_client.select_header_content_type(['application/json']))
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params['Content-Type'] = _content_types_list
 
         # authentication setting
         _auth_settings = []  # noqa: E501
@@ -1341,7 +1433,8 @@ class CollectionsOrganizationsApi:
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/object/org-collection', 'POST',
+            '/object/org-collection',
+            'POST',
             _path_params,
             _query_params,
             _header_params,
@@ -1351,7 +1444,8 @@ class CollectionsOrganizationsApi:
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
             async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _return_http_data_only=_params.get(
+                '_return_http_data_only'),  # noqa: E501
             _preload_content=_params.get('_preload_content', True),
             _request_timeout=_params.get('_request_timeout'),
             collection_formats=_collection_formats,

@@ -12,7 +12,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 # import models into model package
 from bw_serve_client.models.collection import Collection
 from bw_serve_client.models.field import Field

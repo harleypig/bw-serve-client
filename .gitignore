@@ -2,6 +2,8 @@
 !.aider.conf.yml
 !.aiderignore
 
+openapitools.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,7 +1,4 @@
-.github/workflows/python.yml
 .gitignore
-.gitlab-ci.yml
-.travis.yml
 README.md
 bw_serve_client/__init__.py
 bw_serve_client/api/__init__.py
@@ -62,11 +59,6 @@ docs/StatusDataTemplate.md
 docs/UnlockPostRequest.md
 docs/Uris.md
 docs/VaultItemsApi.md
-git_push.sh
 pyproject.toml
-requirements.txt
-setup.cfg
-setup.py
-test-requirements.txt
 test/__init__.py
 tox.ini

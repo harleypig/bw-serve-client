@@ -54,7 +54,6 @@ genopts+=('--config' "$config_file")
 genopts+=('--generator-name' 'python-pydantic-v1')
 genopts+=('--ignore-file-override' "$openapi_ignore")
 genopts+=('--input-spec' "$modified_swagger_file")
-genopts+=('--input-spec-root-directory' "$openapi_dir")
 genopts+=('--template-dir' "$template_dir")
 
 [[ -x "$(command -v yapf)" ]] && {

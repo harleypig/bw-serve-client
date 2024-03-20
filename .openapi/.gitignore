@@ -1,1 +1,3 @@
-templates.bak/**
+temp/**
+mypy-reports/**
+mypy-errors.todo

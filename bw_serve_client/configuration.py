@@ -152,6 +152,7 @@ class Configuration:
            not the best value when you are making a lot of possibly parallel
            requests to the same host, which is often the case here.
            cpu_count * 5 is used as default value to increase performance.
+        """
         self.proxy = None
         """Proxy URL
         """

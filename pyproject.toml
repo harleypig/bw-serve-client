@@ -36,6 +36,9 @@ sphinx-lint = "^0.9.1"
 
 [tool.mypy]
 html_report = ".openapi/mypy-reports"
+files = ["bw_serve_client"]
+ignore_missing_imports = true
+follow_imports = "skip"
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"

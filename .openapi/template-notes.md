@@ -5,15 +5,25 @@ unless otherwise specified a file is assumed to be a `mustache` template.
 
 ## Vendor Extensions
 
+Vendor extensions are custom properties added to an OpenAPI specification,
+which are not formally defined by the specification itself. They are typically
+used to include additional metadata or to influence code generation behavior.
+In the context of these templates, vendor extensions are used to pass extra
+information and configurations that are specific to the Python language and
+the Pydantic library.
 
-Vendor extensions are custom properties added to an OpenAPI specification, which are not formally defined by the specification itself. They are typically used to include additional metadata or to influence code generation behavior. In the context of these templates, vendor extensions are used to pass extra information and configurations that are specific to the Python language and the Pydantic library.
+The mustache templating language uses tags to include logic and iterate over
+data. Some specific tags used in conjunction with vendor extensions are:
 
-The mustache templating language uses tags to include logic and iterate over data. Some specific tags used in conjunction with vendor extensions are:
+* `{{#-first}}...{{/-first}}`: This tag is used to execute the contained
+    template code only for the first item in a list.
+* `{{^-last}}...{{/-last}}`: This tag is used to execute the contained
+    template code for all items except the last one in a list. It's often used
+    to add a separator like a comma between items.
 
-- `{{#-first}}...{{/-first}}`: This tag is used to execute the contained template code only for the first item in a list.
-- `{{^-last}}...{{/-last}}`: This tag is used to execute the contained template code for all items except the last one in a list. It's often used to add a separator like a comma between items.
-
-These tags help manage the inclusion of list items in generated code, ensuring proper syntax without trailing commas or other issues that could arise from naive list iteration.
+These tags help manage the inclusion of list items in generated code, ensuring
+proper syntax without trailing commas or other issues that could arise from
+naive list iteration.
 
 ## Models
 
@@ -21,13 +31,12 @@ A simple tree of templates being included.
 
 ```plaintext
 model
+├── partial_header
 ├── model_oneof
-│   └── partial_header
 ├── model_anyof
 │   └── partial_header
 ├── model_enum
 └── model_generic
-    └── partial_header
 ```
 
 * `model_doc` is being called during documentation process.

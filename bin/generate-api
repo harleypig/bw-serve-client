@@ -36,7 +36,8 @@ config_file="$openapi_dir/generator-pydantic.yml"
 modified_swagger_file="vault-management-api-modified.json"
 swagger_file="$openapi_dir/vault-management-api.json"
 template_dir="$openapi_dir/templates"
-openapi_ignore="$openapi_dir/openapi-generator-ignore"
+#openapi_ignore="$openapi_dir/openapi-generator-ignore"
+openapi_ignore=".openapi-generator-ignore"
 
 #-----------------------------------------------------------------------------
 # openapi-generator-cli validate $swagger_file reports errors and I'm not

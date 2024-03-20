@@ -25,6 +25,7 @@ pytest-mock = "^3.12.0"
 pytest-randomly = ">=3.12.0"
 tox = ">=3.9.0"
 yapf = "^0.40.2"
+lxml = "^5.1.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"

@@ -1,5 +1,4 @@
 # coding: utf-8
-
 # flake8: noqa
 
 """
@@ -15,15 +14,6 @@
 
 __version__ = "0.0.3"
 
-# import apis into sdk package
-from bw_serve_client.api.attachments_fields_api import AttachmentsFieldsApi
-from bw_serve_client.api.collections_organizations_api import CollectionsOrganizationsApi
-from bw_serve_client.api.folders_api import FoldersApi
-from bw_serve_client.api.lock_unlock_api import LockUnlockApi
-from bw_serve_client.api.miscellaneous_api import MiscellaneousApi
-from bw_serve_client.api.send_api import SendApi
-from bw_serve_client.api.vault_items_api import VaultItemsApi
-
 # import ApiClient
 from bw_serve_client.api_response import ApiResponse
 from bw_serve_client.api_client import ApiClient
@@ -34,6 +24,15 @@ from bw_serve_client.exceptions import ApiValueError
 from bw_serve_client.exceptions import ApiKeyError
 from bw_serve_client.exceptions import ApiAttributeError
 from bw_serve_client.exceptions import ApiException
+
+# import apis into sdk package
+from bw_serve_client.api.attachments_fields_api import AttachmentsFieldsApi
+from bw_serve_client.api.collections_organizations_api import CollectionsOrganizationsApi
+from bw_serve_client.api.folders_api import FoldersApi
+from bw_serve_client.api.lock_unlock_api import LockUnlockApi
+from bw_serve_client.api.miscellaneous_api import MiscellaneousApi
+from bw_serve_client.api.send_api import SendApi
+from bw_serve_client.api.vault_items_api import VaultItemsApi
 
 # import models into sdk package
 from bw_serve_client.models.collection import Collection

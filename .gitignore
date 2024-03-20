@@ -3,6 +3,7 @@
 !.aiderignore
 
 openapitools.json
+.openapi-generator/**
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

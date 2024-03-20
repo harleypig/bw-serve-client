@@ -1,7 +1,9 @@
 .github/**
+.gitignore
 .gitlab-ci.yml
 git_push.sh
 .openapi-generator-ignore
+pyproject.toml
 requirements.txt
 setup.cfg
 setup.py

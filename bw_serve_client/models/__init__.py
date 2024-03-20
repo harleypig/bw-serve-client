@@ -1,6 +1,6 @@
 # coding: utf-8
-
 # flake8: noqa
+
 """
     Vault Management API
 

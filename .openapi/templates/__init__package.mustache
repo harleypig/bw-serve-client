@@ -1,14 +1,10 @@
 # coding: utf-8
-
 # flake8: noqa
 
 {{>partial_header}}
 
 __version__ = "{{packageVersion}}"
 
-# import apis into sdk package
-{{#apiInfo}}{{#apis}}from {{apiPackage}}.{{classFilename}} import {{classname}}
-{{/apis}}{{/apiInfo}}
 # import ApiClient
 from {{packageName}}.api_response import ApiResponse
 from {{packageName}}.api_client import ApiClient
@@ -23,12 +19,12 @@ from {{packageName}}.exceptions import ApiException
 from {{packageName}}.signing import HttpSigningConfiguration
 {{/hasHttpSignatureMethods}}
 
+# import apis into sdk package
+{{#apiInfo}}{{#apis}}from {{apiPackage}}.{{classFilename}} import {{classname}}
+{{/apis}}{{/apiInfo}}
 # import models into sdk package
-{{#models}}
-{{#model}}
-from {{modelPackage}}.{{classFilename}} import {{classname}}
-{{/model}}
-{{/models}}
+{{#models}}{{#model}}from {{modelPackage}}.{{classFilename}} import {{classname}}
+{{/model}}{{/models}}
 {{#recursionLimit}}
 
 __import__('sys').setrecursionlimit({{{.}}})

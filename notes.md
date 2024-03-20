@@ -3,7 +3,7 @@
 * Install dependencies
   - poetry install [--with groupname[,groupname]] [--without groupname]
 * Add dependency
-  - poetry add [--with groupname] package[@latest] [package ...]
+  - poetry add [--group groupname] package[@latest] [package ...]
 * Update dependencies
   - poetry update [--with groupname[,groupname]]
 * Remove dependencies

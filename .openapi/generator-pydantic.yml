@@ -1,3 +1,4 @@
+appName: Bitwarden CLI Vault Management API
 packageName: bw_serve_client
 packageVersion: 0.0.3
 

@@ -18,7 +18,7 @@ import json
 
 from datetime import datetime
 from typing import Any, Dict, Optional
-from pydantic import BaseModel, Field, StrictStr, validator
+from pydantic import field_validator, ConfigDict, BaseModel, Field, StrictStr
 
 
 class StatusDataTemplate(BaseModel):
@@ -33,7 +33,8 @@ class StatusDataTemplate(BaseModel):
     additional_properties: Dict[str, Any] = {}
     __properties = ["lastSync", "serverUrl", "status", "userEmail", "userID"]
 
-    @validator('status')
+    @field_validator('status')
+    @classmethod
     def status_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
@@ -44,11 +45,7 @@ class StatusDataTemplate(BaseModel):
                 "must be one of enum values ('locked', 'unlocked', 'unauthenticated')"
             )
         return value
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
+    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

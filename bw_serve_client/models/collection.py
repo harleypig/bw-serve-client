@@ -17,8 +17,9 @@ import re  # noqa: F401
 import json
 
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field, StrictStr, conlist
+from pydantic import ConfigDict, BaseModel, Field, StrictStr
 from bw_serve_client.models.group import Group
+from typing_extensions import Annotated
 
 
 class Collection(BaseModel):
@@ -26,16 +27,12 @@ class Collection(BaseModel):
     Collection
     """
     external_id: Optional[StrictStr] = Field(None, alias="externalId")
-    groups: Optional[conlist(Group)] = None
+    groups: Optional[Annotated[List[Group], Field()]] = None
     name: Optional[StrictStr] = None
     organization_id: Optional[StrictStr] = Field(None, alias="organizationId")
     additional_properties: Dict[str, Any] = {}
     __properties = ["externalId", "groups", "name", "organizationId"]
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
+    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

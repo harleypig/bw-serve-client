@@ -5,13 +5,22 @@ unless otherwise specified a file is assumed to be a `mustache` template.
 
 ## Models
 
-```
-model
-├── model_doc
-├── model_generic
-├── model_oneof
-├── model_anyof
-└── model_enum
+```plaintext
+model.mustache
+│
+├── model_doc.mustache
+│
+├── model_generic.mustache
+│   ├── partial_header.mustache
+│
+├── model_oneof.mustache
+│   ├── partial_header.mustache
+│
+├── model_anyof.mustache
+│   ├── partial_header.mustache
+│
+└── model_enum.mustache
+    ├── partial_header.mustache
 ```
 
 ### model_doc

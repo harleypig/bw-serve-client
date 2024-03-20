@@ -5,7 +5,14 @@ unless otherwise specified a file is assumed to be a `mustache` template.
 
 ## Models
 
-<<tree goes here>>
+```
+model.mustache
+├── model_doc.mustache
+├── model_generic.mustache
+├── model_oneof.mustache
+├── model_anyof.mustache
+└── model_enum.mustache
+```
 
 ### model_doc
 

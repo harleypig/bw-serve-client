@@ -12,7 +12,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-__version__ = "0.0.3"
+__version__ = "0.0.4a0"
 
 # import ApiClient
 from bw_serve_client.api_response import ApiResponse

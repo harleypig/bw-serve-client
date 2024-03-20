@@ -34,6 +34,9 @@ sphinxcontrib-email = "^0.3.6"
 sphinxcontrib-openapi = "^0.8.4"
 sphinx-lint = "^0.9.1"
 
+[tool.mypy]
+html_report = ".openapi/mypy-reports"
+
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
 

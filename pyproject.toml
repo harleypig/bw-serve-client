@@ -40,6 +40,9 @@ html_report = ".openapi/mypy-reports"
 files = ["bw_serve_client"]
 ignore_missing_imports = true
 follow_imports = "skip"
+namespace_packages = true
+explicit_package_bases = true
+check_untyped_defs = true
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"

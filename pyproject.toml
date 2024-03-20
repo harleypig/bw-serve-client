@@ -34,6 +34,18 @@ sphinxcontrib-email = "^0.3.6"
 sphinxcontrib-openapi = "^0.8.4"
 sphinx-lint = "^0.9.1"
 
+[tool.tox]
+envlist = "py3"
+
+[testenv]
+deps = [
+    "-r{toxinidir}/requirements.txt",
+    "-r{toxinidir}/test-requirements.txt"
+]
+commands = [
+    "pytest --cov=bw_serve_client"
+]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bw_serve_client"
-version = "0.0.4a0"
+version = "0.0.3"
 description = "Bitwarden CLI Vault Management API"
 authors = ["OpenAPI Generator Community <team@openapitools.org>"]
 license = "NoLicense"

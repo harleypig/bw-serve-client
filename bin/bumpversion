@@ -61,7 +61,7 @@ poetry version "${popts[@]}" || {
 version="$(poetry version -s)"
 
 # Update the packageVersion variable in the config file
-sed -i "s/^packageVersion: = .*/packageVersion: = '$version'/" .openapi/generator-pydantic.yml
+sed -i "s/^packageVersion: .*/packageVersion: $version/" .openapi/generator-pydantic.yml
 
 # Generate templates based on new version
 # We are assuming everything has been committed, otherwise we'll have to add

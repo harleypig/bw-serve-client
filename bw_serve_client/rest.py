@@ -103,7 +103,7 @@ class RESTClientObject:
                     headers=configuration.proxy_headers,
                     **addition_pool_args)
             else:
-                self.pool_manager = urllib3.ProxyManager(
+                self.pool_manager: Union[urllib3.ProxyManager, urllib3.SOCKSProxyManager] = urllib3.ProxyManager(
                     num_pools=pools_size,
                     maxsize=maxsize,
                     cert_reqs=cert_reqs,

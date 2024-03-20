@@ -6,18 +6,21 @@ unless otherwise specified a file is assumed to be a `mustache` template.
 ## Models
 
 ```
-model.mustache
-├── model_doc.mustache
-├── model_generic.mustache
-├── model_oneof.mustache
-├── model_anyof.mustache
-└── model_enum.mustache
+model
+├── model_doc
+├── model_generic
+├── model_oneof
+├── model_anyof
+└── model_enum
 ```
 
 ### model_doc
 
-- **Purpose**: Generates documentation for a model.
-- **Included When**: This template is used for each model to create a Markdown file that documents the properties, types, descriptions, and notes for the model. It's included when documentation for models is generated.
+Generates documentation for a model.
+
+This template is used for each model to create a Markdown file that documents
+the properties, types, descriptions, and notes for the model. It's included
+when documentation for models is generated.
 
 ### model_oneof
 

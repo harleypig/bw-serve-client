@@ -25,7 +25,6 @@ pytest-mock = "^3.12.0"
 pytest-randomly = ">=3.12.0"
 tox = ">=3.9.0"
 yapf = "^0.40.2"
-poetry-bumpversion = "^0.3.2"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"
@@ -35,28 +34,17 @@ sphinxcontrib-email = "^0.3.6"
 sphinxcontrib-openapi = "^0.8.4"
 sphinx-lint = "^0.9.1"
 
-# Be sure to bump the version with 'bin/bumpversion' to regenerate from
-# templates using the new version number.
-[tool.poetry_bumpversion.replacements]
-files = [".openapi/generator-pydantic.yml"]
-search = 'packageVersion: {current_version}'
-replace = 'packageVersion: {new_version}'
-
-[tool.tox]
-envlist = "py3"
-
-[testenv]
-deps = [
-    "-r{toxinidir}/requirements.txt",
-    "-r{toxinidir}/test-requirements.txt"
-]
-commands = [
-    "pytest --cov=bw_serve_client"
-]
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
+
+#[tool.tox]
+#envlist = "py3"
+#
+#[testenv]
+#deps = [
+#    "-r{toxinidir}/requirements.txt",
+#    "-r{toxinidir}/test-requirements.txt"
+#]
+#commands = [
+#    "pytest --cov=bw_serve_client"
+#]

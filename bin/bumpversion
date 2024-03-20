@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# XXX: Experimenting with poetry-bumpversion plugin, can still use this to tag
-#      and push unless some other poetry setting can do that.
-
 #-----------------------------------------------------------------------------
 # poetry version doesn't update the package, so we'll do it ourselves
 [[ -z $POETRY_ACTIVE ]] && {
@@ -63,9 +60,8 @@ poetry version "${popts[@]}" || {
 # Capture the new version
 version="$(poetry version -s)"
 
-# Determining if poetry-bumpversion works better
-## Update the __version__ variable in __init__.py
-#sed -i "s/^__version__ = .*/__version__ = '$version'/" bw_serve_client/__init__.py
+# Update the packageVersion variable in the config file
+sed -i "s/^packageVersion: = .*/packageVersion: = '$version'/" .openapi/generator-pydantic.yml
 
 # Generate templates based on new version
 # We are assuming everything has been committed, otherwise we'll have to add

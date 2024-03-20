@@ -34,6 +34,13 @@ sphinxcontrib-email = "^0.3.6"
 sphinxcontrib-openapi = "^0.8.4"
 sphinx-lint = "^0.9.1"
 
+# Be sure to bump the version with 'bin/bumpversion' to regenerate from
+# templates using the new version number.
+[tool.poetry_bumpversion.replacements]
+files = [".openapi/generator-pydantic.yml"]
+search = 'packageVersion: {current_version}'
+replace = 'packageVersion: {new_version}'
+
 [tool.tox]
 envlist = "py3"
 
@@ -52,8 +59,3 @@ build-backend = "setuptools.build_meta"
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
-
-[tool.poetry_bumpversion.file."bw_serve_client/__init__.py"]
-
-[tool.poetry_bumpversion.replacements]
-files = [".openapi/generator-pydantic.yml"]

@@ -51,26 +51,39 @@ echo "$1" | grep -qE -- '-*next-?phase' && {
   shift
 }
 
-message="$@"
-[[ -z $message ]] && usage "tag message is required"
+tag_message="$@"
+[[ -z $tag_message ]] && usage "tag message is required"
 
+# Bump the version
 poetry version "${popts[@]}" || {
   echo "Problem bumping poetry version"
   exit 1
 }
 
+# Capture the new version
 version="$(poetry version -s)"
 
 # Determining if poetry-bumpversion works better
 ## Update the __version__ variable in __init__.py
 #sed -i "s/^__version__ = .*/__version__ = '$version'/" bw_serve_client/__init__.py
 
+# Generate templates based on new version
+# We are assuming everything has been committed, otherwise we'll have to add
+# code to look for unexpected files and die if we find them.
+
+logfile='gen.log'
+echo "Generating version changes. Check '$logfile' for details."
+bin/generate-api &> $logfile || {
+  echo "Problem generating changes."
+  exit 1
+}
+
 # Commit the change
-git add pyproject.toml bw_serve_client/__init__.py
+git add .
 git commit -m "Update version to $version"
 
 # Tag the commit with the provided message
-git tag -a "$version" -m "$message"
+git tag -a "$version" -m "$tag_message"
 
 # Push the changes and tags to the remote repository
 #git push origin main --tags

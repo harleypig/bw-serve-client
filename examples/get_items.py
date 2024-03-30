@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from bw_serve_client.api_client import ApiClient
 from bw_serve_client.configuration import Configuration
 

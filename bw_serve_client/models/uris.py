@@ -17,7 +17,7 @@ import re  # noqa: F401
 import json
 
 from typing import Any, Dict, Optional
-from pydantic import field_validator, ConfigDict, BaseModel, StrictInt, StrictStr
+from pydantic import BaseModel, StrictInt, StrictStr, validator
 
 
 class Uris(BaseModel):
@@ -29,8 +29,7 @@ class Uris(BaseModel):
     additional_properties: Dict[str, Any] = {}
     __properties = ["match", "uri"]
 
-    @field_validator('match')
-    @classmethod
+    @validator('match')
     def match_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
@@ -39,7 +38,11 @@ class Uris(BaseModel):
         if value not in (0, 1, 2, 3, 4, 5):
             raise ValueError("must be one of enum values (0, 1, 2, 3, 4, 5)")
         return value
-    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

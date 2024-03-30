@@ -17,7 +17,7 @@ import re  # noqa: F401
 import json
 
 from typing import Any, Dict, Optional
-from pydantic import field_validator, ConfigDict, BaseModel, StrictStr
+from pydantic import BaseModel, StrictStr, validator
 from bw_serve_client.models.status_data_template import StatusDataTemplate
 
 
@@ -30,8 +30,7 @@ class StatusData(BaseModel):
     additional_properties: Dict[str, Any] = {}
     __properties = ["object", "template"]
 
-    @field_validator('object')
-    @classmethod
+    @validator('object')
     def object_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
@@ -40,7 +39,11 @@ class StatusData(BaseModel):
         if value not in ('template'):
             raise ValueError("must be one of enum values ('template')")
         return value
-    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

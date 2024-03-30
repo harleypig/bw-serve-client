@@ -17,13 +17,12 @@ import re  # noqa: F401
 import json
 
 from typing import Any, Dict, List, Optional
-from pydantic import field_validator, ConfigDict, BaseModel, Field, StrictBool, StrictInt, StrictStr
+from pydantic import BaseModel, Field, StrictBool, StrictInt, StrictStr, conlist, validator
 from bw_serve_client.models.field import Field
 from bw_serve_client.models.item_card import ItemCard
 from bw_serve_client.models.item_identity import ItemIdentity
 from bw_serve_client.models.item_login import ItemLogin
 from bw_serve_client.models.item_secure_note import ItemSecureNote
-from typing_extensions import Annotated
 
 
 class ItemTemplate(BaseModel):
@@ -31,10 +30,10 @@ class ItemTemplate(BaseModel):
     ItemTemplate
     """
     card: Optional[ItemCard] = None
-    collection_ids: Optional[Annotated[List[StrictStr], Field()]] = Field(None,
+    collection_ids: Optional[conlist(StrictStr)] = Field(None,
                                                          alias="collectionIds")
     favorite: Optional[StrictBool] = None
-    fields: Optional[Annotated[List[Field], Field()]] = None
+    fields: Optional[conlist(Field)] = None
     folder_id: Optional[StrictStr] = Field(None, alias="folderId")
     identity: Optional[ItemIdentity] = None
     login: Optional[ItemLogin] = None
@@ -51,8 +50,7 @@ class ItemTemplate(BaseModel):
         "type"
     ]
 
-    @field_validator('reprompt')
-    @classmethod
+    @validator('reprompt')
     def reprompt_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
@@ -62,8 +60,7 @@ class ItemTemplate(BaseModel):
             raise ValueError("must be one of enum values (0, 1)")
         return value
 
-    @field_validator('type')
-    @classmethod
+    @validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
@@ -72,7 +69,11 @@ class ItemTemplate(BaseModel):
         if value not in ('1', '2', '3', '4'):
             raise ValueError("must be one of enum values ('1', '2', '3', '4')")
         return value
-    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

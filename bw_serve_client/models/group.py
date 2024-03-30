@@ -17,7 +17,7 @@ import re  # noqa: F401
 import json
 
 from typing import Any, Dict, Optional
-from pydantic import ConfigDict, BaseModel, Field, StrictBool, StrictStr
+from pydantic import BaseModel, Field, StrictBool, StrictStr
 
 
 class Group(BaseModel):
@@ -29,7 +29,11 @@ class Group(BaseModel):
     read_only: Optional[StrictBool] = Field(None, alias="readOnly")
     additional_properties: Dict[str, Any] = {}
     __properties = ["hidePasswords", "id", "readOnly"]
-    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

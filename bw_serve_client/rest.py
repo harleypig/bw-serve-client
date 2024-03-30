@@ -95,35 +95,40 @@ class RESTClientObject:
         if configuration.proxy:
             if is_socks_proxy_url(configuration.proxy):
                 from urllib3.contrib.socks import SOCKSProxyManager
-                self.pool_manager: Union[urllib3.PoolManager, urllib3.ProxyManager, urllib3.SOCKSProxyManager] = SOCKSProxyManager(
-                    cert_reqs=cert_reqs,
-                    ca_certs=configuration.ssl_ca_cert,
-                    cert_file=configuration.cert_file,
-                    key_file=configuration.key_file,
-                    proxy_url=configuration.proxy,
-                    headers=configuration.proxy_headers,
-                    **addition_pool_args)
+                self.pool_manager: Union[
+                    urllib3.PoolManager, urllib3.ProxyManager,
+                    urllib3.SOCKSProxyManager] = SOCKSProxyManager(
+                        cert_reqs=cert_reqs,
+                        ca_certs=configuration.ssl_ca_cert,
+                        cert_file=configuration.cert_file,
+                        key_file=configuration.key_file,
+                        proxy_url=configuration.proxy,
+                        headers=configuration.proxy_headers,
+                        **addition_pool_args)
             else:
-                self.pool_manager: Union[urllib3.ProxyManager, urllib3.SOCKSProxyManager] = urllib3.ProxyManager(
-                self.pool_manager: Union[urllib3.PoolManager, urllib3.ProxyManager, urllib3.SOCKSProxyManager] = urllib3.ProxyManager(
+                self.pool_manager: Union[
+                    urllib3.PoolManager, urllib3.ProxyManager,
+                    urllib3.SOCKSProxyManager] = urllib3.ProxyManager(
+                        num_pools=pools_size,
+                        maxsize=maxsize,
+                        cert_reqs=cert_reqs,
+                        ca_certs=configuration.ssl_ca_cert,
+                        cert_file=configuration.cert_file,
+                        key_file=configuration.key_file,
+                        proxy_url=configuration.proxy,
+                        proxy_headers=configuration.proxy_headers,
+                        **addition_pool_args)
+        else:
+            self.pool_manager: Union[
+                urllib3.PoolManager, urllib3.ProxyManager,
+                urllib3.SOCKSProxyManager] = urllib3.PoolManager(
                     num_pools=pools_size,
                     maxsize=maxsize,
                     cert_reqs=cert_reqs,
                     ca_certs=configuration.ssl_ca_cert,
                     cert_file=configuration.cert_file,
                     key_file=configuration.key_file,
-                    proxy_url=configuration.proxy,
-                    proxy_headers=configuration.proxy_headers,
                     **addition_pool_args)
-        else:
-            self.pool_manager: Union[urllib3.PoolManager, urllib3.ProxyManager, urllib3.SOCKSProxyManager] = urllib3.PoolManager(
-                num_pools=pools_size,
-                maxsize=maxsize,
-                cert_reqs=cert_reqs,
-                ca_certs=configuration.ssl_ca_cert,
-                cert_file=configuration.cert_file,
-                key_file=configuration.key_file,
-                **addition_pool_args)
 
     def request(self,
                 method,

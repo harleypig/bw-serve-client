@@ -17,7 +17,7 @@ import re  # noqa: F401
 import json
 
 from typing import Any, Dict, Optional
-from pydantic import ConfigDict, BaseModel, Field, StrictBool, StrictStr
+from pydantic import BaseModel, Field, StrictBool, StrictStr
 
 
 class LockunlockSuccessData(BaseModel):
@@ -30,7 +30,11 @@ class LockunlockSuccessData(BaseModel):
     title: Optional[StrictStr] = None
     additional_properties: Dict[str, Any] = {}
     __properties = ["message", "noColor", "object", "title"]
-    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

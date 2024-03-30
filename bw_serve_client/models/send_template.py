@@ -18,7 +18,7 @@ import json
 
 from datetime import datetime
 from typing import Any, Dict, Optional
-from pydantic import field_validator, ConfigDict, BaseModel, Field, StrictBool, StrictInt, StrictStr
+from pydantic import BaseModel, Field, StrictBool, StrictInt, StrictStr, validator
 from bw_serve_client.models.send_text import SendText
 
 
@@ -43,8 +43,7 @@ class SendTemplate(BaseModel):
         "maxAccessCount", "name", "notes", "password", "text", "type"
     ]
 
-    @field_validator('type')
-    @classmethod
+    @validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
@@ -53,7 +52,11 @@ class SendTemplate(BaseModel):
         if value not in (0, 1):
             raise ValueError("must be one of enum values (0, 1)")
         return value
-    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

@@ -17,7 +17,7 @@ import re  # noqa: F401
 import json
 
 from typing import Any, Dict, Optional
-from pydantic import field_validator, ConfigDict, BaseModel, StrictStr
+from pydantic import BaseModel, StrictStr, validator
 
 
 class Field(BaseModel):
@@ -30,8 +30,7 @@ class Field(BaseModel):
     additional_properties: Dict[str, Any] = {}
     __properties = ["name", "type", "value"]
 
-    @field_validator('type')
-    @classmethod
+    @validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
@@ -40,7 +39,11 @@ class Field(BaseModel):
         if value not in ('0', '1', '2', '3'):
             raise ValueError("must be one of enum values ('0', '1', '2', '3')")
         return value
-    model_config = ConfigDict(populate_by_name=True, validate_assignment=True)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""

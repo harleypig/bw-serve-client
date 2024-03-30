@@ -19,7 +19,7 @@ Generator](https://openapi-generator.tech) project:
 
 - API Version: latest
 - Package Version: 0.0.4a0
-- Build Date: 2024-03-19T22:43:01.217438132-06:00[America/Boise]
+- Build Date: 2024-03-20T05:14:47.250769741-06:00[America/Boise]
 - Generator Version: 7.4.0
 
 ## Requirements

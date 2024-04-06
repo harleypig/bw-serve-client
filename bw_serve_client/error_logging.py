@@ -54,4 +54,26 @@ class ErrorLogger:
                 self.error_handler(error, level)
             else:
                 self.log(f"Error: {error}", level)
+    def log(self, message, level=logging.INFO):
+        """
+        Logs a message with the specified logging level.
+
+        :param message: The message to log.
+        :param level: The logging level (e.g., logging.INFO, logging.ERROR).
+        """
+        if level >= self.log_level:
+            self.logger.log(level, message)
+
+    def handle_error(self, error, level=logging.ERROR):
+        """
+        Handles an error based on the specified error level.
+
+        :param error: The error to handle.
+        :param level: The error level (e.g., logging.ERROR).
+        """
+        if level >= self.error_level:
+            if self.error_handler:
+                self.error_handler(error, level)
+            else:
+                self.log(f"Error: {error}", level)
 

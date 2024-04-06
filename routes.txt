@@ -1,34 +1,44 @@
-/sync
-/status
-/unlock
-/lock
-/attachment
+/confirm/org-member/{id}
 /generate
-/object/folder
-/object/item
-/object/send
+/lock
+/move/{itemid}/{organizationId}
+/send/{id}/remove-password
+/status
+/sync
+/unlock
+/restore/item/{id}
+
 /list/object/collections
 /list/object/folders
 /list/object/items
-/list/object/send
+/list/object/organizations
 /list/object/org-collections
 /list/object/org-members
-/list/object/organizations
-/object/fingerprint/me
-/object/org-collection
-/object/template/{type}
-/confirm/org-member/{id}
-/move/{itemid}/{organizationId}
-/object/attachment/{id}
+/list/object/send
+
 /object/exposed/{id}
+/object/fingerprint/me
+/object/folder
 /object/folder/{id}
+/object/item
 /object/item/{id}
 /object/notes/{id}
+/object/org-collection
+/object/org-collection/{id}
 /object/password/{id}
+/object/send
 /object/send/{id}
+/object/template/{type}
 /object/totp/{id}
 /object/uri/{id}
 /object/username/{id}
-/restore/item/{id}
-/send/{id}/remove-password
-/object/org-collection/{id}
+
+attachment class:
+  /attachment
+  /object/attachment/{id}
+
+send class:
+  /send/{id}/remove-password
+  /list/object/send
+  /object/send
+  /object/send/{id}

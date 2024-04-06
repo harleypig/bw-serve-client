@@ -10,6 +10,23 @@ General code examples MUST be included in the examples directory.
 
 Workflows MUST be identified, documented and tested in the tests directory.
 
+## Error/Logging Module
+
+The Error/Logging module should be designed to be agnostic of specific error
+object and logging implementations. It MUST:
+
+- Accept optional error handling and logging objects during the instantiation
+  of an API class.
+- If no custom error handler is provided, implement minimal error handling
+  that can construct and return error objects based on a defined error level
+  setting.
+- If no custom logger is provided, implement minimal logging that logs
+  messages based on a defined log level setting.
+- Ensure that all interactions that might result in an error or require
+  logging are processed through these mechanisms.
+- Allow users of the library to define the granularity of error reporting and
+  logging by setting appropriate error level and log level thresholds.
+
 ## API Class Instructions
 
 An API class MUST handle:
@@ -20,16 +37,6 @@ An API class MUST handle:
 - authentication (proper inclusion of bearer token or whatever)
 - formatting of data into json (or proper format the api expects)
 - formatting of json (or whatever format the api returns) into data
-
-## Error/Logging Module
-
-The Error/Logging module should be designed to be agnostic of specific error object and logging implementations. It should:
-
-- Accept optional error handling and logging objects during the instantiation of an API class.
-- If no custom error handler is provided, implement minimal error handling that can construct and return error objects based on a defined error level setting.
-- If no custom logger is provided, implement minimal logging that logs messages based on a defined log level setting.
-- Ensure that all interactions that might result in an error or require logging are processed through these mechanisms.
-- Allow users of the library to define the granularity of error reporting and logging by setting appropriate error level and log level thresholds.
 
 ## Class Instructions
 

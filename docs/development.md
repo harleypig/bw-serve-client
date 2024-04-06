@@ -15,17 +15,14 @@ Workflows MUST be identified, documented and tested in the tests directory.
 The Error/Logging module should be designed to be agnostic of specific error
 object and logging implementations. It MUST:
 
-- Accept optional error handling and logging objects during the instantiation
-  of an API class.
-- If no custom error handler is provided, implement minimal error handling
-  that can construct and return error objects based on a defined error level
-  setting.
-- If no custom logger is provided, implement minimal logging that logs
-  messages based on a defined log level setting.
-- Ensure that all interactions that might result in an error or require
-  logging are processed through these mechanisms.
-- Allow users of the library to define the granularity of error reporting and
-  logging by setting appropriate error level and log level thresholds.
+- accept optional error handling and logging objects during the instantiation
+    of an API class.
+- if no custom error handler is provided, implement minimal error handling
+    that can construct and return error objects based on a defined error level
+    setting.
+- if no custom logger is provided, use python's logging library
+- allow users of the library to define the granularity of error reporting and
+    logging by setting appropriate error level and log level thresholds.
 
 ## API Class Instructions
 

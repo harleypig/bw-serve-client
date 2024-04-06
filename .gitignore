@@ -2,6 +2,8 @@
 !.aider.conf.yml
 !.aiderignore
 
+.plandex/**
+
 openapitools.json
 .openapi-generator/**
 

@@ -1,5 +1,5 @@
-# Prompt to recreate the class tree list when the API is updated:
-# "Please provide the updated API routes so I can recreate the class tree list."
+# Prompt to generate class tree list from the API JSON file:
+# "Using the provided API JSON file, generate a class tree list that organizes endpoints into classes based on their functionality and associated HTTP methods."
 
 Item
   /list/object/items (GET)

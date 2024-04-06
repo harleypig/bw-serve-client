@@ -2,65 +2,65 @@
 # "Please provide the updated API routes so I can recreate the class tree list."
 
 Item
-  /list/object/items
-  /object/item
-  /object/item/{id}
-  /object/notes/{id}
-  /object/password/{id}
-  /object/totp/{id}
-  /object/uri/{id}
-  /object/username/{id}
-  /restore/item/{id}
+  /list/object/items (GET)
+  /object/item (POST)
+  /object/item/{id} (GET, PUT, DELETE)
+  /object/notes/{id} (GET)
+  /object/password/{id} (GET)
+  /object/totp/{id} (GET)
+  /object/uri/{id} (GET)
+  /object/username/{id} (GET)
+  /restore/item/{id} (POST)
 
 Send
-  /list/object/send
-  /object/send
-  /object/send/{id}
-  /send/{id}/remove-password
+  /list/object/send (GET)
+  /object/send (POST)
+  /object/send/{id} (GET, PUT, DELETE)
+  /send/{id}/remove-password (POST)
 
 Attachment
-  /attachment
-  /object/attachment/{id}
+  /attachment (POST)
+  /object/attachment/{id} (GET, DELETE)
 
 Folder
-  /list/object/folders
-  /object/folder
-  /object/folder/{id}
+  /list/object/folders (GET)
+  /object/folder (POST)
+  /object/folder/{id} (GET, PUT, DELETE)
 
 Collection
-  /list/object/collections
-  /list/object/org-collections
-  /object/org-collection
-  /object/org-collection/{id}
+  /list/object/collections (GET)
+  /list/object/org-collections (GET)
+  /object/org-collection (POST)
+  /object/org-collection/{id} (GET, PUT, DELETE)
 
 Organization
-  /confirm/org-member/{id}
-  /list/object/organizations
-  /list/object/org-members
+  /confirm/org-member/{id} (POST)
+  /list/object/organizations (GET)
+  /list/object/org-members (GET)
 
 Template
-  /object/template/{type}
+  /object/template/{type} (GET)
 
 Status
-  /status
+  /status (GET)
 
 Sync
-  /sync
+  /sync (POST)
 
 Unlock
-  /unlock
+  /unlock (POST)
 
 Lock
-  /lock
+  /lock (POST)
 
 Move
-  /move/{itemid}/{organizationId}
+  /move/{itemid}/{organizationId} (POST)
 
 Generate
-  /generate
+  /generate (GET)
 
 Exposed
-  /object/exposed/{id}
+  /object/exposed/{id} (GET)
 
 Fingerprint
-  /object/fingerprint/me
+  /object/fingerprint/me (GET)

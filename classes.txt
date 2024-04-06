@@ -1,0 +1,50 @@
+# Prompt to recreate the class tree list when the API is updated:
+# "Please provide the updated API routes so I can recreate the class tree list."
+
+Item
+  /object/item
+  /object/item/{id}
+  /list/object/items
+  /restore/item/{id}
+  /object/username/{id}
+  /object/password/{id}
+  /object/totp/{id}
+  /object/uri/{id}
+  /object/notes/{id}
+
+Send
+  /object/send
+  /object/send/{id}
+  /list/object/send
+  /send/{id}/remove-password
+
+Attachment
+  /attachment
+  /object/attachment/{id}
+
+Folder
+  /object/folder
+  /object/folder/{id}
+  /list/object/folders
+
+Collection
+  /object/org-collection
+  /object/org-collection/{id}
+  /list/object/collections
+  /list/object/org-collections
+
+Organization
+  /list/object/organizations
+  /list/object/org-members
+  /confirm/org-member/{id}
+
+Miscellaneous
+  /object/template/{type}
+  /status
+  /sync
+  /unlock
+  /lock
+  /move/{itemid}/{organizationId}
+  /generate
+  /object/exposed/{id}
+  /object/fingerprint/me

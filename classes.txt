@@ -39,12 +39,21 @@ Organization
   /confirm/org-member/{id}
 
 Miscellaneous
+Template
   /object/template/{type}
+Status
   /status
+Sync
   /sync
+Unlock
   /unlock
+Lock
   /lock
+Move
   /move/{itemid}/{organizationId}
+Generate
   /generate
+Exposed
   /object/exposed/{id}
+Fingerprint
   /object/fingerprint/me

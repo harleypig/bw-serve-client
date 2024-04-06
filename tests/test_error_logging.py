@@ -11,7 +11,7 @@ class TestErrorLogger(unittest.TestCase):
 
     def test_handle_error_with_custom_handler(self):
         def custom_error_handler(error, level):
-            print(f"Custom error handler: {error}")
+            logging.getLogger().log(level, f"Custom error handler: {error}")
 
         logger = ErrorLogger(error_handler=custom_error_handler, error_level=logging.WARNING)
         with self.assertLogs(level='WARNING') as log:
@@ -20,3 +20,4 @@ class TestErrorLogger(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

@@ -2,20 +2,20 @@
 # "Please provide the updated API routes so I can recreate the class tree list."
 
 Item
+  /list/object/items
   /object/item
   /object/item/{id}
-  /list/object/items
-  /restore/item/{id}
-  /object/username/{id}
+  /object/notes/{id}
   /object/password/{id}
   /object/totp/{id}
   /object/uri/{id}
-  /object/notes/{id}
+  /object/username/{id}
+  /restore/item/{id}
 
 Send
+  /list/object/send
   /object/send
   /object/send/{id}
-  /list/object/send
   /send/{id}/remove-password
 
 Attachment
@@ -23,37 +23,44 @@ Attachment
   /object/attachment/{id}
 
 Folder
+  /list/object/folders
   /object/folder
   /object/folder/{id}
-  /list/object/folders
 
 Collection
-  /object/org-collection
-  /object/org-collection/{id}
   /list/object/collections
   /list/object/org-collections
+  /object/org-collection
+  /object/org-collection/{id}
 
 Organization
+  /confirm/org-member/{id}
   /list/object/organizations
   /list/object/org-members
-  /confirm/org-member/{id}
 
-Miscellaneous
 Template
   /object/template/{type}
+
 Status
   /status
+
 Sync
   /sync
+
 Unlock
   /unlock
+
 Lock
   /lock
+
 Move
   /move/{itemid}/{organizationId}
+
 Generate
   /generate
+
 Exposed
   /object/exposed/{id}
+
 Fingerprint
   /object/fingerprint/me

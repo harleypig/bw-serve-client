@@ -3,8 +3,12 @@
 The goal is minimization; DRY principles (refer Pragmatic Programming), proper
 and decent error handling and logging.
 
+This is a poetry project. Make sure pyproject.toml is updated to match the
+current state of the project.
+
 Documentation MUST be created. The README should contain basic information.
 Installation, contributing, development and usage documents MUST be created.
+mkdocs and rst format (experiment with Sphinx).
 
 General code examples MUST be included in the examples directory.
 
@@ -68,6 +72,7 @@ Each class or class method MUST:
 - validate the parameters
 - ensure data is in correct format for sending to api
 - provide unit tests in the tests directory
+  - use pytest-mock to test functions that access external tools
 - provide examples of usage in the examples directory
 
 ### Specific Class Instructions

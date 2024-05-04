@@ -1,44 +1,60 @@
-/confirm/org-member/{id}
-/generate
-/lock
-/move/{itemid}/{organizationId}
-/send/{id}/remove-password
-/status
-/sync
-/unlock
-/restore/item/{id}
+# Classes
 
-/list/object/collections
-/list/object/folders
-/list/object/items
-/list/object/organizations
-/list/object/org-collections
-/list/object/org-members
-/list/object/send
+## Lock
 
-/object/exposed/{id}
-/object/fingerprint/me
-/object/folder
-/object/folder/{id}
-/object/item
-/object/item/{id}
-/object/notes/{id}
-/object/org-collection
-/object/org-collection/{id}
-/object/password/{id}
-/object/send
-/object/send/{id}
-/object/template/{type}
-/object/totp/{id}
-/object/uri/{id}
-/object/username/{id}
+- /lock (post)
+- /unlock (post)
 
-attachment class:
-  /attachment
-  /object/attachment/{id}
+## Vault Items
 
-send class:
-  /send/{id}/remove-password
-  /list/object/send
-  /object/send
-  /object/send/{id}
+- /restore/item/{id} (post)
+- /list/object/items (get)
+- /object/item (post)
+- /object/item/{id} (put, get, delete)
+
+## Attachments & Fields
+
+- /attachment (post)
+- /object/attachment/{id} (get, delete)
+- /object/username/{id} (get)
+- /object/password/{id} (get)
+- /object/uri/{id} (get)
+- /object/totp/{id} (get)
+- /object/notes/{id} (get)
+- /object/exposed/{id} (get)
+
+## Folders
+
+- /object/folder (post)
+- /object/folder/{id} (put, get, delete)
+- /list/object/folders (get)
+
+## Send
+
+XXX: I'm not using these functions, so won't be developing them.
+
+- /object/send (post)
+- /object/send/{id} (put, get, delete)
+- /list/object/send (get)
+- /send/{id}/remove-password (post)
+
+## Collections & Organizations
+
+XXX: I'm not using these functions, so won't be developing them.
+
+- /move/{itemid}/{organizationId} (post)
+- /object/org-collection (post)
+- /object/org-collection/{id} (put, get, delete)
+- /list/object/org-collections (get)
+- /list/object/collections (get)
+- /list/object/organizations (get)
+- /list/object/org-members (get)
+- /confirm/org-member/{id} (post)
+
+## Misc
+
+- /sync (post)
+- /status (get)
+- /generate (get)
+- /object/template/{type} (get)
+- /object/fingerprint/me (get)

@@ -11,7 +11,7 @@ class BSCLogger:
             stream_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
             self.logger.addHandler(stream_handler)
-            self.logger.setLevel(logging.DEBUG)
+            self.logger.setLevel(logging.INFO)
         else:
             self.logger = logger
 

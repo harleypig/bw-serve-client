@@ -4,10 +4,13 @@ class BSCLogger:
     def __init__(self, logger=None):
         if logger is None:
             self.logger = logging.getLogger('bw-serve-client')
-            handler = logging.FileHandler('bw-serve-client.log')
+            file_handler = logging.FileHandler('bw-serve-client.log')
+            stream_handler = logging.StreamHandler()
             formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
+            file_handler.setFormatter(formatter)
+            stream_handler.setFormatter(formatter)
+            self.logger.addHandler(file_handler)
+            self.logger.addHandler(stream_handler)
             self.logger.setLevel(logging.DEBUG)
         else:
             self.logger = logger

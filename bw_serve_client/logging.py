@@ -1,9 +1,13 @@
 import logging
 
 """
-The BSCLogger class provides a flexible logging setup for the bw-serve-client library.
-It defaults to a dual logging system that logs both to a file ('bw-serve-client.log') and the console.
-Users can pass their own logger if they prefer a different logging setup, assuming it supports the standard log levels (debug, info, warning, error, critical).
+The BSCLogger class provides a flexible logging setup for the bw-serve-client
+library.  It defaults to a dual logging system that logs both to a file
+('bw-serve-client.log') and the console.
+
+Users can pass their own logger if they prefer a different logging setup,
+assuming it supports the standard log levels (debug, info, warning, error,
+critical).
 
 Example of using a custom logger with a SyslogHandler:
 

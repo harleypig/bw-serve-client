@@ -1,6 +1,6 @@
 import logging
 
-class LibraryLogger:
+class BSCLogger:
     def __init__(self, logger=None):
         if logger is None:
             self.logger = logging.getLogger('bw-serve-client')

@@ -34,11 +34,20 @@ these procedures when working on this repository.
 - **pytest**: For unit testing and test discovery
 - **pytest-mock**: For mocking external dependencies
 - **pytest-cov**: For code coverage reporting
-- **mypy**: For static type checking
+- **mypy**: For static type checking and type safety
+- **pydantic**: For runtime data validation and type hints
 - **flake8**: For code style and complexity checking
 - **yapf**: For code formatting
 - **tox**: For testing across multiple Python versions
 - **Pre-commit hooks**: Automated formatting and linting on commit
+
+### Type Safety and Data Validation
+
+- **mypy + pydantic integration**: Use pydantic models for API data structures
+- **Type hints**: All public methods must have complete type annotations
+- **Runtime validation**: Use pydantic for request/response data validation
+- **Static analysis**: mypy catches type errors before runtime
+- **Model definitions**: Create pydantic models for all API data structures
 
 ### Pre-commit Configuration
 
@@ -153,7 +162,8 @@ After creating a new feature/fix/bug branch:
 
 2. **Maintain code quality**
    - Run `pytest` on all modified files
-   - Run `mypy` for type checking
+   - Run `mypy` for type checking and static analysis
+   - Use `pydantic` for data validation and type safety
    - Use `flake8` for code style validation
    - Use `yapf` for code formatting
    - Follow word wrapping to column 78 for all documentation
@@ -243,10 +253,13 @@ Before switching back to master or merging any branch:
   - [ ] Authentication flows are tested
   - [ ] Data formatting works as expected
 
-- [ ] **Type Checking**
+- [ ] **Type Checking and Data Validation**
   - [ ] All code passes mypy type checking
   - [ ] Type hints are accurate and complete
   - [ ] No type-related warnings
+  - [ ] Pydantic models defined for all API data structures
+  - [ ] Runtime validation working correctly
+  - [ ] mypy and pydantic integration verified
 
 ### Security and Compliance
 
@@ -287,6 +300,8 @@ Before switching back to master or merging any branch:
   - [ ] Review any new warnings or errors
   - [ ] Update linting rules if needed
   - [ ] Check code coverage reports
+  - [ ] Audit mypy/pydantic integration and type safety
+  - [ ] Review pydantic model definitions for completeness
 
 - [ ] **Documentation Audit**
   - [ ] Check for outdated documentation

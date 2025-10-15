@@ -6,7 +6,6 @@ authors = ["OpenAPI Generator Community <team@openapitools.org>"]
 license = "NoLicense"
 readme = "README.md"
 repository = "https://github.com/harleypig/bw-serve-client"
-#keywords = ["OpenAPI", "OpenAPI-Generator", "Vault Management API"]
 keywords = ['Vault Management API', 'vaultwarden', 'bitwarden']
 #include = ["bw_serve_client/py.typed"]
 
@@ -49,14 +48,37 @@ check_untyped_defs = false
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
 
-#[tool.tox]
-#envlist = "py3"
-#
-#[testenv]
-#deps = [
-#    "-r{toxinidir}/requirements.txt",
-#    "-r{toxinidir}/test-requirements.txt"
-#]
-#commands = [
-#    "pytest --cov=bw_serve_client"
-#]
+[tool.yapf]
+# Use PEP8 style as the base
+based_on_style = "pep8"
+
+# Basic formatting
+indent_width = 2
+column_limit = 79
+continuation_indent_width = 2
+
+# Whitespace and docstring settings
+allow_multiline_dictionary_keys = true
+allow_multiline_lambdas = true
+blank_line_before_class_docstring = true
+blank_line_before_module_docstring = true
+indent_dictionary_value = true
+spaces_before_comment = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+
+# Bracket handling
+coalesce_brackets = true
+dedent_closing_brackets = true
+align_closing_bracket_with_visual_indent = false
+split_before_closing_bracket = true
+
+# Line splitting behavior
+split_before_arithmetic_operator = true
+split_before_dict_set_generator = true
+split_before_first_argument = true
+split_before_named_assigns = true
+split_before_expression_after_opening_paren = false
+split_penalty_after_opening_bracket = 0
+split_penalty_after_unary_operator = 10000
+split_penalty_for_added_line_split = 30
+split_penalty_excess_character = 7000
+

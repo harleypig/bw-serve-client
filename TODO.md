@@ -3,6 +3,11 @@
 This document outlines the tasks needed to complete the bw-serve-client Python
 library for Bitwarden Vault Management API.
 
+AGENT: Add tasks:
+
+- Add yesqa pre-commit hook
+- Determine which PyCQA pre-commit hooks are valid here
+
 ## Document Swagger/OpenAPI Source
 - [ ] **Document that this code is generated from Bitwarden's swagger file**
   - Add clear documentation in README.md about the source
@@ -52,6 +57,25 @@ library for Bitwarden Vault Management API.
   - Mock API responses for all endpoints
   - Test data for various scenarios (success, error, edge cases)
   - Fixtures for common test setup
+
+- [ ] **Add multi-Python version testing support**
+  - Set up Tox or GitHub Actions matrix for testing Python 3.9, 3.10, 3.11, 3.12
+  - Ensure compatibility across supported Python versions
+  - Add version-specific test configurations if needed
+
+- [ ] **Regular mypy/pydantic auditing**
+  - Set up automated mypy checking in CI/CD pipeline
+  - Create process for regular type safety audits
+  - Review and update pydantic models as API evolves
+  - Ensure mypy and pydantic integration remains optimal
+  - Add type checking to pre-commit hooks
+
+- [ ] **Add pylint for comprehensive code analysis**
+  - Integrate pylint into CI/CD pipeline for thorough code review
+  - Configure pylint rules to complement flake8 and yapf
+  - Set up pylint reports for code quality metrics
+  - Use pylint for detailed refactoring suggestions and best practices
+  - Configure pylint to work alongside existing flake8 pre-commit hooks
 
 ## Documentation
 - [ ] **Complete API documentation**

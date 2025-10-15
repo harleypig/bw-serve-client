@@ -1,0 +1,138 @@
+# Pre-commit configuration for auto-fixes and comprehensive checking
+#
+# ⚠️  WARNING: This configuration makes automated changes to your code! ⚠️
+#
+# This config includes both:
+# 1. Auto-fixing hooks that modify files
+# 2. Check-only hooks from the default pre-commit config that don't have fix
+#    options
+#
+# Run with:
+#   pre-commit run -c .pre-commit-config-fix.yaml --all-files
+---
+repos:
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        description: Remove trailing whitespace
+      - id: end-of-file-fixer
+        description: Ensure files end with newline
+      - id: check-yaml
+        description: Check YAML syntax
+      - id: check-json
+        description: Check JSON syntax
+      - id: check-toml
+        description: Check TOML syntax
+      - id: check-merge-conflict
+        description: Check for merge conflict markers
+      - id: check-added-large-files
+        description: Check for large files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+        description: Check for case conflicts in filenames
+      - id: debug-statements
+        description: Check for debug statements (pdb, ipdb, etc.)
+      - id: detect-private-key
+        description: Detect private keys
+
+  # Python code formatting and linting
+  - repo: local
+    hooks:
+      - id: poetry-check
+        name: poetry-check
+        entry: poetry check
+        language: system
+        description: Check pyproject.toml and lock file consistency
+        pass_filenames: false
+        always_run: true
+      - id: poetry-lock
+        name: poetry-lock
+        entry: poetry lock
+        language: system
+        description: Update poetry.lock file
+        pass_filenames: false
+        always_run: true
+      - id: poetry-export
+        name: poetry-export
+        entry: poetry export
+        language: system
+        description: Export requirements.txt from poetry.lock
+        args: ['--format=requirements.txt', '--output=requirements.txt', '--without-hashes']
+        pass_filenames: false
+        always_run: true
+      - id: poetry-lock-check
+        name: poetry-lock-check
+        entry: poetry check --lock
+        language: system
+        description: Check if poetry.lock is up to date
+        pass_filenames: false
+        always_run: true
+      - id: poetry-export-check
+        name: poetry-export-check
+        entry: bash
+        language: system
+        description: Check if requirements.txt is up to date
+        args: ['-c', 'poetry export --format=requirements.txt --without-hashes > /tmp/requirements.txt && diff requirements.txt /tmp/requirements.txt || (echo "requirements.txt is out of date." && exit 1)']
+        pass_filenames: false
+        always_run: true
+      - id: yapf
+        name: yapf
+        entry: poetry run yapf
+        language: system
+        description: Format Python code with yapf
+        args: ['--style=pyproject.toml', '--in-place']
+        types: [python]
+
+      - id: isort
+        name: isort
+        entry: poetry run isort
+        language: system
+        description: Sort Python imports
+        args: ['--profile', 'yapf', '--line-length', '88']
+        types: [python]
+      - id: flake8
+        name: flake8
+        entry: poetry run flake8
+        language: system
+        description: Lint Python code with flake8
+        types: [python]
+      - id: mypy
+        name: mypy
+        entry: poetry run mypy
+        language: system
+        description: Type check Python code with mypy
+        types: [python]
+
+  # Documentation
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        description: Check Python docstring conventions
+        args: ['--convention=google']
+
+  # Security
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        description: Security linter for Python
+        args: ['-r', '--skip=B101,B601']  # Skip assert and shell=True warnings
+
+  # Markdown
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        description: Lint and fix markdown files
+        args: ['--fix']
+
+  # YAML
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        description: Lint YAML files
+        args: ['-d', 'relaxed']

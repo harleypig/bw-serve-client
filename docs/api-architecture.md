@@ -105,3 +105,14 @@ An API class MUST handle:
 - Validate parameters before making requests
 - Handle different HTTP status codes appropriately
 - Provide clear error messages for different failure scenarios
+
+## Type Safety and Data Validation
+
+All API classes MUST implement:
+
+- **Complete type hints**: All public methods must have type annotations
+- **Pydantic models**: Use pydantic for all request/response data structures
+- **Runtime validation**: Validate data before sending to API and after receiving
+- **Static analysis**: Code must pass mypy type checking
+- **Model definitions**: Create pydantic models for all API data structures
+- **Type safety**: mypy and pydantic integration for comprehensive type checking

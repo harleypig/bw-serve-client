@@ -174,7 +174,7 @@ class RouteExtractor:
         grouped_routes[tag].append(route)
 
     # Create simplified output structure
-    output_data = {}
+    output_data: Dict[str, Dict[str, List[str]]] = {}
     for tag in sorted(grouped_routes.keys()):
       # Group routes by path within each tag
       path_methods: Dict[str, List[str]] = {}

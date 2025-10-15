@@ -77,7 +77,7 @@ continuation_indent_width = 2
 # Whitespace and docstring settings
 allow_multiline_dictionary_keys = true
 allow_multiline_lambdas = true
-blank_line_before_class_docstring = true
+blank_line_before_class_docstring = false
 blank_line_before_module_docstring = true
 indent_dictionary_value = true
 spaces_before_comment = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]

@@ -16,7 +16,7 @@
 repos:
   # General hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       # trailing-whitespace and end-of-file-fixer removed - they modify files
       # Use .pre-commit-config-fix.yaml to fix these issues
@@ -92,7 +92,7 @@ repos:
 
   # Security
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.8.6
     hooks:
       - id: bandit
         description: Security linter for Python
@@ -100,7 +100,7 @@ repos:
 
   # Markdown
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.37.0
+    rev: v0.45.0
     hooks:
       - id: markdownlint
         description: Lint markdown files
@@ -108,7 +108,7 @@ repos:
 
   # YAML
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: v1.37.1
     hooks:
       - id: yamllint
         description: Lint YAML files

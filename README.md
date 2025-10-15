@@ -5,7 +5,7 @@ API](https://bitwarden.com/help/vault-management-api/), available via
 Bitwarden CLI's `bw serve` command.
 
 If you're looking for Bitwarden's public api (for organizational tools and
-stuff) that API is [here](https://bitwarden.com/help/api/).
+stuff) that API is [available here](https://bitwarden.com/help/api/).
 
 This library focuses on providing a clean Python interface to the Bitwarden
 Vault Management API. It does not handle authentication or login processes -
@@ -22,7 +22,8 @@ specification. The source swagger file is located at
 
 Development and maintenance utilities are located in the `scripts/` directory:
 
-- **`scripts/extract_routes.py`** - Extract API routes from the swagger file for documentation
+- **`scripts/extract_routes.py`** - Extract API routes from the swagger file
+    for documentation
 - See `scripts/README.md` for detailed usage instructions
 
 You can also use the provided Makefile for common tasks:
@@ -41,7 +42,7 @@ make help               # Show all available commands
 * [Bitwarden
     CLI](https://bitwarden.com/download/#downloads-command-line-interface)
   - Instructions can be found
-    [here](https://bitwarden.com/help/cli/#download-and-install)
+    [in the official documentation](https://bitwarden.com/help/cli/#download-and-install)
 
 ## Prerequisites
 
@@ -51,7 +52,7 @@ This library requires the [Bitwarden CLI](https://bitwarden.com/download/#downlo
 to be installed and configured. The CLI must be authenticated and the vault
 unlocked before using this library.
 
-#### Installation
+#### Bitwarden CLI Installation
 
 Follow the [official installation guide](https://bitwarden.com/help/cli/#download-and-install)
 for your operating system.
@@ -62,6 +63,7 @@ The Bitwarden CLI must be authenticated before using this library. This
 typically involves:
 
 1. **Login** (one-time setup):
+
    ```bash
    bw login
    # or with API key:
@@ -69,6 +71,7 @@ typically involves:
    ```
 
 2. **Unlock** (required each session):
+
    ```bash
    bw unlock
    # or with environment variable:
@@ -78,6 +81,7 @@ typically involves:
    ```
 
 3. **Start the API server**:
+
    ```bash
    bw serve
    # or with custom port:
@@ -168,8 +172,8 @@ import bw_serve_client
 
 # Get session key from CLI
 result = subprocess.run(
-    ["bw", "unlock", "--raw"], 
-    capture_output=True, 
+    ["bw", "unlock", "--raw"],
+    capture_output=True,
     text=True
 )
 session_key = result.stdout.strip()

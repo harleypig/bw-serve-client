@@ -3,11 +3,6 @@
 This document outlines the tasks needed to complete the bw-serve-client Python
 library for Bitwarden Vault Management API.
 
-AGENT: Add tasks:
-
-- Add yesqa pre-commit hook
-- Determine which PyCQA pre-commit hooks are valid here
-
 ## Document Swagger/OpenAPI Source
 - [ ] **Document that this code is generated from Bitwarden's swagger file**
   - Add clear documentation in README.md about the source
@@ -91,11 +86,17 @@ AGENT: Add tasks:
   - Demonstrate authentication setup
 
 ## Code Quality and Standards
-- [ ] **Implement pre-commit hooks**
+- [x] **Implement pre-commit hooks**
   - Set up `.pre-commit-config.yaml` for checks only
   - Set up `.pre-commit-config-fix.yaml` for auto-fixes
   - Include flake8, mypy, yapf, and other quality tools
   - Ensure all hooks are platform-portable
+
+- [ ] **Enhance pre-commit hooks**
+  - Add yesqa pre-commit hook for removing unused noqa comments
+  - Determine which PyCQA pre-commit hooks are valid for this project
+  - Research additional useful hooks for Python development
+  - Optimize hook performance and execution order
 
 - [ ] **Code formatting and linting**
   - Run yapf for consistent code formatting
@@ -197,6 +198,8 @@ AGENT: Add tasks:
 - [x] Development environment setup documented
 - [x] API architecture planned
 - [x] Basic project structure in place
+- [x] Pre-commit configuration implemented
+- [x] Code quality tools configured (yapf, flake8, mypy, pydantic)
 - [ ] Core implementation started
 - [ ] Testing infrastructure ready
 - [ ] Documentation complete

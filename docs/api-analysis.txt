@@ -1,0 +1,152 @@
+================================================================================
+BITWARDEN VAULT MANAGEMENT API - LIBRARY DEVELOPMENT ANALYSIS
+================================================================================
+
+📋 API INFORMATION:
+----------------------------------------
+  title: Vault Management API
+
+  description: This schema documents the endpoints available to the Vault
+  Management API, accessible from the Bitwarden CLI using the `bw serve`
+  command ([learn more](https://bitwarden.com/help/cli/)). If you're looking
+  for the **Organization Management** API, refer instead to [this
+    document](https://bitwarden.com/help/api/).
+
+  version: latest
+  openapi_version: 3.0.0
+
+🔐 AUTHENTICATION:
+----------------------------------------
+  No explicit authentication schemes defined
+  Note: This API likely uses session-based authentication via 'bw serve'
+
+🌐 BASE URL / SERVERS:
+----------------------------------------
+  No explicit server configuration
+  Note: This API runs locally via 'bw serve' command
+
+📤 RESPONSE PATTERNS:
+----------------------------------------
+  200: applcation/json, application/json
+
+❌ ERROR CODES:
+----------------------------------------
+  200
+  400
+  404
+  500
+
+🏷️  API CATEGORIES (TAGS):
+----------------------------------------
+  - Attachments & Fields
+  - Collections & Organizations
+  - Folders
+  - Lock & Unlock
+  - Miscellaneous
+  - Send
+  - Vault Items
+
+📝 PARAMETER PATTERNS:
+----------------------------------------
+  QUERY parameters:
+    - id (string) - Unique identifier of the item to attach a file to....
+    - organizationId (string) - A unique identifier for the Organization....
+    - length (integer) - Number of characters in the **password**....
+    - uppercase (boolean) - Include uppercase characters in the **password**....
+    - lowercase (boolean) - Include lowercase characters in the **password**....
+    ... and 26 more
+  PATH parameters:
+    - id (string) - A unique identifier for the user to confirm....
+    - itemid (string) - Unique identifier of the item to move....
+    - organizationId (string) - Unique identifier of the Organization to move the ...
+    - id (string) - Unique identifier of the attachment....
+    - id (string) - Unique identifier of the attachment....
+    ... and 21 more
+
+📦 REQUEST BODY PATTERNS:
+----------------------------------------
+  POST /attachment:
+    Content-Types: multipart/form-data
+    Required: True
+  POST /move/{itemid}/{organizationId}:
+    Content-Types: application/json
+    Required: True
+  POST /object/folder:
+    Content-Types: application/json
+    Required: True
+  PUT /object/folder/{id}:
+    Content-Types: application/json
+    Required: True
+  POST /object/item:
+    Content-Types: application/json
+    Required: True
+
+🏗️  DATA MODELS (SCHEMAS):
+----------------------------------------
+  collection:
+    Type: object
+    Properties: 4 fields
+      - externalId: string
+      - groups: array
+      - name: string
+      ... and 1 more properties
+  field:
+    Type: object
+    Properties: 3 fields
+      - name: string
+      - type: string
+      - value: string
+  folder:
+    Type: object
+    Properties: 1 fields
+      - name: string
+  group:
+    Type: object
+    Properties: 3 fields
+      - hidePasswords: boolean
+      - id: string
+      - readOnly: boolean
+  item.card:
+    Type: object
+    Properties: 6 fields
+      - brand: string
+      - cardholderName: string
+      - code: string
+      ... and 3 more properties
+  item.identity:
+    Type: object
+    Properties: 18 fields
+      - address1: string
+      - address2: string
+      - address3: string
+      ... and 15 more properties
+  item.login:
+    Type: object
+    Properties: 4 fields
+      - password: string
+      - totp: string
+      - uris: unknown
+      ... and 1 more properties
+  item.secureNote:
+    Type: object
+    Properties: 1 fields
+      - type: integer
+  item.template:
+    Type: object
+    Properties: 13 fields
+      - card: unknown
+      - collectionIds: array
+      - favorite: boolean
+      ... and 10 more properties
+  lockunlock.success:
+    Type: object
+    Properties: 2 fields
+      - data: object
+      - success: boolean
+
+💡 KEY EXAMPLES:
+----------------------------------------
+
+================================================================================
+ANALYSIS COMPLETE
+================================================================================

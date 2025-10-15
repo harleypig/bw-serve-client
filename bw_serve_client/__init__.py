@@ -1,3 +1,5 @@
+"""Bitwarden Vault Management API client package."""
+
 # Default logging
 import logging
 

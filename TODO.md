@@ -4,6 +4,7 @@ This document outlines the tasks needed to complete the bw-serve-client Python
 library for Bitwarden Vault Management API.
 
 ## Document Swagger/OpenAPI Source
+
 - [ ] **Document that this code is generated from Bitwarden's swagger file**
   - Add clear documentation in README.md about the source
   - Include link to the original swagger file: `docs/vault-management-api.json`
@@ -11,7 +12,8 @@ library for Bitwarden Vault Management API.
   - Add note about keeping the swagger file up to date
 
 ## Create Route Extraction Script
-- [ ] **Create script to extract routes from swagger file**
+
+- [x] **Create script to extract routes from swagger file**
   - Build a bash or Python utility to parse `docs/vault-management-api.json`
   - Extract all API endpoints and their HTTP methods
   - Generate a formatted list for easy comparison with planned architecture
@@ -19,6 +21,7 @@ library for Bitwarden Vault Management API.
   - Consider outputting in markdown format for direct inclusion in docs
 
 ## Core Library Implementation
+
 - [ ] **Implement error/logging module**
   - Create flexible error handling system as specified in `docs/api-architecture.md`
   - Support custom error handlers and loggers
@@ -41,6 +44,7 @@ library for Bitwarden Vault Management API.
   - [ ] Utilities class
 
 ## Testing Infrastructure
+
 - [ ] **Set up comprehensive testing**
   - Create test structure following pytest conventions
   - Implement unit tests for all classes and methods
@@ -73,6 +77,7 @@ library for Bitwarden Vault Management API.
   - Configure pylint to work alongside existing flake8 pre-commit hooks
 
 ## Documentation
+
 - [ ] **Complete API documentation**
   - Generate Sphinx documentation from docstrings
   - Add comprehensive docstrings to all public methods
@@ -86,6 +91,7 @@ library for Bitwarden Vault Management API.
   - Demonstrate authentication setup
 
 ## Code Quality and Standards
+
 - [x] **Implement pre-commit hooks**
   - Set up `.pre-commit-config.yaml` for checks only
   - Set up `.pre-commit-config-fix.yaml` for auto-fixes
@@ -105,6 +111,7 @@ library for Bitwarden Vault Management API.
   - Follow PEP 8 and project naming conventions
 
 ## Package Configuration
+
 - [ ] **Update pyproject.toml**
   - Ensure all dependencies are properly specified
   - Add proper package metadata
@@ -118,6 +125,7 @@ library for Bitwarden Vault Management API.
   - Implement proper package exports
 
 ## CI/CD Pipeline
+
 - [ ] **Set up GitHub Actions**
   - Create workflow for testing on multiple Python versions
   - Add code quality checks
@@ -130,6 +138,7 @@ library for Bitwarden Vault Management API.
   - Add changelog generation
 
 ## Advanced Features
+
 - [ ] **Add advanced functionality**
   - Implement retry logic for failed requests
   - Add request/response caching
@@ -143,6 +152,7 @@ library for Bitwarden Vault Management API.
   - Implement efficient data structures
 
 ## Security and Compliance
+
 - [ ] **Security review**
   - Audit authentication handling
   - Review credential storage
@@ -155,6 +165,7 @@ library for Bitwarden Vault Management API.
   - Ensure proper license compliance
 
 ## Documentation Enhancement
+
 - [ ] **Advanced documentation**
   - Create developer guides
   - Add troubleshooting documentation
@@ -167,6 +178,7 @@ library for Bitwarden Vault Management API.
   - Add tutorial content
 
 ## Regular Updates
+
 - [ ] **Keep dependencies updated**
   - Regular Poetry dependency updates
   - Security patch management
@@ -178,6 +190,7 @@ library for Bitwarden Vault Management API.
   - Test compatibility with new API versions
 
 ## Community and Support
+
 - [ ] **Community engagement**
   - Set up issue templates
   - Create contribution guidelines

@@ -54,27 +54,11 @@ repos:
         description: Update poetry.lock file
         pass_filenames: false
         always_run: true
-      - id: poetry-export
-        name: poetry-export
-        entry: poetry export
-        language: system
-        description: Export requirements.txt from poetry.lock
-        args: ['--format=requirements.txt', '--output=requirements.txt', '--without-hashes']
-        pass_filenames: false
-        always_run: true
       - id: poetry-lock-check
         name: poetry-lock-check
         entry: poetry check --lock
         language: system
         description: Check if poetry.lock is up to date
-        pass_filenames: false
-        always_run: true
-      - id: poetry-export-check
-        name: poetry-export-check
-        entry: bash
-        language: system
-        description: Check if requirements.txt is up to date
-        args: ['-c', 'poetry export --format=requirements.txt --without-hashes > /tmp/requirements.txt && diff requirements.txt /tmp/requirements.txt || (echo "requirements.txt is out of date." && exit 1)']
         pass_filenames: false
         always_run: true
       - id: yapf
@@ -84,13 +68,12 @@ repos:
         description: Format Python code with yapf
         args: ['--style=pyproject.toml', '--in-place']
         types: [python]
-
       - id: isort
         name: isort
         entry: poetry run isort
         language: system
         description: Sort Python imports
-        args: ['--profile', 'yapf', '--line-length', '88']
+        args: ['--profile', 'black', '--line-length', '88']
         types: [python]
       - id: flake8
         name: flake8

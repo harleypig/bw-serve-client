@@ -6,6 +6,7 @@
 
 openapitools.json
 .openapi-generator/**
+.openapi/**
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

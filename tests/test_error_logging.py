@@ -1,5 +1,6 @@
-import unittest
 import logging
+import unittest
+
 from bw_serve_client.error_logging import ErrorLogger
 
 

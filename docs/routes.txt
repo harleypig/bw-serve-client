@@ -1,60 +1,110 @@
-# Classes
+Bitwarden Vault Management API Routes
+Extracted from: docs/vault-management-api.json
+==================================================
 
-## Lock
+Attachments & Fields
+--------------------
+- /attachment (POST)
+  Summary: Attach a file to an existing vault item.
+- /object/attachment/{id} (DELETE)
+  Summary: Delete an attachment.
+- /object/attachment/{id} (GET)
+  Summary: Retrieve an attachment.
+- /object/exposed/{id} (GET)
+  Summary: Retrieve the number of times a password has been exposed for a login item.
+- /object/notes/{id} (GET)
+  Summary: Retrieve the notes of an item.
+- /object/password/{id} (GET)
+  Summary: Retrieve the password of a login item.
+- /object/totp/{id} (GET)
+  Summary: Retrieve the TOTP code of a login item.
+- /object/uri/{id} (GET)
+  Summary: Retrieve the URI of a login item.
+- /object/username/{id} (GET)
+  Summary: Retrieve the username of a login item.
 
-- /lock (post)
-- /unlock (post)
+Collections & Organizations
+---------------------------
+- /confirm/org-member/{id} (POST)
+  Summary: Confirm a member to a specified Organization.
+- /list/object/collections (GET)
+  Summary: List Collections from all member Organizations.
+- /list/object/org-collections (GET)
+  Summary: List Collections from a specified Organization.
+- /list/object/org-members (GET)
+  Summary: List members of a specified Organization.
+- /list/object/organizations (GET)
+  Summary: List Organizations of which you are a member.
+- /move/{itemid}/{organizationId} (POST)
+  Summary: Move an item to a Collection.
+- /object/org-collection (POST)
+  Summary: Create a Collection for a specified Organization.
+- /object/org-collection/{id} (DELETE)
+  Summary: Delete a Collection from a specified Organization.
+- /object/org-collection/{id} (GET)
+  Summary: Retrieve a Collection from a specified Organization.
+- /object/org-collection/{id} (PUT)
+  Summary: Edit a Collection in a specified Organization.
 
-## Vault Items
+Folders
+-------
+- /list/object/folders (GET)
+  Summary: Retrieve a list of folders in your vault.
+- /object/folder (POST)
+  Summary: Add a folder to your vault.
+- /object/folder/{id} (DELETE)
+  Summary: Delete a folder from your vault.
+- /object/folder/{id} (GET)
+  Summary: Retrieve a folder from your vault.
+- /object/folder/{id} (PUT)
+  Summary: Edit a folder in your vault.
 
-- /restore/item/{id} (post)
-- /list/object/items (get)
-- /object/item (post)
-- /object/item/{id} (put, get, delete)
+Lock & Unlock
+-------------
+- /lock (POST)
+  Summary: Lock your vault.
+- /unlock (POST)
+  Summary: Unlock your vault.
 
-## Attachments & Fields
+Miscellaneous
+-------------
+- /generate (GET)
+  Summary: Generate a password or passphrase.
+- /object/fingerprint/me (GET)
+  Summary: Retrieve your fingerprint phrase.
+- /object/template/{type} (GET)
+  Summary: Retrieve a JSON template for any object.
+- /status (GET)
+  Summary: Get the status of the Bitwarden CLI.
+- /sync (POST)
+  Summary: Sync your vault.
 
-- /attachment (post)
-- /object/attachment/{id} (get, delete)
-- /object/username/{id} (get)
-- /object/password/{id} (get)
-- /object/uri/{id} (get)
-- /object/totp/{id} (get)
-- /object/notes/{id} (get)
-- /object/exposed/{id} (get)
+Send
+----
+- /list/object/send (GET)
+  Summary: Retrieve a list of Sends.
+- /object/send (POST)
+  Summary: Create a Send.
+- /object/send/{id} (DELETE)
+  Summary: Delete a Send.
+- /object/send/{id} (GET)
+  Summary: Retrieve a Send.
+- /object/send/{id} (PUT)
+  Summary: Edit a Send.
+- /send/{id}/remove-password (POST)
+  Summary: Remove the password from a Send.
 
-## Folders
-
-- /object/folder (post)
-- /object/folder/{id} (put, get, delete)
-- /list/object/folders (get)
-
-## Send
-
-XXX: I'm not using these functions, so won't be developing them.
-
-- /object/send (post)
-- /object/send/{id} (put, get, delete)
-- /list/object/send (get)
-- /send/{id}/remove-password (post)
-
-## Collections & Organizations
-
-XXX: I'm not using these functions, so won't be developing them.
-
-- /move/{itemid}/{organizationId} (post)
-- /object/org-collection (post)
-- /object/org-collection/{id} (put, get, delete)
-- /list/object/org-collections (get)
-- /list/object/collections (get)
-- /list/object/organizations (get)
-- /list/object/org-members (get)
-- /confirm/org-member/{id} (post)
-
-## Misc
-
-- /sync (post)
-- /status (get)
-- /generate (get)
-- /object/template/{type} (get)
-- /object/fingerprint/me (get)
+Vault Items
+-----------
+- /list/object/items (GET)
+  Summary: Retrieve a list of items in your vault.
+- /object/item (POST)
+  Summary: Add a new item to your vault.
+- /object/item/{id} (DELETE)
+  Summary: Delete an item from your vault.
+- /object/item/{id} (GET)
+  Summary: Retrieve an item from your vault.
+- /object/item/{id} (PUT)
+  Summary: Edit an item in your Vault.
+- /restore/item/{id} (POST)
+  Summary: Restore a deleted item.

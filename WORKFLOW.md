@@ -52,6 +52,7 @@ these procedures when working on this repository.
 ### Pre-commit Configuration
 
 Two pre-commit configs available:
+
 - `.pre-commit-config.yaml` - Check-only (default, makes no changes)
 - `.pre-commit-config-fix.yaml` - Auto-fix (applies fixes automatically)
 
@@ -185,18 +186,21 @@ After creating a new feature/fix/bug branch:
 ### API Client-Specific Guidelines
 
 #### Error Handling Implementation
+
 - Implement flexible error handling that can be configured per instance
 - Support different error levels and logging granularity
 - Handle authentication errors, network errors, and API-specific errors
 - Provide clear error messages and proper exception hierarchy
 
 #### Authentication Handling
+
 - Support bearer token authentication
 - Handle token refresh and expiration
 - Implement secure credential storage
 - Support different authentication methods as needed
 
 #### Data Formatting
+
 - Implement proper JSON serialization/deserialization
 - Handle different data types and formats
 - Validate input data before sending to API

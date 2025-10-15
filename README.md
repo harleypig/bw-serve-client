@@ -14,7 +14,23 @@ it.
 
 ## Generated Code
 
-XXX: TBD
+This library is generated from the Bitwarden Vault Management API swagger specification. The source swagger file is located at `docs/vault-management-api.json`.
+
+### Utility Scripts
+
+Development and maintenance utilities are located in the `scripts/` directory:
+
+- **`scripts/extract_routes.py`** - Extract API routes from the swagger file for documentation
+- See `scripts/README.md` for detailed usage instructions
+
+You can also use the provided Makefile for common tasks:
+
+```bash
+make extract-routes      # Extract routes in markdown format
+make extract-routes-text # Extract routes in text format
+make extract-routes-json # Extract routes in JSON format
+make help               # Show all available commands
+```
 
 ## Requirements
 
@@ -48,6 +64,7 @@ module here for completeness. Be sure to read the
 * [docs](https://bitwarden.com/help/cli/#using-an-api-key)
 
 Environment variables (both required):
+
 * BW_CLIENTID
 * BW_CLIENTSECRET
 
@@ -64,9 +81,11 @@ Capture BW_SESSION and set it.
 In bash, only bash scripts can be sourced, so we can't set the environment
 variable outside of the script. Provide an option for the user to be to do
 something like the following.
+
 ```
 BW_SESSION="$(bw-serve-client unlock [--passwordenv|--passwordfile|prompt])"
 ```
+
 So they aren't stomping all over themselves when using both the command line
 and this module.
 
@@ -77,13 +96,16 @@ There is a --session option for each command, but I'm not supporting that.
 ### pip install
 
 If the python package is hosted on a repository, you can install directly using:
+
 ```sh
 pip install git+https://github.com/harleypig/bw-serve-client.git
 ```
+
 (you may need to run `pip` with root permission: `sudo pip install
 git+https://github.com/harleypig/bw-serve-client.git`)
 
 Then import the package:
+
 ```python
 import bw_serve_client
 ```

@@ -8,16 +8,19 @@ bw-serve-client Python library based on the Bitwarden Vault Management API.
 Based on the API routes, the following classes should be implemented:
 
 ### VaultItems
+
 - `/list/object/items` (GET)
 - `/object/item` (POST)
 - `/object/item/{id}` (GET, PUT, DELETE)
 - `/restore/item/{id}` (POST)
 
 ### Attachments
+
 - `/attachment` (POST)
 - `/object/attachment/{id}` (GET, DELETE)
 
 ### ItemFields
+
 - `/object/username/{id}` (GET)
 - `/object/password/{id}` (GET)
 - `/object/uri/{id}` (GET)
@@ -26,17 +29,20 @@ Based on the API routes, the following classes should be implemented:
 - `/object/exposed/{id}` (GET)
 
 ### Folders
+
 - `/object/folder` (POST)
 - `/object/folder/{id}` (GET, PUT, DELETE)
 - `/list/object/folders` (GET)
 
 ### VaultControl
+
 - `/lock` (POST)
 - `/unlock` (POST)
 - `/sync` (POST)
 - `/status` (GET)
 
 ### Utilities
+
 - `/generate` (GET)
 - `/object/template/{type}` (GET)
 - `/object/fingerprint/me` (GET)

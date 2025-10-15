@@ -58,6 +58,7 @@ poetry run mypy --html-report .mypy-reports bw_serve_client/
 ```
 
 **Key principles:**
+
 - All public methods must have complete type annotations
 - Use pydantic models for all API data structures
 - mypy catches type errors before runtime
@@ -66,6 +67,7 @@ poetry run mypy --html-report .mypy-reports bw_serve_client/
 ### Development Tools
 
 For detailed code quality checks and development guidelines, see:
+
 - [AGENTS.md](../AGENTS.md) - Pre-commit configuration and tool usage
 - [WORKFLOW.md](../WORKFLOW.md) - Development process and quality gates
 

@@ -1,6 +1,7 @@
 # Pre-commit configuration for bw-serve-client
 #
-# ⚠️  IMPORTANT: This configuration is for CHECKING ONLY - NO CHANGES WILL BE MADE ⚠️
+# ⚠️  IMPORTANT: This configuration is for CHECKING ONLY ⚠️
+# ⚠️            NO CHANGES WILL BE MADE                  ⚠️
 #
 # This config should NEVER modify files. If a tool doesn't have a check-only
 # mode, it should either:
@@ -54,14 +55,6 @@ repos:
         description: Check if poetry.lock is up to date
         pass_filenames: false
         always_run: true
-      - id: poetry-export-check
-        name: poetry-export-check
-        entry: bash
-        language: system
-        description: Check if requirements.txt is up to date
-        args: ['-c', 'poetry export --format=requirements.txt --without-hashes > /tmp/requirements.txt && diff requirements.txt /tmp/requirements.txt || (echo "requirements.txt is out of date. Run pre-commit with --config .pre-commit-config-fix.yaml to fix." && exit 1)']
-        pass_filenames: false
-        always_run: true
       - id: yapf
         name: yapf
         entry: poetry run yapf
@@ -69,7 +62,13 @@ repos:
         description: Check Python code formatting with yapf
         args: ['--style=pyproject.toml', '--diff']
         types: [python]
-
+      - id: isort
+        name: isort
+        entry: poetry run isort
+        language: system
+        description: Check Python import sorting with isort
+        args: ['--check-only', '--diff', '--profile', 'black']
+        types: [python]
       - id: flake8
         name: flake8
         entry: poetry run flake8

@@ -11,15 +11,6 @@ library for Bitwarden Vault Management API.
   - Document the generation process and tools used
   - Add note about keeping the swagger file up to date
 
-## Create Route Extraction Script
-
-- [x] **Create script to extract routes from swagger file**
-  - Build a bash or Python utility to parse `docs/vault-management-api.json`
-  - Extract all API endpoints and their HTTP methods
-  - Generate a formatted list for easy comparison with planned architecture
-  - Make it easy to check if `docs/api-architecture.md` needs updates
-  - Consider outputting in markdown format for direct inclusion in docs
-
 ## Core Library Implementation
 
 - [ ] **Implement error/logging module**
@@ -91,12 +82,6 @@ library for Bitwarden Vault Management API.
   - Demonstrate authentication setup
 
 ## Code Quality and Standards
-
-- [x] **Implement pre-commit hooks**
-  - Set up `.pre-commit-config.yaml` for checks only
-  - Set up `.pre-commit-config-fix.yaml` for auto-fixes
-  - Include flake8, mypy, yapf, and other quality tools
-  - Ensure all hooks are platform-portable
 
 - [ ] **Enhance pre-commit hooks**
   - Add yesqa pre-commit hook for removing unused noqa comments
@@ -176,6 +161,7 @@ library for Bitwarden Vault Management API.
   - Set up project website (if needed)
   - Create interactive examples
   - Add tutorial content
+  - Use github pages
 
 ## Regular Updates
 

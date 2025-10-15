@@ -7,14 +7,16 @@ Bitwarden CLI's `bw serve` command.
 If you're looking for Bitwarden's public api (for organizational tools and
 stuff) that API is [here](https://bitwarden.com/help/api/).
 
-Please note that this module won't be supporting email and master password
-login to start with. It's not the most secure method, but pull requests are
-welcome. Also, SSO support is low on the todo list, as the author doesn't use
-it.
+This library focuses on providing a clean Python interface to the Bitwarden
+Vault Management API. It does not handle authentication or login processes -
+users must manage their own Bitwarden CLI authentication and provide the
+necessary session keys to the library.
 
 ## Generated Code
 
-This library is generated from the Bitwarden Vault Management API swagger specification. The source swagger file is located at `docs/vault-management-api.json`.
+This library is generated from the Bitwarden Vault Management API swagger
+specification. The source swagger file is located at
+`docs/vault-management-api.json`.
 
 ### Utility Scripts
 
@@ -41,55 +43,73 @@ make help               # Show all available commands
   - Instructions can be found
     [here](https://bitwarden.com/help/cli/#download-and-install)
 
-## `bw serve` Configuration
+## Prerequisites
 
-This module expects the user of this module to manage the configuration and
-setup of the `bw serve` server. Documentation is
-[here](https://bitwarden.com/help/cli/#serve).
+### Bitwarden CLI Setup
 
-### Authentication Steps
+This library requires the [Bitwarden CLI](https://bitwarden.com/download/#downloads-command-line-interface)
+to be installed and configured. The CLI must be authenticated and the vault
+unlocked before using this library.
 
-These authentication steps are required for the `bw` cli tool regardless of
-how it's being used. I'm including the basic steps you'll need to use this
-module here for completeness. Be sure to read the
-[documentation](https://bitwarden.com/help/cli/).
+#### Installation
 
-* Check status
-  - unauthenticated, need to run `bw login --apikey`
-  - locked, need to run `bw unlock`
-  - unlocked, nothing needs to be done
+Follow the [official installation guide](https://bitwarden.com/help/cli/#download-and-install)
+for your operating system.
 
-#### `bw login --apikey`
+#### Authentication
 
-* [docs](https://bitwarden.com/help/cli/#using-an-api-key)
+The Bitwarden CLI must be authenticated before using this library. This
+typically involves:
 
-Environment variables (both required):
+1. **Login** (one-time setup):
+   ```bash
+   bw login
+   # or with API key:
+   bw login --apikey
+   ```
 
-* BW_CLIENTID
-* BW_CLIENTSECRET
+2. **Unlock** (required each session):
+   ```bash
+   bw unlock
+   # or with environment variable:
+   bw unlock --passwordenv BW_PASSWORD
+   # or with password file:
+   bw unlock --passwordfile /path/to/password.txt
+   ```
 
-#### `bw unlock`
+3. **Start the API server**:
+   ```bash
+   bw serve
+   # or with custom port:
+   bw serve --port 8080
+   ```
 
-[docs](https://bitwarden.com/help/cli/#unlock)
+#### Session Key
 
-* --passwordenv <ENVIRONMENT_VARIABLE>
-* --passwordfile /path/to/file
-* prompt for password
+After unlocking, the CLI returns a session key that must be provided to this
+library for API authentication. You can capture it like this:
 
-Capture BW_SESSION and set it.
+```bash
+# Get session key only (raw output)
+BW_SESSION="$(bw unlock --raw)"
 
-In bash, only bash scripts can be sourced, so we can't set the environment
-variable outside of the script. Provide an option for the user to be to do
-something like the following.
-
+# Or check if already unlocked
+bw status
 ```
-BW_SESSION="$(bw-serve-client unlock [--passwordenv|--passwordfile|prompt])"
-```
 
-So they aren't stomping all over themselves when using both the command line
-and this module.
+The session key is then passed to the library's client constructor.
 
-There is a --session option for each command, but I'm not supporting that.
+### Library Authentication
+
+This library does **not** handle Bitwarden CLI authentication or login
+processes. It expects:
+
+1. The `bw serve` server to be running and accessible
+2. A valid session key to be provided for API authentication
+3. The vault to be unlocked (session key valid)
+
+The library focuses on providing a clean Python interface to the API endpoints
+once authentication is handled externally.
 
 ## Installation
 
@@ -116,7 +136,50 @@ Execute `pytest` to run the tests.
 
 ## Getting Started
 
-XXX: TBD
+### Basic Usage
+
+```python
+import bw_serve_client
+
+# Initialize client with session key
+client = bw_serve_client.Client(
+    base_url="http://localhost:8087",  # Default bw serve URL
+    session_key="your_session_key_here"
+)
+
+# List vault items
+items = client.list_items()
+
+# Get a specific item
+item = client.get_item("item-id-here")
+
+# Create a new folder
+folder = client.create_folder({"name": "My New Folder"})
+```
+
+### Session Key Management
+
+The library requires a valid session key for all API operations. You can
+obtain this from the Bitwarden CLI:
+
+```python
+import subprocess
+import bw_serve_client
+
+# Get session key from CLI
+result = subprocess.run(
+    ["bw", "unlock", "--raw"], 
+    capture_output=True, 
+    text=True
+)
+session_key = result.stdout.strip()
+
+# Initialize client
+client = bw_serve_client.Client(session_key=session_key)
+```
+
+**Note**: Session keys expire when the vault is locked or after a period of
+inactivity. You may need to refresh the session key periodically.
 
 ## Documentation for API Endpoints
 

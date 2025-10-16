@@ -1,6 +1,6 @@
 [flake8]
 # Match yapf configuration
-max-line-length = 79
+max-line-length = 92
 # Ignore E111 (indentation not multiple of 4) since we use 2-space indentation
 # Ignore E251 (unexpected spaces around keyword/parameter equals) to match yapf style
 # Ignore F401 (imported but unused) for now - can be addressed separately

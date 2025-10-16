@@ -67,7 +67,7 @@ repos:
         entry: poetry run isort
         language: system
         description: Check Python import sorting with isort
-        args: ['--check-only', '--diff', '--profile', 'black']
+        args: ['--check-only', '--diff']
         types: [python]
       - id: flake8
         name: flake8
@@ -80,6 +80,12 @@ repos:
         entry: poetry run mypy
         language: system
         description: Type check Python code with mypy
+        types: [python]
+      - id: pyright
+        name: pyright
+        entry: poetry run pyright
+        language: system
+        description: Type check Python code with pyright
         types: [python]
 
   # Documentation

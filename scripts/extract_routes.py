@@ -53,10 +53,7 @@ class RouteExtractor:
       with open(self.swagger_file, 'r', encoding='utf-8') as f:
         return json.load(f)
     except FileNotFoundError:
-      print(
-        f"Error: Swagger file '{self.swagger_file}' not found.",
-        file=sys.stderr
-      )
+      print(f"Error: Swagger file '{self.swagger_file}' not found.", file=sys.stderr)
       sys.exit(1)
     except json.JSONDecodeError as e:
       print(f"Error: Invalid JSON in swagger file: {e}", file=sys.stderr)
@@ -67,15 +64,12 @@ class RouteExtractor:
     routes: List[Dict[str, Any]] = []
 
     if 'paths' not in self.data:
-      print(
-        "Error: No 'paths' section found in swagger file.", file=sys.stderr
-      )
+      print("Error: No 'paths' section found in swagger file.", file=sys.stderr)
       return routes
 
     for path, methods in self.data['paths'].items():
       for method, details in methods.items():
-        if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD',
-                              'OPTIONS']:
+        if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
           route_info = {
             'path': path,
             'method': method.upper(),
@@ -211,8 +205,7 @@ class RouteExtractor:
 def main():
   """Main entry point for the script."""
   parser = argparse.ArgumentParser(
-    description=
-    "Extract API routes from Bitwarden Vault Management API swagger file",
+    description="Extract API routes from Bitwarden Vault Management API swagger file",
     formatter_class=argparse.RawDescriptionHelpFormatter,
     epilog=get_usage_text()
   )
@@ -233,10 +226,7 @@ def main():
   )
 
   parser.add_argument(
-    '--output',
-    '-o',
-    type=str,
-    help=f'Output file (default: {DEFAULT_OUTPUT})'
+    '--output', '-o', type=str, help=f'Output file (default: {DEFAULT_OUTPUT})'
   )
 
   args = parser.parse_args()

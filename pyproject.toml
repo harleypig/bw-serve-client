@@ -1,6 +1,6 @@
 [project]
 name = "bw-serve-client"
-version = "0.0.5"
+version = "0.1.1"
 description = "Bitwarden CLI Vault Management API"
 authors = [
     {name = "Alan Young", email = "harleypig@harleypig.com"}
@@ -13,6 +13,7 @@ dependencies = [
     "aenum>=3.1.11",
     "pydantic>=2.0.0,<3.0.0",
     "python-dateutil>=2.5.3",
+    "requests>=2.25.0,<3.0.0",
     "urllib3>=1.25.3,<2.1.0",
 ]
 
@@ -45,6 +46,14 @@ docs = [
     "sphinx-lint>=0.9.1,<1.0.0",
 ]
 
+[dependency-groups]
+dev = [
+    "types-requests (>=2.32.4.20250913,<3.0.0.0)",
+    "setuptools-scm (>=9.2.1,<10.0.0)",
+    "bump2version (>=1.0.1,<2.0.0)",
+    "pyright (>=1.1.406,<2.0.0)"
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -65,13 +74,20 @@ check_untyped_defs = false
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
 
+[tool.isort]
+profile = "black"
+line_length = 92
+indent = "  "
+
+# [tool.pyright]
+
 [tool.yapf]
 # Use PEP8 style as the base
 based_on_style = "pep8"
 
 # Basic formatting
 indent_width = 2
-column_limit = 79
+column_limit = 92
 continuation_indent_width = 2
 
 # Whitespace and docstring settings

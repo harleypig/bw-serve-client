@@ -10,6 +10,7 @@ following classes.
 **Purpose**: Handles all HTTP communication with the Bitwarden Vault Management API
 
 **Responsibilities**:
+
 - HTTP request/response handling
 - Authentication (session-based via `bw serve`)
 - Data serialization/deserialization (JSON, multipart/form-data)
@@ -18,6 +19,7 @@ following classes.
 - Request/response logging
 
 **Key Methods**:
+
 - `_make_request(method, endpoint, data=None, params=None, files=None)`
 - `_serialize_data(data, content_type)`
 - `_deserialize_response(response)`
@@ -30,6 +32,7 @@ following classes.
 **Purpose**: Pydantic-based data models for all API request/response objects
 
 **Key Models**:
+
 - `VaultItem` (base item with common fields)
 - `LoginItem`, `CardItem`, `IdentityItem`, `SecureNoteItem` (item types)
 - `Folder`, `Collection`, `Organization`
@@ -38,6 +41,7 @@ following classes.
 - Request/Response wrappers for each endpoint
 
 **Features**:
+
 - Type validation and coercion
 - JSON serialization/deserialization
 - Field validation (required, optional, format validation)
@@ -48,6 +52,7 @@ following classes.
 **Purpose**: Maps API endpoints to class methods with parameter handling
 
 **Responsibilities**:
+
 - Path parameter extraction and validation
 - Query parameter handling
 - Request body construction
@@ -55,6 +60,7 @@ following classes.
 - Method signature generation based on API spec
 
 **Pattern**:
+
 ```python
 def get_item(self, item_id: str) -> VaultItem:
     return self._client.get(f"/object/item/{item_id}")
@@ -65,6 +71,7 @@ def get_item(self, item_id: str) -> VaultItem:
 **Purpose**: Centralized error handling and logging
 
 **Features**:
+
 - HTTP status code mapping to custom exceptions
 - API-specific error message parsing
 - Logging configuration (debug, info, warning, error)
@@ -72,6 +79,7 @@ def get_item(self, item_id: str) -> VaultItem:
 - User-friendly error messages
 
 **Exception Hierarchy**:
+
 - `BitwardenAPIError` (base)
 - `AuthenticationError`, `ValidationError`, `NotFoundError`, `ServerError`
 
@@ -80,46 +88,55 @@ def get_item(self, item_id: str) -> VaultItem:
 Based on the API analysis, organize into these main classes:
 
 ### 1. `VaultItems`
+
 - CRUD operations for vault items
 - Item type-specific methods (login, card, identity, secure note)
 - Item restoration and deletion
 
 ### 2. `Attachments`
+
 - File upload/download
 - Attachment metadata management
 - Multipart form data handling
 
 ### 3. `ItemFields`
+
 - Username, password, TOTP retrieval
 - URI and notes management
 - Security exposure checking
 
 ### 4. `Folders`
+
 - Folder CRUD operations
 - Folder hierarchy management
 
 ### 5. `Collections`
+
 - Collection management
 - Organization membership
 - Item-to-collection assignment
 
 ### 6. `VaultControl`
+
 - Lock/unlock operations
 - Sync functionality
 - Status checking
 
 ### 7. `Utilities`
+
 - Password generation
 - Template retrieval
 - Fingerprint management
 
 ### 8. `Send`
+
 - Send creation and management
 - Password removal from sends
 
 ## Implementation Strategy
 
 ### Phase 1: Core Infrastructure
+
 1. `ApiClient` with basic HTTP handling
 2. `BaseModel` with core Pydantic models
 3. `ErrorHandler` with basic error management
@@ -127,18 +144,21 @@ Based on the API analysis, organize into these main classes:
 5. Create tests with pytest
 
 ### Phase 2: Core Functionality
+
 1. `VaultItems` class (most commonly used)
 2. `VaultControl` for basic vault operations
 3. `Folders` for organization
 4. Create tests with pytest
 
 ### Phase 3: Advanced Features
+
 1. `Attachments` with file handling
 2. `Collections` and organization management
 3. `Send` functionality
 4. Create tests with pytest
 
 ### Phase 4: Polish and Optimization
+
 1. Comprehensive error handling
 2. Advanced logging and debugging
 3. Performance optimizations
@@ -147,24 +167,28 @@ Based on the API analysis, organize into these main classes:
 ## Key Design Decisions
 
 ### Type Safety
+
 - Use Pydantic for all data models
 - Full type hints throughout
 - mypy compliance
 - Runtime validation
 
 ### Error Handling
+
 - Graceful degradation
 - Clear error messages
 - Configurable logging levels
 - Retry mechanisms for transient failures
 
 ### API Design
+
 - Method names match API endpoint patterns
 - Intuitive parameter handling
 - Consistent return types
 - Clear documentation
 
 ### Testing Strategy
+
 - Unit tests for all classes
 - Mock external API calls
 - Integration tests with real API

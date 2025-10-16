@@ -66,14 +66,14 @@ repos:
         entry: poetry run yapf
         language: system
         description: Format Python code with yapf
-        args: ['--style=pyproject.toml', '--in-place']
+        args: ['--in-place', '-vv']
         types: [python]
       - id: isort
         name: isort
         entry: poetry run isort
         language: system
         description: Sort Python imports
-        args: ['--profile', 'black', '--line-length', '88']
+        args: ['--diff', '.']
         types: [python]
       - id: flake8
         name: flake8
@@ -86,6 +86,12 @@ repos:
         entry: poetry run mypy
         language: system
         description: Type check Python code with mypy
+        types: [python]
+      - id: pyright
+        name: pyright
+        entry: poetry run pyright
+        language: system
+        description: Type check Python code with pyright
         types: [python]
 
   # Documentation

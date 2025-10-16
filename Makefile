@@ -1,32 +1,37 @@
-# bw-serve-client Makefile
-# Convenience commands for common development tasks
+# Version management
+.PHONY: version-patch version-minor version-major version-show
 
-.PHONY: help extract-routes test lint format clean
+# Show current version
+version-show:
+	@poetry run python -c "from bw_serve_client import __version__; print(f'Current version: {__version__}')"
 
-help: ## Show this help message
-	@echo "Available commands:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+# Bump patch version (0.1.0 → 0.1.1)
+version-patch:
+	@poetry run bump2version patch
 
-extract-routes: ## Extract API routes from swagger file
-	python3 scripts/extract_routes.py docs/vault-management-api.json
+# Bump minor version (0.1.0 → 0.2.0)
+version-minor:
+	@poetry run bump2version minor
 
-extract-routes-text: ## Extract routes in text format
-	python3 scripts/extract_routes.py -f text docs/vault-management-api.json
+# Bump major version (0.1.0 → 1.0.0)
+version-major:
+	@poetry run bump2version major
 
-extract-routes-json: ## Extract routes in JSON format
-	python3 scripts/extract_routes.py -f json docs/vault-management-api.json
+# Development helpers
+.PHONY: test lint format install
 
-test: ## Run tests
-	python3 -m pytest tests/
+# Run tests
+test:
+	@poetry run pytest --cov=bw_serve_client --cov-report=term-missing
 
-lint: ## Run linting checks
-	flake8 bw_serve_client/ tests/
-	mypy bw_serve_client/
+# Run linting
+lint:
+	@poetry run pre-commit run --all-files
 
-format: ## Format code
-	yapf -i -r bw_serve_client/ tests/ scripts/
+# Format code
+format:
+	@poetry run pre-commit run --all-files --config .pre-commit-config-fix.yaml
 
-clean: ## Clean up temporary files
-	find . -type f -name "*.pyc" -delete
-	find . -type d -name "__pycache__" -delete
-	find . -type d -name "*.egg-info" -exec rm -rf {} +
+# Install dependencies
+install:
+	@poetry install

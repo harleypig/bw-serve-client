@@ -71,6 +71,7 @@ ignore_missing_imports = true
 #namespace_packages = true
 #explicit_package_bases = true
 check_untyped_defs = false
+exclude = ["examples/"]
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"

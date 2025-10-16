@@ -2,10 +2,10 @@ from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 from datetime import date, datetime
 from uuid import UUID
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
-  from .global_types import Collection, Field, Folder, Group, Status, Uris
+  from .global_types import Collection, CustomField, Folder, Group, Status, Uris
 
 if TYPE_CHECKING:
   from .send_types import SendTemplate, SendText
@@ -86,7 +86,7 @@ class ItemTemplate(BaseModel):
   card: Optional[Any]
   collectionIds: Optional[List[UUID]]
   favorite: Optional[bool]
-  fields: Optional[List["Field"]]
+  fields: Optional[List["CustomField"]]
   folderId: Optional[UUID]
   identity: Optional[Any]
   login: Optional[Any]

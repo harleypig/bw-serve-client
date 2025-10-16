@@ -14,8 +14,8 @@ from .api_client import (
 
 # Import generated types
 from .types import (  # noqa: F401
-    Collection, Field, Folder, Group, Status, Uris,
-    FieldType, UrisMatch,
+    Collection, CustomField, Folder, Group, Status, Uris,
+    CustomFieldType, UrisMatch,
     ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate,
     ItemCardBrand, ItemSecureNoteType, ItemTemplateReprompt, ItemTemplateType,
     SendTemplate, SendText, LockUnlockSuccess

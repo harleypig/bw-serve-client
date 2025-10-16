@@ -2,10 +2,10 @@ from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 from datetime import date, datetime
 from uuid import UUID
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
-  from .item_types import ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate
+  from .item_types import (ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate)
 
 if TYPE_CHECKING:
   from .send_types import SendTemplate, SendText
@@ -20,15 +20,15 @@ class Collection(BaseModel):
   organizationId: Optional[UUID]
 
 
-class FieldType(Enum):
+class CustomFieldType(Enum):
   VALUE_0 = 0
   VALUE_1 = 1
   VALUE_2 = 2
   VALUE_3 = 3
 
 
-class Field(BaseModel):
-  """Field model"""
+class CustomField(BaseModel):
+  """CustomField model"""
 
   name: Optional[str]
   type: Optional[int]

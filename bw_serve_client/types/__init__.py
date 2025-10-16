@@ -5,20 +5,19 @@ specification for the Bitwarden Vault Management API.
 """
 
 from .global_types import (  # noqa: F401
-    Collection, Field, Folder, Group, Status, Uris,
-    FieldType, UrisMatch
+  Collection, CustomField, CustomFieldType, Folder, Group, Status, Uris, UrisMatch
 )
 from .item_types import (  # noqa: F401
-    ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate,
-    ItemCardBrand, ItemSecureNoteType, ItemTemplateReprompt, ItemTemplateType
+  ItemCard, ItemCardBrand, ItemIdentity, ItemLogin, ItemSecureNote,
+  ItemSecureNoteType, ItemTemplate, ItemTemplateReprompt, ItemTemplateType
 )
-from .send_types import SendTemplate, SendText   # noqa: F401
-from .response_types import LockUnlockSuccess    # noqa: F401
 # other_types module is currently empty
+from .response_types import LockUnlockSuccess  # noqa: F401
+from .send_types import SendTemplate, SendText  # noqa: F401
 
 __all__ = [
   'Collection',
-  'Field',
+  'CustomField',
   'Folder',
   'Group',
   'ItemCard',

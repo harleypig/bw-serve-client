@@ -110,7 +110,9 @@ class TypeGenerator:
   def _get_class_name(self, schema_name: str) -> str:
     """Convert schema name to Python class name."""
     # Handle special cases
-    if schema_name == 'item.card':
+    if schema_name == 'field':
+      return 'CustomField'   # Rename to avoid conflict with Pydantic Field
+    elif schema_name == 'item.card':
       return 'ItemCard'
     elif schema_name == 'item.identity':
       return 'ItemIdentity'
@@ -189,7 +191,8 @@ class TypeGenerator:
         # Generate field annotation
         field_type = self._python_type_from_openapi(prop_schema, module_name)
 
-        # Handle optional fields
+        # Make all fields optional by default for easier usage
+        # Only make required if explicitly marked as required in OpenAPI
         is_required = prop_name in required_fields
         if not is_required:
           field_type = f'Optional[{field_type}]'
@@ -218,7 +221,7 @@ class TypeGenerator:
     if module_name != "global_types":
       imports.append("if TYPE_CHECKING:")
       imports.append(
-        "    from .global_types import Collection, Field, Folder, Group, Status, Uris"
+        "    from .global_types import Collection, CustomField, Folder, Group, Status, Uris"
       )
       imports.append("")
 

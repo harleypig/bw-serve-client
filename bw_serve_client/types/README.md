@@ -7,7 +7,9 @@ This directory contains Pydantic models automatically generated from the Bitward
 The types are organized into logical modules based on their usage patterns:
 
 ### `global_types.py`
+
 Core types used across multiple API endpoints:
+
 - `Collection` - Organization collections
 - `Field` - Custom fields for items
 - `Folder` - Item folders
@@ -16,7 +18,9 @@ Core types used across multiple API endpoints:
 - `Uris` - URI matching configuration
 
 ### `item_types.py`
+
 Types specific to vault items:
+
 - `ItemCard` - Credit card information
 - `ItemIdentity` - Identity/personal information
 - `ItemLogin` - Login credentials
@@ -24,12 +28,16 @@ Types specific to vault items:
 - `ItemTemplate` - Complete item template
 
 ### `send_types.py`
+
 Types for Bitwarden Send functionality:
+
 - `SendTemplate` - Send item template
 - `SendText` - Text-based send items
 
 ### `response_types.py`
+
 API response wrapper types:
+
 - `LockUnlockSuccess` - Lock/unlock operation responses
 
 ## Usage
@@ -72,6 +80,7 @@ python scripts/generate_types.py
 ```
 
 The script will:
+
 1. Parse the OpenAPI specification
 2. Generate Pydantic models with proper type annotations
 3. Handle enums and validation constraints
@@ -81,6 +90,7 @@ The script will:
 ## Dependencies
 
 These types require:
+
 - `pydantic>=2.0.0` - For model validation and serialization
 - `typing` - For type annotations
 - `uuid` - For UUID type support

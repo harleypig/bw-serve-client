@@ -5,6 +5,7 @@ Get up and running with `bw-serve-client` in just a few minutes!
 ## 🎯 What You'll Learn
 
 By the end of this tutorial, you'll know how to:
+
 - Connect to your Bitwarden server
 - Make your first API call
 - Handle basic errors
@@ -72,10 +73,10 @@ client.session.headers.update({
 try:
     items = client.get("/vault/items")
     print(f"Found {len(items)} items in your vault")
-    
+
     for item in items:
         print(f"- {item.get('name', 'Unnamed Item')}")
-        
+
 except Exception as e:
     print(f"Error retrieving items: {e}")
 ```
@@ -97,7 +98,7 @@ try:
     response = client.post("/vault/items", data=new_item)
     print(f"✅ Item created successfully!")
     print(f"Item ID: {response.get('id')}")
-    
+
 except Exception as e:
     print(f"❌ Failed to create item: {e}")
 ```
@@ -115,7 +116,7 @@ updated_data = {
 try:
     response = client.put(f"/vault/items/{item_id}", data=updated_data)
     print("✅ Item updated successfully!")
-    
+
 except Exception as e:
     print(f"❌ Failed to update item: {e}")
 ```
@@ -129,7 +130,7 @@ item_id = "your-item-id"
 try:
     client.delete(f"/vault/items/{item_id}")
     print("✅ Item deleted successfully!")
-    
+
 except Exception as e:
     print(f"❌ Failed to delete item: {e}")
 ```
@@ -145,14 +146,14 @@ client = ApiClient(protocol="https", domain="your-server.com")
 
 try:
     response = client.get("/vault/items")
-    
+
 except AuthenticationError:
     print("❌ Authentication failed. Check your token.")
-    
+
 except BitwardenAPIError as e:
     print(f"❌ API Error: {e}")
     print(f"Status Code: {e.status_code}")
-    
+
 except Exception as e:
     print(f"❌ Unexpected error: {e}")
 ```
@@ -208,30 +209,30 @@ def main():
         timeout=30,
         max_retries=3
     )
-    
+
     # Set authentication
     client.session.headers.update({
         'Authorization': 'Bearer your-auth-token'
     })
-    
+
     try:
         # Test connection
         print("Testing connection...")
         health = client.get("/health")
         print(f"✅ Server is healthy: {health}")
-        
+
         # Get vault items
         print("\nRetrieving vault items...")
         items = client.get("/vault/items")
         print(f"✅ Found {len(items)} items")
-        
+
         # Display first few items
         for i, item in enumerate(items[:3]):
             print(f"  {i+1}. {item.get('name', 'Unnamed')}")
-        
+
         if len(items) > 3:
             print(f"  ... and {len(items) - 3} more items")
-            
+
     except BitwardenAPIError as e:
         print(f"❌ API Error: {e}")
     except Exception as e:
@@ -241,9 +242,10 @@ if __name__ == "__main__":
     main()
 ```
 
-## 🎉 Congratulations!
+## 🎉 Congratulations
 
 You've successfully:
+
 - ✅ Installed the library
 - ✅ Made your first API call
 - ✅ Handled authentication

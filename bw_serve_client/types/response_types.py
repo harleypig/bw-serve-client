@@ -2,20 +2,20 @@ from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 from datetime import date, datetime
 from uuid import UUID
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
-    from .global_types import Collection, Field, Folder, Group, Status, Uris
+  from .global_types import Collection, Field, Folder, Group, Status, Uris
 
 if TYPE_CHECKING:
-    from .item_types import ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate
+  from .item_types import ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate
 
 if TYPE_CHECKING:
-    from .send_types import SendTemplate, SendText
+  from .send_types import SendTemplate, SendText
 
 
 class LockUnlockSuccess(BaseModel):
-    """LockUnlockSuccess model"""
+  """LockUnlockSuccess model"""
 
-    data: Optional[Dict[str, Any]]
-    success: Optional[bool]
+  data: Optional[Dict[str, Any]]
+  success: Optional[bool]

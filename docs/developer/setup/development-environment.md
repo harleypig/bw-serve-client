@@ -89,6 +89,7 @@ pip install -e ".[dev]"
 #### VS Code Setup
 
 1. **Install Extensions:**
+
    ```json
    {
      "recommendations": [
@@ -104,6 +105,7 @@ pip install -e ".[dev]"
    ```
 
 2. **Configure Settings:**
+
    ```json
    {
      "python.defaultInterpreterPath": "./venv/bin/python",
@@ -280,6 +282,7 @@ poetry run pytest tests/ -v
 ```
 
 Expected output:
+
 ```
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-8.4.2
@@ -298,6 +301,7 @@ poetry run pre-commit run --all-files
 ```
 
 Expected output:
+
 ```
 check yaml...............................................................Passed
 check json...............................................................Passed

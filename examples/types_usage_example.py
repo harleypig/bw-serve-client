@@ -10,14 +10,24 @@ from typing import List, Optional
 from uuid import UUID
 
 # Import the generated types
-from bw_serve_client.types import (
-    # Global types
-    Collection, Field, Folder, Group, Status, Uris,
-    # Item types
-    ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate,
-    # Enums
-    FieldType, UrisMatch, ItemCardBrand, ItemSecureNoteType,
-    ItemTemplateReprompt, ItemTemplateType
+from bw_serve_client.types import (  # noqa: E501
+    Collection,
+    Field,
+    FieldType,
+    Folder,
+    Group,
+    ItemCard,
+    ItemCardBrand,
+    ItemIdentity,
+    ItemLogin,
+    ItemSecureNote,
+    ItemSecureNoteType,
+    ItemTemplate,
+    ItemTemplateReprompt,
+    ItemTemplateType,
+    Status,
+    Uris,
+    UrisMatch,
 )
 
 
@@ -26,18 +36,19 @@ def create_login_item() -> ItemTemplate:
     # Create a login item with proper field types
     login_item = ItemTemplate(
         name="Example Login",
-        type=ItemTemplateType.VALUE_0,  # Login type
+        type=ItemTemplateType.VALUE_0.value,  # Login type
         favorite=True,
         notes="This is an example login item",
         login=ItemLogin(
             username="user@example.com",
-            password="secure_password",
-            totp="JBSWY3DPEHPK3PXP"
+            password="secure_password",  # noqa: B106
+            totp="JBSWY3DPEHPK3PXP",
+            uris=None
         ),
         fields=[
             Field(
                 name="Custom Field",
-                type=FieldType.VALUE_0,  # Text field type
+                type=FieldType.VALUE_0.value,  # Text field type
                 value="Custom value"
             )
         ]
@@ -49,7 +60,7 @@ def create_identity_item() -> ItemTemplate:
     """Create an identity item template."""
     identity_item = ItemTemplate(
         name="John Doe Identity",
-        type=ItemTemplateType.VALUE_1,  # Identity type
+        type=ItemTemplateType.VALUE_1.value,  # Identity type
         identity=ItemIdentity(
             firstName="John",
             lastName="Doe",
@@ -69,9 +80,9 @@ def create_card_item() -> ItemTemplate:
     """Create a credit card item template."""
     card_item = ItemTemplate(
         name="Visa Credit Card",
-        type=ItemTemplateType.VALUE_2,  # Card type
+        type=ItemTemplateType.VALUE_2.value,  # Card type
         card=ItemCard(
-            brand=ItemCardBrand.VISA,
+            brand=ItemCardBrand.VISA.value,
             cardholderName="John Doe",
             number="4111111111111111",
             expMonth="12",
@@ -86,9 +97,9 @@ def create_secure_note() -> ItemTemplate:
     """Create a secure note item template."""
     secure_note = ItemTemplate(
         name="Secret Note",
-        type=ItemTemplateType.VALUE_3,  # Secure note type
+        type=ItemTemplateType.VALUE_3.value,  # Secure note type
         secureNote=ItemSecureNote(
-            type=ItemSecureNoteType.VALUE_0
+            type=ItemSecureNoteType.VALUE_0.value
         ),
         notes="This is a secure note with sensitive information"
     )
@@ -120,20 +131,20 @@ def create_folder() -> Folder:
 def demonstrate_type_validation():
     """Demonstrate type validation and error handling."""
     print("🔍 Demonstrating type validation...")
-    
+
     try:
         # This should work fine
         valid_item = ItemTemplate(
             name="Valid Item",
-            type=ItemTemplateType.VALUE_0,
+            type=ItemTemplateType.VALUE_0.value,
             favorite=True
         )
         print(f"✅ Valid item created: {valid_item.name}")
-        
+
         # This should also work (optional fields)
         minimal_item = ItemTemplate(name="Minimal Item")
         print(f"✅ Minimal item created: {minimal_item.name}")
-        
+
     except Exception as e:
         print(f"❌ Validation error: {e}")
 
@@ -142,35 +153,35 @@ def main():
     """Main example function."""
     print("🚀 Bitwarden Vault Management API Types Example")
     print("=" * 50)
-    
+
     # Create different types of items
     print("\n📝 Creating different item types...")
-    
+
     login_item = create_login_item()
     print(f"✅ Login item: {login_item.name} (type: {login_item.type})")
-    
+
     identity_item = create_identity_item()
     print(f"✅ Identity item: {identity_item.name} (type: {identity_item.type})")
-    
+
     card_item = create_card_item()
     print(f"✅ Card item: {card_item.name} (type: {card_item.type})")
-    
+
     secure_note = create_secure_note()
     print(f"✅ Secure note: {secure_note.name} (type: {secure_note.type})")
-    
+
     # Create organizational structures
     print("\n📁 Creating organizational structures...")
-    
+
     collection = create_collection()
     print(f"✅ Collection: {collection.name}")
-    
+
     folder = create_folder()
     print(f"✅ Folder: {folder.name}")
-    
+
     # Demonstrate type validation
     print("\n🔍 Type validation demonstration...")
     demonstrate_type_validation()
-    
+
     print("\n🎉 Example completed successfully!")
     print("\n💡 Key benefits of using generated types:")
     print("   - Type safety and IDE autocompletion")

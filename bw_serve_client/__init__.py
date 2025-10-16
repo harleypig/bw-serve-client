@@ -12,8 +12,14 @@ from .api_client import (
   ValidationError,
 )
 
-# Import all generated types
-from .types import *
+# Import generated types
+from .types import (  # noqa: F401
+    Collection, Field, Folder, Group, Status, Uris,
+    FieldType, UrisMatch,
+    ItemCard, ItemIdentity, ItemLogin, ItemSecureNote, ItemTemplate,
+    ItemCardBrand, ItemSecureNoteType, ItemTemplateReprompt, ItemTemplateType,
+    SendTemplate, SendText, LockUnlockSuccess
+)
 
 __version__ = "0.1.1"
 __all__ = [

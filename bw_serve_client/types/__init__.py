@@ -12,8 +12,8 @@ from .item_types import (  # noqa: F401
   ItemSecureNoteType, ItemTemplate, ItemTemplateReprompt, ItemTemplateType
 )
 # other_types module is currently empty
-from .response_types import LockUnlockSuccess  # noqa: F401
-from .send_types import SendTemplate, SendText  # noqa: F401
+from .response_types import LockUnlockSuccess    # noqa: F401
+from .send_types import SendTemplate, SendText   # noqa: F401
 
 __all__ = [
   'Collection',

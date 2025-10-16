@@ -7,93 +7,102 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
-    from .global_types import Collection, CustomField, Folder, Group, Status, Uris
+  from .global_types import Collection, CustomField, Folder, Group, Status, Uris
 
 if TYPE_CHECKING:
-    from .send_types import SendTemplate, SendText
+  from .send_types import SendTemplate, SendText
 
 
 class ItemCardBrand(Enum):
-    """Enumeration for brand field values."""
+  """Enumeration for brand field values."""
 
-    VISA = 'visa'
+  VISA = 'visa'
+
 
 class ItemCard(BaseModel):
-    """ItemCard model."""
+  """ItemCard model."""
 
-    brand: Optional[str]
-    cardholderName: Optional[str]
-    code: Optional[str]
-    expMonth: Optional[str]
-    expYear: Optional[str]
-    number: Optional[str]
+  brand: Optional[str]
+  cardholderName: Optional[str]
+  code: Optional[str]
+  expMonth: Optional[str]
+  expYear: Optional[str]
+  number: Optional[str]
+
 
 class ItemIdentity(BaseModel):
-    """ItemIdentity model."""
+  """ItemIdentity model."""
 
-    address1: Optional[str]
-    address2: Optional[str]
-    address3: Optional[str]
-    city: Optional[str]
-    company: Optional[str]
-    country: Optional[str]
-    email: Optional[str]
-    firstName: Optional[str]
-    lastName: Optional[str]
-    licenseNumber: Optional[str]
-    middleName: Optional[str]
-    passportNumber: Optional[str]
-    phone: Optional[str]
-    postalCode: Optional[str]
-    ssn: Optional[str]
-    state: Optional[str]
-    title: Optional[str]
-    username: Optional[str]
+  address1: Optional[str]
+  address2: Optional[str]
+  address3: Optional[str]
+  city: Optional[str]
+  company: Optional[str]
+  country: Optional[str]
+  email: Optional[str]
+  firstName: Optional[str]
+  lastName: Optional[str]
+  licenseNumber: Optional[str]
+  middleName: Optional[str]
+  passportNumber: Optional[str]
+  phone: Optional[str]
+  postalCode: Optional[str]
+  ssn: Optional[str]
+  state: Optional[str]
+  title: Optional[str]
+  username: Optional[str]
+
 
 class ItemLogin(BaseModel):
-    """ItemLogin model."""
+  """ItemLogin model."""
 
-    password: Optional[str]
-    totp: Optional[str]
-    uris: Optional[Any]
-    username: Optional[str]
+  password: Optional[str]
+  totp: Optional[str]
+  uris: Optional[Any]
+  username: Optional[str]
+
 
 class ItemSecureNoteType(Enum):
-    """Enumeration for type field values."""
+  """Enumeration for type field values."""
 
-    VALUE_0 = 0
+  VALUE_0 = 0
+
 
 class ItemSecureNote(BaseModel):
-    """ItemSecureNote model."""
+  """ItemSecureNote model."""
 
-    type: Optional[int]
+  type: Optional[int]
+
 
 class ItemTemplateReprompt(Enum):
-    """Enumeration for reprompt field values."""
+  """Enumeration for reprompt field values."""
 
-    VALUE_0 = 0
-    VALUE_1 = 1
+  VALUE_0 = 0
+  VALUE_1 = 1
+
+
 class ItemTemplateType(Enum):
-    """Enumeration for type field values."""
+  """Enumeration for type field values."""
 
-    VALUE_0 = 1
-    VALUE_1 = 2
-    VALUE_2 = 3
-    VALUE_3 = 4
+  VALUE_0 = 1
+  VALUE_1 = 2
+  VALUE_2 = 3
+  VALUE_3 = 4
+
 
 class ItemTemplate(BaseModel):
-    """ItemTemplate model."""
+  """ItemTemplate model."""
 
-    card: Optional[Any]
-    collectionIds: Optional[List[UUID]]
-    favorite: Optional[bool]
-    fields: Optional[List["CustomField"]]
-    folderId: Optional[UUID]
-    identity: Optional[Any]
-    login: Optional[Any]
-    name: Optional[str]
-    notes: Optional[str]
-    organizationId: Optional[UUID]
-    reprompt: Optional[int]
-    secureNote: Optional[Any]
-    type: Optional[int]
+  card: Optional[Any]
+  collectionIds: Optional[List[UUID]]
+  favorite: Optional[bool]
+  fields: Optional[List["CustomField"]]
+  folderId: Optional[UUID]
+  identity: Optional[Any]
+  login: Optional[Any]
+  name: Optional[str]
+  notes: Optional[str]
+  organizationId: Optional[UUID]
+  reprompt: Optional[int]
+  secureNote: Optional[Any]
+  type: Optional[int]

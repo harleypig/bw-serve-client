@@ -132,7 +132,7 @@ class TypeGenerator:
       return ''.join(word.capitalize() for word in schema_name.split('_'))
 
   def _generate_enum_class(
-      self, field_name: str, enum_values: List[Any], parent_class: str
+    self, field_name: str, enum_values: List[Any], parent_class: str
   ) -> str:
     """Generate enum class for a field."""
     enum_name = f"{parent_class}{field_name.capitalize()}"
@@ -180,7 +180,7 @@ class TypeGenerator:
     # Add docstring
     description = schema.get('description', f'{class_name} model')
     if not description.endswith('.'):
-        description += '.'
+      description += '.'
     lines.append(f'    """{description}"""')
     lines.append("")
 

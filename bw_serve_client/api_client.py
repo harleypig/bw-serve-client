@@ -92,13 +92,9 @@ class ApiClient:
         user_agent: Custom User-Agent string (default: 'bw-serve-client/0.1.0')
         logger: Optional logger instance for logging requests/responses
     """
-    # Build base_url from components
     self.base_url = f"{protocol}://{domain}:{port}{path}".rstrip('/')
-
     self.timeout = timeout
     self.logger = logger or self._setup_default_logger()
-
-    # Setup session with retry strategy
     self.session = requests.Session()
 
     retry_strategy = Retry(
@@ -112,7 +108,6 @@ class ApiClient:
     self.session.mount("http://", adapter)
     self.session.mount("https://", adapter)
 
-    # Set default headers
     from . import __version__
     self.session.headers.update({
       'Content-Type': 'application/json',
@@ -123,12 +118,14 @@ class ApiClient:
   def _setup_default_logger(self) -> logging.Logger:
     """Set up default logger for the API client."""
     logger = logging.getLogger(__name__)
+
     if not logger.handlers:
       handler = logging.StreamHandler()
       formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
       handler.setFormatter(formatter)
       logger.addHandler(handler)
       logger.setLevel(logging.INFO)
+
     return logger
 
   def _make_request(
@@ -158,16 +155,17 @@ class ApiClient:
         BitwardenAPIError: For various API errors, including unsupported
             HTTP methods
     """
-    # Validate HTTP method
     supported_methods = {'GET', 'POST', 'PUT', 'DELETE'}
+    # XXX: Just force method to upper case, don't bother to return the
+    #      caller's exact text.
     method_upper = method.upper()
+
     if method_upper not in supported_methods:
       raise BitwardenAPIError(
         f"Unsupported HTTP method: {method}. "
         f"Supported methods are: {', '.join(sorted(supported_methods))}"
       )
 
-    # Use uppercase method for the actual request
     method = method_upper
 
     url = urljoin(self.base_url, endpoint.lstrip('/'))
@@ -178,7 +176,6 @@ class ApiClient:
     if headers:
       request_headers.update(headers)
 
-    # Log request
     self.logger.debug(f"Making {method} request to {url}")
 
     if params:
@@ -188,8 +185,8 @@ class ApiClient:
       self.logger.debug(f"Request data: {data}")
 
     try:
-      # Serialize data based on content type
       serialized_data = None
+
       if data is not None:
         content_type = str(request_headers.get('Content-Type', 'application/json'))
         serialized_data = self._serialize_data(data, content_type)
@@ -209,11 +206,9 @@ class ApiClient:
         timeout=self.timeout
       )
 
-      # Log response
       self.logger.debug(f"Response status: {response.status_code}")
       self.logger.debug(f"Response headers: {dict(response.headers)}")
 
-      # Handle errors
       self._handle_error(response)
 
       return response
@@ -221,6 +216,20 @@ class ApiClient:
     except requests.exceptions.RequestException as e:
       self.logger.error(f"Request failed: {e}")
       raise BitwardenAPIError(f"Request failed: {e}") from e
+
+  def _make_request_and_deserialize(self, method: str, endpoint: str, **kwargs) -> Any:
+    """Make a request and deserialize the response.
+
+    Args:
+        method: HTTP method
+        endpoint: API endpoint
+        **kwargs: Additional arguments for _make_request
+
+    Returns:
+        Deserialized response data
+    """
+    response = self._make_request(method, endpoint, **kwargs)
+    return self._deserialize_data(response)
 
   def _serialize_data(self,
                       data: Any,
@@ -314,20 +323,6 @@ class ApiClient:
 
   # ---------------------------------------------------------------------------
   # Public methods
-
-  def _make_request_and_deserialize(self, method: str, endpoint: str, **kwargs) -> Any:
-    """Make a request and deserialize the response.
-
-    Args:
-        method: HTTP method
-        endpoint: API endpoint
-        **kwargs: Additional arguments for _make_request
-
-    Returns:
-        Deserialized response data
-    """
-    response = self._make_request(method, endpoint, **kwargs)
-    return self._deserialize_data(response)
 
   def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
     """Make a GET request.

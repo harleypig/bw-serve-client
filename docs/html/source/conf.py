@@ -1,7 +1,8 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""Configuration file for the Sphinx documentation builder.
+
+For the full list of built-in configuration values, see the documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
 
 import os
 import sys
@@ -44,7 +45,6 @@ html_theme_options = {
   'style_external_links': False,
   'vcs_pageview_mode': 'blob',
   'style_nav_header_background': '#2980B9',
-  # Toc options
   'collapse_navigation': True,
   'sticky_navigation': True,
   'navigation_depth': 4,

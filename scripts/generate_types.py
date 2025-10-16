@@ -129,17 +129,18 @@ class TypeGenerator:
     elif schema_name == 'lockunlock.success':
       return 'LockUnlockSuccess'
     else:
-      # Convert snake_case to PascalCase
       return ''.join(word.capitalize() for word in schema_name.split('_'))
 
   def _generate_enum_class(
-    self, field_name: str, enum_values: List[Any], parent_class: str
+      self, field_name: str, enum_values: List[Any], parent_class: str
   ) -> str:
     """Generate enum class for a field."""
     enum_name = f"{parent_class}{field_name.capitalize()}"
 
     lines = []
     lines.append(f"class {enum_name}(Enum):")
+    lines.append(f'    """Enumeration for {field_name} field values."""')
+    lines.append("")
 
     for i, value in enumerate(enum_values):
       if isinstance(value, str):
@@ -178,6 +179,8 @@ class TypeGenerator:
 
     # Add docstring
     description = schema.get('description', f'{class_name} model')
+    if not description.endswith('.'):
+        description += '.'
     lines.append(f'    """{description}"""')
     lines.append("")
 
@@ -244,6 +247,8 @@ class TypeGenerator:
   def generate_global_types(self) -> str:
     """Generate global types module."""
     lines = []
+    lines.append('"""Global types used across multiple API endpoints."""')
+    lines.append("")
     lines.extend(self._generate_imports(set(self.global_types), "global_types"))
     lines.append("")
 
@@ -257,6 +262,8 @@ class TypeGenerator:
   def generate_item_types(self) -> str:
     """Generate item-specific types module."""
     lines = []
+    lines.append('"""Types specific to vault items and templates."""')
+    lines.append("")
     lines.extend(self._generate_imports(set(self.item_types), "item_types"))
     lines.append("")
 
@@ -270,6 +277,8 @@ class TypeGenerator:
   def generate_send_types(self) -> str:
     """Generate send-specific types module."""
     lines = []
+    lines.append('"""Types for Bitwarden Send functionality."""')
+    lines.append("")
     lines.extend(self._generate_imports(set(self.send_types), "send_types"))
     lines.append("")
 
@@ -283,6 +292,8 @@ class TypeGenerator:
   def generate_response_types(self) -> str:
     """Generate response types module."""
     lines = []
+    lines.append('"""API response wrapper types."""')
+    lines.append("")
     lines.extend(self._generate_imports(set(self.response_types), "response_types"))
     lines.append("")
 
@@ -296,6 +307,8 @@ class TypeGenerator:
   def generate_other_types(self) -> str:
     """Generate other types module."""
     lines = []
+    lines.append('"""Additional utility types."""')
+    lines.append("")
     lines.extend(self._generate_imports(set(self.other_types), "other_types"))
     lines.append("")
 

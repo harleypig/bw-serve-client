@@ -52,7 +52,8 @@ dev = [
     "types-requests (>=2.32.4.20250913,<3.0.0.0)",
     "setuptools-scm (>=9.2.1,<10.0.0)",
     "bump2version (>=1.0.1,<2.0.0)",
-    "pyright (>=1.1.406,<2.0.0)"
+    "pyright (>=1.1.406,<2.0.0)",
+    "datamodel-code-generator (>=0.35.0,<0.36.0)"
 ]
 
 [build-system]
@@ -80,6 +81,9 @@ profile = "black"
 line_length = 92
 indent = "  "
 
+[tool.black]
+line-length = 92
+
 # [tool.pyright]
 
 [tool.yapf]
@@ -97,7 +101,7 @@ allow_multiline_lambdas = true
 blank_line_before_class_docstring = false
 blank_line_before_module_docstring = true
 indent_dictionary_value = true
-spaces_before_comment = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+spaces_before_comment = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
 
 # Bracket handling
 coalesce_brackets = true
@@ -115,3 +119,43 @@ split_penalty_after_opening_bracket = 0
 split_penalty_after_unary_operator = 10000
 split_penalty_for_added_line_split = 30
 split_penalty_excess_character = 7000
+
+[tool.datamodel-codegen]
+# Input configuration
+input = "docs/vault-management-api.json"
+input_file_type = "openapi"
+output = "bw_serve_client/models"
+
+# Custom file header
+custom-file-header = "# Bitwarden Vault Management API Models\n# Generated from OpenAPI specification\n# DO NOT EDIT MANUALLY"
+
+# Pydantic v2 configuration
+output-model-type = "pydantic_v2.BaseModel"
+use-annotated = true
+field-constraints = true
+
+# # Code generation settings
+# use-union-operator = true
+# use-generic-container-types = true
+# use-standard-collections = true
+# use-schema-description = true
+# use-field-description = true
+# use-title-as-name = true
+#
+# # Field customization
+# snake-case-field = true
+# capitalise-enum-members = true
+# strip-default-none = true
+# use-default-kwarg = true
+# set-default-enum-member = true
+#
+# # Model customization
+# extra-fields = "forbid"
+# allow-population-by-field-name = true
+# reuse-model = true
+# collapse-root-models = true
+# keep-model-order = true
+# use-exact-imports = true
+#
+# # Formatting (will be handled by pre-commit)
+# formatters = ["black", "isort"]

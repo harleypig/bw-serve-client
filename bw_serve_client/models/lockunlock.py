@@ -10,12 +10,12 @@ from pydantic import BaseModel
 
 
 class Data(BaseModel):
-    message: Optional[str] = None
-    noColor: Optional[bool] = None
-    object: Optional[str] = None
-    title: Optional[str] = None
+  message: Optional[str] = None
+  noColor: Optional[bool] = None
+  object: Optional[str] = None
+  title: Optional[str] = None
 
 
 class Success(BaseModel):
-    data: Optional[Data] = None
-    success: Optional[bool] = None
+  data: Optional[Data] = None
+  success: Optional[bool] = None

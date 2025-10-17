@@ -5,3 +5,4 @@ max-line-length = 92
 # Ignore E251 (unexpected spaces around keyword/parameter equals) to match yapf style
 # Ignore F401 (imported but unused) for now - can be addressed separately
 extend-ignore = E111, E114, E251, F401
+exclude = scripts/templates

@@ -1,7 +1,7 @@
 Welcome to bw-serve-client's documentation!
 ============================================
 
-**bw-serve-client** is a Python library for interacting with the Bitwarden Vault Management API. 
+**bw-serve-client** is a Python library for interacting with the Bitwarden Vault Management API.
 It provides a simple, intuitive interface for managing vaults, items, and attachments.
 
 Quick Start
@@ -67,4 +67,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

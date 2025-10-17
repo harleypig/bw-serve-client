@@ -18,6 +18,7 @@ We welcome several types of contributions:
 ### Getting Started
 
 1. **Fork the Repository**
+
    ```bash
    # Fork on GitHub, then clone your fork
    git clone https://github.com/your-username/bw-serve-client.git
@@ -30,6 +31,7 @@ We welcome several types of contributions:
    - Install pre-commit hooks: `poetry run pre-commit install`
 
 3. **Create a Feature Branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    # or
@@ -48,18 +50,21 @@ We welcome several types of contributions:
 ### 2. Making Changes
 
 #### Code Changes
+
 - Follow the [Code Style Guide](code-style.md)
 - Write comprehensive tests
 - Update documentation
 - Ensure all tests pass
 
 #### Documentation Changes
+
 - Use clear, concise language
 - Follow the [Documentation Style Guide](documentation-style.md)
 - Include examples where helpful
 - Update related documentation
 
 #### Test Changes
+
 - Follow the [Testing Guide](../testing/README.md)
 - Maintain or improve test coverage
 - Add tests for new functionality
@@ -97,6 +102,7 @@ git commit -m "test(api): add tests for error handling"
 ```
 
 **Types:**
+
 - `feat` - New features
 - `fix` - Bug fixes
 - `docs` - Documentation changes
@@ -108,6 +114,7 @@ git commit -m "test(api): add tests for error handling"
 #### Pull Request Process
 
 1. **Push your changes**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -150,11 +157,11 @@ import logging
 
 class ApiClient:
     """Client for Bitwarden Vault Management API.
-    
+
     This class provides methods for interacting with the Bitwarden
     Vault Management API, including authentication, data retrieval,
     and error handling.
-    
+
     Args:
         protocol: Protocol to use (http, https)
         domain: Domain or IP address
@@ -162,7 +169,7 @@ class ApiClient:
         timeout: Request timeout in seconds
         logger: Optional logger instance
     """
-    
+
     def __init__(
         self,
         protocol: str = "http",
@@ -177,17 +184,17 @@ class ApiClient:
         self.port = port
         self.timeout = timeout
         self.logger = logger or self._setup_default_logger()
-    
+
     def get(self, endpoint: str, **kwargs) -> Any:
         """Make a GET request to the API.
-        
+
         Args:
             endpoint: API endpoint path
             **kwargs: Additional arguments for requests
-            
+
         Returns:
             Response data
-            
+
         Raises:
             BitwardenAPIError: For API errors
         """
@@ -213,14 +220,14 @@ from bw_serve_client import ApiClient, BitwardenAPIError
 
 class TestApiClient:
     """Test cases for ApiClient class."""
-    
+
     def test_init_default_values(self):
         """Test ApiClient initialization with default values."""
         client = ApiClient()
         assert client.protocol == "http"
         assert client.domain == "localhost"
         assert client.port == 8087
-    
+
     def test_get_request_success(self):
         """Test successful GET request."""
         with patch('bw_serve_client.api_client.requests.Session') as mock_session:
@@ -228,12 +235,12 @@ class TestApiClient:
             mock_response.status_code = 200
             mock_response.json.return_value = {"success": True}
             mock_session.return_value.request.return_value = mock_response
-            
+
             client = ApiClient()
             result = client.get("/test")
-            
+
             assert result == {"success": True}
-    
+
     def test_get_request_error(self):
         """Test GET request with error response."""
         with patch('bw_serve_client.api_client.requests.Session') as mock_session:
@@ -241,9 +248,9 @@ class TestApiClient:
             mock_response.status_code = 404
             mock_response.json.return_value = {"error": "Not found"}
             mock_session.return_value.request.return_value = mock_response
-            
+
             client = ApiClient()
-            
+
             with pytest.raises(BitwardenAPIError):
                 client.get("/test")
 ```
@@ -257,21 +264,21 @@ Use Google-style docstrings:
 ```python
 def method_name(self, param1: str, param2: int = 10) -> bool:
     """Brief description of the method.
-    
+
     Longer description if needed, explaining the purpose,
     behavior, and any important details about the method.
-    
+
     Args:
         param1: Description of param1
         param2: Description of param2 (default: 10)
-        
+
     Returns:
         Description of return value
-        
+
     Raises:
         ValueError: When param1 is invalid
         BitwardenAPIError: When API request fails
-        
+
     Example:
         >>> client = ApiClient()
         >>> result = client.method_name("test", 20)

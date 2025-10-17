@@ -112,6 +112,7 @@ except Exception as e:
 ### Common Installation Issues
 
 #### Python Version Compatibility
+
 ```bash
 # Check your Python version
 python --version
@@ -120,6 +121,7 @@ python --version
 ```
 
 #### Permission Issues
+
 ```bash
 # Install with user flag if you get permission errors
 pip install --user bw-serve-client
@@ -131,6 +133,7 @@ pip install bw-serve-client
 ```
 
 #### Network Issues
+
 ```bash
 # If you're behind a corporate firewall
 pip install --trusted-host pypi.org --trusted-host pypi.python.org bw-serve-client
@@ -139,16 +142,19 @@ pip install --trusted-host pypi.org --trusted-host pypi.python.org bw-serve-clie
 ### Verification Issues
 
 #### Connection Refused
+
 - Check that your Bitwarden server is running
 - Verify the URL and port are correct
 - Ensure the Vault Management API is enabled
 
 #### Authentication Failed
+
 - Verify your authentication token is valid
 - Check token permissions and expiration
 - Ensure the token has the necessary scopes
 
 #### SSL/TLS Issues
+
 ```python
 # For self-signed certificates, you may need to disable SSL verification
 # (NOT recommended for production)

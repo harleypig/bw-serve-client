@@ -1,5 +1,5 @@
-# Configuration file for the Sphinx documentation builder.
-#
+"""Configuration file for the Sphinx documentation builder."""
+
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
@@ -21,12 +21,12 @@ release = '0.1.1'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.githubpages',
-    'sphinx_autodoc_typehints',
+  'sphinx.ext.autodoc',
+  'sphinx.ext.viewcode',
+  'sphinx.ext.napoleon',
+  'sphinx.ext.intersphinx',
+  'sphinx.ext.githubpages',
+  'sphinx_autodoc_typehints',
 ]
 
 templates_path = ['_templates']
@@ -40,16 +40,15 @@ language = 'en'
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_theme_options = {
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
-    'vcs_pageview_mode': 'blob',
-    'style_nav_header_background': '#2980B9',
-    # Toc options
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False
+  'prev_next_buttons_location': 'bottom',
+  'style_external_links': False,
+  'vcs_pageview_mode': 'blob',
+  'style_nav_header_background': '#2980B9',
+  'collapse_navigation': True,
+  'sticky_navigation': True,
+  'navigation_depth': 4,
+  'includehidden': True,
+  'titles_only': False
 }
 
 # -- Extension configuration -------------------------------------------------
@@ -72,11 +71,11 @@ napoleon_attr_annotations = True
 
 # Autodoc settings
 autodoc_default_options = {
-    'members': True,
-    'member-order': 'bysource',
-    'special-members': '__init__',
-    'undoc-members': True,
-    'exclude-members': '__weakref__'
+  'members': True,
+  'member-order': 'bysource',
+  'special-members': '__init__',
+  'undoc-members': True,
+  'exclude-members': '__weakref__'
 }
 
 # Type hints settings
@@ -86,6 +85,6 @@ typehints_use_rtype = True
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
-    'requests': ('https://requests.readthedocs.io/en/latest/', None),
+  'python': ('https://docs.python.org/3/', None),
+  'requests': ('https://requests.readthedocs.io/en/latest/', None),
 }

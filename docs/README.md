@@ -4,30 +4,35 @@ This directory contains comprehensive documentation for the `bw-serve-client` li
 
 ## 📚 Documentation Structure
 
-### For Users
+### Documentation For Users
+
 - **[API Reference](user/api-reference/)** - Complete API documentation
 - **[User Guides](user/guides/)** - Step-by-step guides for common tasks
 - **[Tutorials](user/tutorials/)** - Learning tutorials and examples
 
-### For Developers
+### Documentation For Developers
+
 - **[Contributing Guide](developer/contributing/)** - How to contribute to the project
 - **[Testing Guide](developer/testing/)** - Testing strategies and guidelines
 - **[Architecture](developer/architecture/)** - Code structure and design decisions
 - **[Setup Guide](developer/setup/)** - Development environment setup
 
 ### Formats
+
 - **Markdown** - For GitHub repository viewing
 - **HTML** - For GitHub Pages deployment
 - **Sphinx** - Auto-generated from docstrings
 
 ## 🚀 Quick Start
 
-### For Users
+### Quick Start For Users
+
 1. Start with [Installation Guide](user/guides/installation.md)
 2. Follow the [Quick Start Tutorial](user/tutorials/quick-start.md)
 3. Explore the [API Reference](user/api-reference/)
 
-### For Developers
+### Quick Start For Developers
+
 1. Read the [Development Setup](developer/setup/development-environment.md)
 2. Review the [Architecture Overview](developer/architecture/overview.md)
 3. Check the [Contributing Guidelines](developer/contributing/README.md)

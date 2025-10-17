@@ -136,7 +136,7 @@ Context Manager
        client.session.headers.update({
            'Authorization': 'Bearer your-token'
        })
-       
+
        items = client.get("/vault/items")
        print(f"Retrieved {len(items)} items")
    # Connection is automatically closed
@@ -172,30 +172,30 @@ Complete Example
            timeout=30,
            max_retries=3
        )
-       
+
        # Set authentication
        client.session.headers.update({
            'Authorization': 'Bearer your-auth-token'
        })
-       
+
        try:
            # Test connection
            print("Testing connection...")
            health = client.get("/health")
            print(f"✅ Server is healthy: {health}")
-           
+
            # Get vault items
            print("\nRetrieving vault items...")
            items = client.get("/vault/items")
            print(f"✅ Found {len(items)} items")
-           
+
            # Display first few items
            for i, item in enumerate(items[:3]):
                print(f"  {i+1}. {item.get('name', 'Unnamed')}")
-           
+
            if len(items) > 3:
                print(f"  ... and {len(items) - 3} more items")
-               
+
        except BitwardenAPIError as e:
            print(f"❌ API Error: {e}")
        except Exception as e:

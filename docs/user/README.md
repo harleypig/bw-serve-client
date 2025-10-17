@@ -5,6 +5,7 @@ Welcome to the `bw-serve-client` library documentation! This section contains ev
 ## 🎯 Getting Started
 
 ### Quick Links
+
 - **[Installation Guide](guides/installation.md)** - How to install the library
 - **[Quick Start](tutorials/quick-start.md)** - Get up and running in 5 minutes
 - **[API Reference](api-reference/)** - Complete API documentation
@@ -12,11 +13,13 @@ Welcome to the `bw-serve-client` library documentation! This section contains ev
 ## 📖 User Guides
 
 ### Core Concepts
+
 - **[Authentication](guides/authentication.md)** - Setting up authentication
 - **[Configuration](guides/configuration.md)** - Library configuration options
 - **[Error Handling](guides/error-handling.md)** - Understanding and handling errors
 
 ### Common Tasks
+
 - **[Working with Vaults](guides/vault-operations.md)** - Managing vaults and items
 - **[File Attachments](guides/attachments.md)** - Handling file uploads and downloads
 - **[Search and Filtering](guides/search-filtering.md)** - Finding specific items
@@ -24,14 +27,17 @@ Welcome to the `bw-serve-client` library documentation! This section contains ev
 ## 🎓 Tutorials
 
 ### Beginner
+
 - **[Your First API Call](tutorials/first-api-call.md)** - Making your first request
 - **[Basic Vault Management](tutorials/basic-vault-management.md)** - Essential operations
 
 ### Intermediate
+
 - **[Advanced Error Handling](tutorials/advanced-error-handling.md)** - Robust error management
 - **[Custom Configuration](tutorials/custom-configuration.md)** - Tailoring the library to your needs
 
 ### Advanced
+
 - **[Performance Optimization](tutorials/performance-optimization.md)** - Making your code faster
 - **[Integration Patterns](tutorials/integration-patterns.md)** - Best practices for integration
 
@@ -44,11 +50,13 @@ Welcome to the `bw-serve-client` library documentation! This section contains ev
 ## 🔧 Configuration
 
 ### Environment Variables
+
 - `BW_SERVE_URL` - Bitwarden server URL
 - `BW_SERVE_TOKEN` - Authentication token
 - `BW_SERVE_TIMEOUT` - Request timeout (seconds)
 
 ### Configuration Files
+
 - JSON configuration support
 - YAML configuration support
 - Environment-specific settings
@@ -56,6 +64,7 @@ Welcome to the `bw-serve-client` library documentation! This section contains ev
 ## 📝 Examples
 
 Check out the [examples directory](../../examples/) for practical code samples:
+
 - Basic usage patterns
 - Error handling examples
 - Integration examples
@@ -64,12 +73,14 @@ Check out the [examples directory](../../examples/) for practical code samples:
 ## 🆘 Troubleshooting
 
 ### Common Issues
+
 - **Connection Errors** - Network and server connectivity
 - **Authentication Failures** - Token and credential issues
 - **Rate Limiting** - Handling API rate limits
 - **Data Format Issues** - Request/response format problems
 
 ### Getting Help
+
 - Check the [FAQ](guides/faq.md)
 - Review [Common Issues](guides/common-issues.md)
 - Open an issue on GitHub

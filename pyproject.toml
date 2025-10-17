@@ -84,8 +84,6 @@ indent = "  "
 [tool.black]
 line-length = 92
 
-# [tool.pyright]
-
 [tool.yapf]
 # Use PEP8 style as the base
 based_on_style = "pep8"

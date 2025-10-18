@@ -28,6 +28,7 @@ dependencies = [
     "python-dateutil>=2.5.3",
     "requests>=2.25.0,<3.0.0",
     "urllib3>=1.25.3,<2.1.0",
+    "openapi-spec-validator[dev] (>=0.7.2,<0.8.0)",
 ]
 
 [project.urls]
@@ -98,7 +99,6 @@ extension-pkg-whitelist = "pydantic"
 profile = "google"
 line_length = 92
 indent = "  "
-
 
 [tool.yapf]
 # Use PEP8 style as the base

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -16,16 +16,12 @@ from . import FieldModel
 from . import Uris
 
 
-class Brand(Enum):
-  visa = 'visa'
-
-
 class Card(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  brand: Optional[Brand]
+  brand: Optional[Literal['visa']]
   cardholder_name: Annotated[Optional[str], Field(alias='cardholderName')]
   code: Optional[str]
   exp_month: Annotated[Optional[str], Field(alias='expMonth')]
@@ -70,8 +66,8 @@ class Login(BaseModel):
 
 
 class Reprompt(Enum):
-  integer_0 = 0
-  integer_1 = 1
+  INTEGER_0 = 0
+  INTEGER_1 = 1
 
 
 class SecureNote(BaseModel):
@@ -79,7 +75,7 @@ class SecureNote(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  type: Optional[Type]
+  type: Optional[Literal[0]]
 
 
 class Template(BaseModel):
@@ -99,15 +95,11 @@ class Template(BaseModel):
   organization_id: Annotated[Optional[UUID], Field(alias='organizationId')]
   reprompt: Optional[Reprompt]
   secure_note: Annotated[Optional[SecureNote], Field(alias='secureNote')]
-  type: Optional[Type1Model]
+  type: Optional[Type]
 
 
 class Type(Enum):
-  integer_0 = 0
-
-
-class Type1Model(Enum):
-  int_1 = 1
-  int_2 = 2
-  int_3 = 3
-  int_4 = 4
+  INT_1 = 1
+  INT_2 = 2
+  INT_3 = 3
+  INT_4 = 4

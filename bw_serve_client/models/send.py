@@ -41,5 +41,5 @@ class Text(BaseModel):
 
 
 class Type(Enum):
-  integer_0 = 0
-  integer_1 = 1
+  INTEGER_0 = 0
+  INTEGER_1 = 1

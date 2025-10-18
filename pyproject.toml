@@ -128,38 +128,20 @@ output-model-type = "pydantic_v2.BaseModel"
 
 # Typing customization
 base-class = "pydantic.BaseModel"
-# ??? disable-future-imports
-# ??? enum-field-as-literal {all,one}
+enum-field-as-literal = "one"
 field-constraints = true
-# ??? set-default-enum-member
-# ??? strict-types {str,bytes,int,float,bool} [{str,bytes,int,float,bool} ...]
+set-default-enum-member = true
 use-annotated = true
-# ??? use-generic-container-types
-# ??? use-non-positive-negative-number-constrained-types
-# ??? use-one-literal-as-default
-# ??? use-standard-collections
-# ??? use-subclass-enum
 # ??? use-union-operator
-# ??? use-unique-items-as-set
 
 # Field customization
-#capitalise-enum-members = true
-# ??? empty-enum-field-name
-# ??? field-extra-keys
-# ??? field-extra-keys-without-x-prefix
-# ??? field-include-all-keys
-# ??? force-optional
-# ??? no-alias
-# ??? original-field-name-delimiter
-# ??? remove-special-field-name-prefix
-# ??? set-default-enum-member
+capitalise-enum-members = true
 snake-case-field = true
-# ??? special-field-name-prefix
 strip-default-none = true
-# ??? union-mode
-# ??? use-default
-# ??? use-default-kwarg
-#use-field-description = true
+union-mode = "smart"
+use-default = true
+use-default-kwarg = true
+use-field-description = true
 
 # Model customization
 allow-population-by-field-name = true

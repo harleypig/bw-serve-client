@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import AwareDatetime
@@ -32,7 +32,7 @@ class Data(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  object: Optional[Object]
+  object: Optional[Literal['template']]
   template: Optional[Template]
 
 
@@ -65,16 +65,12 @@ class Group(BaseModel):
 
 
 class Match(Enum):
-  integer_0 = 0
-  integer_1 = 1
-  integer_2 = 2
-  integer_3 = 3
-  integer_4 = 4
-  integer_5 = 5
-
-
-class Object(Enum):
-  template = 'template'
+  INTEGER_0 = 0
+  INTEGER_1 = 1
+  INTEGER_2 = 2
+  INTEGER_3 = 3
+  INTEGER_4 = 4
+  INTEGER_5 = 5
 
 
 class Status(BaseModel):
@@ -87,9 +83,9 @@ class Status(BaseModel):
 
 
 class Status1(Enum):
-  locked = 'locked'
-  unlocked = 'unlocked'
-  unauthenticated = 'unauthenticated'
+  LOCKED = 'locked'
+  UNLOCKED = 'unlocked'
+  UNAUTHENTICATED = 'unauthenticated'
 
 
 class Template(BaseModel):
@@ -109,10 +105,10 @@ class Template(BaseModel):
 
 
 class Type(Enum):
-  field_0 = 0
-  field_1 = 1
-  field_2 = 2
-  field_3 = 3
+  FIELD_0 = 0
+  FIELD_1 = 1
+  FIELD_2 = 2
+  FIELD_3 = 3
 
 
 class Uris(BaseModel):

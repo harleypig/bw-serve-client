@@ -163,7 +163,6 @@ strip-default-none = true
 
 # Model customization
 allow-population-by-field-name = true
-class-name = "MyTestCase"
 collapse-root-models = true
 disable-appending-item-suffix = true
 disable-timestamp = true
@@ -171,8 +170,7 @@ enable-version-header = true
 extra-fields = "forbid"
 keep-model-order = true
 output-datetime-class = "AwareDatetime"
-#parent-scoped-naming = true
-#reuse-model = true
+reuse-model = true
 target-python-version = "3.12"
 use-schema-description = true
 

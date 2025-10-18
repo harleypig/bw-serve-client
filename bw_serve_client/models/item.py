@@ -11,7 +11,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from . import Field, Uris
+from . import Field
+from . import Uris
 
 
 class Brand(Enum):

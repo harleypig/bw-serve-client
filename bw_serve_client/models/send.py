@@ -8,7 +8,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import Optional
 
-from pydantic import AwareDatetime, BaseModel
+from pydantic import AwareDatetime
+from pydantic import BaseModel
 
 
 class Type(Enum):

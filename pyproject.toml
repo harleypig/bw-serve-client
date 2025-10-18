@@ -78,7 +78,7 @@ check_untyped_defs = false
 extension-pkg-whitelist = "pydantic"
 
 [tool.isort]
-profile = "pep8"
+profile = "google"
 line_length = 92
 indent = "  "
 

@@ -9,7 +9,10 @@ from enum import Enum
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import AwareDatetime, BaseModel, EmailStr, constr
+from pydantic import AwareDatetime
+from pydantic import BaseModel
+from pydantic import constr
+from pydantic import EmailStr
 
 
 class Type(Enum):

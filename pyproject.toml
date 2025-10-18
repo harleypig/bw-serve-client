@@ -122,12 +122,12 @@ split_penalty_excess_character = 7000
 # XXX: custom-formatters to mimic pre-commit fix config
 formatters = ["isort"]
 input = "docs/vault-management-api.json"
-input_file_type = "openapi"
+input-file-type = "openapi"
 output = "bw_serve_client/models"
 output-model-type = "pydantic_v2.BaseModel"
 
 # Typing customization
-# ??? base-class
+base-class = "pydantic.BaseModel"
 # ??? disable-future-imports
 # ??? enum-field-as-literal {all,one}
 field-constraints = true
@@ -155,7 +155,7 @@ use-annotated = true
 # ??? set-default-enum-member
 #snake-case-field = true
 # ??? special-field-name-prefix
-# ??? strip-default-none
+strip-default-none = true
 # ??? union-mode
 # ??? use-default
 # ??? use-default-kwarg
@@ -181,7 +181,7 @@ use-annotated = true
 # ??? treat-dot-as-module
 # ??? use-exact-imports
 # ??? use-pendulum
-#use-schema-description = true
+use-schema-description = true
 # ??? use-title-as-name
 
 # Template Customization

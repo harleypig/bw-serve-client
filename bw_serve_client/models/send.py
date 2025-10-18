@@ -18,19 +18,19 @@ class Type(Enum):
 
 
 class Text(BaseModel):
-    hidden: Optional[bool] = None
-    text: Optional[str] = None
+    hidden: Optional[bool]
+    text: Optional[str]
 
 
 class Template(BaseModel):
-    deletionDate: Optional[AwareDatetime] = None
-    disabled: Optional[bool] = None
-    expirationDate: Optional[AwareDatetime] = None
-    file: Optional[str] = None
-    hideEmail: Optional[bool] = None
-    maxAccessCount: Optional[int] = None
-    name: Optional[str] = None
-    notes: Optional[str] = None
-    password: Optional[str] = None
-    text: Optional[Text] = None
-    type: Optional[Type] = None
+    deletionDate: Optional[AwareDatetime]
+    disabled: Optional[bool]
+    expirationDate: Optional[AwareDatetime]
+    file: Optional[str]
+    hideEmail: Optional[bool]
+    maxAccessCount: Optional[int]
+    name: Optional[str]
+    notes: Optional[str]
+    password: Optional[str]
+    text: Optional[Text]
+    type: Optional[Type]

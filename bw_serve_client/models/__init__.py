@@ -23,19 +23,19 @@ class Type(Enum):
 
 
 class Field(BaseModel):
-    name: Optional[str] = None
-    type: Optional[Type] = None
-    value: Optional[str] = None
+    name: Optional[str]
+    type: Optional[Type]
+    value: Optional[str]
 
 
 class Folder(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str]
 
 
 class Group(BaseModel):
-    hidePasswords: Optional[bool] = None
-    id: Optional[UUID] = None
-    readOnly: Optional[bool] = None
+    hidePasswords: Optional[bool]
+    id: Optional[UUID]
+    readOnly: Optional[bool]
 
 
 class Object(Enum):
@@ -49,21 +49,21 @@ class Status1(Enum):
 
 
 class Template(BaseModel):
-    lastSync: Optional[AwareDatetime] = None
-    serverUrl: Optional[constr(pattern=r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$')] = None
-    status: Optional[Status1] = None
-    userEmail: Optional[EmailStr] = None
-    userID: Optional[UUID] = None
+    lastSync: Optional[AwareDatetime]
+    serverUrl: Optional[constr(pattern=r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$')]
+    status: Optional[Status1]
+    userEmail: Optional[EmailStr]
+    userID: Optional[UUID]
 
 
 class Data(BaseModel):
-    object: Optional[Object] = None
-    template: Optional[Template] = None
+    object: Optional[Object]
+    template: Optional[Template]
 
 
 class Status(BaseModel):
-    data: Optional[Data] = None
-    success: Optional[bool] = None
+    data: Optional[Data]
+    success: Optional[bool]
 
 
 class Match(Enum):
@@ -76,12 +76,12 @@ class Match(Enum):
 
 
 class Uris(BaseModel):
-    match: Optional[Match] = None
-    uri: Optional[str] = None
+    match: Optional[Match]
+    uri: Optional[str]
 
 
 class Collection(BaseModel):
-    externalId: Optional[str] = None
-    groups: Optional[List[Group]] = None
-    name: Optional[str] = None
-    organizationId: Optional[UUID] = None
+    externalId: Optional[str]
+    groups: Optional[List[Group]]
+    name: Optional[str]
+    organizationId: Optional[UUID]

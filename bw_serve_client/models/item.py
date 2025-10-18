@@ -20,33 +20,33 @@ class Brand(Enum):
 
 
 class Card(BaseModel):
-    brand: Optional[Brand] = None
-    cardholderName: Optional[str] = None
-    code: Optional[str] = None
-    expMonth: Optional[str] = None
-    expYear: Optional[str] = None
-    number: Optional[str] = None
+    brand: Optional[Brand]
+    cardholderName: Optional[str]
+    code: Optional[str]
+    expMonth: Optional[str]
+    expYear: Optional[str]
+    number: Optional[str]
 
 
 class Identity(BaseModel):
-    address1: Optional[str] = None
-    address2: Optional[str] = None
-    address3: Optional[str] = None
-    city: Optional[str] = None
-    company: Optional[str] = None
-    country: Optional[str] = None
-    email: Optional[str] = None
-    firstName: Optional[str] = None
-    lastName: Optional[str] = None
-    licenseNumber: Optional[str] = None
-    middleName: Optional[str] = None
-    passportNumber: Optional[str] = None
-    phone: Optional[str] = None
-    postalCode: Optional[str] = None
-    ssn: Optional[str] = None
-    state: Optional[str] = None
-    title: Optional[str] = None
-    username: Optional[str] = None
+    address1: Optional[str]
+    address2: Optional[str]
+    address3: Optional[str]
+    city: Optional[str]
+    company: Optional[str]
+    country: Optional[str]
+    email: Optional[str]
+    firstName: Optional[str]
+    lastName: Optional[str]
+    licenseNumber: Optional[str]
+    middleName: Optional[str]
+    passportNumber: Optional[str]
+    phone: Optional[str]
+    postalCode: Optional[str]
+    ssn: Optional[str]
+    state: Optional[str]
+    title: Optional[str]
+    username: Optional[str]
 
 
 class Type(Enum):
@@ -54,7 +54,7 @@ class Type(Enum):
 
 
 class SecureNote(BaseModel):
-    type: Optional[Type] = None
+    type: Optional[Type]
 
 
 class Reprompt(Enum):
@@ -70,23 +70,23 @@ class Type1Model(Enum):
 
 
 class Login(BaseModel):
-    password: Optional[str] = None
-    totp: Optional[str] = None
-    uris: Optional[Uris] = None
-    username: Optional[str] = None
+    password: Optional[str]
+    totp: Optional[str]
+    uris: Optional[Uris]
+    username: Optional[str]
 
 
 class Template(BaseModel):
-    card: Optional[Card] = None
-    collectionIds: Optional[List[UUID]] = None
-    favorite: Optional[bool] = None
-    fields: Optional[List[Field]] = None
-    folderId: Optional[UUID] = None
-    identity: Optional[Identity] = None
-    login: Optional[Login] = None
-    name: Optional[str] = None
-    notes: Optional[str] = None
-    organizationId: Optional[UUID] = None
-    reprompt: Optional[Reprompt] = None
-    secureNote: Optional[SecureNote] = None
-    type: Optional[Type1Model] = None
+    card: Optional[Card]
+    collectionIds: Optional[List[UUID]]
+    favorite: Optional[bool]
+    fields: Optional[List[Field]]
+    folderId: Optional[UUID]
+    identity: Optional[Identity]
+    login: Optional[Login]
+    name: Optional[str]
+    notes: Optional[str]
+    organizationId: Optional[UUID]
+    reprompt: Optional[Reprompt]
+    secureNote: Optional[SecureNote]
+    type: Optional[Type1Model]

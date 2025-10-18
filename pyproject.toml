@@ -62,6 +62,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [{include = "bw_serve_client"}]
+exclude = ["scripts/**"]
 
 [tool.mypy]
 html_report = ".openapi/mypy-reports"
@@ -77,12 +78,10 @@ check_untyped_defs = false
 extension-pkg-whitelist = "pydantic"
 
 [tool.isort]
-profile = "black"
+profile = "pep8"
 line_length = 92
 indent = "  "
 
-[tool.black]
-line-length = 92
 
 [tool.yapf]
 # Use PEP8 style as the base
@@ -119,41 +118,84 @@ split_penalty_for_added_line_split = 30
 split_penalty_excess_character = 7000
 
 [tool.datamodel-codegen]
-# Input configuration
+# ??? additional-imports
+# XXX: custom-formatters to mimic pre-commit fix config
+formatters = ["isort"]
 input = "docs/vault-management-api.json"
 input_file_type = "openapi"
 output = "bw_serve_client/models"
-
-# Custom file header
-custom-file-header = "# Bitwarden Vault Management API Models\n# Generated from OpenAPI specification\n# DO NOT EDIT MANUALLY"
-
-# Pydantic v2 configuration
 output-model-type = "pydantic_v2.BaseModel"
-use-annotated = true
-field-constraints = true
 
-# # Code generation settings
-# use-union-operator = true
-# use-generic-container-types = true
-# use-standard-collections = true
-# use-schema-description = true
-# use-field-description = true
-# use-title-as-name = true
-#
-# # Field customization
-# snake-case-field = true
-# capitalise-enum-members = true
-# strip-default-none = true
-# use-default-kwarg = true
-# set-default-enum-member = true
-#
-# # Model customization
-# extra-fields = "forbid"
-# allow-population-by-field-name = true
-# reuse-model = true
-# collapse-root-models = true
-# keep-model-order = true
-# use-exact-imports = true
-#
-# # Formatting (will be handled by pre-commit)
-# formatters = ["black", "isort"]
+# Typing customization
+# ??? base-class
+# ??? disable-future-imports
+# ??? enum-field-as-literal {all,one}
+field-constraints = true
+# ??? set-default-enum-member
+# ??? strict-types {str,bytes,int,float,bool} [{str,bytes,int,float,bool} ...]
+use-annotated = true
+# ??? use-generic-container-types
+# ??? use-non-positive-negative-number-constrained-types
+# ??? use-one-literal-as-default
+# ??? use-standard-collections
+# ??? use-subclass-enum
+# ??? use-union-operator
+# ??? use-unique-items-as-set
+
+# Field customization
+#capitalise-enum-members = true
+# ??? empty-enum-field-name
+# ??? field-extra-keys
+# ??? field-extra-keys-without-x-prefix
+# ??? field-include-all-keys
+# ??? force-optional
+# ??? no-alias
+# ??? original-field-name-delimiter
+# ??? remove-special-field-name-prefix
+# ??? set-default-enum-member
+#snake-case-field = true
+# ??? special-field-name-prefix
+# ??? strip-default-none
+# ??? union-mode
+# ??? use-default
+# ??? use-default-kwarg
+#use-field-description = true
+
+# Model customization
+# ??? allow-extra-fields
+# ??? allow-population-by-field-name
+# ??? class-name
+# ??? collapse-root-models
+# ??? disable-appending-item-suffix
+# ??? disable-timestamp
+# ??? enable-faux-immutability
+# ??? enable-version-header
+# ??? extra-fields
+# ??? frozen-dataclasses
+# ??? keep-model-order
+# ??? keyword-only
+# ??? output-datetime-class
+# ??? parent-scoped-naming
+# ??? reuse-model
+# ??? target-python-version
+# ??? treat-dot-as-module
+# ??? use-exact-imports
+# ??? use-pendulum
+#use-schema-description = true
+# ??? use-title-as-name
+
+# Template Customization
+# ??? aliases
+custom-file-header-path = "scripts/generated-header.txt"
+# ??? custom-formatters-kwargs
+# ??? custom-template-dir
+# ??? encoding
+# ??? extra-template-data
+# ??? use-double-quotes
+wrap-string-literal = true
+
+# OpenAPI options
+#include-path-parameters = true
+#openapi-scopes = true
+#strict-nullable = true
+#use-operation-id-as-name = true

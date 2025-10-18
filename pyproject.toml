@@ -165,6 +165,6 @@ wrap-string-literal = true
 # OpenAPI options
 include-path-parameters = true
 #openapi-scopes = ["schemas","paths","tags","parameters"]
-openapi-scopes = ["schemas", "paths", "tags", "parameters"]
+openapi-scopes = ["schemas"]
 strict-nullable = true
 #use-operation-id-as-name = true

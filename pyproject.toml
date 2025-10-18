@@ -177,6 +177,7 @@ exclude_dirs = ["tests", "scripts"]
 skips = ["B101", "B601"]
 
 [tool.datamodel-codegen]
+# XXX: custom-formatters to mimic pre-commit fix config
 formatters = ["isort"]
 input = "docs/vault-management-api-sorted.json"
 input-file-type = "openapi"

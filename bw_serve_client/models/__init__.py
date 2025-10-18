@@ -14,34 +14,82 @@ from pydantic import ConfigDict
 from pydantic import constr
 from pydantic import EmailStr
 from pydantic import Field
+from pydantic import RootModel
 
 
-class AttachmentPostParameters(BaseModel):
-  id: UUID
+class Match(Enum):
+  INTEGER_0 = 0
+  INTEGER_1 = 1
+  INTEGER_2 = 2
+  INTEGER_3 = 3
+  INTEGER_4 = 4
+  INTEGER_5 = 5
 
 
-class AttachmentPostRequest(BaseModel):
+class Uris(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  file: bytes | None
+  match: Match | None
+  uri: str | None
 
 
-class Collection(BaseModel):
+class Type(Enum):
+  FIELD_0 = 0
+  FIELD_1 = 1
+  FIELD_2 = 2
+  FIELD_3 = 3
+
+
+class FieldModel(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  external_id: Annotated[str | None, Field(alias='externalId')]
-  groups: List[Group] | None
   name: str | None
-  organization_id: Annotated[UUID | None, Field(alias='organizationId')]
+  value: str | None
+  type: Type | None
 
 
-class ConfirmOrgMemberIdPostParameters(BaseModel):
-  id: UUID
-  organization_id: Annotated[UUID, Field(alias='organizationId')]
+class Folder(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  name: str | None
+
+
+class Group(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  id: UUID | None
+  read_only: Annotated[bool | None, Field(alias='readOnly')]
+  hide_passwords: Annotated[bool | None, Field(alias='hidePasswords')]
+
+
+class Status1(Enum):
+  LOCKED = 'locked'
+  UNLOCKED = 'unlocked'
+  UNAUTHENTICATED = 'unauthenticated'
+
+
+class Template(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  server_url: Annotated[constr(
+    pattern=
+    r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$'
+  ) | None,
+                        Field(alias='serverUrl')]
+  last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
+  user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
+  user_id: Annotated[UUID | None, Field(alias='userID')]
+  status: Status1 | None
 
 
 class Data(BaseModel):
@@ -53,52 +101,46 @@ class Data(BaseModel):
   template: Template | None
 
 
-class FieldModel(BaseModel):
+class Status(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  name: str | None
-  type: Type | None
-  value: str | None
+  success: bool | None
+  data: Data | None
 
 
-class Folder(BaseModel):
+class Deviceapprovalproperties(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  name: str | None
+  id: str | None
+  user_id: Annotated[str | None, Field(alias='userId')]
+  email: str | None
+  request_device_identifier: Annotated[str | None, Field(alias='requestDeviceIdentifier')]
+  request_device_type: Annotated[str | None, Field(alias='requestDeviceType')]
+  request_ip_address: Annotated[str | None, Field(alias='requestIpAddress')]
+  creation_date: Annotated[str | None, Field(alias='creationDate')]
 
 
-class GenerateGetParameters(BaseModel):
-  length: int | None
-  uppercase: bool | None
-  lowercase: bool | None
-  number: bool | None
-  special: bool | None
-  passphrase: bool | None
-  words: int | None
-  separator: str | None
-  capitalize: bool | None
-  include_number: Annotated[bool | None, Field(alias='includeNumber')]
-
-
-class Group(BaseModel):
+class UnlockPostRequest(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  hide_passwords: Annotated[bool | None, Field(alias='hidePasswords')]
-  id: UUID | None
-  read_only: Annotated[bool | None, Field(alias='readOnly')]
+  password: str | None
 
 
-class ListObjectCollectionsGetParameters(BaseModel):
-  search: str | None
+class ObjectItemIdPutParameters(BaseModel):
+  id: UUID
 
 
-ListObjectFoldersGetParameters = ListObjectCollectionsGetParameters
+ObjectItemIdGetParameters = ObjectItemIdPutParameters
+
+ObjectItemIdDeleteParameters = ObjectItemIdPutParameters
+
+RestoreItemIdPostParameters = ObjectItemIdPutParameters
 
 
 class ListObjectItemsGetParameters(BaseModel):
@@ -110,27 +152,57 @@ class ListObjectItemsGetParameters(BaseModel):
   search: str | None
 
 
-class ListObjectOrgCollectionsGetParameters(BaseModel):
-  organization_id: Annotated[UUID, Field(alias='organizationId')]
+class AttachmentPostParameters(BaseModel):
+  itemid: UUID
+
+
+class AttachmentPostRequest(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  file: bytes | None
+
+
+class ObjectAttachmentIdGetParameters(BaseModel):
+  id: UUID
+  itemid: UUID
+
+
+ObjectAttachmentIdDeleteParameters = ObjectAttachmentIdGetParameters
+
+ObjectUsernameIdGetParameters = ObjectItemIdPutParameters
+
+ObjectPasswordIdGetParameters = ObjectItemIdPutParameters
+
+ObjectUriIdGetParameters = ObjectItemIdPutParameters
+
+ObjectTotpIdGetParameters = ObjectItemIdPutParameters
+
+ObjectNotesIdGetParameters = ObjectItemIdPutParameters
+
+ObjectExposedIdGetParameters = ObjectItemIdPutParameters
+
+ObjectFolderIdPutParameters = ObjectItemIdPutParameters
+
+ObjectFolderIdGetParameters = ObjectItemIdPutParameters
+
+ObjectFolderIdDeleteParameters = ObjectItemIdPutParameters
+
+
+class ListObjectFoldersGetParameters(BaseModel):
   search: str | None
 
 
-class ListObjectOrgMembersGetParameters(BaseModel):
-  organization_id: Annotated[UUID, Field(alias='organizationId')]
+ObjectSendIdPutParameters = ObjectItemIdPutParameters
 
+ObjectSendIdGetParameters = ObjectItemIdPutParameters
 
-ListObjectOrganizationsGetParameters = ListObjectCollectionsGetParameters
+ObjectSendIdDeleteParameters = ObjectItemIdPutParameters
 
-ListObjectSendGetParameters = ListObjectCollectionsGetParameters
+ListObjectSendGetParameters = ListObjectFoldersGetParameters
 
-
-class Match(Enum):
-  INTEGER_0 = 0
-  INTEGER_1 = 1
-  INTEGER_2 = 2
-  INTEGER_3 = 3
-  INTEGER_4 = 4
-  INTEGER_5 = 5
+SendIdRemovePasswordPostParameters = ObjectItemIdPutParameters
 
 
 class MoveItemidOrganizationIdPostParameters(BaseModel):
@@ -146,97 +218,59 @@ class MoveItemidOrganizationIdPostRequest(BaseModel):
   array: List | None
 
 
-class ObjectAttachmentIdDeleteParameters(BaseModel):
+class ObjectOrgCollectionPostParameters(BaseModel):
+  organization_id: Annotated[UUID, Field(alias='organizationId')]
+
+
+class ObjectOrgCollectionIdPutParameters(BaseModel):
   id: UUID
-  itemid: UUID
+  organization_id: Annotated[UUID, Field(alias='organizationId')]
 
 
-ObjectAttachmentIdGetParameters = ObjectAttachmentIdDeleteParameters
+ObjectOrgCollectionIdGetParameters = ObjectOrgCollectionIdPutParameters
 
-ObjectExposedIdGetParameters = AttachmentPostParameters
-
-ObjectFolderIdDeleteParameters = AttachmentPostParameters
-
-ObjectFolderIdGetParameters = AttachmentPostParameters
-
-ObjectFolderIdPutParameters = AttachmentPostParameters
-
-ObjectItemIdDeleteParameters = AttachmentPostParameters
-
-ObjectItemIdGetParameters = AttachmentPostParameters
-
-ObjectItemIdPutParameters = AttachmentPostParameters
-
-ObjectNotesIdGetParameters = AttachmentPostParameters
-
-ObjectOrgCollectionIdDeleteParameters = ConfirmOrgMemberIdPostParameters
-
-ObjectOrgCollectionIdGetParameters = ConfirmOrgMemberIdPostParameters
-
-ObjectOrgCollectionIdPutParameters = ConfirmOrgMemberIdPostParameters
-
-ObjectOrgCollectionPostParameters = ListObjectOrgMembersGetParameters
-
-ObjectPasswordIdGetParameters = AttachmentPostParameters
-
-ObjectSendIdDeleteParameters = AttachmentPostParameters
-
-ObjectSendIdGetParameters = AttachmentPostParameters
-
-ObjectSendIdPutParameters = AttachmentPostParameters
+ObjectOrgCollectionIdDeleteParameters = ObjectOrgCollectionIdPutParameters
 
 
-class ObjectTemplateTypeGetParameters(BaseModel):
-  type: Type1
+class ListObjectOrgCollectionsGetParameters(BaseModel):
+  organization_id: Annotated[UUID, Field(alias='organizationId')]
+  search: str | None
 
 
-ObjectTotpIdGetParameters = AttachmentPostParameters
+ListObjectCollectionsGetParameters = ListObjectFoldersGetParameters
 
-ObjectUriIdGetParameters = AttachmentPostParameters
+ListObjectOrganizationsGetParameters = ListObjectFoldersGetParameters
 
-ObjectUsernameIdGetParameters = AttachmentPostParameters
+ListObjectOrgMembersGetParameters = ObjectOrgCollectionPostParameters
 
-RestoreItemIdPostParameters = AttachmentPostParameters
+ConfirmOrgMemberIdPostParameters = ObjectOrgCollectionIdPutParameters
 
-SendIdRemovePasswordPostParameters = AttachmentPostParameters
-
-
-class Status(BaseModel):
-  model_config = ConfigDict(
-    extra='forbid',
-    populate_by_name=True,
-  )
-  data: Data | None
-  success: bool | None
+DeviceApprovalOrganizationIdGetParameters = ObjectOrgCollectionPostParameters
 
 
-class Status1(Enum):
-  LOCKED = 'locked'
-  UNLOCKED = 'unlocked'
-  UNAUTHENTICATED = 'unauthenticated'
+class DeviceApprovalOrganizationIdApproveRequestIdPostParameters(BaseModel):
+  organization_id: Annotated[UUID, Field(alias='organizationId')]
+  request_id: Annotated[UUID, Field(alias='request-id')]
 
 
-class Template(BaseModel):
-  model_config = ConfigDict(
-    extra='forbid',
-    populate_by_name=True,
-  )
-  last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
-  server_url: Annotated[constr(
-    pattern=
-    r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$'
-  ) | None,
-                        Field(alias='serverUrl')]
-  status: Status1 | None
-  user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
-  user_id: Annotated[UUID | None, Field(alias='userID')]
+DeviceApprovalOrganizationIdApproveAllPostParameters = ObjectOrgCollectionPostParameters
+
+DeviceApprovalOrganizationIdDenyRequestIdPostParameters = DeviceApprovalOrganizationIdApproveRequestIdPostParameters
+
+DeviceApprovalOrganizationIdDenyAllPostParameters = ObjectOrgCollectionPostParameters
 
 
-class Type(Enum):
-  FIELD_0 = 0
-  FIELD_1 = 1
-  FIELD_2 = 2
-  FIELD_3 = 3
+class GenerateGetParameters(BaseModel):
+  length: int | None
+  uppercase: bool | None
+  lowercase: bool | None
+  number: bool | None
+  special: bool | None
+  passphrase: bool | None
+  words: int | None
+  separator: str | None
+  capitalize: bool | None
+  include_number: Annotated[bool | None, Field(alias='includeNumber')]
 
 
 class Type1(Enum):
@@ -253,18 +287,21 @@ class Type1(Enum):
   ORG_COLLECTION = 'org-collection'
 
 
-class UnlockPostRequest(BaseModel):
+class ObjectTemplateTypeGetParameters(BaseModel):
+  type: Type1
+
+
+class Collection(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  password: str | None
+  organization_id: Annotated[UUID | None, Field(alias='organizationId')]
+  name: str | None
+  external_id: Annotated[str | None, Field(alias='externalId')]
+  groups: List[Group] | None
 
 
-class Uris(BaseModel):
-  model_config = ConfigDict(
-    extra='forbid',
-    populate_by_name=True,
-  )
-  match: Match | None
-  uri: str | None
+class Deviceapprovallist(RootModel[List[Deviceapprovalproperties]]):
+  model_config = ConfigDict(populate_by_name=True, )
+  root: List[Deviceapprovalproperties]

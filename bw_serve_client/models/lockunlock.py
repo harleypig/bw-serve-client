@@ -16,10 +16,10 @@ class Data(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  message: str | None
   no_color: Annotated[bool | None, Field(alias='noColor')]
   object: str | None
   title: str | None
+  message: str | None
 
 
 class Success(BaseModel):
@@ -27,5 +27,5 @@ class Success(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  data: Data | None
   success: bool | None
+  data: Data | None

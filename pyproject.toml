@@ -189,9 +189,8 @@ use-schema-description = true
 custom-file-header-path = "scripts/generated-header.txt"
 # ??? custom-formatters-kwargs
 # ??? custom-template-dir
-# ??? encoding
-# ??? extra-template-data
-# ??? use-double-quotes
+encoding = "utf8"
+use-double-quotes = true
 wrap-string-literal = true
 
 # OpenAPI options

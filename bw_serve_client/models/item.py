@@ -6,12 +6,13 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Optional
+from typing import Annotated, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import Field
 
-from . import Field
+from . import FieldModel
 from . import Uris
 
 
@@ -21,10 +22,10 @@ class Brand(Enum):
 
 class Card(BaseModel):
     brand: Optional[Brand]
-    cardholderName: Optional[str]
+    cardholder_name: Annotated[Optional[str], Field(alias='cardholderName')]
     code: Optional[str]
-    expMonth: Optional[str]
-    expYear: Optional[str]
+    exp_month: Annotated[Optional[str], Field(alias='expMonth')]
+    exp_year: Annotated[Optional[str], Field(alias='expYear')]
     number: Optional[str]
 
 
@@ -36,13 +37,13 @@ class Identity(BaseModel):
     company: Optional[str]
     country: Optional[str]
     email: Optional[str]
-    firstName: Optional[str]
-    lastName: Optional[str]
-    licenseNumber: Optional[str]
-    middleName: Optional[str]
-    passportNumber: Optional[str]
+    first_name: Annotated[Optional[str], Field(alias='firstName')]
+    last_name: Annotated[Optional[str], Field(alias='lastName')]
+    license_number: Annotated[Optional[str], Field(alias='licenseNumber')]
+    middle_name: Annotated[Optional[str], Field(alias='middleName')]
+    passport_number: Annotated[Optional[str], Field(alias='passportNumber')]
     phone: Optional[str]
-    postalCode: Optional[str]
+    postal_code: Annotated[Optional[str], Field(alias='postalCode')]
     ssn: Optional[str]
     state: Optional[str]
     title: Optional[str]
@@ -78,15 +79,15 @@ class Login(BaseModel):
 
 class Template(BaseModel):
     card: Optional[Card]
-    collectionIds: Optional[List[UUID]]
+    collection_ids: Annotated[Optional[List[UUID]], Field(alias='collectionIds')]
     favorite: Optional[bool]
-    fields: Optional[List[Field]]
-    folderId: Optional[UUID]
+    fields: Optional[List[FieldModel]]
+    folder_id: Annotated[Optional[UUID], Field(alias='folderId')]
     identity: Optional[Identity]
     login: Optional[Login]
     name: Optional[str]
     notes: Optional[str]
-    organizationId: Optional[UUID]
+    organization_id: Annotated[Optional[UUID], Field(alias='organizationId')]
     reprompt: Optional[Reprompt]
-    secureNote: Optional[SecureNote]
+    secure_note: Annotated[Optional[SecureNote], Field(alias='secureNote')]
     type: Optional[Type1Model]

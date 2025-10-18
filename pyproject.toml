@@ -153,7 +153,7 @@ use-annotated = true
 # ??? original-field-name-delimiter
 # ??? remove-special-field-name-prefix
 # ??? set-default-enum-member
-#snake-case-field = true
+snake-case-field = true
 # ??? special-field-name-prefix
 strip-default-none = true
 # ??? union-mode

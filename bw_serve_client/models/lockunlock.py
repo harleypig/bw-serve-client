@@ -5,14 +5,15 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Annotated, Optional
 
 from pydantic import BaseModel
+from pydantic import Field
 
 
 class Data(BaseModel):
     message: Optional[str]
-    noColor: Optional[bool]
+    no_color: Annotated[Optional[bool], Field(alias='noColor')]
     object: Optional[str]
     title: Optional[str]
 

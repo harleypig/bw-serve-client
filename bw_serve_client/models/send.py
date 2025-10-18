@@ -6,10 +6,11 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
+from typing import Annotated, Optional
 
 from pydantic import AwareDatetime
 from pydantic import BaseModel
+from pydantic import Field
 
 
 class Type(Enum):
@@ -23,12 +24,12 @@ class Text(BaseModel):
 
 
 class Template(BaseModel):
-    deletionDate: Optional[AwareDatetime]
+    deletion_date: Annotated[Optional[AwareDatetime], Field(alias='deletionDate')]
     disabled: Optional[bool]
-    expirationDate: Optional[AwareDatetime]
+    expiration_date: Annotated[Optional[AwareDatetime], Field(alias='expirationDate')]
     file: Optional[str]
-    hideEmail: Optional[bool]
-    maxAccessCount: Optional[int]
+    hide_email: Annotated[Optional[bool], Field(alias='hideEmail')]
+    max_access_count: Annotated[Optional[int], Field(alias='maxAccessCount')]
     name: Optional[str]
     notes: Optional[str]
     password: Optional[str]

@@ -6,13 +6,14 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Optional
+from typing import Annotated, List, Optional
 from uuid import UUID
 
 from pydantic import AwareDatetime
 from pydantic import BaseModel
 from pydantic import constr
 from pydantic import EmailStr
+from pydantic import Field
 
 
 class Type(Enum):
@@ -22,7 +23,7 @@ class Type(Enum):
     field_3 = 3
 
 
-class Field(BaseModel):
+class FieldModel(BaseModel):
     name: Optional[str]
     type: Optional[Type]
     value: Optional[str]
@@ -33,9 +34,9 @@ class Folder(BaseModel):
 
 
 class Group(BaseModel):
-    hidePasswords: Optional[bool]
+    hide_passwords: Annotated[Optional[bool], Field(alias='hidePasswords')]
     id: Optional[UUID]
-    readOnly: Optional[bool]
+    read_only: Annotated[Optional[bool], Field(alias='readOnly')]
 
 
 class Object(Enum):
@@ -49,11 +50,11 @@ class Status1(Enum):
 
 
 class Template(BaseModel):
-    lastSync: Optional[AwareDatetime]
-    serverUrl: Optional[constr(pattern=r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$')]
+    last_sync: Annotated[Optional[AwareDatetime], Field(alias='lastSync')]
+    server_url: Annotated[Optional[constr(pattern=r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$')], Field(alias='serverUrl')]
     status: Optional[Status1]
-    userEmail: Optional[EmailStr]
-    userID: Optional[UUID]
+    user_email: Annotated[Optional[EmailStr], Field(alias='userEmail')]
+    user_id: Annotated[Optional[UUID], Field(alias='userID')]
 
 
 class Data(BaseModel):
@@ -81,7 +82,7 @@ class Uris(BaseModel):
 
 
 class Collection(BaseModel):
-    externalId: Optional[str]
+    external_id: Annotated[Optional[str], Field(alias='externalId')]
     groups: Optional[List[Group]]
     name: Optional[str]
-    organizationId: Optional[UUID]
+    organization_id: Annotated[Optional[UUID], Field(alias='organizationId')]

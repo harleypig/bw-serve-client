@@ -8,14 +8,13 @@ authors = [
 license = {text = "MIT"}
 readme = "README.md"
 keywords = ["Vault Management API", "vaultwarden", "bitwarden", "api-client", "python"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -211,7 +210,7 @@ extra-fields = "forbid"
 keep-model-order = true
 output-datetime-class = "AwareDatetime"
 reuse-model = true
-target-python-version = "3.12"
+target-python-version = "3.10"
 use-schema-description = true
 
 # Template Customization

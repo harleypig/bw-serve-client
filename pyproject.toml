@@ -5,10 +5,24 @@ description = "Bitwarden CLI Vault Management API"
 authors = [
     {name = "Alan Young", email = "harleypig@harleypig.com"}
 ]
-license = "MIT"
+license = {text = "MIT"}
 readme = "README.md"
-keywords = ["Vault Management API", "vaultwarden", "bitwarden"]
+keywords = ["Vault Management API", "vaultwarden", "bitwarden", "api-client", "python"]
 requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
 dependencies = [
     "aenum>=3.1.11",
     "pydantic>=2.0.0,<3.0.0",
@@ -18,7 +32,11 @@ dependencies = [
 ]
 
 [project.urls]
+Homepage = "https://github.com/harleypig/bw-serve-client"
 Repository = "https://github.com/harleypig/bw-serve-client"
+Documentation = "https://harleypig.github.io/bw-serve-client"
+"Bug Tracker" = "https://github.com/harleypig/bw-serve-client/issues"
+Changelog = "https://github.com/harleypig/bw-serve-client/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -36,6 +54,11 @@ dev = [
     "tox>=3.9.0",
     "yapf>=0.40.2,<1.0.0",
     "lxml>=5.1.0,<6.0.0",
+    "types-requests>=2.32.4.20250913,<3.0.0.0",
+    "setuptools-scm>=9.2.1,<10.0.0",
+    "bump2version>=1.0.1,<2.0.0",
+    "pyright>=1.1.406,<2.0.0",
+    "datamodel-code-generator>=0.35.0,<0.36.0",
 ]
 docs = [
     "mkdocs>=1.5.3,<2.0.0",
@@ -47,13 +70,6 @@ docs = [
     "sphinx-lint>=0.9.1,<1.0.0",
 ]
 
-[dependency-groups]
-dev = [
-    "types-requests (>=2.32.4.20250913,<3.0.0.0)",
-    "setuptools-scm (>=9.2.1,<10.0.0)",
-    "bump2version (>=1.0.1,<2.0.0)",
-    "pyright (>=1.1.406,<2.0.0)"
-]
 
 [build-system]
 requires = ["poetry-core"]
@@ -61,26 +77,29 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [{include = "bw_serve_client"}]
+exclude = ["scripts/**"]
 
 [tool.mypy]
+files = ["bw_serve_client", "tests"]
 html_report = ".openapi/mypy-reports"
-#files = ["bw_serve_client"]
-#package = "bw_serve_client"
 ignore_missing_imports = true
-#follow_imports = "skip"
-#namespace_packages = true
-#explicit_package_bases = true
-check_untyped_defs = false
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+strict_optional = true
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
 
 [tool.isort]
-profile = "black"
+profile = "google"
 line_length = 92
 indent = "  "
 
-# [tool.pyright]
 
 [tool.yapf]
 # Use PEP8 style as the base
@@ -97,7 +116,7 @@ allow_multiline_lambdas = true
 blank_line_before_class_docstring = false
 blank_line_before_module_docstring = true
 indent_dictionary_value = true
-spaces_before_comment = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+spaces_before_comment = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
 
 # Bracket handling
 coalesce_brackets = true
@@ -115,3 +134,95 @@ split_penalty_after_opening_bracket = 0
 split_penalty_after_unary_operator = 10000
 split_penalty_for_added_line_split = 30
 split_penalty_excess_character = 7000
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=bw_serve_client",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["bw_serve_client"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "scripts"]
+skips = ["B101", "B601"]
+
+[tool.datamodel-codegen]
+# XXX: custom-formatters to mimic pre-commit fix config
+formatters = ["isort"]
+input = "docs/vault-management-api-sorted.json"
+input-file-type = "openapi"
+output = "bw_serve_client/models"
+output-model-type = "pydantic_v2.BaseModel"
+
+# Typing customization
+base-class = "pydantic.BaseModel"
+enum-field-as-literal = "one"
+field-constraints = true
+set-default-enum-member = true
+use-annotated = true
+use-union-operator = true
+
+# Field customization
+capitalise-enum-members = true
+snake-case-field = true
+strip-default-none = true
+union-mode = "smart"
+use-default = true
+use-default-kwarg = true
+use-field-description = true
+
+# Model customization
+allow-population-by-field-name = true
+collapse-root-models = true
+disable-appending-item-suffix = true
+disable-timestamp = true
+enable-version-header = true
+extra-fields = "forbid"
+keep-model-order = true
+output-datetime-class = "AwareDatetime"
+reuse-model = true
+target-python-version = "3.12"
+use-schema-description = true
+
+# Template Customization
+custom-file-header-path = "scripts/generated-header.txt"
+encoding = "utf8"
+use-double-quotes = true
+wrap-string-literal = true
+
+# OpenAPI options
+include-path-parameters = true
+#openapi-scopes = ["schemas","paths","tags","parameters"]
+openapi-scopes = ["schemas","paths","tags","parameters"]
+strict-nullable = true
+#use-operation-id-as-name = true

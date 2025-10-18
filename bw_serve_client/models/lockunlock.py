@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -16,10 +16,10 @@ class Data(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  message: Optional[str]
-  no_color: Annotated[Optional[bool], Field(alias='noColor')]
-  object: Optional[str]
-  title: Optional[str]
+  message: str | None
+  no_color: Annotated[bool | None, Field(alias='noColor')]
+  object: str | None
+  title: str | None
 
 
 class Success(BaseModel):
@@ -27,5 +27,5 @@ class Success(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  data: Optional[Data]
-  success: Optional[bool]
+  data: Data | None
+  success: bool | None

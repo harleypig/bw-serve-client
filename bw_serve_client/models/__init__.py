@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, List, Literal, Optional
+from typing import Annotated, List, Literal
 from uuid import UUID
 
 from pydantic import AwareDatetime
@@ -21,10 +21,10 @@ class Collection(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  external_id: Annotated[Optional[str], Field(alias='externalId')]
-  groups: Optional[List[Group]]
-  name: Optional[str]
-  organization_id: Annotated[Optional[UUID], Field(alias='organizationId')]
+  external_id: Annotated[str | None, Field(alias='externalId')]
+  groups: List[Group] | None
+  name: str | None
+  organization_id: Annotated[UUID | None, Field(alias='organizationId')]
 
 
 class Data(BaseModel):
@@ -32,8 +32,8 @@ class Data(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  object: Optional[Literal['template']]
-  template: Optional[Template]
+  object: Literal['template'] | None
+  template: Template | None
 
 
 class FieldModel(BaseModel):
@@ -41,9 +41,9 @@ class FieldModel(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: Optional[str]
-  type: Optional[Type]
-  value: Optional[str]
+  name: str | None
+  type: Type | None
+  value: str | None
 
 
 class Folder(BaseModel):
@@ -51,7 +51,7 @@ class Folder(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: Optional[str]
+  name: str | None
 
 
 class Group(BaseModel):
@@ -59,9 +59,9 @@ class Group(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  hide_passwords: Annotated[Optional[bool], Field(alias='hidePasswords')]
-  id: Optional[UUID]
-  read_only: Annotated[Optional[bool], Field(alias='readOnly')]
+  hide_passwords: Annotated[bool | None, Field(alias='hidePasswords')]
+  id: UUID | None
+  read_only: Annotated[bool | None, Field(alias='readOnly')]
 
 
 class Match(Enum):
@@ -78,8 +78,8 @@ class Status(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  data: Optional[Data]
-  success: Optional[bool]
+  data: Data | None
+  success: bool | None
 
 
 class Status1(Enum):
@@ -93,15 +93,15 @@ class Template(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  last_sync: Annotated[Optional[AwareDatetime], Field(alias='lastSync')]
-  server_url: Annotated[Optional[constr(
+  last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
+  server_url: Annotated[constr(
     pattern=
     r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$'
-  )],
+  ) | None,
                         Field(alias='serverUrl')]
-  status: Optional[Status1]
-  user_email: Annotated[Optional[EmailStr], Field(alias='userEmail')]
-  user_id: Annotated[Optional[UUID], Field(alias='userID')]
+  status: Status1 | None
+  user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
+  user_id: Annotated[UUID | None, Field(alias='userID')]
 
 
 class Type(Enum):
@@ -116,5 +116,5 @@ class Uris(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  match: Optional[Match]
-  uri: Optional[str]
+  match: Match | None
+  uri: str | None

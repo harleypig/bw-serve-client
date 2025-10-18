@@ -132,7 +132,7 @@ enum-field-as-literal = "one"
 field-constraints = true
 set-default-enum-member = true
 use-annotated = true
-# ??? use-union-operator
+use-union-operator = true
 
 # Field customization
 capitalise-enum-members = true

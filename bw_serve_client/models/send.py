@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import AwareDatetime
 from pydantic import BaseModel
@@ -18,17 +18,17 @@ class Template(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  deletion_date: Annotated[Optional[AwareDatetime], Field(alias='deletionDate')]
-  disabled: Optional[bool]
-  expiration_date: Annotated[Optional[AwareDatetime], Field(alias='expirationDate')]
-  file: Optional[str]
-  hide_email: Annotated[Optional[bool], Field(alias='hideEmail')]
-  max_access_count: Annotated[Optional[int], Field(alias='maxAccessCount')]
-  name: Optional[str]
-  notes: Optional[str]
-  password: Optional[str]
-  text: Optional[Text]
-  type: Optional[Type]
+  deletion_date: Annotated[AwareDatetime | None, Field(alias='deletionDate')]
+  disabled: bool | None
+  expiration_date: Annotated[AwareDatetime | None, Field(alias='expirationDate')]
+  file: str | None
+  hide_email: Annotated[bool | None, Field(alias='hideEmail')]
+  max_access_count: Annotated[int | None, Field(alias='maxAccessCount')]
+  name: str | None
+  notes: str | None
+  password: str | None
+  text: Text | None
+  type: Type | None
 
 
 class Text(BaseModel):
@@ -36,8 +36,8 @@ class Text(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  hidden: Optional[bool]
-  text: Optional[str]
+  hidden: bool | None
+  text: str | None
 
 
 class Type(Enum):

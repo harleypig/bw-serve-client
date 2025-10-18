@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, List, Literal, Optional
+from typing import Annotated, List, Literal
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -21,12 +21,12 @@ class Card(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  brand: Optional[Literal['visa']]
-  cardholder_name: Annotated[Optional[str], Field(alias='cardholderName')]
-  code: Optional[str]
-  exp_month: Annotated[Optional[str], Field(alias='expMonth')]
-  exp_year: Annotated[Optional[str], Field(alias='expYear')]
-  number: Optional[str]
+  brand: Literal['visa'] | None
+  cardholder_name: Annotated[str | None, Field(alias='cardholderName')]
+  code: str | None
+  exp_month: Annotated[str | None, Field(alias='expMonth')]
+  exp_year: Annotated[str | None, Field(alias='expYear')]
+  number: str | None
 
 
 class Identity(BaseModel):
@@ -34,24 +34,24 @@ class Identity(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  address1: Optional[str]
-  address2: Optional[str]
-  address3: Optional[str]
-  city: Optional[str]
-  company: Optional[str]
-  country: Optional[str]
-  email: Optional[str]
-  first_name: Annotated[Optional[str], Field(alias='firstName')]
-  last_name: Annotated[Optional[str], Field(alias='lastName')]
-  license_number: Annotated[Optional[str], Field(alias='licenseNumber')]
-  middle_name: Annotated[Optional[str], Field(alias='middleName')]
-  passport_number: Annotated[Optional[str], Field(alias='passportNumber')]
-  phone: Optional[str]
-  postal_code: Annotated[Optional[str], Field(alias='postalCode')]
-  ssn: Optional[str]
-  state: Optional[str]
-  title: Optional[str]
-  username: Optional[str]
+  address1: str | None
+  address2: str | None
+  address3: str | None
+  city: str | None
+  company: str | None
+  country: str | None
+  email: str | None
+  first_name: Annotated[str | None, Field(alias='firstName')]
+  last_name: Annotated[str | None, Field(alias='lastName')]
+  license_number: Annotated[str | None, Field(alias='licenseNumber')]
+  middle_name: Annotated[str | None, Field(alias='middleName')]
+  passport_number: Annotated[str | None, Field(alias='passportNumber')]
+  phone: str | None
+  postal_code: Annotated[str | None, Field(alias='postalCode')]
+  ssn: str | None
+  state: str | None
+  title: str | None
+  username: str | None
 
 
 class Login(BaseModel):
@@ -59,10 +59,10 @@ class Login(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  password: Optional[str]
-  totp: Optional[str]
-  uris: Optional[Uris]
-  username: Optional[str]
+  password: str | None
+  totp: str | None
+  uris: Uris | None
+  username: str | None
 
 
 class Reprompt(Enum):
@@ -75,7 +75,7 @@ class SecureNote(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  type: Optional[Literal[0]]
+  type: Literal[0] | None
 
 
 class Template(BaseModel):
@@ -83,19 +83,19 @@ class Template(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  card: Optional[Card]
-  collection_ids: Annotated[Optional[List[UUID]], Field(alias='collectionIds')]
-  favorite: Optional[bool]
-  fields: Optional[List[FieldModel]]
-  folder_id: Annotated[Optional[UUID], Field(alias='folderId')]
-  identity: Optional[Identity]
-  login: Optional[Login]
-  name: Optional[str]
-  notes: Optional[str]
-  organization_id: Annotated[Optional[UUID], Field(alias='organizationId')]
-  reprompt: Optional[Reprompt]
-  secure_note: Annotated[Optional[SecureNote], Field(alias='secureNote')]
-  type: Optional[Type]
+  card: Card | None
+  collection_ids: Annotated[List[UUID] | None, Field(alias='collectionIds')]
+  favorite: bool | None
+  fields: List[FieldModel] | None
+  folder_id: Annotated[UUID | None, Field(alias='folderId')]
+  identity: Identity | None
+  login: Login | None
+  name: str | None
+  notes: str | None
+  organization_id: Annotated[UUID | None, Field(alias='organizationId')]
+  reprompt: Reprompt | None
+  secure_note: Annotated[SecureNote | None, Field(alias='secureNote')]
+  type: Type | None
 
 
 class Type(Enum):

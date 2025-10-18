@@ -36,6 +36,11 @@ dev = [
     "tox>=3.9.0",
     "yapf>=0.40.2,<1.0.0",
     "lxml>=5.1.0,<6.0.0",
+    "types-requests>=2.32.4.20250913,<3.0.0.0",
+    "setuptools-scm>=9.2.1,<10.0.0",
+    "bump2version>=1.0.1,<2.0.0",
+    "pyright>=1.1.406,<2.0.0",
+    "datamodel-code-generator>=0.35.0,<0.36.0",
 ]
 docs = [
     "mkdocs>=1.5.3,<2.0.0",
@@ -47,14 +52,6 @@ docs = [
     "sphinx-lint>=0.9.1,<1.0.0",
 ]
 
-[dependency-groups]
-dev = [
-    "types-requests (>=2.32.4.20250913,<3.0.0.0)",
-    "setuptools-scm (>=9.2.1,<10.0.0)",
-    "bump2version (>=1.0.1,<2.0.0)",
-    "pyright (>=1.1.406,<2.0.0)",
-    "datamodel-code-generator (>=0.35.0,<0.36.0)"
-]
 
 [build-system]
 requires = ["poetry-core"]

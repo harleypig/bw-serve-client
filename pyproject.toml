@@ -121,7 +121,8 @@ split_penalty_excess_character = 7000
 # ??? additional-imports
 # XXX: custom-formatters to mimic pre-commit fix config
 formatters = ["isort"]
-input = "docs/vault-management-api.json"
+# input = "docs/vault-management-api.json"
+input = "docs/vault-management-api-sorted.json"
 input-file-type = "openapi"
 output = "bw_serve_client/models"
 output-model-type = "pydantic_v2.BaseModel"
@@ -165,6 +166,6 @@ wrap-string-literal = true
 # OpenAPI options
 include-path-parameters = true
 #openapi-scopes = ["schemas","paths","tags","parameters"]
-openapi-scopes = ["schemas"]
+openapi-scopes = ["schemas","paths","tags","parameters"]
 strict-nullable = true
 #use-operation-id-as-name = true

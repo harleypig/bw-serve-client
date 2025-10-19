@@ -55,15 +55,15 @@ repos:
         description: Check if poetry.lock is up to date
         pass_filenames: false
         always_run: true
-      - id: yapf
-        name: yapf
+      - id: yapf-check
+        name: yapf-check
         entry: poetry run yapf
         language: system
         description: Check Python code formatting with yapf
-        args: ['--style=pyproject.toml', '--diff']
+        args: ['--diff']
         types: [python]
-      - id: isort
-        name: isort
+      - id: isort-check
+        name: isort-check
         entry: poetry run isort
         language: system
         description: Check Python import sorting with isort
@@ -80,7 +80,8 @@ repos:
         entry: poetry run mypy
         language: system
         description: Type check Python code with mypy
-        types: [python]
+        args: ['bw_serve_client', 'tests']
+        pass_filenames: false
       - id: pyright
         name: pyright
         entry: poetry run pyright

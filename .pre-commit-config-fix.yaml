@@ -54,26 +54,18 @@ repos:
         description: Update poetry.lock file
         pass_filenames: false
         always_run: true
-      - id: poetry-lock-check
-        name: poetry-lock-check
-        entry: poetry check --lock
-        language: system
-        description: Check if poetry.lock is up to date
-        pass_filenames: false
-        always_run: true
-      - id: yapf
-        name: yapf
+      - id: yapf-fix
+        name: yapf-fix
         entry: poetry run yapf
         language: system
         description: Format Python code with yapf
-        args: ['--in-place', '-vv']
+        args: ['--in-place']
         types: [python]
-      - id: isort
-        name: isort
+      - id: isort-fix
+        name: isort-fix
         entry: poetry run isort
         language: system
         description: Sort Python imports
-        args: ['--diff', '.']
         types: [python]
       - id: flake8
         name: flake8
@@ -86,7 +78,8 @@ repos:
         entry: poetry run mypy
         language: system
         description: Type check Python code with mypy
-        types: [python]
+        args: ['bw_serve_client', 'tests']
+        pass_filenames: false
       - id: pyright
         name: pyright
         entry: poetry run pyright

@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Annotated, List, Literal
 from uuid import UUID
 
+from pydantic import AnyUrl
 from pydantic import AwareDatetime
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -21,6 +22,7 @@ from . import send
 
 
 class Match(Enum):
+  """URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)."""
   INTEGER_0 = 0
   INTEGER_1 = 1
   INTEGER_2 = 2
@@ -35,10 +37,13 @@ class Uris(BaseModel):
     populate_by_name=True,
   )
   match: Match | None
+  """URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)."""
   uri: str | None
+  """The URI/URL value."""
 
 
 class Type(Enum):
+  """Field type (0=text, 1=hidden, 2=boolean, 3=linked)."""
   FIELD_0 = 0
   FIELD_1 = 1
   FIELD_2 = 2
@@ -51,8 +56,11 @@ class FieldModel(BaseModel):
     populate_by_name=True,
   )
   name: str | None
+  """Name of the custom field."""
   value: str | None
+  """Value of the custom field."""
   type: Type | None
+  """Field type (0=text, 1=hidden, 2=boolean, 3=linked)."""
 
 
 class Folder(BaseModel):
@@ -61,6 +69,7 @@ class Folder(BaseModel):
     populate_by_name=True,
   )
   name: str | None
+  """Name of the folder."""
 
 
 class Group(BaseModel):
@@ -161,7 +170,7 @@ class ListObjectItemsGetParameters(BaseModel):
   organization_id: Annotated[UUID | None, Field(alias='organizationId')]
   collection_id: Annotated[UUID | None, Field(alias='collectionId')]
   folderid: UUID | None
-  url: str | None
+  url: AnyUrl | None
   trash: bool | None
   search: str | None
 

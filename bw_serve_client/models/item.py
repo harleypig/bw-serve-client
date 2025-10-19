@@ -17,6 +17,7 @@ from . import Uris
 
 
 class Type(Enum):
+  """Type of vault item (1=login, 2=note, 3=card, 4=identity)."""
   INTEGER_1 = 1
   INTEGER_2 = 2
   INTEGER_3 = 3
@@ -24,6 +25,7 @@ class Type(Enum):
 
 
 class Reprompt(Enum):
+  """Master password re-prompt requirement (0=none, 1=required)."""
   INTEGER_0 = 0
   INTEGER_1 = 1
 
@@ -34,6 +36,7 @@ class SecureNote(BaseModel):
     populate_by_name=True,
   )
   type: Literal[0] | None
+  """Secure note type (always 0)."""
 
 
 class Card(BaseModel):
@@ -80,9 +83,13 @@ class Login(BaseModel):
     populate_by_name=True,
   )
   uris: Uris | None
+  """Array of URIs associated with this login."""
   username: str | None
+  """Username for the login."""
   password: str | None
+  """Password for the login."""
   totp: str | None
+  """TOTP secret for two-factor authentication."""
 
 
 class Template(BaseModel):
@@ -91,15 +98,28 @@ class Template(BaseModel):
     populate_by_name=True,
   )
   organization_id: Annotated[UUID | None, Field(alias='organizationId')]
+  """Organization ID if item belongs to an organization."""
   collection_ids: Annotated[List[UUID] | None, Field(alias='collectionIds')]
+  """Array of collection IDs for organization items."""
   folder_id: Annotated[UUID | None, Field(alias='folderId')]
+  """Folder ID for organizing the item."""
   type: Type | None
+  """Type of vault item (1=login, 2=note, 3=card, 4=identity)."""
   name: str | None
+  """Display name of the vault item."""
   notes: str | None
+  """Free-form notes associated with the item."""
   favorite: bool | None
+  """Whether the item is marked as a favorite."""
   fields: List[FieldModel] | None
+  """Array of custom fields."""
   login: Login | None
+  """Login-specific data (username, password, URIs, TOTP)."""
   secure_note: Annotated[SecureNote | None, Field(alias='secureNote')]
+  """Secure note data."""
   card: Card | None
+  """Credit card data."""
   identity: Identity | None
+  """Identity data."""
   reprompt: Reprompt | None
+  """Master password re-prompt requirement (0=none, 1=required)."""

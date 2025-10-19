@@ -149,6 +149,44 @@ class OpenAPISpecFixer:
     return False
 
   # --------------------------------------------------------------------------
+  def _modify_array_element(
+    self, spec: dict[str, Any], array_path: str, match_criteria: dict[str, Any], 
+    modifications: dict[str, Any]
+  ) -> bool:
+    """Modify a specific element in an array by matching criteria.
+
+    Args:
+        spec: OpenAPI specification dictionary
+        array_path: Path to the array (e.g., "paths|/list/object/items|get|parameters")
+        match_criteria: Dictionary of key-value pairs to match in array elements
+        modifications: Dictionary of key-value pairs to modify in the matched element
+
+    Returns:
+        True if modification was successful, False if no matching element found
+    """
+    array = self._get_value_at_path(spec, array_path)
+    
+    if not isinstance(array, list):
+      return False
+
+    # Find the element that matches all criteria
+    for element in array:
+      if isinstance(element, dict):
+        # Check if this element matches all criteria
+        matches = all(
+          element.get(key) == value 
+          for key, value in match_criteria.items()
+        )
+        
+        if matches:
+          # Apply modifications to this element
+          for key, value in modifications.items():
+            element[key] = value
+          return True
+
+    return False
+
+  # --------------------------------------------------------------------------
   def apply_path_operations(self, spec: dict[str, Any]) -> dict[str, Any]:
     """Apply path-based operations to the spec.
 
@@ -196,6 +234,17 @@ class OpenAPISpecFixer:
           self.changes_made.append(f"Added missing: {description}")
         else:
           self.changes_made.append(f"Already exists (skipped): {description}")
+
+      elif operation == "modify_array_element":
+        match_criteria = op.get("match_criteria", {})
+        modifications = op.get("modifications", {})
+        
+        success = self._modify_array_element(spec, path, match_criteria, modifications)
+        
+        if success:
+          self.changes_made.append(f"Modified array element: {description}")
+        else:
+          self.changes_made.append(f"Array element not found (skipped): {description}")
 
       else:
         self.changes_made.append(f"Unknown operation {operation!r}: {description}")

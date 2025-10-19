@@ -656,7 +656,7 @@
             "description": "List all items with this URL/URI value.",
             "schema": {
               "type": "string",
-              "format": "url"
+              "format": "uri"
             }
           },
           {

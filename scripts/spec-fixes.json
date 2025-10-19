@@ -15,10 +15,21 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/item.template"},
-            "revisionDate": {"type": "string", "format": "date-time"},
-            "deleteDate": {"type": "string", "format": "date-time", "nullable": true}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/item.template"
+            },
+            "revisionDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "deleteDate": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
           }
         },
         "description": "Add response schema for GET /object/item/{id}"
@@ -29,10 +40,21 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/item.template"},
-            "revisionDate": {"type": "string", "format": "date-time"},
-            "deleteDate": {"type": "string", "format": "date-time", "nullable": true}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/item.template"
+            },
+            "revisionDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "deleteDate": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
           }
         },
         "description": "Add response schema for PUT /object/item/{id}"
@@ -43,10 +65,21 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/item.template"},
-            "revisionDate": {"type": "string", "format": "date-time"},
-            "deleteDate": {"type": "string", "format": "date-time", "nullable": true}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/item.template"
+            },
+            "revisionDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "deleteDate": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
           }
         },
         "description": "Add response schema for POST /object/item"
@@ -57,7 +90,9 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"}
+            "success": {
+              "type": "boolean"
+            }
           }
         },
         "description": "Add response schema for DELETE /object/item/{id}"
@@ -68,14 +103,23 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
+            "success": {
+              "type": "boolean"
+            },
             "data": {
               "type": "object",
               "properties": {
-                "object": {"type": "string", "enum": ["list"]},
+                "object": {
+                  "type": "string",
+                  "enum": [
+                    "list"
+                  ]
+                },
                 "data": {
                   "type": "array",
-                  "items": {"$ref": "#/components/schemas/item.template"}
+                  "items": {
+                    "$ref": "#/components/schemas/item.template"
+                  }
                 }
               }
             }
@@ -89,8 +133,12 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/folder"}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/folder"
+            }
           }
         },
         "description": "Add response schema for GET /object/folder/{id}"
@@ -101,8 +149,12 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/folder"}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/folder"
+            }
           }
         },
         "description": "Add response schema for PUT /object/folder/{id}"
@@ -113,8 +165,12 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/folder"}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/folder"
+            }
           }
         },
         "description": "Add response schema for POST /object/folder"
@@ -125,7 +181,9 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"}
+            "success": {
+              "type": "boolean"
+            }
           }
         },
         "description": "Add response schema for DELETE /object/folder/{id}"
@@ -136,14 +194,23 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
+            "success": {
+              "type": "boolean"
+            },
             "data": {
               "type": "object",
               "properties": {
-                "object": {"type": "string", "enum": ["list"]},
+                "object": {
+                  "type": "string",
+                  "enum": [
+                    "list"
+                  ]
+                },
                 "data": {
                   "type": "array",
-                  "items": {"$ref": "#/components/schemas/folder"}
+                  "items": {
+                    "$ref": "#/components/schemas/folder"
+                  }
                 }
               }
             }
@@ -157,8 +224,12 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/send.template"}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/send.template"
+            }
           }
         },
         "description": "Add response schema for GET /object/send/{id}"
@@ -169,8 +240,12 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/send.template"}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/send.template"
+            }
           }
         },
         "description": "Add response schema for PUT /object/send/{id}"
@@ -181,8 +256,12 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/send.template"}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/send.template"
+            }
           }
         },
         "description": "Add response schema for POST /object/send"
@@ -193,7 +272,9 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"}
+            "success": {
+              "type": "boolean"
+            }
           }
         },
         "description": "Add response schema for DELETE /object/send/{id}"
@@ -204,14 +285,23 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
+            "success": {
+              "type": "boolean"
+            },
             "data": {
               "type": "object",
               "properties": {
-                "object": {"type": "string", "enum": ["list"]},
+                "object": {
+                  "type": "string",
+                  "enum": [
+                    "list"
+                  ]
+                },
                 "data": {
                   "type": "array",
-                  "items": {"$ref": "#/components/schemas/send.template"}
+                  "items": {
+                    "$ref": "#/components/schemas/send.template"
+                  }
                 }
               }
             }
@@ -225,7 +315,9 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"}
+            "success": {
+              "type": "boolean"
+            }
           }
         },
         "description": "Add response schema for POST /restore/item/{id}"
@@ -236,8 +328,12 @@
         "value": {
           "type": "object",
           "properties": {
-            "success": {"type": "boolean"},
-            "data": {"$ref": "#/components/schemas/send.template"}
+            "success": {
+              "type": "boolean"
+            },
+            "data": {
+              "$ref": "#/components/schemas/send.template"
+            }
           }
         },
         "description": "Add response schema for POST /send/{id}/remove-password"
@@ -415,6 +511,20 @@
         "path": "components|schemas|send.text|properties|hidden|description",
         "value": "Whether the text is hidden by default",
         "description": "Add description to send text hidden property"
+      },
+      {
+        "operation": "modify_array_element",
+        "path": "paths|/list/object/items|get|parameters",
+        "match_criteria": {
+          "name": "url"
+        },
+        "modifications": {
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "description": "Change url parameter format from 'url' to 'uri'"
       }
     ]
   }

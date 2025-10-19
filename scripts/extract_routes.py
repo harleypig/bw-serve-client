@@ -11,7 +11,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 # Default values for command line arguments
 DEFAULT_FORMAT = 'text'
@@ -56,7 +56,7 @@ class RouteExtractor:
           raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
         return data
     except FileNotFoundError:
-      print(f"Error: Swagger file '{self.swagger_file}' not found.", file=sys.stderr)
+      print(f"Error: Swagger file {self.swagger_file!r} not found.", file=sys.stderr)
       sys.exit(1)
     except json.JSONDecodeError as e:
       print(f"Error: Invalid JSON in swagger file: {e}", file=sys.stderr)

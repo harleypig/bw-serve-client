@@ -7,9 +7,10 @@ to extract essential information needed for creating a Python client library.
 """
 
 import json
-from pathlib import Path
+# from pathlib import Path
 import sys
-from typing import Any, Dict, List, Set, Union
+# from typing import Any, Dict, List, Set, Union
+from typing import Any
 
 
 def analyze_api_structure(swagger_file: str) -> dict[str, Any]:
@@ -18,7 +19,7 @@ def analyze_api_structure(swagger_file: str) -> dict[str, Any]:
     with open(swagger_file, 'r', encoding='utf-8') as f:
       data = json.load(f)
   except FileNotFoundError:
-    print(f"Error: Swagger file '{swagger_file}' not found.", file=sys.stderr)
+    print(f"Error: Swagger file {swagger_file!r} not found.", file=sys.stderr)
     sys.exit(1)
   except json.JSONDecodeError as e:
     print(f"Error: Invalid JSON in swagger file: {e}", file=sys.stderr)

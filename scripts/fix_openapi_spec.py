@@ -12,7 +12,7 @@ Usage:
 import json
 from pathlib import Path
 import sys
-from typing import Any, Dict
+from typing import Any
 
 
 class OpenAPISpecFixer:
@@ -54,18 +54,18 @@ class OpenAPISpecFixer:
           raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
         return data
 
-    except FileNotFoundError:
+    except FileNotFoundError as err:
       raise FileNotFoundError(
         f"{file_description.capitalize()} file not found: {file_path}"
-      )
+      ) from err
 
     except json.JSONDecodeError as e:
       raise json.JSONDecodeError(
         f"Invalid JSON in {file_description} {file_path}: {e.msg}", e.doc, e.pos
-      )
+      ) from e
 
     except Exception as e:
-      raise Exception(f"Error reading {file_description} {file_path}: {e}")
+      raise Exception(f"Error reading {file_description} {file_path}: {e}") from e
 
   # --------------------------------------------------------------------------
   def _get_value_at_path(self, spec: dict[str, Any], path: str) -> Any:
@@ -197,7 +197,7 @@ class OpenAPISpecFixer:
           self.changes_made.append(f"Already exists (skipped): {description}")
 
       else:
-        self.changes_made.append(f"Unknown operation '{operation}': {description}")
+        self.changes_made.append(f"Unknown operation {operation!r}: {description}")
 
     return spec
 

@@ -150,7 +150,7 @@ class OpenAPISpecFixer:
 
   # --------------------------------------------------------------------------
   def _modify_array_element(
-    self, spec: dict[str, Any], array_path: str, match_criteria: dict[str, Any], 
+    self, spec: dict[str, Any], array_path: str, match_criteria: dict[str, Any],
     modifications: dict[str, Any]
   ) -> bool:
     """Modify a specific element in an array by matching criteria.
@@ -165,7 +165,7 @@ class OpenAPISpecFixer:
         True if modification was successful, False if no matching element found
     """
     array = self._get_value_at_path(spec, array_path)
-    
+
     if not isinstance(array, list):
       return False
 
@@ -173,11 +173,8 @@ class OpenAPISpecFixer:
     for element in array:
       if isinstance(element, dict):
         # Check if this element matches all criteria
-        matches = all(
-          element.get(key) == value 
-          for key, value in match_criteria.items()
-        )
-        
+        matches = all(element.get(key) == value for key, value in match_criteria.items())
+
         if matches:
           # Apply modifications to this element
           for key, value in modifications.items():
@@ -238,9 +235,9 @@ class OpenAPISpecFixer:
       elif operation == "modify_array_element":
         match_criteria = op.get("match_criteria", {})
         modifications = op.get("modifications", {})
-        
+
         success = self._modify_array_element(spec, path, match_criteria, modifications)
-        
+
         if success:
           self.changes_made.append(f"Modified array element: {description}")
         else:

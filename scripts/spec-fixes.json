@@ -241,6 +241,180 @@
           }
         },
         "description": "Add response schema for POST /send/{id}/remove-password"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.reprompt.description",
+        "value": "Master password re-prompt requirement (0=none, 1=required)",
+        "description": "Add description to reprompt property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.type.description",
+        "value": "Type of vault item (1=login, 2=note, 3=card, 4=identity)",
+        "description": "Add description to type property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.uris.properties.match.description",
+        "value": "URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)",
+        "description": "Add description to match property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.uris.properties.uri.description",
+        "value": "The URI/URL value",
+        "description": "Add description to uri property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.field.properties.type.description",
+        "value": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)",
+        "description": "Add description to field type property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.field.properties.name.description",
+        "value": "Name of the custom field",
+        "description": "Add description to field name property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.field.properties.value.description",
+        "value": "Value of the custom field",
+        "description": "Add description to field value property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.folder.properties.name.description",
+        "value": "Name of the folder",
+        "description": "Add description to folder name property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.organizationId.description",
+        "value": "Organization ID if item belongs to an organization",
+        "description": "Add description to organizationId property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.collectionIds.description",
+        "value": "Array of collection IDs for organization items",
+        "description": "Add description to collectionIds property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.folderId.description",
+        "value": "Folder ID for organizing the item",
+        "description": "Add description to folderId property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.name.description",
+        "value": "Display name of the vault item",
+        "description": "Add description to name property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.notes.description",
+        "value": "Free-form notes associated with the item",
+        "description": "Add description to notes property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.favorite.description",
+        "value": "Whether the item is marked as a favorite",
+        "description": "Add description to favorite property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.fields.description",
+        "value": "Array of custom fields",
+        "description": "Add description to fields property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.login.description",
+        "value": "Login-specific data (username, password, URIs, TOTP)",
+        "description": "Add description to login property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.secureNote.description",
+        "value": "Secure note data",
+        "description": "Add description to secureNote property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.card.description",
+        "value": "Credit card data",
+        "description": "Add description to card property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.template.properties.identity.description",
+        "value": "Identity data",
+        "description": "Add description to identity property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.login.properties.uris.description",
+        "value": "Array of URIs associated with this login",
+        "description": "Add description to login uris property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.login.properties.username.description",
+        "value": "Username for the login",
+        "description": "Add description to login username property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.login.properties.password.description",
+        "value": "Password for the login",
+        "description": "Add description to login password property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.login.properties.totp.description",
+        "value": "TOTP secret for two-factor authentication",
+        "description": "Add description to login totp property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.item.secureNote.properties.type.description",
+        "value": "Secure note type (always 0)",
+        "description": "Add description to secureNote type property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.send.template.properties.name.description",
+        "value": "Name of the Send",
+        "description": "Add description to send name property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.send.template.properties.notes.description",
+        "value": "Notes for the Send",
+        "description": "Add description to send notes property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.send.template.properties.type.description",
+        "value": "Type of Send (0=text, 1=file)",
+        "description": "Add description to send type property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.send.text.properties.text.description",
+        "value": "Text content of the Send",
+        "description": "Add description to send text property"
+      },
+      {
+        "operation": "add_if_missing",
+        "path": "components.schemas.send.text.properties.hidden.description",
+        "value": "Whether the text is hidden by default",
+        "description": "Add description to send text hidden property"
       }
     ]
   }

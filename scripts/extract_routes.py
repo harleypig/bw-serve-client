@@ -59,9 +59,9 @@ class RouteExtractor:
       print(f"Error: Invalid JSON in swagger file: {e}", file=sys.stderr)
       sys.exit(1)
 
-  def extract_routes(self) -> List[Dict[str, Any]]:
+  def extract_routes(self) -> list[dict[str, Any]]:
     """Extract all routes from the swagger data."""
-    routes: List[Dict[str, Any]] = []
+    routes: list[dict[str, Any]] = []
 
     if 'paths' not in self.data:
       print("Error: No 'paths' section found in swagger file.", file=sys.stderr)
@@ -83,12 +83,12 @@ class RouteExtractor:
 
     return routes
 
-  def format_markdown(self, routes: List[Dict[str, Any]]) -> str:
+  def format_markdown(self, routes: list[dict[str, Any]]) -> str:
     """Format routes as markdown."""
     output = []
 
     # Group routes by tags
-    grouped_routes: Dict[str, List[Dict[str, Any]]] = {}
+    grouped_routes: dict[str, list[dict[str, Any]]] = {}
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
       for tag in tags:
@@ -101,7 +101,7 @@ class RouteExtractor:
       output.append(f"# {tag}")
 
       # Group routes by path within each tag
-      path_methods: Dict[str, List[str]] = {}
+      path_methods: dict[str, list[str]] = {}
       for route in grouped_routes[tag]:
         path = route['path']
         method = route['method']
@@ -119,12 +119,12 @@ class RouteExtractor:
 
     return "\n".join(output)
 
-  def format_text(self, routes: List[Dict[str, Any]]) -> str:
+  def format_text(self, routes: list[dict[str, Any]]) -> str:
     """Format routes as plain text."""
     output = []
 
     # Group routes by tags
-    grouped_routes: Dict[str, List[Dict[str, Any]]] = {}
+    grouped_routes: dict[str, list[dict[str, Any]]] = {}
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
       for tag in tags:
@@ -138,7 +138,7 @@ class RouteExtractor:
       output.append("-" * len(tag))
 
       # Group routes by path within each tag
-      path_methods: Dict[str, List[str]] = {}
+      path_methods: dict[str, list[str]] = {}
       for route in grouped_routes[tag]:
         path = route['path']
         method = route['method']
@@ -156,10 +156,10 @@ class RouteExtractor:
 
     return "\n".join(output)
 
-  def format_json(self, routes: List[Dict[str, Any]]) -> str:
+  def format_json(self, routes: list[dict[str, Any]]) -> str:
     """Format routes as JSON."""
     # Group routes by tags
-    grouped_routes: Dict[str, List[Dict[str, Any]]] = {}
+    grouped_routes: dict[str, list[dict[str, Any]]] = {}
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
       for tag in tags:
@@ -168,10 +168,10 @@ class RouteExtractor:
         grouped_routes[tag].append(route)
 
     # Create simplified output structure
-    output_data: Dict[str, Dict[str, List[str]]] = {}
+    output_data: dict[str, dict[str, list[str]]] = {}
     for tag in sorted(grouped_routes.keys()):
       # Group routes by path within each tag
-      path_methods: Dict[str, List[str]] = {}
+      path_methods: dict[str, list[str]] = {}
       for route in grouped_routes[tag]:
         path = route['path']
         method = route['method']
@@ -202,7 +202,7 @@ class RouteExtractor:
       raise ValueError(f"Unknown format type: {format_type}")
 
 
-def main():
+def main() -> None:
   """Main entry point for the script."""
   parser = argparse.ArgumentParser(
     description="Extract API routes from Bitwarden Vault Management API swagger file",

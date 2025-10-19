@@ -12,7 +12,7 @@ import sys
 from typing import Any, Dict, List, Set, Union
 
 
-def analyze_api_structure(swagger_file: str) -> Dict[str, Any]:
+def analyze_api_structure(swagger_file: str) -> dict[str, Any]:
   """Analyze the API structure and extract key information."""
   try:
     with open(swagger_file, 'r', encoding='utf-8') as f:
@@ -24,11 +24,11 @@ def analyze_api_structure(swagger_file: str) -> Dict[str, Any]:
     print(f"Error: Invalid JSON in swagger file: {e}", file=sys.stderr)
     sys.exit(1)
 
-  error_codes: Set[str] = set()
-  tags: Set[str] = set()
-  response_patterns: Dict[str, Set[str]] = {}
+  error_codes: set[str] = set()
+  tags: set[str] = set()
+  response_patterns: dict[str, set[str]] = {}
 
-  analysis: Dict[str, Any] = {
+  analysis: dict[str, Any] = {
     'api_info': {},
     'authentication': {},
     'server_info': {},
@@ -143,7 +143,7 @@ def analyze_api_structure(swagger_file: str) -> Dict[str, Any]:
   return analysis
 
 
-def print_analysis(analysis: Dict[str, Any]) -> None:
+def print_analysis(analysis: dict[str, Any]) -> None:
   """Print the analysis results in a readable format."""
   print("=" * 80)
   print("BITWARDEN VAULT MANAGEMENT API - LIBRARY DEVELOPMENT ANALYSIS")
@@ -244,7 +244,7 @@ def print_analysis(analysis: Dict[str, Any]) -> None:
   print("=" * 80)
 
 
-def main():
+def main() -> None:
   """Main entry point."""
   if len(sys.argv) != 2:
     print("Usage: python analyze_api_structure.py <swagger_file>")

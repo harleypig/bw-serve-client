@@ -1,336 +1,403 @@
 {
-  "syntax_fixes": {
-    "description": "Fix syntax errors in the OpenAPI spec",
-    "path_corrections": {},
-    "json_corrections": {
-      "description": "Fix malformed JSON structures"
-    }
-  },
-  
-  "response_schemas": {
-    "description": "Add missing response schemas to endpoints",
-    "endpoints": {
-      "GET /object/item/{id}": {
-        "200": {
-          "description": "Successfully retrieved vault item",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/item.template"},
-                  "revisionDate": {"type": "string", "format": "date-time"},
-                  "deleteDate": {"type": "string", "format": "date-time", "nullable": true}
-                }
-              }
-            }
-          }
-        }
-      },
-      "PUT /object/item/{id}": {
-        "200": {
-          "description": "Successfully updated vault item",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/item.template"},
-                  "revisionDate": {"type": "string", "format": "date-time"},
-                  "deleteDate": {"type": "string", "format": "date-time", "nullable": true}
-                }
-              }
-            }
-          }
-        }
-      },
-      "POST /object/item": {
-        "200": {
-          "description": "Successfully created vault item",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/item.template"},
-                  "revisionDate": {"type": "string", "format": "date-time"},
-                  "deleteDate": {"type": "string", "format": "date-time", "nullable": true}
-                }
-              }
-            }
-          }
-        }
-      },
-      "DELETE /object/item/{id}": {
-        "200": {
-          "description": "Successfully deleted vault item",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "POST /restore/item/{id}": {
-        "200": {
-          "description": "Successfully restored vault item",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "GET /list/object/items": {
-        "200": {
-          "description": "Successfully retrieved list of vault items",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {
-                    "type": "object",
-                    "properties": {
-                      "object": {"type": "string", "enum": ["list"]},
-                      "data": {
-                        "type": "array",
-                        "items": {"$ref": "#/components/schemas/item.template"}
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "GET /object/folder/{id}": {
-        "200": {
-          "description": "Successfully retrieved folder",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/folder"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "POST /object/folder": {
-        "200": {
-          "description": "Successfully created folder",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/folder"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "PUT /object/folder/{id}": {
-        "200": {
-          "description": "Successfully updated folder",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/folder"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "GET /object/send/{id}": {
-        "200": {
-          "description": "Successfully retrieved Send",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/send.template"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "POST /object/send": {
-        "200": {
-          "description": "Successfully created Send",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/send.template"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "PUT /object/send/{id}": {
-        "200": {
-          "description": "Successfully updated Send",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {"type": "boolean"},
-                  "data": {"$ref": "#/components/schemas/send.template"}
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  
   "descriptions": {
     "description": "Add missing descriptions to schemas and properties",
-    "schemas": {
-      "item.template": "Represents a vault item (login, secure note, card, or identity)",
-      "item.login": "Login credentials including URIs, username, password, and TOTP",
-      "item.secureNote": "Secure note item type for storing text information",
-      "item.card": "Credit card or payment card information",
-      "item.identity": "Personal identity information (name, address, etc.)",
-      "folder": "Vault folder for organizing items",
-      "collection": "Organization collection for sharing items",
-      "group": "Organization group for managing permissions",
-      "uris": "URI/URL associated with a login item",
-      "field": "Custom field attached to a vault item",
-      "send.template": "Bitwarden Send for secure sharing",
-      "send.text": "Text content for a Bitwarden Send",
-      "status": "Status information about the Bitwarden CLI client",
-      "lockunlock.success": "Response from lock/unlock operations",
-      "deviceapprovalproperties": "Device approval request information",
-      "deviceapprovallist": "List of device approval requests"
-    },
     "properties": {
-      "item.template": {
-        "organizationId": "Organization ID if item belongs to an organization",
-        "collectionIds": "Array of collection IDs for organization items",
-        "folderId": "Folder ID for organizing the item",
-        "type": "Type of vault item (1=login, 2=note, 3=card, 4=identity)",
-        "name": "Display name of the vault item",
-        "notes": "Free-form notes associated with the item",
-        "favorite": "Whether the item is marked as a favorite",
-        "fields": "Array of custom fields",
-        "login": "Login-specific data (username, password, URIs, TOTP)",
-        "secureNote": "Secure note data",
-        "card": "Credit card data",
-        "identity": "Identity data",
-        "reprompt": "Master password re-prompt requirement (0=none, 1=required)"
-      },
-      "item.login": {
-        "uris": "Array of URIs associated with this login",
-        "username": "Username for the login",
-        "password": "Password for the login",
-        "totp": "TOTP secret for two-factor authentication"
-      },
-      "uris": {
-        "match": "URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)",
-        "uri": "The URI/URL value"
-      },
       "field": {
         "name": "Name of the custom field",
-        "value": "Value of the custom field",
-        "type": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)"
+        "type": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)",
+        "value": "Value of the custom field"
       },
       "folder": {
         "name": "Name of the folder"
       },
+      "item.login": {
+        "password": "Password for the login",
+        "totp": "TOTP secret for two-factor authentication",
+        "uris": "Array of URIs associated with this login",
+        "username": "Username for the login"
+      },
+      "item.template": {
+        "card": "Credit card data",
+        "collectionIds": "Array of collection IDs for organization items",
+        "favorite": "Whether the item is marked as a favorite",
+        "fields": "Array of custom fields",
+        "folderId": "Folder ID for organizing the item",
+        "identity": "Identity data",
+        "login": "Login-specific data (username, password, URIs, TOTP)",
+        "name": "Display name of the vault item",
+        "notes": "Free-form notes associated with the item",
+        "organizationId": "Organization ID if item belongs to an organization",
+        "reprompt": "Master password re-prompt requirement (0=none, 1=required)",
+        "secureNote": "Secure note data",
+        "type": "Type of vault item (1=login, 2=note, 3=card, 4=identity)"
+      },
       "send.template": {
+        "deletionDate": "When the Send will be automatically deleted",
+        "disabled": "Whether the Send is disabled",
+        "expirationDate": "When the Send will expire",
+        "file": "File content (for file Sends)",
+        "hideEmail": "Whether to hide the sender's email",
+        "maxAccessCount": "Maximum number of times the Send can be accessed",
         "name": "Name of the Send",
         "notes": "Notes for the Send",
-        "type": "Type of Send (0=text, 1=file)",
-        "text": "Text content (for text Sends)",
-        "file": "File content (for file Sends)",
-        "maxAccessCount": "Maximum number of times the Send can be accessed",
-        "deletionDate": "When the Send will be automatically deleted",
-        "expirationDate": "When the Send will expire",
         "password": "Password required to access the Send",
-        "disabled": "Whether the Send is disabled",
-        "hideEmail": "Whether to hide the sender's email"
+        "text": "Text content (for text Sends)",
+        "type": "Type of Send (0=text, 1=file)"
+      },
+      "uris": {
+        "match": "URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)",
+        "uri": "The URI/URL value"
       }
+    },
+    "schemas": {
+      "collection": "Organization collection for sharing items",
+      "deviceapprovallist": "List of device approval requests",
+      "deviceapprovalproperties": "Device approval request information",
+      "field": "Custom field attached to a vault item",
+      "folder": "Vault folder for organizing items",
+      "group": "Organization group for managing permissions",
+      "item.card": "Credit card or payment card information",
+      "item.identity": "Personal identity information (name, address, etc.)",
+      "item.login": "Login credentials including URIs, username, password, and TOTP",
+      "item.secureNote": "Secure note item type for storing text information",
+      "item.template": "Represents a vault item (login, secure note, card, or identity)",
+      "lockunlock.success": "Response from lock/unlock operations",
+      "send.template": "Bitwarden Send for secure sharing",
+      "send.text": "Text content for a Bitwarden Send",
+      "status": "Status information about the Bitwarden CLI client",
+      "uris": "URI/URL associated with a login item"
     }
   },
-  
   "parameter_fixes": {
     "description": "Fix parameter definitions and add missing ones",
     "global_parameters": {
-      "ItemId": {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "description": "Unique identifier of the vault item",
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
       "FolderId": {
-        "name": "id", 
-        "in": "path",
-        "required": true,
         "description": "Unique identifier of the folder",
+        "in": "path",
+        "name": "id",
+        "required": true,
         "schema": {
-          "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "type": "string"
         }
       },
-      "SendId": {
+      "ItemId": {
+        "description": "Unique identifier of the vault item",
+        "in": "path",
         "name": "id",
-        "in": "path", 
         "required": true,
-        "description": "Unique identifier of the Send",
         "schema": {
-          "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "type": "string"
         }
       },
       "OrganizationId": {
-        "name": "organizationId",
-        "in": "query",
-        "required": true,
         "description": "Unique identifier of the organization",
+        "in": "query",
+        "name": "organizationId",
+        "required": true,
         "schema": {
-          "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "SendId": {
+        "description": "Unique identifier of the Send",
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "schema": {
+          "format": "uuid",
+          "type": "string"
         }
       }
     }
+  },
+  "response_schemas": {
+    "description": "Add missing response schemas to endpoints",
+    "endpoints": {
+      "DELETE /object/item/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully deleted vault item"
+        }
+      },
+      "GET /list/object/items": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "properties": {
+                      "data": {
+                        "items": {
+                          "$ref": "#/components/schemas/item.template"
+                        },
+                        "type": "array"
+                      },
+                      "object": {
+                        "enum": [
+                          "list"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully retrieved list of vault items"
+        }
+      },
+      "GET /object/folder/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/folder"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully retrieved folder"
+        }
+      },
+      "GET /object/item/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/item.template"
+                  },
+                  "deleteDate": {
+                    "format": "date-time",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "revisionDate": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully retrieved vault item"
+        }
+      },
+      "GET /object/send/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/send.template"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully retrieved Send"
+        }
+      },
+      "POST /object/folder": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/folder"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully created folder"
+        }
+      },
+      "POST /object/item": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/item.template"
+                  },
+                  "deleteDate": {
+                    "format": "date-time",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "revisionDate": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully created vault item"
+        }
+      },
+      "POST /object/send": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/send.template"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully created Send"
+        }
+      },
+      "POST /restore/item/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully restored vault item"
+        }
+      },
+      "PUT /object/folder/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/folder"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully updated folder"
+        }
+      },
+      "PUT /object/item/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/item.template"
+                  },
+                  "deleteDate": {
+                    "format": "date-time",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "revisionDate": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully updated vault item"
+        }
+      },
+      "PUT /object/send/{id}": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/send.template"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "description": "Successfully updated Send"
+        }
+      }
+    }
+  },
+  "syntax_fixes": {
+    "description": "Fix syntax errors in the OpenAPI spec",
+    "json_corrections": {
+      "description": "Fix malformed JSON structures"
+    },
+    "path_corrections": {}
   }
 }

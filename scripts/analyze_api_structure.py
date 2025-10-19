@@ -7,8 +7,8 @@ to extract essential information needed for creating a Python client library.
 """
 
 import json
-import sys
 from pathlib import Path
+import sys
 from typing import Any, Dict, List, Set, Union
 
 

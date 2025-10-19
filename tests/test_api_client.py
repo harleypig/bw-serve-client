@@ -1,19 +1,18 @@
 """Tests for ApiClient module."""
 
 import json
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 import requests
 
-from bw_serve_client.api_client import (
-  ApiClient,
-  AuthenticationError,
-  BitwardenAPIError,
-  NotFoundError,
-  ServerError,
-  ValidationError,
-)
+from bw_serve_client.api_client import ApiClient
+from bw_serve_client.api_client import AuthenticationError
+from bw_serve_client.api_client import BitwardenAPIError
+from bw_serve_client.api_client import NotFoundError
+from bw_serve_client.api_client import ServerError
+from bw_serve_client.api_client import ValidationError
 
 
 class TestApiClient:

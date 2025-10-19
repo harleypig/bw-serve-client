@@ -354,7 +354,7 @@ class Collection(BaseModel):
 
 
 class Deviceapprovallist(RootModel[List[Deviceapprovalproperties]]):
-  model_config = ConfigDict(populate_by_name=True, )
+  model_config = ConfigDict(populate_by_name=True,)
   root: List[Deviceapprovalproperties]
 
 

@@ -10,9 +10,9 @@ Usage:
 """
 
 import json
-import sys
 from pathlib import Path
-from typing import Dict, Any
+import sys
+from typing import Any, Dict
 
 
 class OpenAPISpecFixer:

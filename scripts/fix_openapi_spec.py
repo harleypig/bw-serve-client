@@ -46,8 +46,11 @@ class OpenAPISpecFixer:
       paths_to_fix = {}
       for old_path, new_path in path_corrections.items():
         if old_path in spec["paths"]:
-          paths_to_fix[old_path] = new_path
-          self.changes_made.append(f"Fixed path: {old_path} -> {new_path}")
+          if old_path == new_path:
+            self.changes_made.append(f"Path correction skipped (no change needed): {old_path}")
+          else:
+            paths_to_fix[old_path] = new_path
+            self.changes_made.append(f"Fixed path: {old_path} -> {new_path}")
 
       # Apply path fixes
       for old_path, new_path in paths_to_fix.items():

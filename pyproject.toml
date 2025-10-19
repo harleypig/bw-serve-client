@@ -178,7 +178,7 @@ skips = ["B101", "B601"]
 [tool.datamodel-codegen]
 # XXX: custom-formatters to mimic pre-commit fix config
 formatters = ["isort"]
-input = "docs/vault-management-api.json"
+input = "scripts/vault-management-api-fixed.json"
 input-file-type = "openapi"
 output = "bw_serve_client/models"
 output-model-type = "pydantic_v2.BaseModel"

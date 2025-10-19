@@ -89,6 +89,11 @@ repos:
     hooks:
       - id: pyright
         description: Type check Python code with pyright
+        additional_dependencies: 
+          - requests>=2.25.0
+          - pydantic>=2.0.0
+          - pytest>=7.2.1
+          - urllib3>=1.25.3
 
   # Documentation
   - repo: https://github.com/pycqa/pydocstyle

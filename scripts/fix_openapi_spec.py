@@ -13,7 +13,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
 
 
 class OpenAPISpecFixer:
@@ -29,140 +29,122 @@ class OpenAPISpecFixer:
       self.fixes = json.load(f)
     self.changes_made = []
 
-  def fix_syntax_errors(self, spec: Dict[str, Any]) -> Dict[str, Any]:
-    """Fix basic syntax errors in the spec.
-
+  def _get_value_at_path(self, spec: Dict[str, Any], path: str) -> Any:
+    """Get value at a dot-separated path in the spec.
+    
         Args:
             spec: OpenAPI specification dictionary
-
+            path: Dot-separated path like "paths./object/item/{id}.get.responses"
+            
         Returns:
-            Fixed specification
+            Value at the path, or None if path doesn't exist
         """
-    syntax_fixes = self.fixes.get("syntax_fixes", {})
-    path_corrections = syntax_fixes.get("path_corrections", {})
+    parts = path.split('.')
+    current = spec
+    
+    for part in parts:
+      if isinstance(current, dict) and part in current:
+        current = current[part]
+      else:
+        return None
+    
+    return current
 
-    # Fix path syntax errors
-    if "paths" in spec:
-      paths_to_fix = {}
-      for old_path, new_path in path_corrections.items():
-        if old_path in spec["paths"]:
-          if old_path == new_path:
-            self.changes_made.append(f"Path correction skipped (no change needed): {old_path}")
+  def _set_value_at_path(self, spec: Dict[str, Any], path: str, value: Any) -> None:
+    """Set value at a dot-separated path in the spec.
+    
+        Args:
+            spec: OpenAPI specification dictionary
+            path: Dot-separated path like "paths./object/item/{id}.get.responses"
+            value: Value to set
+        """
+    parts = path.split('.')
+    current = spec
+    
+    # Navigate to the parent of the target
+    for part in parts[:-1]:
+      if part not in current:
+        current[part] = {}
+      current = current[part]
+    
+    # Set the final value
+    current[parts[-1]] = value
+
+  def _path_exists(self, spec: Dict[str, Any], path: str) -> bool:
+    """Check if a dot-separated path exists in the spec.
+    
+        Args:
+            spec: OpenAPI specification dictionary
+            path: Dot-separated path
+            
+        Returns:
+            True if path exists, False otherwise
+        """
+    return self._get_value_at_path(spec, path) is not None
+
+  def _rename_key_at_path(self, spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str) -> bool:
+    """Rename a key at the specified parent path.
+    
+        Args:
+            spec: OpenAPI specification dictionary
+            parent_path: Path to the parent object containing the key
+            old_key: Current key name
+            new_key: New key name
+            
+        Returns:
+            True if rename was successful, False if old_key doesn't exist
+        """
+    parent = self._get_value_at_path(spec, parent_path)
+    if isinstance(parent, dict) and old_key in parent:
+      parent[new_key] = parent.pop(old_key)
+      return True
+    return False
+
+  def apply_path_operations(self, spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Apply path-based operations to the spec.
+    
+        Args:
+            spec: OpenAPI specification dictionary
+            
+        Returns:
+            Modified specification
+        """
+    operations = self.fixes.get("path_operations", {}).get("fixes", [])
+    
+    for op in operations:
+      operation = op["operation"]
+      path = op["path"]
+      description = op.get("description", "")
+      
+      if operation == "rename_key":
+        success = self._rename_key_at_path(spec, path, op["old_key"], op["new_key"])
+        if success:
+          self.changes_made.append(f"Renamed key: {description}")
+        else:
+          self.changes_made.append(f"Key not found (skipped): {description}")
+          
+      elif operation == "set_value":
+        if self._path_exists(spec, path):
+          current_value = self._get_value_at_path(spec, path)
+          if current_value != op["value"]:
+            self._set_value_at_path(spec, path, op["value"])
+            self.changes_made.append(f"Updated value: {description}")
           else:
-            paths_to_fix[old_path] = new_path
-            self.changes_made.append(f"Fixed path: {old_path} -> {new_path}")
-
-      # Apply path fixes
-      for old_path, new_path in paths_to_fix.items():
-        spec["paths"][new_path] = spec["paths"].pop(old_path)
-
-    return spec
-
-  def add_response_schemas(self, spec: Dict[str, Any]) -> Dict[str, Any]:
-    """Add missing response schemas to endpoints.
-
-        Args:
-            spec: OpenAPI specification dictionary
-
-        Returns:
-            Specification with added response schemas
-        """
-    response_config = self.fixes.get("response_schemas", {})
-    endpoints = response_config.get("endpoints", {})
-
-    for endpoint_key, response_def in endpoints.items():
-      # Parse endpoint key like "GET /object/item/{id}"
-      method, path = endpoint_key.split(" ", 1)
-      method = method.lower()
-
-      if (path in spec.get("paths", {}) and method in spec["paths"][path]
-          and "responses" in spec["paths"][path][method]):
-
-        # Add/update response definitions
-        for status_code, schema_def in response_def.items():
-          if status_code in spec["paths"][path][method]["responses"]:
-            # Update existing response with schema
-            existing_response = spec["paths"][path][method]["responses"][status_code]
-            if "content" not in existing_response:
-              existing_response["content"] = {}
-            if "application/json" not in existing_response["content"]:
-              existing_response["content"]["application/json"] = {}
-
-            # Add the schema
-            existing_response["content"]["application/json"]["schema"] = schema_def[
-              "content"]["application/json"]["schema"]
-
-            # Update description if provided
-            if "description" in schema_def:
-              existing_response["description"] = schema_def["description"]
-
-            self.changes_made.append(
-              f"Added response schema: {method.upper()} {path} {status_code}"
-            )
-
-    return spec
-
-  def add_descriptions(self, spec: Dict[str, Any]) -> Dict[str, Any]:
-    """Add missing descriptions to schemas and properties.
-
-        Args:
-            spec: OpenAPI specification dictionary
-
-        Returns:
-            Specification with added descriptions
-        """
-    descriptions_config = self.fixes.get("descriptions", {})
-
-    # Add schema descriptions
-    schema_descriptions = descriptions_config.get("schemas", {})
-    if "components" in spec and "schemas" in spec["components"]:
-      for schema_name, description in schema_descriptions.items():
-        if schema_name in spec["components"]["schemas"]:
-          if "description" not in spec["components"]["schemas"][schema_name]:
-            spec["components"]["schemas"][schema_name]["description"] = description
-            self.changes_made.append(f"Added schema description: {schema_name}")
-
-    # Add property descriptions
-    property_descriptions = descriptions_config.get("properties", {})
-    if "components" in spec and "schemas" in spec["components"]:
-      for schema_name, props in property_descriptions.items():
-        if (schema_name in spec["components"]["schemas"]
-            and "properties" in spec["components"]["schemas"][schema_name]):
-
-          schema_props = spec["components"]["schemas"][schema_name]["properties"]
-          for prop_name, prop_description in props.items():
-            if (prop_name in schema_props and "description" not in schema_props[prop_name]):
-              schema_props[prop_name]["description"] = prop_description
-              self.changes_made.append(
-                f"Added property description: {schema_name}.{prop_name}"
-              )
-
-    return spec
-
-  def fix_parameters(self, spec: Dict[str, Any]) -> Dict[str, Any]:
-    """Fix parameter definitions.
-
-        Args:
-            spec: OpenAPI specification dictionary
-
-        Returns:
-            Specification with fixed parameters
-        """
-    param_fixes = self.fixes.get("parameter_fixes", {})
-
-    # Add global parameter definitions if missing
-    global_params = param_fixes.get("global_parameters", {})
-    if global_params:
-      if "components" not in spec:
-        spec["components"] = {}
-      if "parameters" not in spec["components"]:
-        spec["components"]["parameters"] = {}
-
-      for param_name, param_def in global_params.items():
-        if param_name not in spec["components"]["parameters"]:
-          spec["components"]["parameters"][param_name] = param_def
-          self.changes_made.append(f"Added global parameter: {param_name}")
-
+            self.changes_made.append(f"Value unchanged (already correct): {description}")
+        else:
+          self._set_value_at_path(spec, path, op["value"])
+          self.changes_made.append(f"Added new value: {description}")
+          
+      elif operation == "add_if_missing":
+        if not self._path_exists(spec, path):
+          self._set_value_at_path(spec, path, op["value"])
+          self.changes_made.append(f"Added missing: {description}")
+        else:
+          self.changes_made.append(f"Already exists (skipped): {description}")
+      
+      else:
+        self.changes_made.append(f"Unknown operation '{operation}': {description}")
+    
     return spec
 
   def apply_all_fixes(self, spec: Dict[str, Any]) -> Dict[str, Any]:
@@ -176,10 +158,7 @@ class OpenAPISpecFixer:
         """
     print("🔧 Applying OpenAPI spec fixes...")
 
-    spec = self.fix_syntax_errors(spec)
-    spec = self.add_response_schemas(spec)
-    spec = self.add_descriptions(spec)
-    spec = self.fix_parameters(spec)
+    spec = self.apply_path_operations(spec)
 
     return spec
 

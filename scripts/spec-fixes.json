@@ -11,7 +11,7 @@
       },
       {
         "operation": "set_value",
-        "path": "paths//object/item/{id}/get/responses/200/content/application/json/schema",
+        "path": "paths|/object/item/{id}|get|responses|200|content|application/json|schema",
         "value": {
           "type": "object",
           "properties": {
@@ -25,7 +25,7 @@
       },
       {
         "operation": "set_value",
-        "path": "paths//object/item/{id}/put/responses/200/content/application/json/schema",
+        "path": "paths|/object/item/{id}|put|responses|200|content|application/json|schema",
         "value": {
           "type": "object",
           "properties": {
@@ -39,7 +39,7 @@
       },
       {
         "operation": "set_value",
-        "path": "paths//object/item/post/responses/200/content/application/json/schema",
+        "path": "paths|/object/item|post|responses|200|content|application/json|schema",
         "value": {
           "type": "object",
           "properties": {
@@ -244,7 +244,7 @@
       },
       {
         "operation": "add_if_missing",
-        "path": "components/schemas/item.template/properties/reprompt/description",
+        "path": "components|schemas|item.template|properties|reprompt|description",
         "value": "Master password re-prompt requirement (0=none, 1=required)",
         "description": "Add description to reprompt property"
       },

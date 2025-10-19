@@ -3113,18 +3113,21 @@
         "properties": {
           "organizationId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Organization ID if item belongs to an organization"
           },
           "collectionIds": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "description": "Array of collection IDs for organization items"
           },
           "folderId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Folder ID for organizing the item"
           },
           "type": {
             "type": "integer",
@@ -3133,57 +3136,71 @@
               2,
               3,
               4
-            ]
+            ],
+            "description": "Type of vault item (1=login, 2=note, 3=card, 4=identity)"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Display name of the vault item"
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "description": "Free-form notes associated with the item"
           },
           "favorite": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the item is marked as a favorite"
           },
           "fields": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/field"
-            }
+            },
+            "description": "Array of custom fields"
           },
           "login": {
-            "$ref": "#/components/schemas/item.login"
+            "$ref": "#/components/schemas/item.login",
+            "description": "Login-specific data (username, password, URIs, TOTP)"
           },
           "secureNote": {
-            "$ref": "#/components/schemas/item.secureNote"
+            "$ref": "#/components/schemas/item.secureNote",
+            "description": "Secure note data"
           },
           "card": {
-            "$ref": "#/components/schemas/item.card"
+            "$ref": "#/components/schemas/item.card",
+            "description": "Credit card data"
           },
           "identity": {
-            "$ref": "#/components/schemas/item.identity"
+            "$ref": "#/components/schemas/item.identity",
+            "description": "Identity data"
           },
           "reprompt": {
             "type": "integer",
             "enum": [
               0,
               1
-            ]
+            ],
+            "description": "Master password re-prompt requirement (0=none, 1=required)"
           }
         }
       },
       "item.login": {
         "properties": {
           "uris": {
-            "$ref": "#/components/schemas/uris"
+            "$ref": "#/components/schemas/uris",
+            "description": "Array of URIs associated with this login"
           },
           "username": {
-            "type": "string"
+            "type": "string",
+            "description": "Username for the login"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "description": "Password for the login"
           },
           "totp": {
-            "type": "string"
+            "type": "string",
+            "description": "TOTP secret for two-factor authentication"
           }
         }
       },
@@ -3193,7 +3210,8 @@
             "type": "integer",
             "enum": [
               0
-            ]
+            ],
+            "description": "Secure note type (always 0)"
           }
         }
       },
@@ -3291,20 +3309,24 @@
               3,
               4,
               5
-            ]
+            ],
+            "description": "URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)"
           },
           "uri": {
-            "type": "string"
+            "type": "string",
+            "description": "The URI/URL value"
           }
         }
       },
       "field": {
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the custom field"
           },
           "value": {
-            "type": "string"
+            "type": "string",
+            "description": "Value of the custom field"
           },
           "type": {
             "type": "string",
@@ -3313,31 +3335,36 @@
               1,
               2,
               3
-            ]
+            ],
+            "description": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)"
           }
         }
       },
       "folder": {
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the folder"
           }
         }
       },
       "send.template": {
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the Send"
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "description": "Notes for the Send"
           },
           "type": {
             "type": "integer",
             "enum": [
               0,
               1
-            ]
+            ],
+            "description": "Type of Send (0=text, 1=file)"
           },
           "text": {
             "$ref": "#/components/schemas/send.text"
@@ -3370,10 +3397,12 @@
       "send.text": {
         "properties": {
           "text": {
-            "type": "string"
+            "type": "string",
+            "description": "Text content of the Send"
           },
           "hidden": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the text is hidden by default"
           }
         }
       },

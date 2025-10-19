@@ -100,9 +100,12 @@ profile = "google"
 line_length = 92
 indent = "  "
 
+[tool.pydocstyle]
+convention = "google"
+
 [tool.yapf]
 # Use PEP8 style as the base
-based_on_style = "pep8"
+based_on_style = "google"
 
 # Basic formatting
 indent_width = 2

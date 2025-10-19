@@ -380,7 +380,7 @@ class TestApiClient:
     response.text = ""
 
     result = client._deserialize_data(response)
-    expected_result = [1, 2, 3, {"key": "value"}]
+    expected_result: list[dict[str, str] | int] = [1, 2, 3, {"key": "value"}]
     assert result == expected_result
 
   def test_deserialize_data_nested_response(self) -> None:

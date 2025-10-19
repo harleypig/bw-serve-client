@@ -398,6 +398,8 @@
     "json_corrections": {
       "description": "Fix malformed JSON structures"
     },
-    "path_corrections": {}
+    "path_corrections": {
+      "/device-approval/{organizationId}/approve/{request-id}}": "/device-approval/{organizationId}/approve/{request-id}"
+    }
   }
 }

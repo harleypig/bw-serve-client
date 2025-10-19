@@ -31,6 +31,7 @@ class OpenAPISpecFixer:
     self.fixes = self._load_json_file(fixes_config_path, "fixes configuration")
     self.original_spec = self._load_json_file(original_spec_path, "original specification")
 
+  # --------------------------------------------------------------------------
   def _load_json_file(self, file_path: str, file_description: str) -> Dict[str, Any]:
     """Load and parse a JSON file with comprehensive error handling.
 
@@ -49,17 +50,21 @@ class OpenAPISpecFixer:
     try:
       with open(file_path) as f:
         return json.load(f)
+
     except FileNotFoundError:
       raise FileNotFoundError(
         f"{file_description.capitalize()} file not found: {file_path}"
       )
+
     except json.JSONDecodeError as e:
       raise json.JSONDecodeError(
         f"Invalid JSON in {file_description} {file_path}: {e.msg}", e.doc, e.pos
       )
+
     except Exception as e:
       raise Exception(f"Error reading {file_description} {file_path}: {e}")
 
+  # --------------------------------------------------------------------------
   def _get_value_at_path(self, spec: Dict[str, Any], path: str) -> Any:
     """Get value at a dot-separated path in the spec.
 
@@ -80,6 +85,7 @@ class OpenAPISpecFixer:
       else:
         return None
 
+  # --------------------------------------------------------------------------
   def _set_value_at_path(self, spec: Dict[str, Any], path: str, value: Any) -> None:
     """Set value at a dot-separated path in the spec.
 
@@ -101,6 +107,7 @@ class OpenAPISpecFixer:
     # Set the final value
     current[parts[-1]] = value
 
+  # --------------------------------------------------------------------------
   def _path_exists(self, spec: Dict[str, Any], path: str) -> bool:
     """Check if a dot-separated path exists in the spec.
 
@@ -113,6 +120,7 @@ class OpenAPISpecFixer:
         """
     return self._get_value_at_path(spec, path) is not None
 
+  # --------------------------------------------------------------------------
   def _rename_key_at_path(
     self, spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
   ) -> bool:
@@ -135,6 +143,7 @@ class OpenAPISpecFixer:
 
     return False
 
+  # --------------------------------------------------------------------------
   def apply_path_operations(self, spec: Dict[str, Any]) -> Dict[str, Any]:
     """Apply path-based operations to the spec.
 
@@ -188,6 +197,7 @@ class OpenAPISpecFixer:
 
     return spec
 
+  # --------------------------------------------------------------------------
   def apply_all_fixes(self, spec: Dict[str, Any]) -> Dict[str, Any]:
     """Apply all configured fixes to the specification.
 
@@ -203,6 +213,7 @@ class OpenAPISpecFixer:
 
     return spec
 
+  # --------------------------------------------------------------------------
   def print_summary(self):
     """Print summary of changes made."""
     if self.changes_made:
@@ -215,6 +226,7 @@ class OpenAPISpecFixer:
       print("\n⚠️  No fixes were applied")
 
 
+# ----------------------------------------------------------------------------
 def main():
   """Main function to fix the OpenAPI specification."""
   script_dir = Path(__file__).parent
@@ -241,6 +253,7 @@ def main():
     try:
       with open(fixed_spec, 'w') as f:
         json.dump(fixed_spec_data, f, indent=2)
+
     except Exception as e:
       print(f"❌ Error writing fixed spec: {e}")
       sys.exit(1)

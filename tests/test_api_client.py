@@ -739,7 +739,9 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_serialize_data_called_in_post(self, mock_session_class: Mock, mock_serialize: Mock) -> None:
+  def test_serialize_data_called_in_post(
+    self, mock_session_class: Mock, mock_serialize: Mock
+  ) -> None:
     """Test that _serialize_data is called during POST requests."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -764,7 +766,9 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_serialize_data_called_in_put(self, mock_session_class: Mock, mock_serialize: Mock) -> None:
+  def test_serialize_data_called_in_put(
+    self, mock_session_class: Mock, mock_serialize: Mock
+  ) -> None:
     """Test that _serialize_data is called during PUT requests."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}

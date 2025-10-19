@@ -16,6 +16,9 @@ from pydantic import EmailStr
 from pydantic import Field
 from pydantic import RootModel
 
+from . import item
+from . import send
+
 
 class Match(Enum):
   INTEGER_0 = 0
@@ -140,7 +143,18 @@ ObjectItemIdGetParameters = ObjectItemIdPutParameters
 
 ObjectItemIdDeleteParameters = ObjectItemIdPutParameters
 
+
+class ObjectItemIdDeleteResponse(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  success: bool | None
+
+
 RestoreItemIdPostParameters = ObjectItemIdPutParameters
+
+RestoreItemIdPostResponse = ObjectItemIdDeleteResponse
 
 
 class ListObjectItemsGetParameters(BaseModel):
@@ -183,15 +197,49 @@ ObjectNotesIdGetParameters = ObjectItemIdPutParameters
 
 ObjectExposedIdGetParameters = ObjectItemIdPutParameters
 
+
+class ObjectFolderPostResponse(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  success: bool | None
+  data: Folder | None
+
+
 ObjectFolderIdPutParameters = ObjectItemIdPutParameters
+
+ObjectFolderIdPutResponse = ObjectFolderPostResponse
 
 ObjectFolderIdGetParameters = ObjectItemIdPutParameters
 
+ObjectFolderIdGetResponse = ObjectFolderPostResponse
+
 ObjectFolderIdDeleteParameters = ObjectItemIdPutParameters
+
+ObjectFolderIdDeleteResponse = ObjectItemIdDeleteResponse
 
 
 class ListObjectFoldersGetParameters(BaseModel):
   search: str | None
+
+
+class Data2(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  object: Literal['list'] | None
+  data: List[Folder] | None
+
+
+class ListObjectFoldersGetResponse(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  success: bool | None
+  data: Data2 | None
 
 
 ObjectSendIdPutParameters = ObjectItemIdPutParameters
@@ -199,6 +247,8 @@ ObjectSendIdPutParameters = ObjectItemIdPutParameters
 ObjectSendIdGetParameters = ObjectItemIdPutParameters
 
 ObjectSendIdDeleteParameters = ObjectItemIdPutParameters
+
+ObjectSendIdDeleteResponse = ObjectItemIdDeleteResponse
 
 ListObjectSendGetParameters = ListObjectFoldersGetParameters
 
@@ -247,15 +297,13 @@ ConfirmOrgMemberIdPostParameters = ObjectOrgCollectionIdPutParameters
 
 DeviceApprovalOrganizationIdGetParameters = ObjectOrgCollectionPostParameters
 
+DeviceApprovalOrganizationIdApproveAllPostParameters = ObjectOrgCollectionPostParameters
 
-class DeviceApprovalOrganizationIdApproveRequestIdPostParameters(BaseModel):
+
+class DeviceApprovalOrganizationIdDenyRequestIdPostParameters(BaseModel):
   organization_id: Annotated[UUID, Field(alias='organizationId')]
   request_id: Annotated[UUID, Field(alias='request-id')]
 
-
-DeviceApprovalOrganizationIdApproveAllPostParameters = ObjectOrgCollectionPostParameters
-
-DeviceApprovalOrganizationIdDenyRequestIdPostParameters = DeviceApprovalOrganizationIdApproveRequestIdPostParameters
 
 DeviceApprovalOrganizationIdDenyAllPostParameters = ObjectOrgCollectionPostParameters
 
@@ -291,6 +339,9 @@ class ObjectTemplateTypeGetParameters(BaseModel):
   type: Type1
 
 
+DeviceApprovalOrganizationIdApproveRequestIdPostParameters = DeviceApprovalOrganizationIdDenyRequestIdPostParameters
+
+
 class Collection(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
@@ -305,3 +356,56 @@ class Collection(BaseModel):
 class Deviceapprovallist(RootModel[List[Deviceapprovalproperties]]):
   model_config = ConfigDict(populate_by_name=True, )
   root: List[Deviceapprovalproperties]
+
+
+class ObjectSendPostResponse(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  success: bool | None
+  data: send.Template | None
+
+
+ObjectSendIdPutResponse = ObjectSendPostResponse
+
+ObjectSendIdGetResponse = ObjectSendPostResponse
+
+
+class Data3(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  object: Literal['list'] | None
+  data: List[send.Template] | None
+
+
+class ListObjectSendGetResponse(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  success: bool | None
+  data: Data3 | None
+
+
+SendIdRemovePasswordPostResponse = ObjectSendPostResponse
+
+
+class ObjectItemPostResponse(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  success: bool | None
+  data: item.Template | None
+  revision_date: Annotated[AwareDatetime | None, Field(alias='revisionDate')]
+  delete_date: Annotated[AwareDatetime | None, Field(alias='deleteDate')] = None
+
+
+ObjectItemIdPutResponse = ObjectItemPostResponse
+
+ObjectItemIdGetResponse = ObjectItemPostResponse
+
+ListObjectItemsGetResponse = ListObjectSendGetResponse

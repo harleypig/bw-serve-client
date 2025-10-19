@@ -54,11 +54,11 @@ class ApiClient:
   # ---------------------------------------------------------------------------
   # for use with 'with'
 
-  def __enter__(self):
+  def __enter__(self) -> "ApiClient":
     """Context manager entry."""
     return self
 
-  def __exit__(self, _exc_type, _exc_val, _exc_tb):
+  def __exit__(self, _exc_type: Any, _exc_val: Any, _exc_tb: Any) -> None:
     """Context manager exit."""
     self.close()
 
@@ -222,9 +222,7 @@ class ApiClient:
       self.logger.error(f"Request failed: {e}")
       raise BitwardenAPIError(f"Request failed: {e}") from e
 
-  def _serialize_data(self,
-                      data: Any,
-                      content_type: str = "application/json") -> Any:
+  def _serialize_data(self, data: Any, content_type: str = "application/json") -> Any:
     """Serialize data for API requests.
 
     Args:
@@ -315,7 +313,7 @@ class ApiClient:
   # ---------------------------------------------------------------------------
   # Public methods
 
-  def _make_request_and_deserialize(self, method: str, endpoint: str, **kwargs) -> Any:
+  def _make_request_and_deserialize(self, method: str, endpoint: str, **kwargs: Any) -> Any:
     """Make a request and deserialize the response.
 
     Args:

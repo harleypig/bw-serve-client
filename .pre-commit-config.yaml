@@ -5,6 +5,7 @@
 #
 # This config should NEVER modify files. If a tool doesn't have a check-only
 # mode, it should either:
+#
 # 1. Use an alternative method that only reports issues
 # 2. Be excluded from this config entirely
 #

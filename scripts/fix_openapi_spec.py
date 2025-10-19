@@ -83,7 +83,7 @@ class OpenAPISpecFixer:
         current = current[part]
       else:
         return None
-    
+
     return current
 
   # --------------------------------------------------------------------------

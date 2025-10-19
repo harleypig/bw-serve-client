@@ -18,16 +18,43 @@ from typing import Dict, Any
 class OpenAPISpecFixer:
   """Applies systematic fixes to OpenAPI specifications."""
 
-  def __init__(self, fixes_config_path: str):
-    """Initialize with fixes configuration.
+  def __init__(self, fixes_config_path: str, original_spec_path: str):
+    """Initialize with fixes configuration and original spec.
 
         Args:
             fixes_config_path: Path to JSON file containing fix configurations
+            original_spec_path: Path to original OpenAPI specification
         """
-    with open(fixes_config_path) as f:
-      self.fixes = json.load(f)
-
     self.changes_made = []
+    
+    # Load both JSON files
+    self.fixes = self._load_json_file(fixes_config_path, "fixes configuration")
+    self.original_spec = self._load_json_file(original_spec_path, "original specification")
+
+  def _load_json_file(self, file_path: str, file_description: str) -> Dict[str, Any]:
+    """Load and parse a JSON file with comprehensive error handling.
+    
+        Args:
+            file_path: Path to the JSON file
+            file_description: Human-readable description for error messages
+            
+        Returns:
+            Parsed JSON data as dictionary
+            
+        Raises:
+            FileNotFoundError: If file doesn't exist
+            json.JSONDecodeError: If JSON is invalid
+            Exception: For other file reading errors
+        """
+    try:
+      with open(file_path) as f:
+        return json.load(f)
+    except FileNotFoundError:
+      raise FileNotFoundError(f"{file_description.capitalize()} file not found: {file_path}")
+    except json.JSONDecodeError as e:
+      raise json.JSONDecodeError(f"Invalid JSON in {file_description} {file_path}: {e.msg}", e.doc, e.pos)
+    except Exception as e:
+      raise Exception(f"Error reading {file_description} {file_path}: {e}")
 
   def _get_value_at_path(self, spec: Dict[str, Any], path: str) -> Any:
     """Get value at a dot-separated path in the spec.
@@ -193,35 +220,34 @@ def main():
   fixed_spec = script_dir / "vault-management-api-fixed.json"
   fixes_config = script_dir / "spec-fixes.json"
 
-  # Check if files exist
-  if not original_spec.exists():
-    print(f"❌ Original spec not found: {original_spec}")
-    sys.exit(1)
-
-  if not fixes_config.exists():
-    print(f"❌ Fixes config not found: {fixes_config}")
-    sys.exit(1)
-
   try:
-    # Load original specification
-    print(f"📖 Loading original spec: {original_spec}")
+    # Initialize fixer (this loads both JSON files with error handling)
+    print(f"📖 Loading files...")
+    print(f"   Original spec: {original_spec}")
+    print(f"   Fixes config: {fixes_config}")
+    
+    fixer = OpenAPISpecFixer(str(fixes_config), str(original_spec))
 
-    with open(original_spec) as f:
-      spec = json.load(f)
-
-    # Apply fixes
-    fixer = OpenAPISpecFixer(str(fixes_config))
-    fixed_spec_data = fixer.apply_all_fixes(spec)
+    # Apply fixes to a copy of the original spec
+    fixed_spec_data = fixer.apply_all_fixes(fixer.original_spec.copy())
 
     # Write fixed specification
     print(f"💾 Writing fixed spec: {fixed_spec}")
 
-    with open(fixed_spec, 'w') as f:
-      json.dump(fixed_spec_data, f, indent=2)
+    try:
+      with open(fixed_spec, 'w') as f:
+        json.dump(fixed_spec_data, f, indent=2)
+    except Exception as e:
+      print(f"❌ Error writing fixed spec: {e}")
+      sys.exit(1)
 
     # Print summary
     fixer.print_summary()
     print(f"\n🎉 Fixed specification written to: {fixed_spec}")
+
+  except FileNotFoundError as e:
+    print(f"❌ File not found: {e}")
+    sys.exit(1)
 
   except json.JSONDecodeError as e:
     print(f"❌ JSON parsing error: {e}")

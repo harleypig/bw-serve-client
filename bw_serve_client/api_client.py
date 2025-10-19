@@ -224,7 +224,7 @@ class ApiClient:
 
   def _serialize_data(self,
                       data: Any,
-                      content_type: str = "application/json") -> Union[Dict[str, Any], str]:
+                      content_type: str = "application/json") -> Any:
     """Serialize data for API requests.
 
     Args:

@@ -49,7 +49,10 @@ class OpenAPISpecFixer:
     """
     try:
       with open(file_path) as f:
-        return json.load(f)
+        data = json.load(f)
+        if not isinstance(data, dict):
+          raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
+        return data
 
     except FileNotFoundError:
       raise FileNotFoundError(

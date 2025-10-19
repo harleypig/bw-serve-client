@@ -51,7 +51,10 @@ class RouteExtractor:
     """Load and parse the swagger JSON file."""
     try:
       with open(self.swagger_file, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        data = json.load(f)
+        if not isinstance(data, dict):
+          raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
+        return data
     except FileNotFoundError:
       print(f"Error: Swagger file '{self.swagger_file}' not found.", file=sys.stderr)
       sys.exit(1)

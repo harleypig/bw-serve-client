@@ -26,21 +26,21 @@ class OpenAPISpecFixer:
             original_spec_path: Path to original OpenAPI specification
         """
     self.changes_made = []
-    
+
     # Load both JSON files
     self.fixes = self._load_json_file(fixes_config_path, "fixes configuration")
     self.original_spec = self._load_json_file(original_spec_path, "original specification")
 
   def _load_json_file(self, file_path: str, file_description: str) -> Dict[str, Any]:
     """Load and parse a JSON file with comprehensive error handling.
-    
+
         Args:
             file_path: Path to the JSON file
             file_description: Human-readable description for error messages
-            
+
         Returns:
             Parsed JSON data as dictionary
-            
+
         Raises:
             FileNotFoundError: If file doesn't exist
             json.JSONDecodeError: If JSON is invalid
@@ -50,9 +50,13 @@ class OpenAPISpecFixer:
       with open(file_path) as f:
         return json.load(f)
     except FileNotFoundError:
-      raise FileNotFoundError(f"{file_description.capitalize()} file not found: {file_path}")
+      raise FileNotFoundError(
+        f"{file_description.capitalize()} file not found: {file_path}"
+      )
     except json.JSONDecodeError as e:
-      raise json.JSONDecodeError(f"Invalid JSON in {file_description} {file_path}: {e.msg}", e.doc, e.pos)
+      raise json.JSONDecodeError(
+        f"Invalid JSON in {file_description} {file_path}: {e.msg}", e.doc, e.pos
+      )
     except Exception as e:
       raise Exception(f"Error reading {file_description} {file_path}: {e}")
 
@@ -222,10 +226,10 @@ def main():
 
   try:
     # Initialize fixer (this loads both JSON files with error handling)
-    print(f"📖 Loading files...")
+    print("📖 Loading files...")
     print(f"   Original spec: {original_spec}")
     print(f"   Fixes config: {fixes_config}")
-    
+
     fixer = OpenAPISpecFixer(str(fixes_config), str(original_spec))
 
     # Apply fixes to a copy of the original spec

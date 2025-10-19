@@ -10,10 +10,9 @@ Usage:
 """
 
 import json
-import re
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Union
+from typing import Dict, Any
 
 
 class OpenAPISpecFixer:
@@ -27,6 +26,7 @@ class OpenAPISpecFixer:
         """
     with open(fixes_config_path) as f:
       self.fixes = json.load(f)
+
     self.changes_made = []
 
   def _get_value_at_path(self, spec: Dict[str, Any], path: str) -> Any:
@@ -44,11 +44,10 @@ class OpenAPISpecFixer:
 
     for part in parts:
       if isinstance(current, dict) and part in current:
-        current = current[part]
+        return current[part]
+
       else:
         return None
-
-    return current
 
   def _set_value_at_path(self, spec: Dict[str, Any], path: str, value: Any) -> None:
     """Set value at a dot-separated path in the spec.
@@ -65,6 +64,7 @@ class OpenAPISpecFixer:
     for part in parts[:-1]:
       if part not in current:
         current[part] = {}
+
       current = current[part]
 
     # Set the final value
@@ -97,9 +97,11 @@ class OpenAPISpecFixer:
             True if rename was successful, False if old_key doesn't exist
         """
     parent = self._get_value_at_path(spec, parent_path)
+
     if isinstance(parent, dict) and old_key in parent:
       parent[new_key] = parent.pop(old_key)
       return True
+
     return False
 
   def apply_path_operations(self, spec: Dict[str, Any]) -> Dict[str, Any]:
@@ -120,19 +122,24 @@ class OpenAPISpecFixer:
 
       if operation == "rename_key":
         success = self._rename_key_at_path(spec, path, op["old_key"], op["new_key"])
+
         if success:
           self.changes_made.append(f"Renamed key: {description}")
+
         else:
           self.changes_made.append(f"Key not found (skipped): {description}")
 
       elif operation == "set_value":
         if self._path_exists(spec, path):
           current_value = self._get_value_at_path(spec, path)
+
           if current_value != op["value"]:
             self._set_value_at_path(spec, path, op["value"])
             self.changes_made.append(f"Updated value: {description}")
+
           else:
             self.changes_made.append(f"Value unchanged (already correct): {description}")
+
         else:
           self._set_value_at_path(spec, path, op["value"])
           self.changes_made.append(f"Added new value: {description}")
@@ -140,6 +147,7 @@ class OpenAPISpecFixer:
       elif operation == "add_if_missing":
         if not self._path_exists(spec, path):
           self._set_value_at_path(spec, path, op["value"])
+
           self.changes_made.append(f"Added missing: {description}")
         else:
           self.changes_made.append(f"Already exists (skipped): {description}")
@@ -168,8 +176,10 @@ class OpenAPISpecFixer:
     """Print summary of changes made."""
     if self.changes_made:
       print(f"\n✅ Applied {len(self.changes_made)} fixes:")
+
       for change in self.changes_made:
         print(f"   • {change}")
+
     else:
       print("\n⚠️  No fixes were applied")
 
@@ -179,7 +189,7 @@ def main():
   script_dir = Path(__file__).parent
 
   # File paths
-  original_spec = script_dir / "vault-management-api.json"
+  original_spec = script_dir / "vault-management-api-original.json"
   fixed_spec = script_dir / "vault-management-api-fixed.json"
   fixes_config = script_dir / "spec-fixes.json"
 
@@ -195,6 +205,7 @@ def main():
   try:
     # Load original specification
     print(f"📖 Loading original spec: {original_spec}")
+
     with open(original_spec) as f:
       spec = json.load(f)
 
@@ -204,6 +215,7 @@ def main():
 
     # Write fixed specification
     print(f"💾 Writing fixed spec: {fixed_spec}")
+
     with open(fixed_spec, 'w') as f:
       json.dump(fixed_spec_data, f, indent=2)
 
@@ -214,6 +226,7 @@ def main():
   except json.JSONDecodeError as e:
     print(f"❌ JSON parsing error: {e}")
     sys.exit(1)
+
   except Exception as e:
     print(f"❌ Error: {e}")
     sys.exit(1)

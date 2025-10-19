@@ -31,28 +31,28 @@ class OpenAPISpecFixer:
 
   def _get_value_at_path(self, spec: Dict[str, Any], path: str) -> Any:
     """Get value at a dot-separated path in the spec.
-    
+
         Args:
             spec: OpenAPI specification dictionary
             path: Dot-separated path like "paths./object/item/{id}.get.responses"
-            
+
         Returns:
             Value at the path, or None if path doesn't exist
         """
     parts = path.split('.')
     current = spec
-    
+
     for part in parts:
       if isinstance(current, dict) and part in current:
         current = current[part]
       else:
         return None
-    
+
     return current
 
   def _set_value_at_path(self, spec: Dict[str, Any], path: str, value: Any) -> None:
     """Set value at a dot-separated path in the spec.
-    
+
         Args:
             spec: OpenAPI specification dictionary
             path: Dot-separated path like "paths./object/item/{id}.get.responses"
@@ -60,37 +60,39 @@ class OpenAPISpecFixer:
         """
     parts = path.split('.')
     current = spec
-    
+
     # Navigate to the parent of the target
     for part in parts[:-1]:
       if part not in current:
         current[part] = {}
       current = current[part]
-    
+
     # Set the final value
     current[parts[-1]] = value
 
   def _path_exists(self, spec: Dict[str, Any], path: str) -> bool:
     """Check if a dot-separated path exists in the spec.
-    
+
         Args:
             spec: OpenAPI specification dictionary
             path: Dot-separated path
-            
+
         Returns:
             True if path exists, False otherwise
         """
     return self._get_value_at_path(spec, path) is not None
 
-  def _rename_key_at_path(self, spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str) -> bool:
+  def _rename_key_at_path(
+    self, spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
+  ) -> bool:
     """Rename a key at the specified parent path.
-    
+
         Args:
             spec: OpenAPI specification dictionary
             parent_path: Path to the parent object containing the key
             old_key: Current key name
             new_key: New key name
-            
+
         Returns:
             True if rename was successful, False if old_key doesn't exist
         """
@@ -102,27 +104,27 @@ class OpenAPISpecFixer:
 
   def apply_path_operations(self, spec: Dict[str, Any]) -> Dict[str, Any]:
     """Apply path-based operations to the spec.
-    
+
         Args:
             spec: OpenAPI specification dictionary
-            
+
         Returns:
             Modified specification
         """
     operations = self.fixes.get("path_operations", {}).get("fixes", [])
-    
+
     for op in operations:
       operation = op["operation"]
       path = op["path"]
       description = op.get("description", "")
-      
+
       if operation == "rename_key":
         success = self._rename_key_at_path(spec, path, op["old_key"], op["new_key"])
         if success:
           self.changes_made.append(f"Renamed key: {description}")
         else:
           self.changes_made.append(f"Key not found (skipped): {description}")
-          
+
       elif operation == "set_value":
         if self._path_exists(spec, path):
           current_value = self._get_value_at_path(spec, path)
@@ -134,17 +136,17 @@ class OpenAPISpecFixer:
         else:
           self._set_value_at_path(spec, path, op["value"])
           self.changes_made.append(f"Added new value: {description}")
-          
+
       elif operation == "add_if_missing":
         if not self._path_exists(spec, path):
           self._set_value_at_path(spec, path, op["value"])
           self.changes_made.append(f"Added missing: {description}")
         else:
           self.changes_made.append(f"Already exists (skipped): {description}")
-      
+
       else:
         self.changes_made.append(f"Unknown operation '{operation}': {description}")
-    
+
     return spec
 
   def apply_all_fixes(self, spec: Dict[str, Any]) -> Dict[str, Any]:

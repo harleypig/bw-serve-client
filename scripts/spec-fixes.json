@@ -84,82 +84,163 @@
         "description": "Add response schema for GET /list/object/items"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.template.description",
-        "value": "Represents a vault item (login, secure note, card, or identity)",
-        "description": "Add description to item.template schema"
+        "operation": "set_value",
+        "path": "paths./object/folder/{id}.get.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"$ref": "#/components/schemas/folder"}
+          }
+        },
+        "description": "Add response schema for GET /object/folder/{id}"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.login.description",
-        "value": "Login credentials including URIs, username, password, and TOTP",
-        "description": "Add description to item.login schema"
+        "operation": "set_value",
+        "path": "paths./object/folder/{id}.put.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"$ref": "#/components/schemas/folder"}
+          }
+        },
+        "description": "Add response schema for PUT /object/folder/{id}"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.folder.description",
-        "value": "Vault folder for organizing items",
-        "description": "Add description to folder schema"
+        "operation": "set_value",
+        "path": "paths./object/folder.post.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"$ref": "#/components/schemas/folder"}
+          }
+        },
+        "description": "Add response schema for POST /object/folder"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.uris.description",
-        "value": "URI/URL associated with a login item",
-        "description": "Add description to uris schema"
+        "operation": "set_value",
+        "path": "paths./object/folder/{id}.delete.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"}
+          }
+        },
+        "description": "Add response schema for DELETE /object/folder/{id}"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.field.description",
-        "value": "Custom field attached to a vault item",
-        "description": "Add description to field schema"
+        "operation": "set_value",
+        "path": "paths./list/object/folders.get.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {
+              "type": "object",
+              "properties": {
+                "object": {"type": "string", "enum": ["list"]},
+                "data": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/folder"}
+                }
+              }
+            }
+          }
+        },
+        "description": "Add response schema for GET /list/object/folders"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.template.properties.name.description",
-        "value": "Display name of the vault item",
-        "description": "Add description to item.template.name property"
+        "operation": "set_value",
+        "path": "paths./object/send/{id}.get.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"$ref": "#/components/schemas/send.template"}
+          }
+        },
+        "description": "Add response schema for GET /object/send/{id}"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.template.properties.notes.description",
-        "value": "Free-form notes associated with the item",
-        "description": "Add description to item.template.notes property"
+        "operation": "set_value",
+        "path": "paths./object/send/{id}.put.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"$ref": "#/components/schemas/send.template"}
+          }
+        },
+        "description": "Add response schema for PUT /object/send/{id}"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.template.properties.favorite.description",
-        "value": "Whether the item is marked as a favorite",
-        "description": "Add description to item.template.favorite property"
+        "operation": "set_value",
+        "path": "paths./object/send.post.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"$ref": "#/components/schemas/send.template"}
+          }
+        },
+        "description": "Add response schema for POST /object/send"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.template.properties.type.description",
-        "value": "Type of vault item (1=login, 2=note, 3=card, 4=identity)",
-        "description": "Add description to item.template.type property"
+        "operation": "set_value",
+        "path": "paths./object/send/{id}.delete.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"}
+          }
+        },
+        "description": "Add response schema for DELETE /object/send/{id}"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.login.properties.username.description",
-        "value": "Username for the login",
-        "description": "Add description to item.login.username property"
+        "operation": "set_value",
+        "path": "paths./list/object/send.get.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {
+              "type": "object",
+              "properties": {
+                "object": {"type": "string", "enum": ["list"]},
+                "data": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/send.template"}
+                }
+              }
+            }
+          }
+        },
+        "description": "Add response schema for GET /list/object/send"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.item.login.properties.password.description",
-        "value": "Password for the login",
-        "description": "Add description to item.login.password property"
+        "operation": "set_value",
+        "path": "paths./restore/item/{id}.post.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"}
+          }
+        },
+        "description": "Add response schema for POST /restore/item/{id}"
       },
       {
-        "operation": "add_if_missing",
-        "path": "components.schemas.uris.properties.uri.description",
-        "value": "The URI/URL value",
-        "description": "Add description to uris.uri property"
-      },
-      {
-        "operation": "add_if_missing",
-        "path": "components.schemas.uris.properties.match.description",
-        "value": "URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)",
-        "description": "Add description to uris.match property"
+        "operation": "set_value",
+        "path": "paths./send/{id}/remove-password.post.responses.200.content.application/json.schema",
+        "value": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"$ref": "#/components/schemas/send.template"}
+          }
+        },
+        "description": "Add response schema for POST /send/{id}/remove-password"
       }
     ]
   }

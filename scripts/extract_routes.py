@@ -239,7 +239,8 @@ def main() -> None:
     output = extractor.generate_output(args.format)
 
     if args.output:
-      with open(args.output, 'w', encoding='utf-8') as f:
+      import os
+      with os.fdopen(os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w', encoding='utf-8') as f:
         f.write(output)
       print(f"Routes extracted and saved to: {args.output}")
     else:

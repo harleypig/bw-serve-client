@@ -628,6 +628,24 @@ tomli = {version = "*", markers = "python_version < \"3.11\""}
 dev = ["darglint", "flake8", "flake8-annotations", "flake8-bugbear", "flake8-commas", "flake8-comprehensions", "flake8-docstrings", "flake8-fixme", "flake8-isort", "flake8-mutable", "flake8-print", "flake8-pytest-style", "flake8-quotes", "flake8-return", "flake8-simplify", "flake8-type-checking", "flake8-use-fstring", "mypy", "pep8-naming", "pylint", "pytest", "pytest-cov", "toml", "yapf"]
 
 [[package]]
+name = "flake8-secure-coding-standard"
+version = "1.4.1"
+description = "Flake8 plugin adding some checks to make Python code adhere to more secure coding standard"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "flake8-secure-coding-standard-1.4.1.tar.gz", hash = "sha256:75590fba3af46028a908bad7c11e789b6c1bf78805be54f92229d3c490009bf2"},
+    {file = "flake8_secure_coding_standard-1.4.1-py2.py3-none-any.whl", hash = "sha256:65b06d6935e19c22ec457b2f9c805f083969bd33cefdbcdceee8d41abb761695"},
+]
+
+[package.dependencies]
+flake8 = ">=3.7,<8.0"
+
+[package.extras]
+test = ["mock", "pytest", "pytest-cov", "pytest-mock"]
+
+[[package]]
 name = "flake8-simplify"
 version = "0.22.0"
 description = "flake8 plugin which checks for code that can be simplified"
@@ -2989,4 +3007,4 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "5a6f34b7d3215524a7e3ecbeb585e92c4e7087d380cada6f4da36f4643f65738"
+content-hash = "f4857cb191058dc182fa7aa80171fb500f4901bc53ce2f99821d5fe6abe76827"

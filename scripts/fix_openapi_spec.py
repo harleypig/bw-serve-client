@@ -255,7 +255,8 @@ def main() -> None:
     print(f"💾 Writing fixed spec: {fixed_spec}")
 
     try:
-      with open(fixed_spec, 'w') as f:
+      import os
+      with os.fdopen(os.open(fixed_spec, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w') as f:
         json.dump(fixed_spec_data, f, indent=2)
 
     except Exception as e:

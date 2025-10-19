@@ -57,14 +57,14 @@ repos:
 
   # Python code formatting and linting
   - repo: https://github.com/google/yapf
-    rev: v0.40.2
+    rev: v0.43.0
     hooks:
       - id: yapf
         description: Format Python code with yapf
         args: ['--in-place']
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 7.0.0
     hooks:
       - id: isort
         description: Sort Python imports
@@ -82,7 +82,11 @@ repos:
         description: Type check Python code with mypy
         args: ['bw_serve_client', 'tests', 'scripts']
         pass_filenames: false
-        additional_dependencies: ['lxml', 'types-requests']
+        additional_dependencies:
+          - lxml
+          - pydantic>=2.0.0
+          - types-mock
+          - types-requests
 
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.406

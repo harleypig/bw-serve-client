@@ -41,35 +41,37 @@ Changelog = "https://github.com/harleypig/bw-serve-client/blob/main/CHANGELOG.md
 [project.optional-dependencies]
 dev = [
     "bandit>=1.7.5,<2.0.0",
+    "bump2version>=1.0.1,<2.0.0",
+    "datamodel-code-generator>=0.35.0,<0.36.0",
     "flake8>=4.0.0",
     "isort>=5.12.0,<6.0.0",
+    "lxml>=5.1.0,<6.0.0",
     "mypy>=1.9.0,<2.0.0",
     "pbr>=5.11.0,<6.0.0",
     "pydocstyle>=6.3.0,<7.0.0",
+    "pyright>=1.1.406,<2.0.0",
     "pytest>=7.2.1",
     "pytest-cov>=2.8.1",
     "pytest-mock>=3.12.0,<4.0.0",
     "pytest-randomly>=3.12.0",
     "setuptools>=65.0.0",
-    "tox>=3.9.0",
-    "yapf>=0.40.2,<1.0.0",
-    "lxml>=5.1.0,<6.0.0",
-    "types-requests>=2.32.4.20250913,<3.0.0.0",
     "setuptools-scm>=9.2.1,<10.0.0",
-    "bump2version>=1.0.1,<2.0.0",
-    "pyright>=1.1.406,<2.0.0",
-    "datamodel-code-generator>=0.35.0,<0.36.0",
+    "tox>=3.9.0",
+    "types-mock (>=5.2.0.20250924,<6.0.0.0)",
+    "types-python-dateutil>=2.8.0",
+    "types-requests>=2.32.4.20250913,<3.0.0.0",
+    "types-urllib3>=1.26.0",
+    "yapf>=0.40.2,<1.0.0",
 ]
 docs = [
     "mkdocs>=1.5.3,<2.0.0",
     "sphinx>=7.2.6,<8.0.0",
-    "sphinx-rtd-theme>=3.0.0,<4.0.0",
     "sphinx-autodoc-typehints>=2.0.0,<3.0.0",
     "sphinxcontrib-email>=0.3.6,<1.0.0",
     "sphinxcontrib-openapi>=0.8.4,<1.0.0",
     "sphinx-lint>=0.9.1,<1.0.0",
+    "sphinx-rtd-theme>=3.0.0,<4.0.0",
 ]
-
 
 [build-system]
 requires = ["poetry-core"]
@@ -80,18 +82,35 @@ packages = [{include = "bw_serve_client"}]
 exclude = ["scripts/**"]
 
 [tool.mypy]
+# Add to github workflows
 # XXX: Need to spend time figuring out options
-files = ["bw_serve_client", "tests"]
+files = ["bw_serve_client", "scripts", "tests"]
+plugins = ["pydantic.mypy"]
 txt_report = ".openapi/mypy-reports"
+strict = true
+# These are set with 'strict'
+# check_untyped_defs = true
+# disallow_any_generics = true
+# disallow_incomplete_defs = true
+# disallow_untyped_calls = true
+# disallow_untyped_defs = true
+# no_implicit_optional = true
+# but we want to allow 'str | None'
+no_implicit_optional = false
+# no_implicit_reexport = true
+# strict_equality = true
+# warn_return_any = true
+# warn_unused_ignores = true
+disallow_subclassing_any = true
 ignore_missing_imports = true
-check_untyped_defs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_calls = true
-warn_return_any = true
-warn_unused_ignores = true
-warn_redundant_casts = true
+show_error_codes = true
+strict_concatenate = true
 strict_optional = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"

@@ -66,35 +66,36 @@ class OpenAPISpecFixer:
 
   # --------------------------------------------------------------------------
   def _get_value_at_path(self, spec: Dict[str, Any], path: str) -> Any:
-    """Get value at a dot-separated path in the spec.
+    """Get value at a slash-separated path in the spec.
 
     Args:
         spec: OpenAPI specification dictionary
-        path: Dot-separated path like "paths./object/item/{id}.get.responses"
+        path: Slash-separated path like "paths//object/item/{id}/get/responses"
 
     Returns:
         Value at the path, or None if path doesn't exist
     """
-    parts = path.split('.')
+    parts = path.split('/')
     current = spec
 
     for part in parts:
       if isinstance(current, dict) and part in current:
-        return current[part]
-
+        current = current[part]
       else:
         return None
+    
+    return current
 
   # --------------------------------------------------------------------------
   def _set_value_at_path(self, spec: Dict[str, Any], path: str, value: Any) -> None:
-    """Set value at a dot-separated path in the spec.
+    """Set value at a slash-separated path in the spec.
 
     Args:
         spec: OpenAPI specification dictionary
-        path: Dot-separated path like "paths./object/item/{id}.get.responses"
+        path: Slash-separated path like "paths//object/item/{id}/get/responses"
         value: Value to set
     """
-    parts = path.split('.')
+    parts = path.split('/')
     current = spec
 
     # Navigate to the parent of the target
@@ -109,11 +110,11 @@ class OpenAPISpecFixer:
 
   # --------------------------------------------------------------------------
   def _path_exists(self, spec: Dict[str, Any], path: str) -> bool:
-    """Check if a dot-separated path exists in the spec.
+    """Check if a slash-separated path exists in the spec.
 
     Args:
         spec: OpenAPI specification dictionary
-        path: Dot-separated path
+        path: Slash-separated path
 
     Returns:
         True if path exists, False otherwise

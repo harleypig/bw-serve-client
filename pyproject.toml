@@ -80,6 +80,8 @@ types-urllib3 = ">=1.26.0"
 yamllint = ">=1.37.1"
 yapf = ">=0.40.2,<1.0.0"
 flake8-secure-coding-standard = "^1.4.1"
+flake8-unused-arguments = "^0.0.13"
+flake8-clean-block = "^0.1.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -139,20 +141,31 @@ linewrap-full-docstring = true
 [tool.flake8]
 # Match yapf configuration
 max-line-length = 92
-# Ignore E111 (indentation not multiple of 4) since we use 2-space indentation
-# Ignore E114 (indentation not multiple of 4) since we use 2-space indentation
-# Ignore E251 (unexpected spaces around keyword/parameter equals) to match yapf style
-# Ignore E501 (line too long) in favor of bugbear's B950
-extend-ignore = ["E111", "E114", "E251", "E501"]
+extend-ignore = [
+  "E111", # Ignore E111 (indentation not multiple of 4) since we use 2-space indentation
+  "E114", # Ignore E114 (indentation not multiple of 4) since we use 2-space indentation
+  "E251", # Ignore E251 (unexpected spaces around keyword/parameter equals) to match yapf style
+  "E501", # Ignore E501 (line too long) in favor of bugbear's B950
+]
+
 # Enable bugbear rules (B-series) in addition to default rules
 extend-select = ["B9"]
-extend-immutable-calls = ["pathlib.Path","Path"]
-doctests = true
-max-complexity = 10
 
 per-file-ignores = [
-  "tests/*:SCS108"
+  "tests/*:SCS108", # tests need asserts
 ]
+
+# bugbear
+extend-immutable-calls = ["pathlib.Path","Path"]
+
+# pyflakes
+doctests = true
+
+# mccabe
+max-complexity = 10
+
+# unused-arguments
+unused-arguments-ignore-dunder = true
 
 [tool.isort]
 profile = "google"

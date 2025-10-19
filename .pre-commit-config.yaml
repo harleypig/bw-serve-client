@@ -95,6 +95,8 @@ repos:
           - flake8-bugbear
           - flake8-simplify
           - flake8-secure-coding-standard
+          - flake8-unused-arguments
+          - flake8-clean-block
 
   # 8. Type checking (after code structure is checked)
   - repo: https://github.com/pre-commit/mirrors-mypy

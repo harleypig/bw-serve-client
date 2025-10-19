@@ -56,6 +56,7 @@ def analyze_api_structure(swagger_file: str) -> dict[str, Any]:
   # Extract authentication info
   if 'security' in data:
     analysis['authentication'] = data['security']
+
   if 'components' in data and 'securitySchemes' in data['components']:
     analysis['authentication']['schemes'] = data['components']['securitySchemes']
 
@@ -91,6 +92,7 @@ def analyze_api_structure(swagger_file: str) -> dict[str, Any]:
               }
               if param_info['in'] not in analysis['parameter_patterns']:
                 analysis['parameter_patterns'][param_info['in']] = []
+
               analysis['parameter_patterns'][param_info['in']].append(param_info)
 
           # Extract request body patterns
@@ -112,6 +114,7 @@ def analyze_api_structure(swagger_file: str) -> dict[str, Any]:
                 content_types = list(response['content'].keys())
                 if status_code not in response_patterns:
                   response_patterns[status_code] = set()
+
                 response_patterns[status_code].update(content_types)
 
                 # Extract examples
@@ -205,6 +208,7 @@ def print_analysis(analysis: dict[str, Any]) -> None:
         f"    - {param['name']} ({param['type']}) - "
         f"{param['description'][:50]}..."
       )
+
     if len(params) > 5:
       print(f"    ... and {len(params) - 5} more")
 
@@ -229,6 +233,7 @@ def print_analysis(analysis: dict[str, Any]) -> None:
       for prop_name, prop_info in list(model_info['properties'].items())[:3]:
         prop_type = prop_info.get('type', 'unknown')
         print(f"      - {prop_name}: {prop_type}")
+
       if prop_count > 3:
         print(f"      ... and {prop_count - 3} more properties")
 

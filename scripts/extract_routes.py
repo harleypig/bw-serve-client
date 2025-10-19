@@ -9,6 +9,7 @@ documentation and comparison purposes.
 
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
 from typing import Any, Dict
@@ -52,12 +53,16 @@ class RouteExtractor:
     try:
       with open(self.swagger_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
+
         if not isinstance(data, dict):
           raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
+
         return data
+
     except FileNotFoundError:
       print(f"Error: Swagger file {self.swagger_file!r} not found.", file=sys.stderr)
       sys.exit(1)
+
     except json.JSONDecodeError as e:
       print(f"Error: Invalid JSON in swagger file: {e}", file=sys.stderr)
       sys.exit(1)
@@ -82,6 +87,7 @@ class RouteExtractor:
             'parameters': details.get('parameters', []),
             'responses': list(details.get('responses', {}).keys())
           }
+
           routes.append(route_info)
 
     return routes
@@ -92,11 +98,14 @@ class RouteExtractor:
 
     # Group routes by tags
     grouped_routes: dict[str, list[dict[str, Any]]] = {}
+
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
+
       for tag in tags:
         if tag not in grouped_routes:
           grouped_routes[tag] = []
+
         grouped_routes[tag].append(route)
 
     # Sort tags and format output
@@ -105,11 +114,14 @@ class RouteExtractor:
 
       # Group routes by path within each tag
       path_methods: dict[str, list[str]] = {}
+
       for route in grouped_routes[tag]:
         path = route['path']
         method = route['method']
+
         if path not in path_methods:
           path_methods[path] = []
+
         path_methods[path].append(method)
 
       # Sort methods alphabetically for each path
@@ -130,9 +142,11 @@ class RouteExtractor:
     grouped_routes: dict[str, list[dict[str, Any]]] = {}
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
+
       for tag in tags:
         if tag not in grouped_routes:
           grouped_routes[tag] = []
+
         grouped_routes[tag].append(route)
 
     # Sort tags and format output
@@ -142,11 +156,14 @@ class RouteExtractor:
 
       # Group routes by path within each tag
       path_methods: dict[str, list[str]] = {}
+
       for route in grouped_routes[tag]:
         path = route['path']
         method = route['method']
+
         if path not in path_methods:
           path_methods[path] = []
+
         path_methods[path].append(method)
 
       # Sort methods alphabetically for each path
@@ -163,30 +180,39 @@ class RouteExtractor:
     """Format routes as JSON."""
     # Group routes by tags
     grouped_routes: dict[str, list[dict[str, Any]]] = {}
+
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
+
       for tag in tags:
         if tag not in grouped_routes:
           grouped_routes[tag] = []
+
         grouped_routes[tag].append(route)
 
     # Create simplified output structure
     output_data: dict[str, dict[str, list[str]]] = {}
+
     for tag in sorted(grouped_routes.keys()):
       # Group routes by path within each tag
       path_methods: dict[str, list[str]] = {}
+
       for route in grouped_routes[tag]:
         path = route['path']
         method = route['method']
+
         if path not in path_methods:
           path_methods[path] = []
+
         path_methods[path].append(method)
 
       # Sort methods alphabetically for each path
       for path in sorted(path_methods.keys()):
         methods = sorted(path_methods[path])
+
         if tag not in output_data:
           output_data[tag] = {}
+
         output_data[tag][path] = methods
 
     return json.dumps(output_data, indent=2, ensure_ascii=False)
@@ -195,6 +221,7 @@ class RouteExtractor:
     """Generate formatted output for the extracted routes."""
     routes = self.extract_routes()
 
+    # XXX: Consider making this a dict.
     if format_type == 'markdown':
       return self.format_markdown(routes)
     elif format_type == 'text':
@@ -239,10 +266,12 @@ def main() -> None:
     output = extractor.generate_output(args.format)
 
     if args.output:
-      import os
-      with os.fdopen(os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w', encoding='utf-8') as f:
+      with os.fdopen(os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
+                     'w', encoding='utf-8') as f:
         f.write(output)
+
       print(f"Routes extracted and saved to: {args.output}")
+
     else:
       print(output)
 

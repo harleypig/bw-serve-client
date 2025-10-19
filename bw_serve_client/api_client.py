@@ -129,6 +129,7 @@ class ApiClient:
       handler.setFormatter(formatter)
       logger.addHandler(handler)
       logger.setLevel(logging.INFO)
+
     return logger
 
   def _make_request(

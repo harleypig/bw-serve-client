@@ -3,6 +3,21 @@
 This document outlines the tasks needed to complete the bw-serve-client Python
 library for Bitwarden Vault Management API.
 
+AGENT: Add these tasks to the appropriate location, with clarification on what
+needs to be done.
+
+- Do I need to make the generated code use slots? With pydantic v2, it would
+    be in the Config(slots = true) (I think that's the right usage.) Would
+    this mean customizing templates? If using this, use `flake8-slots` for
+    testing.
+
+- Same as above for `__all__`. `flake8-dunder-all` checks for this. Also,
+    `flake8-all-not-strings`.
+
+- Consider adding `flake8-encodings` to checks.
+
+- Look for a way to automate fixing `flake8-clean-block` errors.
+
 ## Document Swagger/OpenAPI Source
 
 - [ ] **Document that this code is generated from Bitwarden's swagger file**

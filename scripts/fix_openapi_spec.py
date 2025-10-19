@@ -52,6 +52,7 @@ class OpenAPISpecFixer:
         data = json.load(f)
         if not isinstance(data, dict):
           raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
+
         return data
 
     except FileNotFoundError as err:
@@ -256,7 +257,8 @@ def main() -> None:
 
     try:
       import os
-      with os.fdopen(os.open(fixed_spec, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w') as f:
+      with os.fdopen(os.open(fixed_spec, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
+                     'w') as f:
         json.dump(fixed_spec_data, f, indent=2)
 
     except Exception as e:

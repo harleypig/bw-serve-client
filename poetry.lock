@@ -609,6 +609,21 @@ flake8 = ">=6.0.0"
 dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit", "pytest", "tox"]
 
 [[package]]
+name = "flake8-clean-block"
+version = "0.1.2"
+description = "A flake8 plugin that enforces a blank line after if/for/while/with/try blocks"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "flake8_clean_block-0.1.2-py2.py3-none-any.whl", hash = "sha256:9684c26a6b087e25f73966fe8f4a38f6abb3e9737a9f781140115e0e2c14a93c"},
+    {file = "flake8_clean_block-0.1.2.tar.gz", hash = "sha256:0a1f8a58be210a013715810a78dda029a65660373f585b7e14e36c3b85c7791d"},
+]
+
+[package.dependencies]
+flake8 = ">=4"
+
+[[package]]
 name = "flake8-pyprojecttoml"
 version = "0.0.2"
 description = "Inject pyproject.toml support into flake8."
@@ -660,6 +675,21 @@ files = [
 [package.dependencies]
 astor = ">=0.1"
 flake8 = ">=3.7"
+
+[[package]]
+name = "flake8-unused-arguments"
+version = "0.0.13"
+description = "flake8 extension to warn on unused function arguments"
+optional = false
+python-versions = "*"
+groups = ["dev"]
+files = [
+    {file = "flake8-unused-arguments-0.0.13.tar.gz", hash = "sha256:c5894d294424bf7915e44dff0917222c454151016f96edc55b9f847bf307f3f7"},
+    {file = "flake8_unused_arguments-0.0.13-py3-none-any.whl", hash = "sha256:df6a76b73a6ce67720332182a80f2f0a80783cab1ccae8175f39787cd3a74b31"},
+]
+
+[package.dependencies]
+flake8 = ">3.0.0"
 
 [[package]]
 name = "genson"
@@ -3007,4 +3037,4 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "f4857cb191058dc182fa7aa80171fb500f4901bc53ce2f99821d5fe6abe76827"
+content-hash = "f861f94e4339526d691d2d50996f1cc02e968eab2cc35f9b0f106ad7c6227cf3"

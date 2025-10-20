@@ -82,7 +82,7 @@ yapf = ">=0.40.2,<1.0.0"
 flake8-secure-coding-standard = "^1.4.1"
 flake8-unused-arguments = "^0.0.13"
 flake8-clean-block = "^0.1.2"
-deepdiff = "^8.6.1"
+deepdiff = {extras = ["cli"], version = "^8.6.1"}
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -143,10 +143,11 @@ linewrap-full-docstring = true
 # Match yapf configuration
 max-line-length = 92
 extend-ignore = [
-  "E111", # Ignore E111 (indentation not multiple of 4) since we use 2-space indentation
-  "E114", # Ignore E114 (indentation not multiple of 4) since we use 2-space indentation
-  "E251", # Ignore E251 (unexpected spaces around keyword/parameter equals) to match yapf style
-  "E501", # Ignore E501 (line too long) in favor of bugbear's B950
+  "E111", # indentation not multiple of 4 since we use 2-space indentation
+  "E114", # indentation not multiple of 4 since we use 2-space indentation
+  "E122", # indentation not multiple of 4 since we use 2-space indentation
+  "E251", # unexpected spaces around keyword/parameter equals to match yapf style
+  "E501", # line too long in favor of bugbear's B950
 ]
 
 # Enable bugbear rules (B-series) in addition to default rules
@@ -183,7 +184,7 @@ based_on_style = "google"
 # Basic formatting
 indent_width = 2
 column_limit = 92
-continuation_indent_width = 2
+continuation_indent_width = 4
 
 # Whitespace and docstring settings
 allow_multiline_dictionary_keys = true

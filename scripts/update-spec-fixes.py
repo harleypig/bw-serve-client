@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-"""Script to automatically update spec-fixes.json with changes from vault-management-api-fixed.json.
+"""Automatically update spec-fixes.json.
 
-that are not already covered in the current spec-fixes.json file.
+Update spec-fixes.json with changes from vault-management-api-fixed.json that
+are not already covered in the current spec-fixes.json file.
 
-This script compares the original and fixed API spec files to find differences, then adds
-any new changes to the spec-fixes.json file that aren't already covered.
+This script compares the original and fixed API spec files to find
+differences, then adds any new changes to the spec-fixes.json file that aren't
+already covered.
 
 Usage:
     # Show what would be added without making changes
@@ -28,7 +30,7 @@ import argparse
 import json
 import os
 import sys
-from typing import Any, Dict, List, Set, Union
+from typing import Any, Dict, List, Set
 
 
 def find_differences(obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any]]:
@@ -40,7 +42,7 @@ def find_differences(obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any
     for key in obj2:
       if key not in obj1:
         differences.append({
-          'path': f'{path}.{key}' if path else key,
+          'path': f'{path}|{key}' if path else key,
           'operation': 'add',
           'value': obj2[key]
         })
@@ -48,40 +50,17 @@ def find_differences(obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any
         if isinstance(obj1[key], dict) and isinstance(obj2[key], dict):
           # Recursively check nested objects
           differences.extend(
-            find_differences(obj1[key], obj2[key], f'{path}.{key}' if path else key)
+            find_differences(obj1[key], obj2[key], f'{path}|{key}' if path else key)
           )
         else:
           # Values are different
           differences.append({
-            'path': f'{path}.{key}' if path else key,
+            'path': f'{path}|{key}' if path else key,
             'operation': 'set_value',
             'value': obj2[key]
           })
 
   return differences
-
-
-def convert_path_to_spec_format(path: str) -> str:
-  """Convert dot notation path to pipe notation used in spec-fixes."""
-  # Handle special cases where dots should remain in schema names
-  # First, protect the schema names that should keep their dots
-  path = path.replace('item.login', 'ITEM_LOGIN_PLACEHOLDER')
-  path = path.replace('item.secureNote', 'ITEM_SECURENOTE_PLACEHOLDER')
-  path = path.replace('item.template', 'ITEM_TEMPLATE_PLACEHOLDER')
-  path = path.replace('send.template', 'SEND_TEMPLATE_PLACEHOLDER')
-  path = path.replace('send.text', 'SEND_TEXT_PLACEHOLDER')
-
-  # Replace remaining dots with pipes
-  path = path.replace('.', '|')
-
-  # Restore the protected schema names
-  path = path.replace('ITEM_LOGIN_PLACEHOLDER', 'item.login')
-  path = path.replace('ITEM_SECURENOTE_PLACEHOLDER', 'item.secureNote')
-  path = path.replace('ITEM_TEMPLATE_PLACEHOLDER', 'item.template')
-  path = path.replace('SEND_TEMPLATE_PLACEHOLDER', 'send.template')
-  path = path.replace('SEND_TEXT_PLACEHOLDER', 'send.text')
-
-  return path
 
 
 def get_existing_spec_fix_paths(spec_fixes_file: str) -> Set[str]:
@@ -124,6 +103,7 @@ def create_fix_entry(path: str, value: Any, operation: str = 'set_value') -> Dic
 
 
 def main() -> None:
+  """Main function to update spec-fixes.json with new changes from fixed API spec."""
   parser = argparse.ArgumentParser(description='Update spec-fixes.json with new changes')
   parser.add_argument(
     '--dry-run',
@@ -195,7 +175,7 @@ def main() -> None:
   # Filter out differences that are already covered
   new_fixes = []
   for diff in all_differences:
-    spec_path = convert_path_to_spec_format(diff['path'])
+    spec_path = diff['path']
 
     # Skip if already covered
     if spec_path in existing_paths:

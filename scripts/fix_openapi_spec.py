@@ -179,6 +179,7 @@ class OpenAPISpecFixer:
           # Apply modifications to this element
           for key, value in modifications.items():
             element[key] = value
+
           return True
 
     return False

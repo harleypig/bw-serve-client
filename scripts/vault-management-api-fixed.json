@@ -3441,6 +3441,8 @@
         }
       },
       "status": {
+        "title": "StatusSchema",
+        "description": "AGENT: fixme",
         "properties": {
           "success": {
             "type": "boolean"

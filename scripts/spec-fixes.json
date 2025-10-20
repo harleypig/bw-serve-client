@@ -525,6 +525,18 @@
           }
         },
         "description": "Change url parameter format from 'url' to 'uri'"
+      },
+      {
+        "operation": "add",
+        "path": "components|schemas|status|title",
+        "value": "StatusSchema",
+        "description": "Add title to status schema"
+      },
+      {
+        "operation": "add",
+        "path": "components|schemas|status|description",
+        "value": "AGENT: fixme",
+        "description": "Add description to status schema property"
       }
     ]
   }

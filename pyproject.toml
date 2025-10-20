@@ -288,6 +288,7 @@ output-datetime-class = "AwareDatetime"
 reuse-model = true
 target-python-version = "3.10"
 use-schema-description = true
+use-title-as-name = true
 
 # Template Customization
 custom-file-header-path = "scripts/generated-header.txt"

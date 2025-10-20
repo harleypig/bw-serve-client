@@ -82,7 +82,7 @@ class Group(BaseModel):
   hide_passwords: Annotated[bool | None, Field(alias='hidePasswords')]
 
 
-class Status1(Enum):
+class Status(Enum):
   LOCKED = 'locked'
   UNLOCKED = 'unlocked'
   UNAUTHENTICATED = 'unauthenticated'
@@ -101,7 +101,7 @@ class Template(BaseModel):
   last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
   user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
   user_id: Annotated[UUID | None, Field(alias='userID')]
-  status: Status1 | None
+  status: Status | None
 
 
 class Data(BaseModel):
@@ -113,7 +113,7 @@ class Data(BaseModel):
   template: Template | None
 
 
-class Status(BaseModel):
+class StatusSchema(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,

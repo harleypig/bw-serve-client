@@ -28,9 +28,10 @@ import argparse
 import json
 import os
 import sys
+from typing import Any, Dict, List, Set, Union
 
 
-def find_differences(obj1, obj2, path=''):
+def find_differences(obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any]]:
   """Find all differences between two JSON objects, returning paths and values."""
   differences = []
 
@@ -60,7 +61,7 @@ def find_differences(obj1, obj2, path=''):
   return differences
 
 
-def convert_path_to_spec_format(path):
+def convert_path_to_spec_format(path: str) -> str:
   """Convert dot notation path to pipe notation used in spec-fixes."""
   # Handle special cases where dots should remain in schema names
   # First, protect the schema names that should keep their dots
@@ -83,7 +84,7 @@ def convert_path_to_spec_format(path):
   return path
 
 
-def get_existing_spec_fix_paths(spec_fixes_file):
+def get_existing_spec_fix_paths(spec_fixes_file: str) -> Set[str]:
   """Get all paths already covered in spec-fixes.json."""
   try:
     with open(spec_fixes_file, 'r') as f:
@@ -103,7 +104,7 @@ def get_existing_spec_fix_paths(spec_fixes_file):
     return set()
 
 
-def create_fix_entry(path, value, operation='set_value'):
+def create_fix_entry(path: str, value: Any, operation: str = 'set_value') -> Dict[str, Any]:
   """Create a fix entry for the spec-fixes format."""
   # Determine description based on the path
   if 'description' in path:
@@ -122,7 +123,7 @@ def create_fix_entry(path, value, operation='set_value'):
   return {"operation": operation, "path": path, "value": value, "description": description}
 
 
-def main():
+def main() -> None:
   parser = argparse.ArgumentParser(description='Update spec-fixes.json with new changes')
   parser.add_argument(
     '--dry-run',

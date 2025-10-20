@@ -82,6 +82,7 @@ yapf = ">=0.40.2,<1.0.0"
 flake8-secure-coding-standard = "^1.4.1"
 flake8-unused-arguments = "^0.0.13"
 flake8-clean-block = "^0.1.2"
+deepdiff = "^8.6.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"

@@ -31,36 +31,84 @@ import json
 import os
 import sys
 from typing import Any, Dict, List, Set
+from deepdiff import DeepDiff
 
 
 def find_differences(obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any]]:
-  """Find all differences between two JSON objects, returning paths and values."""
+  """Find all differences between two JSON objects using DeepDiff."""
   differences = []
 
-  if isinstance(obj1, dict) and isinstance(obj2, dict):
-    # Check for new keys in obj2
-    for key in obj2:
-      if key not in obj1:
-        differences.append({
-          'path': f'{path}|{key}' if path else key,
+  # Use DeepDiff to find all differences
+  diff = DeepDiff(obj1, obj2, ignore_order=True, exclude_paths=["root['info']"])
+
+  # Process dictionary item additions
+  if 'dictionary_item_added' in diff:
+    for key_path in diff['dictionary_item_added']:
+      # Get the value at this path from obj2
+      value = get_value_at_path(obj2, key_path)
+      pipe_path = convert_deepdiff_path_to_pipes(key_path, path)
+      differences.append({
+          'path': pipe_path,
           'operation': 'add',
-          'value': obj2[key]
-        })
-      elif obj1[key] != obj2[key]:
-        if isinstance(obj1[key], dict) and isinstance(obj2[key], dict):
-          # Recursively check nested objects
-          differences.extend(
-            find_differences(obj1[key], obj2[key], f'{path}|{key}' if path else key)
-          )
-        else:
-          # Values are different
-          differences.append({
-            'path': f'{path}|{key}' if path else key,
-            'operation': 'set_value',
-            'value': obj2[key]
-          })
+          'value': value
+      })
+
+  # Process dictionary item changes
+  if 'values_changed' in diff:
+    for key_path, change in diff['values_changed'].items():
+      pipe_path = convert_deepdiff_path_to_pipes(key_path, path)
+      differences.append({
+          'path': pipe_path,
+          'operation': 'set_value',
+          'value': change['new_value']
+      })
 
   return differences
+
+
+def get_value_at_path(obj: Any, path: str) -> Any:
+  """Get value at a DeepDiff path in the object."""
+  # Convert DeepDiff path to actual object navigation
+  if path.startswith("root['"):
+    # Remove "root['" prefix and "']" suffix, then split by "']['"
+    path_parts = path[6:-2].split("']['")
+    current = obj
+    for part in path_parts:
+      if isinstance(current, dict) and part in current:
+        current = current[part]
+      else:
+        return None
+
+    return current
+
+  return None
+
+
+def convert_deepdiff_path_to_pipes(key_path: str, base_path: str = '') -> str:
+  """Convert DeepDiff path format to pipe-separated format."""
+  # DeepDiff uses "root['key1']['key2'][3]['key3']" format, convert to "key1|key2|3|key3"
+  if key_path.startswith("root['"):
+    # Simple approach: replace common patterns
+    pipe_path = key_path
+    # Remove "root['" prefix and "']" suffix
+    pipe_path = pipe_path[6:-2]
+    # Replace "']['" with "|"
+    pipe_path = pipe_path.replace("']['", "|")
+    # Handle array indices by replacing "][" with "|"
+    pipe_path = pipe_path.replace("][", "|")
+    # Remove any remaining brackets and quotes
+    pipe_path = pipe_path.replace("[", "").replace("]", "").replace("'", "")
+  else:
+    # Fallback for other formats
+    pipe_path = key_path.replace("['", "|").replace("']", "").replace("root", "")
+    if pipe_path.startswith('|'):
+      pipe_path = pipe_path[1:]
+
+  # Prepend base path if provided
+  if base_path:
+    pipe_path = f"{base_path}|{pipe_path}"
+
+  return pipe_path
 
 
 def get_existing_spec_fix_paths(spec_fixes_file: str) -> Set[str]:
@@ -85,6 +133,9 @@ def get_existing_spec_fix_paths(spec_fixes_file: str) -> Set[str]:
 
 def create_fix_entry(path: str, value: Any, operation: str = 'set_value') -> Dict[str, Any]:
   """Create a fix entry for the spec-fixes format."""
+  # Map 'add' operation to 'add_if_missing' since that's what the fix script supports
+  if operation == 'add':
+    operation = 'add_if_missing'
   # Determine description based on the path
   if 'description' in path:
     if 'components|schemas|' in path:
@@ -106,24 +157,24 @@ def main() -> None:
   """Main function to update spec-fixes.json with new changes from fixed API spec."""
   parser = argparse.ArgumentParser(description='Update spec-fixes.json with new changes')
   parser.add_argument(
-    '--dry-run',
-    action='store_true',
-    help='Show what would be added without making changes'
+      '--dry-run',
+      action='store_true',
+      help='Show what would be added without making changes'
   )
   parser.add_argument(
-    '--output-file',
-    default='scripts/spec-fixes.json',
-    help='Output file path (default: scripts/spec-fixes.json)'
+      '--output-file',
+      default='scripts/spec-fixes.json',
+      help='Output file path (default: scripts/spec-fixes.json)'
   )
   parser.add_argument(
-    '--original-file',
-    default='scripts/vault-management-api-original.json',
-    help='Original API spec file'
+      '--original-file',
+      default='scripts/vault-management-api-original.json',
+      help='Original API spec file'
   )
   parser.add_argument(
-    '--fixed-file',
-    default='scripts/vault-management-api-fixed.json',
-    help='Fixed API spec file'
+      '--fixed-file',
+      default='scripts/vault-management-api-fixed.json',
+      help='Fixed API spec file'
   )
 
   args = parser.parse_args()
@@ -157,19 +208,9 @@ def main() -> None:
   existing_paths = get_existing_spec_fix_paths(args.output_file)
   print(f"Found {len(existing_paths)} existing paths in spec-fixes")
 
-  # Find all differences
-  all_differences = []
-
-  # Check paths section
-  path_diffs = find_differences(original.get('paths', {}), fixed.get('paths', {}), 'paths')
-  all_differences.extend(path_diffs)
-
-  # Check components section
-  comp_diffs = find_differences(
-    original.get('components', {}), fixed.get('components', {}), 'components'
-  )
-  all_differences.extend(comp_diffs)
-
+  # Find all differences using DeepDiff
+  print("Analyzing differences...")
+  all_differences = find_differences(original, fixed)
   print(f"Found {len(all_differences)} total differences")
 
   # Filter out differences that are already covered
@@ -184,9 +225,12 @@ def main() -> None:
     # Only include certain types of changes
     operation_valid = diff['operation'] in ['add', 'set_value']
     path_valid = (
-      'description' in spec_path or 'title' in spec_path or 'schema' in spec_path
+        'description' in spec_path or 'title' in spec_path or 'schema' in spec_path
     )
-    if operation_valid and path_valid:
+    # Skip paths with array indices since the fix script doesn't support them
+    has_array_index = any(part.isdigit() for part in spec_path.split('|'))
+    
+    if operation_valid and path_valid and not has_array_index:
       new_fixes.append(create_fix_entry(spec_path, diff['value'], diff['operation']))
 
   if not new_fixes:
@@ -207,10 +251,10 @@ def main() -> None:
       spec_fixes = json.load(f)
   except FileNotFoundError:
     spec_fixes = {
-      "path_operations": {
-        "description": "Operations on JSON paths in the spec",
-        "fixes": []
-      }
+        "path_operations": {
+            "description": "Operations on JSON paths in the spec",
+            "fixes": []
+        }
     }
 
   # Add new fixes

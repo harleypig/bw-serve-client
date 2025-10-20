@@ -3441,8 +3441,6 @@
         }
       },
       "status": {
-        "title": "StatusSchema",
-        "description": "AGENT: fixme",
         "properties": {
           "success": {
             "type": "boolean"
@@ -3487,7 +3485,9 @@
               }
             }
           }
-        }
+        },
+        "title": "StatusSchema",
+        "description": "AGENT: fixme"
       },
       "lockunlock.success": {
         "properties": {

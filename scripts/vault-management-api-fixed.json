@@ -3485,9 +3485,7 @@
               }
             }
           }
-        },
-        "title": "StatusSchema",
-        "description": "AGENT: fixme"
+        }
       },
       "lockunlock.success": {
         "properties": {

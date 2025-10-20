@@ -31,6 +31,7 @@ import json
 import os
 import sys
 from typing import Any, Dict, List, Set
+
 from deepdiff import DeepDiff
 
 
@@ -47,20 +48,16 @@ def find_differences(obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any
       # Get the value at this path from obj2
       value = get_value_at_path(obj2, key_path)
       pipe_path = convert_deepdiff_path_to_pipes(key_path, path)
-      differences.append({
-          'path': pipe_path,
-          'operation': 'add',
-          'value': value
-      })
+      differences.append({'path': pipe_path, 'operation': 'add', 'value': value})
 
   # Process dictionary item changes
   if 'values_changed' in diff:
     for key_path, change in diff['values_changed'].items():
       pipe_path = convert_deepdiff_path_to_pipes(key_path, path)
       differences.append({
-          'path': pipe_path,
-          'operation': 'set_value',
-          'value': change['new_value']
+        'path': pipe_path,
+        'operation': 'set_value',
+        'value': change['new_value']
       })
 
   return differences
@@ -157,24 +154,24 @@ def main() -> None:
   """Main function to update spec-fixes.json with new changes from fixed API spec."""
   parser = argparse.ArgumentParser(description='Update spec-fixes.json with new changes')
   parser.add_argument(
-      '--dry-run',
-      action='store_true',
-      help='Show what would be added without making changes'
+    '--dry-run',
+    action='store_true',
+    help='Show what would be added without making changes'
   )
   parser.add_argument(
-      '--output-file',
-      default='scripts/spec-fixes.json',
-      help='Output file path (default: scripts/spec-fixes.json)'
+    '--output-file',
+    default='scripts/spec-fixes.json',
+    help='Output file path (default: scripts/spec-fixes.json)'
   )
   parser.add_argument(
-      '--original-file',
-      default='scripts/vault-management-api-original.json',
-      help='Original API spec file'
+    '--original-file',
+    default='scripts/vault-management-api-original.json',
+    help='Original API spec file'
   )
   parser.add_argument(
-      '--fixed-file',
-      default='scripts/vault-management-api-fixed.json',
-      help='Fixed API spec file'
+    '--fixed-file',
+    default='scripts/vault-management-api-fixed.json',
+    help='Fixed API spec file'
   )
 
   args = parser.parse_args()
@@ -225,11 +222,11 @@ def main() -> None:
     # Only include certain types of changes
     operation_valid = diff['operation'] in ['add', 'set_value']
     path_valid = (
-        'description' in spec_path or 'title' in spec_path or 'schema' in spec_path
+      'description' in spec_path or 'title' in spec_path or 'schema' in spec_path
     )
     # Skip paths with array indices since the fix script doesn't support them
     has_array_index = any(part.isdigit() for part in spec_path.split('|'))
-    
+
     if operation_valid and path_valid and not has_array_index:
       new_fixes.append(create_fix_entry(spec_path, diff['value'], diff['operation']))
 
@@ -251,10 +248,10 @@ def main() -> None:
       spec_fixes = json.load(f)
   except FileNotFoundError:
     spec_fixes = {
-        "path_operations": {
-            "description": "Operations on JSON paths in the spec",
-            "fixes": []
-        }
+      "path_operations": {
+        "description": "Operations on JSON paths in the spec",
+        "fixes": []
+      }
     }
 
   # Add new fixes

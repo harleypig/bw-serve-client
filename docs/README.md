@@ -39,7 +39,7 @@ This directory contains comprehensive documentation for the `bw-serve-client` li
 
 ## 📖 Additional Resources
 
-- [Examples](examples/) - Code examples and snippets
+- [Examples](../doc/examples/) - Code examples and snippets
 - [API Architecture](api-architecture.md) - High-level API design
 - [Development Notes](development.md) - Development process documentation
 - [Version Management](version_management.md) - Versioning strategy

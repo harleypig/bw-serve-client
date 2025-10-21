@@ -711,6 +711,21 @@ flake8 = ">=3"
 pydocstyle = ">=2.1"
 
 [[package]]
+name = "flake8-logging"
+version = "1.8.0"
+description = "A Flake8 plugin that checks for issues using the standard library logging module."
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "flake8_logging-1.8.0-py3-none-any.whl", hash = "sha256:bb3fcf0fb2b4f35d7ebb0c1dc02af16db00c7c858c5a018370172e939dd6f225"},
+    {file = "flake8_logging-1.8.0.tar.gz", hash = "sha256:765046763d44d1dc051071c047fe0fa056d71a524505207c3fbdc47532e7d8af"},
+]
+
+[package.dependencies]
+flake8 = ">=3,<3.2 || >3.2"
+
+[[package]]
 name = "flake8-picky-parentheses"
 version = "0.6.0"
 description = "flake8 plugin to nitpick about parenthesis, brackets, and braces"
@@ -3252,4 +3267,4 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "f2f0d05a12bfdd05e04c23f5d65bdcc779ea14809f2a2c8a199effe55ce3df4d"
+content-hash = "332e4503bae232ed68a8ca66b9fd9f03c7d8aa180511d2aaca5f078479138aaf"

@@ -192,7 +192,7 @@ Based on the API analysis, organize into these main classes:
 - Unit tests for all classes
 - Mock external API calls
 - Integration tests with real API
-- Example usage in examples/ directory
+- Example usage in doc/examples/ directory
 
 ## Questions to Resolve
 

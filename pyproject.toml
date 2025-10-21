@@ -92,6 +92,7 @@ flake8-raise = "^0.0.5"
 flake8-docstrings = "^1.7.0"
 flake8-rst-docstrings = "^0.4.0"
 flake8-annotations = "^3.2.0"
+flake8-logging = "^1.8.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"

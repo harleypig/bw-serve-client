@@ -144,6 +144,7 @@ class TestApiClient:
     response.headers = {"content-type": "text/plain"}
     response.text = "plain text"
     result = client._deserialize_data(response)
+
     assert result == "plain text"
 
   def test_handle_error_success(self: "TestApiClient") -> None:
@@ -208,6 +209,7 @@ class TestApiClient:
     client = ApiClient()
     client.session = mock_session
     result = client.get("/test", params={"key": "value"})
+
     mock_session.request.assert_called_once_with(
       method='GET',
       url='http://localhost:8087/test',
@@ -279,6 +281,7 @@ class TestApiClient:
     data = {"name": "test"}
     files = {"file": "content"}
     result = client.post("/test", data=data, files=files)
+
     mock_session.request.assert_called_once_with(
       method='POST',
       url='http://localhost:8087/test',
@@ -318,6 +321,7 @@ class TestApiClient:
     client = ApiClient()
     data = '{"invalid": json}'    # Invalid JSON
     result = client._serialize_data(data, "application/json")
+
     assert result == data         # Should return original string
 
   def test_serialize_data_other_content_type(self: "TestApiClient") -> None:
@@ -325,12 +329,14 @@ class TestApiClient:
     client = ApiClient()
     data = {"key": "value"}
     result = client._serialize_data(data, "text/plain")
+
     assert result == str(data)
 
   def test_serialize_data_none(self: "TestApiClient") -> None:
     """Test data serialization with None data."""
     client = ApiClient()
     result = client._serialize_data(None, "application/json")
+
     assert result is None
 
   def test_serialize_data_list(self: "TestApiClient") -> None:
@@ -338,6 +344,7 @@ class TestApiClient:
     client = ApiClient()
     data = [1, 2, 3, {"nested": "value"}]
     result = client._serialize_data(data, "application/json")
+
     assert result == data
 
   def test_serialize_data_nested_dict(self: "TestApiClient") -> None:
@@ -345,18 +352,21 @@ class TestApiClient:
     client = ApiClient()
     data = {"level1": {"level2": {"level3": "deep_value", "array": [1, 2, 3]}}}
     result = client._serialize_data(data, "application/json")
+
     assert result == data
 
   def test_serialize_data_empty_string(self: "TestApiClient") -> None:
     """Test data serialization with empty string."""
     client = ApiClient()
     result = client._serialize_data("", "application/json")
+
     assert result == ""
 
   def test_serialize_data_whitespace_string(self: "TestApiClient") -> None:
     """Test data serialization with whitespace-only string."""
     client = ApiClient()
     result = client._serialize_data("   ", "application/json")
+
     assert result == "   "
 
   def test_serialize_data_unicode_string(self: "TestApiClient") -> None:
@@ -364,6 +374,7 @@ class TestApiClient:
     client = ApiClient()
     data = '{"unicode": "测试", "emoji": "🚀"}'
     result = client._serialize_data(data, "application/json")
+
     expected = {"unicode": "测试", "emoji": "🚀"}
     assert result == expected
 
@@ -375,6 +386,7 @@ class TestApiClient:
     response.json.side_effect = json.JSONDecodeError("Invalid JSON", "", 0)
     response.text = "invalid json"
     result = client._deserialize_data(response)
+
     assert result == "invalid json"
 
   def test_deserialize_data_empty_response(self: "TestApiClient") -> None:
@@ -385,6 +397,7 @@ class TestApiClient:
     response.json.return_value = {}
     response.text = ""
     result = client._deserialize_data(response)
+
     assert result == {}
 
   def test_deserialize_data_none_response(self: "TestApiClient") -> None:
@@ -395,6 +408,7 @@ class TestApiClient:
     response.json.return_value = None
     response.text = ""
     result = client._deserialize_data(response)
+
     assert result is None
 
   def test_deserialize_data_list_response(self: "TestApiClient") -> None:
@@ -405,6 +419,7 @@ class TestApiClient:
     response.json.return_value = [1, 2, 3, {"key": "value"}]
     response.text = ""
     result = client._deserialize_data(response)
+
     expected_result: list[dict[str, str] | int] = [1, 2, 3, {"key": "value"}]
     assert result == expected_result
 
@@ -417,6 +432,7 @@ class TestApiClient:
     response.json.return_value = nested_data
     response.text = ""
     result = client._deserialize_data(response)
+
     assert result == nested_data
 
   def test_deserialize_data_unicode_response(self: "TestApiClient") -> None:
@@ -428,6 +444,7 @@ class TestApiClient:
     response.json.return_value = unicode_data
     response.text = ""
     result = client._deserialize_data(response)
+
     assert result == unicode_data
 
   def test_deserialize_data_mixed_content_type(self: "TestApiClient") -> None:
@@ -438,6 +455,7 @@ class TestApiClient:
     response.json.return_value = {"key": "value"}
     response.text = ""
     result = client._deserialize_data(response)
+
     assert result == {"key": "value"}
 
   def test_deserialize_data_no_content_type(self: "TestApiClient") -> None:
@@ -447,6 +465,7 @@ class TestApiClient:
     response.headers = {}
     response.text = "plain text response"
     result = client._deserialize_data(response)
+
     assert result == "plain text response"
 
   def test_deserialize_data_xml_content_type(self: "TestApiClient") -> None:
@@ -456,6 +475,7 @@ class TestApiClient:
     response.headers = {"content-type": "application/xml"}
     response.text = "<root><item>value</item></root>"
     result = client._deserialize_data(response)
+
     assert result == "<root><item>value</item></root>"
 
   def test_handle_error_json_decode_error(self: "TestApiClient") -> None:
@@ -563,6 +583,7 @@ class TestApiClient:
     client.session = mock_session
     data = {"name": "updated"}
     result = client.put("/test", data=data)
+
     mock_session.request.assert_called_once_with(
       method='PUT',
       url='http://localhost:8087/test',
@@ -596,6 +617,7 @@ class TestApiClient:
     client = ApiClient()
     client.session = mock_session
     result = client.delete("/test")
+
     mock_session.request.assert_called_once_with(
       method='DELETE',
       url='http://localhost:8087/test',
@@ -694,6 +716,7 @@ class TestApiClient:
     client = ApiClient()
     client.session = mock_session
     result = client.get("/items")
+
     assert result == complex_response
     assert len(result["data"]) == 2
     assert result["data"][0]["name"] == "Item 1"
@@ -827,6 +850,7 @@ class TestApiClient:
     client = ApiClient()
     with pytest.raises(BitwardenAPIError) as exc_info:
       client._make_request("PATCH", "/test")
+
     assert "Unsupported HTTP method: PATCH" in str(exc_info.value)
     assert "Supported methods are: DELETE, GET, POST, PUT" in str(exc_info.value)
 
@@ -844,6 +868,7 @@ class TestApiClient:
       client = ApiClient()
       client.session = mock_session
       result = client._make_request("get", "/test")
+
       assert result == mock_response
 
       # Verify the method was converted to uppercase

@@ -37,6 +37,7 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
+
     assert result.returncode == 0
     assert "analyze" in result.stdout
     assert "extract" in result.stdout
@@ -52,6 +53,7 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
+
     assert result.returncode == 0
     assert "swagger_file" in result.stdout
 
@@ -64,6 +66,7 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
+
     assert result.returncode == 0
     assert "format" in result.stdout
     assert "output" in result.stdout
@@ -77,6 +80,7 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
+
     assert result.returncode == 0
     assert "dry-run" in result.stdout
 
@@ -89,6 +93,7 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
+
     assert result.returncode == 0
     assert "original-file" in result.stdout
     assert "fixed-file" in result.stdout

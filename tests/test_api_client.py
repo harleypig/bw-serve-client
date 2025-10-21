@@ -151,7 +151,7 @@ class TestApiClient:
       client._handle_error(response)
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_get_request(self: "ApiClient", mock_session_class: Mock) -> None:
+  def test_get_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test GET request method."""
     mock_session = Mock()
     mock_session.headers = {
@@ -187,7 +187,7 @@ class TestApiClient:
     assert result == {"data": "test"}
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_post_request(self: "ApiClient", mock_session_class: Mock) -> None:
+  def test_post_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test POST request method."""
     mock_session = Mock()
     mock_session.headers = {
@@ -225,7 +225,7 @@ class TestApiClient:
     assert result == {"created": True}
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_post_request_with_files(self: "ApiClient", mock_session_class: Mock) -> None:
+  def test_post_request_with_files(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test POST request method with file upload."""
     mock_session = Mock()
     mock_session.headers = {
@@ -483,7 +483,9 @@ class TestApiClient:
       client._handle_error(response)
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_make_request_with_headers(self: "ApiClient", mock_session_class: Mock) -> None:
+  def test_make_request_with_headers(
+    self: "TestApiClient", mock_session_class: Mock
+  ) -> None:
     """Test _make_request with custom headers."""
     mock_session = Mock()
     mock_session.headers = {
@@ -516,7 +518,7 @@ class TestApiClient:
     assert call_args[1]["headers"] == expected_headers
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_make_request_exception(self: "ApiClient", mock_session_class: Mock) -> None:
+  def test_make_request_exception(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test _make_request with RequestException."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -532,7 +534,7 @@ class TestApiClient:
       client._make_request("GET", "/test")
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_put_request(self: "ApiClient", mock_session_class: Mock) -> None:
+  def test_put_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test PUT request method."""
     mock_session = Mock()
     mock_session.headers = {
@@ -569,7 +571,7 @@ class TestApiClient:
     assert result == {"updated": True}
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_delete_request(self: "ApiClient", mock_session_class: Mock) -> None:
+  def test_delete_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test DELETE request method."""
     mock_session = Mock()
     mock_session.headers = {
@@ -606,7 +608,7 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.requests.Session')
   def test_serialization_integration_post(
-    self: "ApiClient", mock_session_class: Mock
+    self: "TestApiClient", mock_session_class: Mock
   ) -> None:
     """Test serialization integration with POST request."""
     mock_session = Mock()
@@ -647,7 +649,7 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.requests.Session')
   def test_deserialization_integration_get(
-    self: "ApiClient", mock_session_class: Mock
+    self: "TestApiClient", mock_session_class: Mock
   ) -> None:
     """Test deserialization integration with GET request."""
     mock_session = Mock()
@@ -699,7 +701,7 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.requests.Session')
   def test_serialization_string_data_post(
-    self: "ApiClient", mock_session_class: Mock
+    self: "TestApiClient", mock_session_class: Mock
   ) -> None:
     """Test serialization with string data in POST request."""
     mock_session = Mock()
@@ -727,7 +729,7 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.requests.Session')
   def test_deserialization_error_fallback(
-    self: "ApiClient", mock_session_class: Mock
+    self: "TestApiClient", mock_session_class: Mock
   ) -> None:
     """Test deserialization error fallback to text."""
     mock_session = Mock()

@@ -693,7 +693,7 @@ class APISpecTool:
 
     # Prepend base path if provided
     if base_path:
-      pipe_path = f"{base_path}|{pipe_path}"
+      return f"{base_path}|{pipe_path}"
 
     return pipe_path
 

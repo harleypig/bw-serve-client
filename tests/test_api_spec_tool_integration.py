@@ -37,7 +37,6 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
-
     assert result.returncode == 0
     assert "analyze" in result.stdout
     assert "extract" in result.stdout
@@ -53,7 +52,6 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
-
     assert result.returncode == 0
     assert "swagger_file" in result.stdout
 
@@ -66,7 +64,6 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
-
     assert result.returncode == 0
     assert "format" in result.stdout
     assert "output" in result.stdout
@@ -80,7 +77,6 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
-
     assert result.returncode == 0
     assert "dry-run" in result.stdout
 
@@ -93,7 +89,6 @@ class TestCommandLineInterface:
     ],
                             capture_output=True,
                             text=True)
-
     assert result.returncode == 0
     assert "original-file" in result.stdout
     assert "fixed-file" in result.stdout
@@ -123,7 +118,6 @@ class TestEndToEndWorkflow:
         }
       }
     }
-
     self.fixed_spec = {
       "openapi": "3.0.0",
       "info": {
@@ -156,7 +150,6 @@ class TestEndToEndWorkflow:
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(self.original_spec, f)
       original_file = f.name
-
     try:
       analysis = self.tool.analyze_api_structure(original_file)
       assert analysis['api_info']['title'] == "Test API"
@@ -212,11 +205,9 @@ class TestEndToEndWorkflow:
         "description": "Add content to response"
       }]
     }
-
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(v2_fixes, f)
       fixes_file = f.name
-
     try:
       # Test loading existing paths
       existing_paths = self.tool.get_existing_spec_fix_paths(fixes_file)
@@ -249,11 +240,9 @@ class TestEndToEndWorkflow:
         }]
       }
     }
-
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(old_fixes, f)
       fixes_file = f.name
-
     try:
       # Test loading existing paths
       existing_paths = self.tool.get_existing_spec_fix_paths(fixes_file)
@@ -276,7 +265,6 @@ class TestEndToEndWorkflow:
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       f.write("invalid json")
       temp_file = f.name
-
     try:
       with pytest.raises(SystemExit):
         self.tool.load_json_file(temp_file, "test file")
@@ -287,7 +275,6 @@ class TestEndToEndWorkflow:
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(["not", "a", "dict"], f)
       temp_file = f.name
-
     try:
       with pytest.raises(SystemExit):
         self.tool.load_json_file(temp_file, "test file")
@@ -298,11 +285,9 @@ class TestEndToEndWorkflow:
     """Test edge cases and boundary conditions."""
     # Test with empty spec
     empty_spec = {"openapi": "3.0.0", "info": {"title": "Empty", "version": "1.0.0"}}
-
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(empty_spec, f)
       temp_file = f.name
-
     try:
       analysis = self.tool.analyze_api_structure(temp_file)
       assert analysis['tags'] == []
@@ -319,11 +304,9 @@ class TestEndToEndWorkflow:
       },
       "paths": {}
     }
-
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(minimal_spec, f)
       temp_file = f.name
-
     try:
       analysis = self.tool.analyze_api_structure(temp_file)
       assert analysis['api_info']['title'] == "Minimal"
@@ -343,7 +326,6 @@ class TestEndToEndWorkflow:
         }]
       }
     }
-
     fixes = {
       "operations": [{
         "type": "modify_array_element",
@@ -357,7 +339,6 @@ class TestEndToEndWorkflow:
         "description": "Update array element"
       }]
     }
-
     changes = self.tool.apply_path_operations(spec, fixes)
     assert len(changes) > 0
     assert spec["test"]["items"][0]["value"] == "new"
@@ -366,7 +347,6 @@ class TestEndToEndWorkflow:
   def test_key_rename_operations(self: "TestEndToEndWorkflow") -> None:
     """Test key rename operations."""
     spec = {"test": {"old_key": "value"}}
-
     fixes = {
       "operations": [{
         "type": "rename_key",
@@ -376,7 +356,6 @@ class TestEndToEndWorkflow:
         "description": "Rename key"
       }]
     }
-
     changes = self.tool.apply_path_operations(spec, fixes)
     assert len(changes) > 0
     assert "new_key" in spec["test"]

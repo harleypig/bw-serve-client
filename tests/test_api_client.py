@@ -100,7 +100,6 @@ class TestApiClient:
     # Arrange
     client = ApiClient()
     data = {"key": "value"}
-
     result = client._serialize_data(data, "application/json")
 
     # Assert
@@ -111,7 +110,6 @@ class TestApiClient:
     # Arrange
     client = ApiClient()
     data = '{"key": "value"}'
-
     result = client._serialize_data(data, "application/json")
 
     # Assert
@@ -122,7 +120,6 @@ class TestApiClient:
     # Arrange
     client = ApiClient()
     data = {"file": "content"}
-
     result = client._serialize_data(data, "multipart/form-data")
 
     # Assert
@@ -135,7 +132,6 @@ class TestApiClient:
     response = Mock()
     response.headers = {"content-type": "application/json"}
     response.json.return_value = {"key": "value"}
-
     result = client._deserialize_data(response)
 
     # Assert
@@ -147,9 +143,7 @@ class TestApiClient:
     response = Mock()
     response.headers = {"content-type": "text/plain"}
     response.text = "plain text"
-
     result = client._deserialize_data(response)
-
     assert result == "plain text"
 
   def test_handle_error_success(self: "TestApiClient") -> None:
@@ -167,7 +161,6 @@ class TestApiClient:
     response = Mock()
     response.status_code = 401
     response.json.return_value = {"message": "Unauthorized"}
-
     with pytest.raises(AuthenticationError, match="Unauthorized"):
       client._handle_error(response)
 
@@ -177,7 +170,6 @@ class TestApiClient:
     response = Mock()
     response.status_code = 400
     response.json.return_value = {"message": "Bad Request"}
-
     with pytest.raises(ValidationError, match="Bad Request"):
       client._handle_error(response)
 
@@ -187,7 +179,6 @@ class TestApiClient:
     response = Mock()
     response.status_code = 404
     response.json.return_value = {"message": "Not Found"}
-
     with pytest.raises(NotFoundError, match="Not Found"):
       client._handle_error(response)
 
@@ -197,7 +188,6 @@ class TestApiClient:
     response = Mock()
     response.status_code = 500
     response.json.return_value = {"message": "Server Error"}
-
     with pytest.raises(ServerError, match="Server Error"):
       client._handle_error(response)
 
@@ -215,12 +205,9 @@ class TestApiClient:
     mock_response.json.return_value = {"data": "test"}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     result = client.get("/test", params={"key": "value"})
-
     mock_session.request.assert_called_once_with(
       method='GET',
       url='http://localhost:8087/test',
@@ -251,12 +238,9 @@ class TestApiClient:
     mock_response.json.return_value = {"created": True}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     data = {"name": "test"}
-
     result = client.post("/test", data=data)
 
     # Data should be serialized by _serialize_data
@@ -290,15 +274,11 @@ class TestApiClient:
     mock_response.json.return_value = {"uploaded": True}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     data = {"name": "test"}
     files = {"file": "content"}
-
     result = client.post("/test", data=data, files=files)
-
     mock_session.request.assert_called_once_with(
       method='POST',
       url='http://localhost:8087/test',
@@ -320,10 +300,8 @@ class TestApiClient:
     with patch('bw_serve_client.api_client.requests.Session') as mock_session_class:
       mock_session = Mock()
       mock_session_class.return_value = mock_session
-
       with ApiClient() as client:
         assert client.session == mock_session
-
       mock_session.close.assert_called_once()
 
   def test_close(self: "TestApiClient") -> None:
@@ -331,17 +309,14 @@ class TestApiClient:
     with patch('bw_serve_client.api_client.requests.Session') as mock_session_class:
       mock_session = Mock()
       mock_session_class.return_value = mock_session
-
       client = ApiClient()
       client.close()
-
       mock_session.close.assert_called_once()
 
   def test_serialize_data_invalid_json(self: "TestApiClient") -> None:
     """Test JSON data serialization with invalid JSON string."""
     client = ApiClient()
     data = '{"invalid": json}'    # Invalid JSON
-
     result = client._serialize_data(data, "application/json")
     assert result == data         # Should return original string
 
@@ -349,14 +324,12 @@ class TestApiClient:
     """Test data serialization with other content type."""
     client = ApiClient()
     data = {"key": "value"}
-
     result = client._serialize_data(data, "text/plain")
     assert result == str(data)
 
   def test_serialize_data_none(self: "TestApiClient") -> None:
     """Test data serialization with None data."""
     client = ApiClient()
-
     result = client._serialize_data(None, "application/json")
     assert result is None
 
@@ -364,7 +337,6 @@ class TestApiClient:
     """Test data serialization with list data."""
     client = ApiClient()
     data = [1, 2, 3, {"nested": "value"}]
-
     result = client._serialize_data(data, "application/json")
     assert result == data
 
@@ -372,21 +344,18 @@ class TestApiClient:
     """Test data serialization with nested dictionary."""
     client = ApiClient()
     data = {"level1": {"level2": {"level3": "deep_value", "array": [1, 2, 3]}}}
-
     result = client._serialize_data(data, "application/json")
     assert result == data
 
   def test_serialize_data_empty_string(self: "TestApiClient") -> None:
     """Test data serialization with empty string."""
     client = ApiClient()
-
     result = client._serialize_data("", "application/json")
     assert result == ""
 
   def test_serialize_data_whitespace_string(self: "TestApiClient") -> None:
     """Test data serialization with whitespace-only string."""
     client = ApiClient()
-
     result = client._serialize_data("   ", "application/json")
     assert result == "   "
 
@@ -394,7 +363,6 @@ class TestApiClient:
     """Test data serialization with unicode string."""
     client = ApiClient()
     data = '{"unicode": "测试", "emoji": "🚀"}'
-
     result = client._serialize_data(data, "application/json")
     expected = {"unicode": "测试", "emoji": "🚀"}
     assert result == expected
@@ -406,7 +374,6 @@ class TestApiClient:
     response.headers = {"content-type": "application/json"}
     response.json.side_effect = json.JSONDecodeError("Invalid JSON", "", 0)
     response.text = "invalid json"
-
     result = client._deserialize_data(response)
     assert result == "invalid json"
 
@@ -417,7 +384,6 @@ class TestApiClient:
     response.headers = {"content-type": "application/json"}
     response.json.return_value = {}
     response.text = ""
-
     result = client._deserialize_data(response)
     assert result == {}
 
@@ -428,7 +394,6 @@ class TestApiClient:
     response.headers = {"content-type": "application/json"}
     response.json.return_value = None
     response.text = ""
-
     result = client._deserialize_data(response)
     assert result is None
 
@@ -439,7 +404,6 @@ class TestApiClient:
     response.headers = {"content-type": "application/json"}
     response.json.return_value = [1, 2, 3, {"key": "value"}]
     response.text = ""
-
     result = client._deserialize_data(response)
     expected_result: list[dict[str, str] | int] = [1, 2, 3, {"key": "value"}]
     assert result == expected_result
@@ -452,7 +416,6 @@ class TestApiClient:
     nested_data = {"level1": {"level2": {"level3": "deep_value", "array": [1, 2, 3]}}}
     response.json.return_value = nested_data
     response.text = ""
-
     result = client._deserialize_data(response)
     assert result == nested_data
 
@@ -464,7 +427,6 @@ class TestApiClient:
     unicode_data = {"unicode": "测试", "emoji": "🚀"}
     response.json.return_value = unicode_data
     response.text = ""
-
     result = client._deserialize_data(response)
     assert result == unicode_data
 
@@ -475,7 +437,6 @@ class TestApiClient:
     response.headers = {"content-type": "application/json; charset=utf-8"}
     response.json.return_value = {"key": "value"}
     response.text = ""
-
     result = client._deserialize_data(response)
     assert result == {"key": "value"}
 
@@ -485,7 +446,6 @@ class TestApiClient:
     response = Mock()
     response.headers = {}
     response.text = "plain text response"
-
     result = client._deserialize_data(response)
     assert result == "plain text response"
 
@@ -495,7 +455,6 @@ class TestApiClient:
     response = Mock()
     response.headers = {"content-type": "application/xml"}
     response.text = "<root><item>value</item></root>"
-
     result = client._deserialize_data(response)
     assert result == "<root><item>value</item></root>"
 
@@ -506,7 +465,6 @@ class TestApiClient:
     response.status_code = 400
     response.json.side_effect = json.JSONDecodeError("Invalid JSON", "", 0)
     response.text = "Bad Request"
-
     with pytest.raises(ValidationError, match="Bad Request"):
       client._handle_error(response)
 
@@ -517,7 +475,6 @@ class TestApiClient:
     response.status_code = 400
     response.json.return_value = {"error": "Bad Request"}     # No 'message' key
     response.text = "Bad Request"
-
     with pytest.raises(ValidationError, match="API request failed with status 400"):
       client._handle_error(response)
 
@@ -529,7 +486,6 @@ class TestApiClient:
     # Make response.json() raise a KeyError when called
     response.json.side_effect = KeyError("message")
     response.text = "Bad Request"
-
     with pytest.raises(ValidationError, match="Bad Request"):
       client._handle_error(response)
 
@@ -539,7 +495,6 @@ class TestApiClient:
     response = Mock()
     response.status_code = 418    # I'm a teapot
     response.json.return_value = {"message": "I'm a teapot"}
-
     with pytest.raises(BitwardenAPIError, match="I'm a teapot"):
       client._handle_error(response)
 
@@ -560,10 +515,8 @@ class TestApiClient:
     mock_response.json.return_value = {"data": "test"}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     custom_headers = {"Authorization": "Bearer token"}
     client._make_request("GET", "/test", headers=custom_headers)
 
@@ -587,10 +540,8 @@ class TestApiClient:
       "Connection failed"
     )
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     with pytest.raises(BitwardenAPIError, match="Request failed: Connection failed"):
       client._make_request("GET", "/test")
 
@@ -608,14 +559,10 @@ class TestApiClient:
     mock_response.json.return_value = {"updated": True}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     data = {"name": "updated"}
-
     result = client.put("/test", data=data)
-
     mock_session.request.assert_called_once_with(
       method='PUT',
       url='http://localhost:8087/test',
@@ -646,12 +593,9 @@ class TestApiClient:
     mock_response.json.return_value = {"deleted": True}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     result = client.delete("/test")
-
     mock_session.request.assert_called_once_with(
       method='DELETE',
       url='http://localhost:8087/test',
@@ -681,7 +625,6 @@ class TestApiClient:
     mock_response.json.return_value = {"created": True}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
 
@@ -700,7 +643,6 @@ class TestApiClient:
         "version": 1
       }
     }
-
     result = client.post("/users", data=complex_data)
 
     # Verify the data was passed as JSON (not serialized again)
@@ -746,16 +688,12 @@ class TestApiClient:
         "per_page": 10
       }
     }
-
     mock_response.json.return_value = complex_response
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     result = client.get("/items")
-
     assert result == complex_response
     assert len(result["data"]) == 2
     assert result["data"][0]["name"] == "Item 1"
@@ -774,13 +712,11 @@ class TestApiClient:
     mock_response.json.return_value = {"processed": True}
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
 
     # Test with JSON string data
     json_string = '{"name": "test", "value": 123}'
-
     result = client.post("/process", data=json_string)
 
     # The string should be parsed by _serialize_data and converted to dict
@@ -804,10 +740,8 @@ class TestApiClient:
     mock_response.text = "Invalid JSON response"
     mock_session.request.return_value = mock_response
     mock_session_class.return_value = mock_session
-
     client = ApiClient()
     client.session = mock_session
-
     result = client.get("/test")
 
     # Should fallback to text when JSON parsing fails
@@ -830,10 +764,8 @@ class TestApiClient:
 
     # Mock _serialize_data to return the data as-is
     mock_serialize.return_value = {"name": "test"}
-
     client = ApiClient()
     client.session = mock_session
-
     data = {"name": "test"}
     client.post("/test", data=data)
 
@@ -857,10 +789,8 @@ class TestApiClient:
 
     # Mock _serialize_data to return the data as-is
     mock_serialize.return_value = {"name": "updated"}
-
     client = ApiClient()
     client.session = mock_session
-
     data = {"name": "updated"}
     client.put("/test", data=data)
 
@@ -884,10 +814,8 @@ class TestApiClient:
 
     # Mock _serialize_data to return string representation
     mock_serialize.return_value = "test data"
-
     client = ApiClient()
     client.session = mock_session
-
     data = {"name": "test"}
     client._make_request("POST", "/test", data=data, headers={"Content-Type": "text/plain"})
 
@@ -897,10 +825,8 @@ class TestApiClient:
   def test_make_request_unsupported_method(self: "TestApiClient") -> None:
     """Test that _make_request raises error for unsupported HTTP methods."""
     client = ApiClient()
-
     with pytest.raises(BitwardenAPIError) as exc_info:
       client._make_request("PATCH", "/test")
-
     assert "Unsupported HTTP method: PATCH" in str(exc_info.value)
     assert "Supported methods are: DELETE, GET, POST, PUT" in str(exc_info.value)
 
@@ -915,10 +841,8 @@ class TestApiClient:
       mock_response.json.return_value = {"success": True}
       mock_session.request.return_value = mock_response
       mock_session_class.return_value = mock_session
-
       client = ApiClient()
       client.session = mock_session
-
       result = client._make_request("get", "/test")
       assert result == mock_response
 

@@ -178,6 +178,7 @@ extend-ignore = [
   "DCO010", # Conflicts with DOC301 - __init__ methods should not have docstrings
   "D107", # Conflicts with DOC301 - __init__ methods should not have docstrings
   "RST203", # Definition list formatting is often overly strict
+  "AAA01", "AAA03", "AAA04", "AAA05", "AAA06", # Temporarily ignore AAA violations while fixing them systematically
   "D213", # Multi-line docstring summary on first line (conflicts with pydocstringformatter)
   "D203", # Blank line before class docstring (conflicts with pydocstringformatter)
   "D211", # No blank lines before class docstring (conflicts with D203)

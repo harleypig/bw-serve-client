@@ -288,7 +288,11 @@ class ApiClient:
         response: Response object to check for errors
 
     Raises:
-        Various BitwardenAPIError subclasses based on status code
+        AuthenticationError: When status code is 401 (Unauthorized).
+        ValidationError: When status code is 400 (Bad Request).
+        NotFoundError: When status code is 404 (Not Found).
+        ServerError: When status code is 500 or higher (Server Error).
+        BitwardenAPIError: For any other error status codes.
     """
     if response.status_code < 400:
       return
@@ -332,7 +336,7 @@ class ApiClient:
     Args:
         method: HTTP method
         endpoint: API endpoint
-        \\**kwargs: Additional arguments for _make_request
+        kwargs: Additional arguments for _make_request
 
     Returns:
         Deserialized response data

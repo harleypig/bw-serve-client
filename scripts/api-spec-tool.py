@@ -66,6 +66,9 @@ class APISpecTool:
 
     Returns:
         Dict[str, Any]: The parsed JSON data as a dictionary.
+
+    Raises:
+        TypeError: When the JSON file does not contain a dictionary.
     """
     try:
       with open(file_path, 'r', encoding='utf-8') as f:
@@ -949,9 +952,6 @@ class APISpecTool:
         spec: The specification dictionary to modify.
         path: Pipe-separated path string where to set the value.
         value: The value to set at the specified path.
-
-    Returns:
-        None: This method modifies the spec in-place and returns None.
     """
     parts = path.split('|')
     current = spec
@@ -1215,14 +1215,7 @@ class APISpecTool:
 
 # -----------------------------------------------------------------------------
 def main() -> None:
-  """Run the API spec tool with command line arguments.
-
-  Arguments:
-      None: This function uses command line arguments parsed by argparse.
-
-  Returns:
-      None: This function exits the program after execution.
-  """
+  """Run the API spec tool with command line arguments."""
   parser = create_argument_parser()
   args = parser.parse_args()
 
@@ -1249,9 +1242,6 @@ def main() -> None:
 
 def create_argument_parser() -> argparse.ArgumentParser:
   """Create and configure the argument parser.
-
-  Arguments:
-      None: This function creates a parser with predefined subcommands.
 
   Returns:
       argparse.ArgumentParser: Configured argument parser with all subcommands.
@@ -1330,9 +1320,6 @@ def handle_analyze_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   Arguments:
       tool: APISpecTool instance to use for analysis.
       args: Parsed command line arguments.
-
-  Returns:
-      None: This function prints analysis results to stdout.
   """
   analysis = tool.analyze_api_structure(args.swagger_file)
   tool.print_analysis(analysis)
@@ -1344,9 +1331,6 @@ def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   Arguments:
       tool: APISpecTool instance to use for extraction.
       args: Parsed command line arguments.
-
-  Returns:
-      None: This function extracts and formats API routes.
   """
   routes = tool.extract_routes(args.swagger_file)
 
@@ -1376,9 +1360,6 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   Arguments:
       tool: APISpecTool instance to use for analysis.
       args: Parsed command line arguments.
-
-  Returns:
-      None: This function updates spec-fixes.json with new changes.
   """
   # Load the original and fixed files
   original = tool.load_json_file(args.original_file, "original spec file")
@@ -1489,9 +1470,6 @@ def _add_new_fixes(
       spec_fixes: The spec-fixes dictionary to update.
       new_fixes: List of new fixes to add.
       args: Parsed command line arguments.
-
-  Returns:
-      None: This function modifies the spec_fixes dictionary in-place.
   """
   if "operations" in spec_fixes:
     spec_fixes["operations"].extend(new_fixes)
@@ -1525,9 +1503,6 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   Arguments:
       tool: APISpecTool instance to use for fixing.
       args: Parsed command line arguments.
-
-  Returns:
-      None: This function applies fixes to the OpenAPI specification.
   """
   # Load files
   original_spec = tool.load_json_file(args.original_file, "original spec file")

@@ -144,6 +144,7 @@ class TestAPISpecToolBasic:
     }]
 
     result = self.tool.format_markdown(routes)
+
     assert "# users" in result
     assert "/users (GET)" in result
 
@@ -157,6 +158,7 @@ class TestAPISpecToolBasic:
     }]
 
     result = self.tool.format_text(routes)
+
     assert "users" in result
     assert "/users (GET)" in result
 
@@ -170,6 +172,7 @@ class TestAPISpecToolBasic:
     }]
 
     result = self.tool.format_json(routes)
+
     parsed = json.loads(result)
     assert 'users' in parsed
     assert '/users' in parsed['users']

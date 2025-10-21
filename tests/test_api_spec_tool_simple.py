@@ -66,7 +66,7 @@ class TestAPISpecToolBasic:
 
   def test_init(self: "TestAPISpecToolBasic") -> None:
     """Test APISpecTool initialization."""
-    tool = APISpecTool()     # act
+    tool = APISpecTool()  # act
 
     assert tool is not None
 
@@ -84,7 +84,7 @@ class TestAPISpecToolBasic:
 
   def test_load_json_file_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test JSON file loading when file doesn't exist."""
-    with pytest.raises(SystemExit):    # act
+    with pytest.raises(SystemExit):  # act
       self.tool.load_json_file("nonexistent.json", "test file")
 
   def test_analyze_api_structure(self: "TestAPISpecToolBasic") -> None:  # noqa: AAA01
@@ -144,7 +144,7 @@ class TestAPISpecToolBasic:
       'tags': ['users']
     }]
 
-    result = self.tool.format_markdown(routes)   # act
+    result = self.tool.format_markdown(routes)  # act
 
     assert "# users" in result
     assert "/users (GET)" in result
@@ -184,7 +184,7 @@ class TestAPISpecToolBasic:
     obj1 = {"a": 1, "b": 2}
     obj2 = {"a": 1, "b": 3, "c": 4}
 
-    differences = self.tool.find_differences(obj1, obj2)   # act
+    differences = self.tool.find_differences(obj1, obj2)  # act
 
     # Should find changes and additions
     assert len(differences) > 0
@@ -209,7 +209,7 @@ class TestAPISpecToolBasic:
 
   def test_path_exists(self: "TestAPISpecToolBasic") -> None:
     """Test path existence checking."""
-    spec = {"test": {"nested": {"value": "test"}}}   # act
+    spec = {"test": {"nested": {"value": "test"}}}  # act
 
     assert self.tool.path_exists(spec, "test|nested|value")
     assert not self.tool.path_exists(spec, "test|nonexistent")
@@ -217,7 +217,7 @@ class TestAPISpecToolBasic:
 
   def test_get_value_at_spec_path(self: "TestAPISpecToolBasic") -> None:
     """Test getting values at spec paths."""
-    spec = {"test": {"nested": {"value": "test"}}}   # act
+    spec = {"test": {"nested": {"value": "test"}}}  # act
 
     assert self.tool.get_value_at_spec_path(spec, "test|nested|value") == "test"
     assert self.tool.get_value_at_spec_path(spec, "test|nested") == {"value": "test"}
@@ -226,7 +226,7 @@ class TestAPISpecToolBasic:
     """Test setting values at spec paths."""
     spec: Dict[str, Any] = {"test": {"nested": {}}}
 
-    self.tool.set_value_at_path(spec, "test|nested|new_key", "new_value")      # act
+    self.tool.set_value_at_path(spec, "test|nested|new_key", "new_value")  # act
 
     assert spec["test"]["nested"]["new_key"] == "new_value"
 
@@ -242,7 +242,7 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    changes = self.tool.apply_path_operations(spec, fixes)      # act
+    changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(changes) > 0
     assert "Updated value" in changes[0]
@@ -260,7 +260,7 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    changes = self.tool.apply_path_operations(spec, fixes)      # act
+    changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(changes) > 0
     assert "Added missing" in changes[0]
@@ -277,7 +277,7 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    changes = self.tool.apply_path_operations(spec, fixes)      # act
+    changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(changes) > 0
     assert "Deleted value" in changes[0]
@@ -340,7 +340,7 @@ class TestAPISpecToolBasic:
 
   def test_get_existing_spec_fix_paths_file_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test getting existing spec fix paths when file doesn't exist."""
-    paths = self.tool.get_existing_spec_fix_paths("nonexistent.json")     # act
+    paths = self.tool.get_existing_spec_fix_paths("nonexistent.json")  # act
 
     assert paths == set()
 
@@ -449,7 +449,7 @@ class TestAPISpecToolBasic:
       }
     }
 
-    differences = self.tool.find_differences(original_spec, fixed_spec)   # act
+    differences = self.tool.find_differences(original_spec, fixed_spec)  # act
 
     assert len(differences) > 0
 

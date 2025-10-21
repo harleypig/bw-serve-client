@@ -265,7 +265,7 @@ class TestEndToEndWorkflow:
 
   def test_error_handling_scenarios(self: "TestEndToEndWorkflow") -> None:
     """Test various error handling scenarios."""
-    with pytest.raises(SystemExit):    # act
+    with pytest.raises(SystemExit):  # act
       self.tool.load_json_file("nonexistent.json", "test file")
 
     # Test with invalid JSON
@@ -347,8 +347,8 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    changes = self.tool.apply_path_operations(spec, fixes)      # act
-    assert len(changes) > 0                                     # noqa: AAA04
+    changes = self.tool.apply_path_operations(spec, fixes)  # act
+    assert len(changes) > 0  # noqa: AAA04
     assert spec["test"]["items"][0]["value"] == "new"
     assert spec["test"]["items"][1]["value"] == "keep"
 
@@ -365,8 +365,8 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    changes = self.tool.apply_path_operations(spec, fixes)      # act
-    assert len(changes) > 0                                     # noqa: AAA04
+    changes = self.tool.apply_path_operations(spec, fixes)  # act
+    assert len(changes) > 0  # noqa: AAA04
     assert "new_key" in spec["test"]
     assert "old_key" not in spec["test"]
     assert spec["test"]["new_key"] == "value"

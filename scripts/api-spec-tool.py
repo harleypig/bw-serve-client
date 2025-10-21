@@ -381,7 +381,7 @@ class APISpecTool:
     print("-" * 40)
     for param_type, params in analysis['parameter_patterns'].items():
       print(f"  {param_type.upper()} parameters:")
-      for param in params[:5]:                             # Show first 5 examples
+      for param in params[:5]:  # Show first 5 examples
         print(
           f"    - {param['name']} ({param['type']}) - "
           f"{param['description'][:50]}..."
@@ -516,7 +516,7 @@ class APISpecTool:
         methods_str = ','.join(methods)
         output.append(f"  {path} ({methods_str})")
 
-      output.append("")      # Add blank line between sections
+      output.append("")  # Add blank line between sections
 
     return "\n".join(output)
 
@@ -566,7 +566,7 @@ class APISpecTool:
         methods_str = ','.join(methods)
         output.append(f"  {path} ({methods_str})")
 
-      output.append("")      # Add blank line between sections
+      output.append("")  # Add blank line between sections
 
     return "\n".join(output)
 
@@ -1448,7 +1448,7 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
   """Load existing spec-fixes or create new structure."""
   try:
     with open(args.output_file, 'r') as f:
-      return json.load(f)                                                              # type: ignore[no-any-return]
+      return json.load(f)  # type: ignore[no-any-return]
   except FileNotFoundError:
     return {
       "version":

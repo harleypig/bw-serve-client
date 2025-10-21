@@ -22,7 +22,7 @@ class TestApiClient:
     """Test ApiClient initialization with default values."""
     # Arrange
 
-    client = ApiClient()     # act
+    client = ApiClient()  # act
 
     # Assert
     assert client.base_url == "http://localhost:8087"
@@ -36,7 +36,7 @@ class TestApiClient:
 
     client = ApiClient(
       protocol="http", domain="test", port=8080, timeout=60, logger=logger
-    )                                                                          # act
+    )  # act
 
     # Assert
     assert client.base_url == "http://test:8080"
@@ -47,7 +47,7 @@ class TestApiClient:
     """Test ApiClient initialization with custom user agent."""
     # Arrange
 
-    client = ApiClient(user_agent="MyApp/2.0.0")      # act
+    client = ApiClient(user_agent="MyApp/2.0.0")  # act
 
     # Assert
     assert client.session.headers['User-Agent'] == "MyApp/2.0.0"
@@ -56,7 +56,7 @@ class TestApiClient:
     """Test ApiClient initialization with default user agent."""
     # Arrange
 
-    client = ApiClient()     # act
+    client = ApiClient()  # act
 
     # Assert
     assert client.session.headers['User-Agent'] == "bw-serve-client/0.1.1"
@@ -67,7 +67,7 @@ class TestApiClient:
 
     client = ApiClient(
       protocol="https", domain="api.example.com", port=443, path="/v1"
-    )                                                                     # act
+    )  # act
 
     # Assert
     assert client.base_url == "https://api.example.com:443/v1"
@@ -77,7 +77,7 @@ class TestApiClient:
     """Test ApiClient initialization with individual parameters using defaults."""
     # Arrange
 
-    client = ApiClient(protocol="https", domain="secure.example.com")     # act
+    client = ApiClient(protocol="https", domain="secure.example.com")  # act
 
     # Assert
     assert client.base_url == "https://secure.example.com:8087"
@@ -87,7 +87,7 @@ class TestApiClient:
     """Test ApiClient initialization with custom path only."""
     # Arrange
 
-    client = ApiClient(path="/api/v2")      # act
+    client = ApiClient(path="/api/v2")  # act
 
     # Assert
     assert client.base_url == "http://localhost:8087/api/v2"
@@ -98,7 +98,7 @@ class TestApiClient:
     client = ApiClient()
     data = {"key": "value"}
 
-    result = client._serialize_data(data, "application/json")   # act
+    result = client._serialize_data(data, "application/json")  # act
 
     # Assert
     assert result == data
@@ -109,7 +109,7 @@ class TestApiClient:
     client = ApiClient()
     data = '{"key": "value"}'
 
-    result = client._serialize_data(data, "application/json")   # act
+    result = client._serialize_data(data, "application/json")  # act
 
     # Assert
     assert result == {"key": "value"}
@@ -120,7 +120,7 @@ class TestApiClient:
     client = ApiClient()
     data = {"file": "content"}
 
-    result = client._serialize_data(data, "multipart/form-data")     # act
+    result = client._serialize_data(data, "multipart/form-data")  # act
 
     # Assert
     assert result == data
@@ -155,7 +155,7 @@ class TestApiClient:
     response = Mock()
     response.status_code = 200
 
-    client._handle_error(response)     # act
+    client._handle_error(response)  # act
 
   def test_handle_error_401(self: "TestApiClient") -> None:
     """Test error handling for 401 Unauthorized."""
@@ -164,7 +164,7 @@ class TestApiClient:
     response.status_code = 401
     response.json.return_value = {"message": "Unauthorized"}
 
-    with pytest.raises(AuthenticationError, match="Unauthorized"):   # act
+    with pytest.raises(AuthenticationError, match="Unauthorized"):  # act
       client._handle_error(response)
 
   def test_handle_error_400(self: "TestApiClient") -> None:
@@ -174,7 +174,7 @@ class TestApiClient:
     response.status_code = 400
     response.json.return_value = {"message": "Bad Request"}
 
-    with pytest.raises(ValidationError, match="Bad Request"):   # act
+    with pytest.raises(ValidationError, match="Bad Request"):  # act
       client._handle_error(response)
 
   def test_handle_error_404(self: "TestApiClient") -> None:
@@ -194,7 +194,7 @@ class TestApiClient:
     response.status_code = 500
     response.json.return_value = {"message": "Server Error"}
 
-    with pytest.raises(ServerError, match="Server Error"):      # act
+    with pytest.raises(ServerError, match="Server Error"):  # act
       client._handle_error(response)
 
   @patch('bw_serve_client.api_client.requests.Session')
@@ -214,7 +214,7 @@ class TestApiClient:
     client = ApiClient()
     client.session = mock_session
 
-    result = client.get("/test", params={"key": "value"})     # act
+    result = client.get("/test", params={"key": "value"})  # act
 
     mock_session.request.assert_called_once_with(
       method='GET',
@@ -250,7 +250,7 @@ class TestApiClient:
     client.session = mock_session
     data = {"name": "test"}
 
-    result = client.post("/test", data=data)     # act
+    result = client.post("/test", data=data)  # act
 
     # Data should be serialized by _serialize_data
     mock_session.request.assert_called_once_with(
@@ -306,12 +306,12 @@ class TestApiClient:
     )
     assert result == {"uploaded": True}
 
-  def test_context_manager(self: "TestApiClient") -> None:      # noqa: AAA01
+  def test_context_manager(self: "TestApiClient") -> None:  # noqa: AAA01
     """Test context manager functionality."""
     with patch('bw_serve_client.api_client.requests.Session') as mock_session_class:
       mock_session = Mock()
       mock_session_class.return_value = mock_session
-      with ApiClient() as client:                               # act
+      with ApiClient() as client:  # act
         assert client.session == mock_session
       mock_session.close.assert_called_once()
 
@@ -322,25 +322,25 @@ class TestApiClient:
       mock_session_class.return_value = mock_session
       client = ApiClient()
 
-      client.close()    # act
+      client.close()  # act
 
       mock_session.close.assert_called_once()
 
   def test_serialize_data_invalid_json(self: "TestApiClient") -> None:
     """Test JSON data serialization with invalid JSON string."""
     client = ApiClient()
-    data = '{"invalid": json}'    # Invalid JSON
+    data = '{"invalid": json}'  # Invalid JSON
 
-    result = client._serialize_data(data, "application/json")   # act
+    result = client._serialize_data(data, "application/json")  # act
 
-    assert result == data    # Should return original string
+    assert result == data  # Should return original string
 
   def test_serialize_data_other_content_type(self: "TestApiClient") -> None:
     """Test data serialization with other content type."""
     client = ApiClient()
     data = {"key": "value"}
 
-    result = client._serialize_data(data, "text/plain")    # act
+    result = client._serialize_data(data, "text/plain")  # act
 
     assert result == str(data)
 
@@ -348,7 +348,7 @@ class TestApiClient:
     """Test data serialization with None data."""
     client = ApiClient()
 
-    result = client._serialize_data(None, "application/json")   # act
+    result = client._serialize_data(None, "application/json")  # act
 
     assert result is None
 
@@ -357,7 +357,7 @@ class TestApiClient:
     client = ApiClient()
     data = [1, 2, 3, {"nested": "value"}]
 
-    result = client._serialize_data(data, "application/json")   # act
+    result = client._serialize_data(data, "application/json")  # act
 
     assert result == data
 
@@ -366,7 +366,7 @@ class TestApiClient:
     client = ApiClient()
     data = {"level1": {"level2": {"level3": "deep_value", "array": [1, 2, 3]}}}
 
-    result = client._serialize_data(data, "application/json")   # act
+    result = client._serialize_data(data, "application/json")  # act
 
     assert result == data
 
@@ -374,7 +374,7 @@ class TestApiClient:
     """Test data serialization with empty string."""
     client = ApiClient()
 
-    result = client._serialize_data("", "application/json")     # act
+    result = client._serialize_data("", "application/json")  # act
 
     assert result == ""
 
@@ -391,7 +391,7 @@ class TestApiClient:
     client = ApiClient()
     data = '{"unicode": "测试", "emoji": "🚀"}'
 
-    result = client._serialize_data(data, "application/json")   # act
+    result = client._serialize_data(data, "application/json")  # act
 
     expected = {"unicode": "测试", "emoji": "🚀"}
     assert result == expected
@@ -513,7 +513,7 @@ class TestApiClient:
     response.json.side_effect = json.JSONDecodeError("Invalid JSON", "", 0)
     response.text = "Bad Request"
 
-    with pytest.raises(ValidationError, match="Bad Request"):   # act
+    with pytest.raises(ValidationError, match="Bad Request"):  # act
       client._handle_error(response)
 
   def test_handle_error_no_message_key(self: "TestApiClient") -> None:
@@ -521,7 +521,7 @@ class TestApiClient:
     client = ApiClient()
     response = Mock()
     response.status_code = 400
-    response.json.return_value = {"error": "Bad Request"}     # No 'message' key
+    response.json.return_value = {"error": "Bad Request"}  # No 'message' key
     response.text = "Bad Request"
 
     with pytest.raises(ValidationError, match="API request failed with status 400"):  # act
@@ -536,17 +536,17 @@ class TestApiClient:
     response.json.side_effect = KeyError("message")
     response.text = "Bad Request"
 
-    with pytest.raises(ValidationError, match="Bad Request"):   # act
+    with pytest.raises(ValidationError, match="Bad Request"):  # act
       client._handle_error(response)
 
   def test_handle_error_other_status_code(self: "TestApiClient") -> None:
     """Test error handling for other status codes."""
     client = ApiClient()
     response = Mock()
-    response.status_code = 418    # I'm a teapot
+    response.status_code = 418  # I'm a teapot
     response.json.return_value = {"message": "I'm a teapot"}
 
-    with pytest.raises(BitwardenAPIError, match="I'm a teapot"):     # act
+    with pytest.raises(BitwardenAPIError, match="I'm a teapot"):  # act
       client._handle_error(response)
 
   @patch('bw_serve_client.api_client.requests.Session')
@@ -570,7 +570,7 @@ class TestApiClient:
     client.session = mock_session
     custom_headers = {"Authorization": "Bearer token"}
 
-    client._make_request("GET", "/test", headers=custom_headers)     # act
+    client._make_request("GET", "/test", headers=custom_headers)  # act
 
     # Check that custom headers were merged with session headers
     expected_headers = {
@@ -616,7 +616,7 @@ class TestApiClient:
     client.session = mock_session
     data = {"name": "updated"}
 
-    result = client.put("/test", data=data)      # act
+    result = client.put("/test", data=data)  # act
 
     mock_session.request.assert_called_once_with(
       method='PUT',
@@ -651,7 +651,7 @@ class TestApiClient:
     client = ApiClient()
     client.session = mock_session
 
-    result = client.delete("/test")    # act
+    result = client.delete("/test")  # act
 
     mock_session.request.assert_called_once_with(
       method='DELETE',
@@ -701,7 +701,7 @@ class TestApiClient:
       }
     }
 
-    result = client.post("/users", data=complex_data)      # act
+    result = client.post("/users", data=complex_data)  # act
 
     # Verify the data was passed as JSON (not serialized again)
     mock_session.request.assert_called_once()
@@ -752,7 +752,7 @@ class TestApiClient:
     client = ApiClient()
     client.session = mock_session
 
-    result = client.get("/items")      # act
+    result = client.get("/items")  # act
 
     assert result == complex_response
     assert len(result["data"]) == 2
@@ -778,7 +778,7 @@ class TestApiClient:
     # Test with JSON string data
     json_string = '{"name": "test", "value": 123}'
 
-    result = client.post("/process", data=json_string)     # act
+    result = client.post("/process", data=json_string)  # act
 
     # The string should be parsed by _serialize_data and converted to dict
     mock_session.request.assert_called_once()
@@ -830,7 +830,7 @@ class TestApiClient:
     client.session = mock_session
     data = {"name": "test"}
 
-    client.post("/test", data=data)    # act
+    client.post("/test", data=data)  # act
 
     # Verify _serialize_data was called with correct parameters
     mock_serialize.assert_called_once_with(data, "application/json")
@@ -856,7 +856,7 @@ class TestApiClient:
     client.session = mock_session
     data = {"name": "updated"}
 
-    client.put("/test", data=data)     # act
+    client.put("/test", data=data)  # act
 
     # Verify _serialize_data was called with correct parameters
     mock_serialize.assert_called_once_with(data, "application/json")
@@ -884,7 +884,7 @@ class TestApiClient:
 
     client._make_request(
       "POST", "/test", data=data, headers={"Content-Type": "text/plain"}
-    )                                                                          # act
+    )  # act
 
     # Verify _serialize_data was called with custom content type
     mock_serialize.assert_called_once_with(data, "text/plain")
@@ -893,7 +893,7 @@ class TestApiClient:
     """Test that _make_request raises error for unsupported HTTP methods."""
     client = ApiClient()
 
-    with pytest.raises(BitwardenAPIError) as exc_info:     # act
+    with pytest.raises(BitwardenAPIError) as exc_info:  # act
       client._make_request("PATCH", "/test")
 
     assert "Unsupported HTTP method: PATCH" in str(exc_info.value)
@@ -903,7 +903,7 @@ class TestApiClient:
     """Test that _make_request accepts case-insensitive HTTP methods."""
     with patch('bw_serve_client.api_client.requests.Session') as mock_session_class:
       mock_session = Mock()
-      mock_session.headers = {}   # Add proper headers attribute
+      mock_session.headers = {}  # Add proper headers attribute
       mock_response = Mock()
       mock_response.status_code = 200
       mock_response.headers = {"content-type": "application/json"}
@@ -913,11 +913,11 @@ class TestApiClient:
       client = ApiClient()
       client.session = mock_session
 
-      result = client._make_request("get", "/test")   # act
+      result = client._make_request("get", "/test")  # act
 
       assert result == mock_response
 
       # Verify the method was converted to uppercase
       call_args = mock_session.request.call_args
-      assert call_args[1]["method"] == "GET"     # Method should be uppercase
+      assert call_args[1]["method"] == "GET"  # Method should be uppercase
       assert call_args[1]["url"] == "http://localhost:8087/test"

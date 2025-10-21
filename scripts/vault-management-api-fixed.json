@@ -3182,7 +3182,9 @@
             ],
             "description": "Master password re-prompt requirement (0=none, 1=required)"
           }
-        }
+        },
+        "title": "ItemTemplateSchema",
+        "description": "Template schema for vault items with all possible fields"
       },
       "item.login": {
         "properties": {
@@ -3202,7 +3204,9 @@
             "type": "string",
             "description": "TOTP secret for two-factor authentication"
           }
-        }
+        },
+        "title": "ItemLoginSchema",
+        "description": "Login-specific data schema for vault items"
       },
       "item.secureNote": {
         "properties": {
@@ -3213,7 +3217,9 @@
             ],
             "description": "Secure note type (always 0)"
           }
-        }
+        },
+        "title": "ItemSecurenoteSchema",
+        "description": "Secure note data schema for vault items"
       },
       "item.card": {
         "properties": {
@@ -3238,7 +3244,9 @@
           "code": {
             "type": "string"
           }
-        }
+        },
+        "title": "ItemCardSchema",
+        "description": "Credit card data schema for vault items"
       },
       "item.identity": {
         "properties": {
@@ -3296,7 +3304,9 @@
           "licenseNumber": {
             "type": "string"
           }
-        }
+        },
+        "title": "ItemIdentitySchema",
+        "description": "Identity data schema for vault items"
       },
       "uris": {
         "properties": {
@@ -3316,7 +3326,9 @@
             "type": "string",
             "description": "The URI/URL value"
           }
-        }
+        },
+        "title": "UrisSchema",
+        "description": "URI collection schema for login items"
       },
       "field": {
         "properties": {
@@ -3338,7 +3350,9 @@
             ],
             "description": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)"
           }
-        }
+        },
+        "title": "FieldSchema",
+        "description": "Custom field schema for vault items"
       },
       "folder": {
         "properties": {
@@ -3346,7 +3360,9 @@
             "type": "string",
             "description": "Name of the folder"
           }
-        }
+        },
+        "title": "FolderSchema",
+        "description": "Folder schema for organizing vault items"
       },
       "send.template": {
         "properties": {
@@ -3392,7 +3408,9 @@
           "hideEmail": {
             "type": "boolean"
           }
-        }
+        },
+        "title": "SendTemplateSchema",
+        "description": "Template schema for Bitwarden Send items"
       },
       "send.text": {
         "properties": {
@@ -3404,7 +3422,9 @@
             "type": "boolean",
             "description": "Whether the text is hidden by default"
           }
-        }
+        },
+        "title": "SendTextSchema",
+        "description": "Text content schema for Bitwarden Send items"
       },
       "collection": {
         "properties": {
@@ -3424,7 +3444,9 @@
               "$ref": "#/components/schemas/group"
             }
           }
-        }
+        },
+        "title": "CollectionSchema",
+        "description": "Collection schema for organizing vault items"
       },
       "group": {
         "properties": {
@@ -3438,7 +3460,9 @@
           "hidePasswords": {
             "type": "boolean"
           }
-        }
+        },
+        "title": "GroupSchema",
+        "description": "Group schema for user management"
       },
       "status": {
         "properties": {
@@ -3485,7 +3509,9 @@
               }
             }
           }
-        }
+        },
+        "title": "StatusSchema",
+        "description": "Status response schema for API operations"
       },
       "lockunlock.success": {
         "properties": {
@@ -3509,13 +3535,17 @@
               }
             }
           }
-        }
+        },
+        "title": "LockunlockSuccessSchema",
+        "description": "Success response schema for lock/unlock operations"
       },
       "deviceapprovallist": {
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/deviceapprovalproperties"
-        }
+        },
+        "title": "DeviceapprovallistSchema",
+        "description": "Device approval list schema for organization management"
       },
       "deviceapprovalproperties": {
         "type": "object",
@@ -3541,7 +3571,9 @@
           "creationDate": {
             "type": "string"
           }
-        }
+        },
+        "title": "DeviceapprovalpropertiesSchema",
+        "description": "Device approval properties schema for organization management"
       }
     }
   }

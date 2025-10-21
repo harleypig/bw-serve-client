@@ -72,7 +72,7 @@ class TestAPISpecToolBasic:
 
   def test_load_json_file_success(self: "TestAPISpecToolBasic") -> None:           # noqa: AAA01
     """Test successful JSON file loading."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(self.sample_swagger_data, f)
       temp_file = f.name
 
@@ -89,7 +89,7 @@ class TestAPISpecToolBasic:
 
   def test_analyze_api_structure(self: "TestAPISpecToolBasic") -> None:            # noqa: AAA01
     """Test API structure analysis."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(self.sample_swagger_data, f)
       temp_file = f.name
 
@@ -119,7 +119,7 @@ class TestAPISpecToolBasic:
 
   def test_extract_routes(self: "TestAPISpecToolBasic") -> None:                   # noqa: AAA01
     """Test route extraction."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(self.sample_swagger_data, f)
       temp_file = f.name
 
@@ -284,9 +284,9 @@ class TestAPISpecToolBasic:
     assert "to_delete" not in spec["test"]
     assert "keep" in spec["test"]
 
-  def test_get_existing_spec_fix_paths_v2_format(
+  def test_get_existing_spec_fix_paths_v2_format(  # noqa: AAA01
     self: "TestAPISpecToolBasic"
-  ) -> None:                                          # noqa: AAA01
+  ) -> None:
     """Test getting existing spec fix paths from v2 format."""
     v2_fixes = {
       "version":
@@ -300,7 +300,7 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(v2_fixes, f)
       temp_file = f.name
 
@@ -311,9 +311,9 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_get_existing_spec_fix_paths_old_format(
+  def test_get_existing_spec_fix_paths_old_format(  # noqa: AAA01
     self: "TestAPISpecToolBasic"
-  ) -> None:                                          # noqa: AAA01
+  ) -> None:
     """Test getting existing spec fix paths from old format."""
     old_fixes = {
       "path_operations": {
@@ -327,7 +327,7 @@ class TestAPISpecToolBasic:
       }
     }
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(old_fixes, f)
       temp_file = f.name
 
@@ -348,7 +348,7 @@ class TestAPISpecToolBasic:
     """Test renaming keys at paths."""
     spec = {"test": {"old_key": "value"}}
 
-    success = self.tool.rename_key_at_path(spec, "test", "old_key", "new_key") # act
+    success = self.tool.rename_key_at_path(spec, "test", "old_key", "new_key")  # act
 
     assert success
     assert "new_key" in spec["test"]
@@ -359,7 +359,7 @@ class TestAPISpecToolBasic:
     """Test renaming keys when the key doesn't exist."""
     spec = {"test": {"existing_key": "value"}}
 
-    success = self.tool.rename_key_at_path(spec, "test", "nonexistent", "new_key") # act
+    success = self.tool.rename_key_at_path(spec, "test", "nonexistent", "new_key")  # act
 
     assert not success
     assert "existing_key" in spec["test"]

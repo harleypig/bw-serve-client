@@ -524,7 +524,7 @@ class TestApiClient:
     response.json.return_value = {"error": "Bad Request"}     # No 'message' key
     response.text = "Bad Request"
 
-    with pytest.raises(ValidationError, match="API request failed with status 400"): # act
+    with pytest.raises(ValidationError, match="API request failed with status 400"):  # act
       client._handle_error(response)
 
   def test_handle_error_key_error(self: "TestApiClient") -> None:
@@ -595,7 +595,7 @@ class TestApiClient:
     client = ApiClient()
     client.session = mock_session
 
-    with pytest.raises(BitwardenAPIError, match="Request failed: Connection failed"): # act
+    with pytest.raises(BitwardenAPIError, match="Request failed: Connection failed"):  # act
       client._make_request("GET", "/test")
 
   @patch('bw_serve_client.api_client.requests.Session')

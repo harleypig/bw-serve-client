@@ -149,10 +149,10 @@ class TestEndToEndWorkflow:
       }
     }
 
-  def test_complete_workflow(self: "TestEndToEndWorkflow") -> None:                # noqa: AAA01
+  def test_complete_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test complete workflow from analysis to fix application."""
-                                                                                   # Step 1: Analyze original spec
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    # Step 1: Analyze original spec
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(self.original_spec, f)
       original_file = f.name
     try:
@@ -185,9 +185,9 @@ class TestEndToEndWorkflow:
     # (exact match might not be possible due to DeepDiff limitations)
     assert "/test" in test_spec["paths"]
 
-  def test_spec_fixes_v2_format_workflow(self: "TestEndToEndWorkflow") -> None:    # noqa: AAA01
+  def test_spec_fixes_v2_format_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test workflow with v2 spec-fixes format."""
-                                                                                   # Create v2 spec-fixes file
+    # Create v2 spec-fixes file
     v2_fixes = {
       "version":
         "2.0",
@@ -210,11 +210,11 @@ class TestEndToEndWorkflow:
         "description": "Add content to response"
       }]
     }
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(v2_fixes, f)
       fixes_file = f.name
     try:
-                                                                                   # Test loading existing paths
+      # Test loading existing paths
       existing_paths = self.tool.get_existing_spec_fix_paths(fixes_file)
       assert "paths|/test|get|responses|200|content" in existing_paths
 
@@ -226,11 +226,11 @@ class TestEndToEndWorkflow:
     finally:
       os.unlink(fixes_file)
 
-  def test_spec_fixes_old_format_workflow(
+  def test_spec_fixes_old_format_workflow(  # noqa: AAA01
     self: "TestEndToEndWorkflow"
-  ) -> None:                                                                       # noqa: AAA01
+  ) -> None:
     """Test workflow with old spec-fixes format."""
-                                                                                   # Create old format spec-fixes file
+    # Create old format spec-fixes file
     old_fixes = {
       "path_operations": {
         "fixes": [{
@@ -247,11 +247,11 @@ class TestEndToEndWorkflow:
         }]
       }
     }
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(old_fixes, f)
       fixes_file = f.name
     try:
-                                                                                   # Test loading existing paths
+      # Test loading existing paths
       existing_paths = self.tool.get_existing_spec_fix_paths(fixes_file)
       assert "paths|/test|get|responses|200|content" in existing_paths
 
@@ -290,9 +290,9 @@ class TestEndToEndWorkflow:
 
   def test_edge_cases(self: "TestEndToEndWorkflow") -> None:                       # noqa: AAA01
     """Test edge cases and boundary conditions."""
-                                                                                   # Test with empty spec
+    # Test with empty spec
     empty_spec = {"openapi": "3.0.0", "info": {"title": "Empty", "version": "1.0.0"}}
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f: # act
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(empty_spec, f)
       temp_file = f.name
     try:

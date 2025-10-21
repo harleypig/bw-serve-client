@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
 spec = importlib.util.spec_from_file_location(
   "api_spect_tool",
-  os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py')
+  os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
 )
 if spec is None or spec.loader is None:
   raise ImportError("Could not load api_spect_tool module")
@@ -33,7 +33,7 @@ class TestCommandLineInterface:
     """Test that the help command works."""
     result = subprocess.run([
       sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py'),
+      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       '--help'
     ],
                             capture_output=True,
@@ -49,7 +49,7 @@ class TestCommandLineInterface:
     """Test analyze subcommand help."""
     result = subprocess.run([
       sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py'),
+      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', '--help'
     ],
                             capture_output=True,
@@ -62,7 +62,7 @@ class TestCommandLineInterface:
     """Test extract subcommand help."""
     result = subprocess.run([
       sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py'),
+      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'extract', '--help'
     ],
                             capture_output=True,
@@ -76,7 +76,7 @@ class TestCommandLineInterface:
     """Test update subcommand help."""
     result = subprocess.run([
       sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py'),
+      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'update', '--help'
     ],
                             capture_output=True,
@@ -89,7 +89,7 @@ class TestCommandLineInterface:
     """Test fix subcommand help."""
     result = subprocess.run([
       sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py'), 'fix',
+      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'fix',
       '--help'
     ],
                             capture_output=True,

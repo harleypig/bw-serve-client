@@ -92,12 +92,13 @@ types-requests = ">=2.32.4.20250913,<3.0.0.0"
 types-urllib3 = ">=1.26.0"
 yamllint = ">=1.37.1"
 yapf = ">=0.40.2,<1.0.0"
-flake8-logging-format = "^2024.24.12"
 flake8-isort = "^6.1.2"
 dlint = "^0.16.0"
 flake8-pytest-style = "^2.2.0"
 flake8-assertive = "^2.2.0"
 flake8-aaa = "^0.17.0"
+flake8-docstrings-complete = "^1.4.1"
+pydoclint = "^0.7.3"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -160,7 +161,7 @@ max-line-length = 92
 
 # Enable bugbear rules (B-series)
 # Enable tryceratops rules (TRY-series)
-extend-select = ["B9","TRY"]
+extend-select = ["B9","DOC","TRY"]
 
 extend-ignore = [
   # indentation not multiple of 4 since we use 2-space indentation
@@ -174,7 +175,14 @@ extend-ignore = [
   "TRY300", # Moving returns to else blocks often reduces readability
   "TRY101", # Too many try blocks is often overly restrictive
   "TRY301", # Abstracting raise to inner function often adds unnecessary complexity
+  "DCO010", # Conflicts with DOC301 - __init__ methods should not have docstrings
   "RST203", # Definition list formatting is often overly strict
+  "D213", # Multi-line docstring summary on first line (conflicts with pydocstringformatter)
+  "D203", # Blank line before class docstring (conflicts with pydocstringformatter)
+  "D211", # No blank lines before class docstring (conflicts with D203)
+  "D407", # Missing dashed underline after section (conflicts with Google-style docstrings)
+  "D406", # Section name should end with newline (conflicts with Google-style docstrings)
+  "D413", # Missing blank line after last section (conflicts with pydocstringformatter)
 ]
 
 per-file-ignores = [
@@ -191,7 +199,7 @@ assertive-test-pattern = "tests/**"
 extend-immutable-calls = ["pathlib.Path","Path"]
 
 # docstrings
-docstring-convention = "all"
+docstring-convention = "pep257"
 
 # logging format
 enable-extra-whitelist = true

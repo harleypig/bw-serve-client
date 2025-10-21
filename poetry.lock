@@ -586,6 +586,23 @@ files = [
 flake8 = ">=3.6.0"
 
 [[package]]
+name = "docstring-parser-fork"
+version = "0.0.14"
+description = "Parse Python docstrings in reST, Google and Numpydoc format"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "docstring_parser_fork-0.0.14-py3-none-any.whl", hash = "sha256:4c544f234ef2cc2749a3df32b70c437d77888b1099143a1ad5454452c574b9af"},
+    {file = "docstring_parser_fork-0.0.14.tar.gz", hash = "sha256:a2743a63d8d36c09650594f7b4ab5b2758fee8629dcf794d1b221b23179baa5c"},
+]
+
+[package.extras]
+dev = ["docstring-parser[docs]", "docstring-parser[test]", "pre-commit (>=2.16.0) ; python_version >= \"3.9\""]
+docs = ["pydoctor (>=25.4.0)"]
+test = ["pytest"]
+
+[[package]]
 name = "docutils"
 version = "0.21.2"
 description = "Docutils -- Python Documentation Utilities"
@@ -772,6 +789,21 @@ flake8 = ">=3"
 pydocstyle = ">=2.1"
 
 [[package]]
+name = "flake8-docstrings-complete"
+version = "1.4.1"
+description = "A linter that checks docstrings are complete"
+optional = false
+python-versions = "<4.0.0,>=3.9.0"
+groups = ["dev"]
+files = [
+    {file = "flake8_docstrings_complete-1.4.1-py3-none-any.whl", hash = "sha256:c315534455b2981e9c4ef21904dd35b7c4f4bf65814f726ac01a381786fc4eea"},
+    {file = "flake8_docstrings_complete-1.4.1.tar.gz", hash = "sha256:43bf88e34e3029fc8b38b4e3ccb5966bd07ef63d94cd3943629d1be88cd72553"},
+]
+
+[package.dependencies]
+flake8 = ">=5"
+
+[[package]]
 name = "flake8-isort"
 version = "6.1.2"
 description = "flake8 plugin that integrates isort"
@@ -804,21 +836,6 @@ files = [
 
 [package.dependencies]
 flake8 = ">=3,<3.2 || >3.2"
-
-[[package]]
-name = "flake8-logging-format"
-version = "2024.24.12"
-description = ""
-optional = false
-python-versions = "*"
-groups = ["dev"]
-files = [
-    {file = "flake8_logging_format-2024.24.12-py3-none-any.whl", hash = "sha256:7d93c2107354b10a05b1a0d8ccd3a9bfb793aee108007765114c958a7541d674"},
-]
-
-[package.extras]
-lint = ["flake8"]
-test = ["PyHamcrest", "pytest", "pytest-cov"]
 
 [[package]]
 name = "flake8-picky-parentheses"
@@ -2021,6 +2038,26 @@ files = [
 
 [package.dependencies]
 typing-extensions = ">=4.14.1"
+
+[[package]]
+name = "pydoclint"
+version = "0.7.3"
+description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "pydoclint-0.7.3-py3-none-any.whl", hash = "sha256:a656b0e863565644670ded19a4b506450364e4f1f5e8ff7705d6ba8bb5a82982"},
+    {file = "pydoclint-0.7.3.tar.gz", hash = "sha256:3351d5eeb19f8831d992714f71f5ea1175af649503d39b9da0071445a4002138"},
+]
+
+[package.dependencies]
+click = ">=8.1.0"
+docstring_parser_fork = ">=0.0.12"
+tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
+
+[package.extras]
+flake8 = ["flake8 (>=4)"]
 
 [[package]]
 name = "pydocstringformatter"
@@ -3377,4 +3414,4 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "40a6aeba1d885864ec5398283c0e73fc355246923e2948d03320d2a0510487d9"
+content-hash = "b65fa25b4a3d6436f55bc592a618cc14e6b1702b12518966db3038171b4e648a"

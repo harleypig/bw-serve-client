@@ -322,7 +322,7 @@ class TestApiClient:
     data = '{"invalid": json}'    # Invalid JSON
     result = client._serialize_data(data, "application/json")
 
-    assert result == data         # Should return original string
+    assert result == data    # Should return original string
 
   def test_serialize_data_other_content_type(self: "TestApiClient") -> None:
     """Test data serialization with other content type."""

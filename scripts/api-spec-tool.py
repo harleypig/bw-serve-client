@@ -251,9 +251,7 @@ class APISpecTool:
     analysis['error_codes'] = sorted(error_codes)
     analysis['tags'] = sorted(tags)
     for status_code in response_patterns:
-      analysis['response_patterns'][status_code] = sorted(
-        response_patterns[status_code]
-      )
+      analysis['response_patterns'][status_code] = sorted(response_patterns[status_code])
 
   # ---------------------------------------------------------------------------
   def print_analysis(self, analysis: Dict[str, Any]) -> None:

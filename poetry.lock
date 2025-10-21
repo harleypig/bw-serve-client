@@ -650,6 +650,21 @@ files = [
 flake8 = ">=4"
 
 [[package]]
+name = "flake8-comprehensions"
+version = "3.17.0"
+description = "A flake8 plugin to help you write better list/set/dict comprehensions."
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "flake8_comprehensions-3.17.0-py3-none-any.whl", hash = "sha256:3943a9c6f2593c3bc5cc64106c2f89d63c6ecd49c8343597f8257b8fcfc8b0a2"},
+    {file = "flake8_comprehensions-3.17.0.tar.gz", hash = "sha256:bf4fa102b2bf4d6c9e999e29e4b2724cbadffb70b937600fc782161be4dc0f4a"},
+]
+
+[package.dependencies]
+flake8 = ">=3,<3.2 || >3.2"
+
+[[package]]
 name = "flake8-pyprojecttoml"
 version = "0.0.2"
 description = "Inject pyproject.toml support into flake8."
@@ -3082,4 +3097,4 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "f9246e3bd560c5562669dc2a7374d19dbe2a775ccba7583b086a65b2b60e97ed"
+content-hash = "4ae2f71dec45c4058249fce734531ce7ecdd222d7da34ed02df4b2a941945319"

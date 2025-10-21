@@ -83,6 +83,7 @@ flake8-secure-coding-standard = "^1.4.1"
 flake8-unused-arguments = "^0.0.13"
 flake8-clean-block = "^0.1.2"
 deepdiff = {extras = ["cli"], version = "^8.6.1"}
+flake8-comprehensions = "^3.17.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -149,7 +150,7 @@ extend-ignore = [
   "E501", # line too long in favor of bugbear's B950
 ]
 
-# Enable bugbear rules (B-series) in addition to default rules
+# Enable bugbear rules (B-series)
 extend-select = ["B9"]
 
 per-file-ignores = [

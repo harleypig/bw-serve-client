@@ -33,8 +33,7 @@ class TestCommandLineInterface:
     """Test that the help command works."""
     result = subprocess.run([
       sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-      '--help'
+      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
     ],
                             capture_output=True,
                             text=True)

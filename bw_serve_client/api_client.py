@@ -63,7 +63,12 @@ class ApiClient:
       max_retries: Maximum number of retry attempts
       user_agent: Custom User-Agent string (default: 'bw-serve-client/0.1.0')
       logger: Optional logger instance for logging requests/responses
+
+  Attributes:
+      session: The underlying requests.Session instance for HTTP communication
   """
+
+  session: requests.Session
 
   # ---------------------------------------------------------------------------
   # for use with 'with'

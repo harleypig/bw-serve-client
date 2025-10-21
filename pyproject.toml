@@ -72,6 +72,7 @@ flake8-docstrings = "^1.7.0"
 flake8-docstrings-complete = "^1.4.1"
 flake8-isort = "^6.1.2"
 flake8-logging = "^1.8.0"
+flake8-markdown = "^0.6.0"
 flake8-picky-parentheses = "^0.6.0"
 flake8-pyprojecttoml = ">=0.0.2,<0.0.3"
 flake8-pytest-style = "^2.2.0"
@@ -80,6 +81,7 @@ flake8-return = "^1.2.0"
 flake8-rst-docstrings = "^0.4.0"
 flake8-secure-coding-standard = "^1.4.1"
 flake8-simplify = ">=0.22.0,<0.23.0"
+flake8-typing-imports = "^1.17.0"
 flake8-unused-arguments = "^0.0.13"
 isort = ">=5.12.0,<6.0.0"
 lxml = ">=5.1.0,<6.0.0"
@@ -118,7 +120,7 @@ sphinx-rtd-theme = ">=3.0.0,<4.0.0"
 [tool.mypy]
 # Add to github workflows
 # XXX: Need to spend time figuring out options
-files = ["bw_serve_client", "scripts", "tests"]
+files = ["bw_serve_client", "scripts", "tests", "docs"]
 plugins = ["pydantic.mypy"]
 txt_report = ".openapi/mypy-reports"
 # linecount_report = ".openapi/mypy-reports"

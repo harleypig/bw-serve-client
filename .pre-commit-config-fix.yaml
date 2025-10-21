@@ -113,6 +113,7 @@ repos:
           - flake8-secure-coding-standard
           - flake8-simplify
           - flake8_simplify
+          - flake8_typing_imports
           - flake8-unused-arguments
           - mccabe
           - pycodestyle

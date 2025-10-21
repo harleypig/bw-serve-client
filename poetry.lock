@@ -838,6 +838,21 @@ files = [
 flake8 = ">=3,<3.2 || >3.2"
 
 [[package]]
+name = "flake8-markdown"
+version = "0.6.0"
+description = "Lints Python code blocks in Markdown files using flake8"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "flake8_markdown-0.6.0-py3-none-any.whl", hash = "sha256:4aaca329a5322aeace9e1bfdb3e0bb4c0c05cc611a7f4106a467dcb4e0224454"},
+    {file = "flake8_markdown-0.6.0.tar.gz", hash = "sha256:69d2a3d650ad6e995885c46c96963939eb28bd08f1832714ad09717b58848059"},
+]
+
+[package.dependencies]
+flake8 = ">=5.0.0"
+
+[[package]]
 name = "flake8-picky-parentheses"
 version = "0.6.0"
 description = "flake8 plugin to nitpick about parenthesis, brackets, and braces"
@@ -981,6 +996,21 @@ files = [
 [package.dependencies]
 astor = ">=0.1"
 flake8 = ">=3.7"
+
+[[package]]
+name = "flake8-typing-imports"
+version = "1.17.0"
+description = "flake8 plugin which checks that typing imports are properly guarded"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "flake8_typing_imports-1.17.0-py2.py3-none-any.whl", hash = "sha256:4ec816ce0f4772ffd0b812a0bfd22883f699ad88dc945a67694246ca2ad50e19"},
+    {file = "flake8_typing_imports-1.17.0.tar.gz", hash = "sha256:ac7a328eca24ad5662bab58994cd1440412a5ca768cdf2d0705fbac767243ab2"},
+]
+
+[package.dependencies]
+flake8 = ">=5.0"
 
 [[package]]
 name = "flake8-unused-arguments"
@@ -3414,4 +3444,4 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "b65fa25b4a3d6436f55bc592a618cc14e6b1702b12518966db3038171b4e648a"
+content-hash = "5bb4454c7cced9bd05d73d055273f4e3e6f0ace4cd46b57b717b929e67bf2178"

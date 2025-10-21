@@ -59,7 +59,11 @@ class ApiClient:
   # for use with 'with'
 
   def __enter__(self: "ApiClient") -> "ApiClient":
-    """Context manager entry."""
+    """Context manager entry.
+
+    Returns:
+        ApiClient: The instance itself for context management.
+    """
     return self
 
   def __exit__(self: "ApiClient", _exc_type: Any, _exc_val: Any, _exc_tb: Any) -> None:

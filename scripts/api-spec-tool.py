@@ -58,7 +58,11 @@ class APISpecTool:
   def load_json_file(self: "APISpecTool",
                      file_path: str,
                      description: str = "JSON file") -> Dict[str, Any]:
-    """Load and parse a JSON file with error handling."""
+    """Load and parse a JSON file with error handling.
+
+    Returns:
+        Dict[str, Any]: The parsed JSON data as a dictionary.
+    """
     try:
       with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -80,7 +84,12 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def analyze_api_structure(self: "APISpecTool", swagger_file: str) -> Dict[str, Any]:
-    """Analyze the API structure and extract key information."""
+    """Analyze the API structure and extract key information.
+
+    Returns:
+        Dict[str, Any]: Analysis results containing API information, authentication,
+            server info, response patterns, and validation rules.
+    """
     data = self.load_json_file(swagger_file, "swagger file")
 
     error_codes: Set[str] = set()
@@ -400,7 +409,12 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def extract_routes(self: "APISpecTool", swagger_file: str) -> List[Dict[str, Any]]:
-    """Extract all routes from the swagger data."""
+    """Extract all routes from the swagger data.
+
+    Returns:
+        List[Dict[str, Any]]: List of route dictionaries containing path, method,
+            and operation details.
+    """
     data = self.load_json_file(swagger_file, "swagger file")
     routes: List[Dict[str, Any]] = []
 
@@ -426,7 +440,11 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def format_markdown(self: "APISpecTool", routes: RouteList) -> str:
-    """Format routes as markdown."""
+    """Format routes as markdown.
+
+    Returns:
+        str: Formatted markdown string containing all routes grouped by tags.
+    """
     output = []
 
     # Group routes by tags
@@ -469,7 +487,11 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def format_text(self: "APISpecTool", routes: RouteList) -> str:
-    """Format routes as plain text."""
+    """Format routes as plain text.
+
+    Returns:
+        str: Formatted plain text string containing all routes grouped by tags.
+    """
     output = []
 
     # Group routes by tags
@@ -512,7 +534,11 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def format_json(self: "APISpecTool", routes: RouteList) -> str:
-    """Format routes as JSON."""
+    """Format routes as JSON.
+
+    Returns:
+        str: JSON string containing all routes grouped by tags.
+    """
     # Group routes by tags
     grouped_routes: GroupedRoutes = {}
 
@@ -557,7 +583,12 @@ class APISpecTool:
                        obj1: Any,
                        obj2: Any,
                        path: str = '') -> List[Dict[str, Any]]:
-    """Find all differences between two JSON objects using DeepDiff."""
+    """Find all differences between two JSON objects using DeepDiff.
+
+    Returns:
+        List[Dict[str, Any]]: List of difference dictionaries containing change
+            details and descriptions.
+    """
     differences = []
 
     # Use DeepDiff to find all differences
@@ -678,7 +709,11 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def get_value_at_deepdiff_path(self: "APISpecTool", obj: Any, path: str) -> Any:
-    """Get value at a DeepDiff path in the object."""
+    """Get value at a DeepDiff path in the object.
+
+    Returns:
+        Any: The value at the specified path, or None if the path doesn't exist.
+    """
     # Convert DeepDiff path to actual object navigation
     if path.startswith("root['"):
       # Remove "root['" prefix and "']" suffix, then split by "']['"
@@ -698,7 +733,11 @@ class APISpecTool:
   def convert_deepdiff_path_to_pipes(
     self: "APISpecTool", key_path: str, base_path: str = ''
   ) -> str:
-    """Convert DeepDiff path format to pipe-separated format."""
+    """Convert DeepDiff path format to pipe-separated format.
+
+    Returns:
+        str: Pipe-separated path string (e.g., "key1|key2|3|key3").
+    """
     # DeepDiff uses "root['key1']['key2'][3]['key3']" format, convert to "key1|key2|3|key3"
     if key_path.startswith("root['"):
       # Simple approach: replace common patterns
@@ -725,7 +764,11 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def get_existing_spec_fix_paths(self: "APISpecTool", spec_fixes_file: str) -> Set[str]:
-    """Get all paths already covered in spec-fixes.json."""
+    """Get all paths already covered in spec-fixes.json.
+
+    Returns:
+        Set[str]: Set of existing paths from the spec-fixes file.
+    """
     try:
       with open(spec_fixes_file, 'r') as f:
         spec_fixes = json.load(f)
@@ -760,7 +803,12 @@ class APISpecTool:
     old_value: Any = None,
     description: str | None = None
   ) -> Dict[str, Any]:
-    """Create a fix entry for the new spec-fixes v2 format."""
+    """Create a fix entry for the new spec-fixes v2 format.
+
+    Returns:
+        Dict[str, Any]: Fix entry dictionary with type, path, description,
+            and optional value/old_value fields.
+    """
     # Generate description if not provided
     if description is None:
       if operation_type == 'add_if_missing':
@@ -798,7 +846,11 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def get_value_at_spec_path(self: "APISpecTool", spec: Dict[str, Any], path: str) -> Any:
-    """Get value at a pipe-separated path in the spec."""
+    """Get value at a pipe-separated path in the spec.
+
+    Returns:
+        Any: The value at the specified path, or None if the path doesn't exist.
+    """
     parts = path.split('|')
     current = spec
 
@@ -814,7 +866,11 @@ class APISpecTool:
   def set_value_at_path(
     self: "APISpecTool", spec: Dict[str, Any], path: str, value: Any
   ) -> None:
-    """Set value at a pipe-separated path in the spec."""
+    """Set value at a pipe-separated path in the spec.
+
+    Returns:
+        None: This method modifies the spec in-place and returns None.
+    """
     parts = path.split('|')
     current = spec
 
@@ -830,14 +886,22 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def path_exists(self: "APISpecTool", spec: Dict[str, Any], path: str) -> bool:
-    """Check if a pipe-separated path exists in the spec."""
+    """Check if a pipe-separated path exists in the spec.
+
+    Returns:
+        bool: True if the path exists, False otherwise.
+    """
     return self.get_value_at_spec_path(spec, path) is not None
 
   # ---------------------------------------------------------------------------
   def rename_key_at_path(
     self: "APISpecTool", spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
   ) -> bool:
-    """Rename a key at the specified parent path."""
+    """Rename a key at the specified parent path.
+
+    Returns:
+        bool: True if the key was successfully renamed, False otherwise.
+    """
     parent = self.get_value_at_spec_path(spec, parent_path)
 
     if isinstance(parent, dict) and old_key in parent:
@@ -851,7 +915,11 @@ class APISpecTool:
     self: "APISpecTool", spec: Dict[str, Any], array_path: str,
     match_criteria: Dict[str, Any], modifications: Dict[str, Any]
   ) -> bool:
-    """Modify a specific element in an array by matching criteria."""
+    """Modify a specific element in an array by matching criteria.
+
+    Returns:
+        bool: True if the element was successfully modified, False otherwise.
+    """
     array = self.get_value_at_spec_path(spec, array_path)
 
     if not isinstance(array, list):
@@ -876,7 +944,11 @@ class APISpecTool:
   def apply_path_operations(
     self: "APISpecTool", spec: Dict[str, Any], fixes: Dict[str, Any]
   ) -> List[str]:
-    """Apply path-based operations to the spec."""
+    """Apply path-based operations to the spec.
+
+    Returns:
+        List[str]: List of change messages describing the operations applied.
+    """
     changes_made: List[str] = []
 
     # Handle both old and new format
@@ -896,7 +968,11 @@ class APISpecTool:
 
   def _get_operations_from_fixes(self: "APISpecTool",
                                  fixes: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Extract operations from fixes configuration."""
+    """Extract operations from fixes configuration.
+
+    Returns:
+        List[Dict[str, Any]]: List of operation dictionaries from the fixes config.
+    """
     if "operations" in fixes:
       operations = fixes["operations"]
       if isinstance(operations, list):
@@ -1063,7 +1139,11 @@ def main() -> None:
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
-  """Create and configure the argument parser."""
+  """Create and configure the argument parser.
+
+  Returns:
+      argparse.ArgumentParser: Configured argument parser with all subcommands.
+  """
   parser = argparse.ArgumentParser(
     description="Unified API Specification Tool for Bitwarden Vault Management API",
     formatter_class=argparse.RawDescriptionHelpFormatter,

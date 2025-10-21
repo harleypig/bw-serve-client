@@ -96,7 +96,17 @@ class APISpecTool:
       'validation_rules': {}
     }
 
-    # Extract API info
+    self._extract_api_info(data, analysis)
+    self._extract_authentication_info(data, analysis)
+    self._extract_server_info(data, analysis)
+    self._analyze_paths(data, analysis, error_codes, tags, response_patterns)
+    self._analyze_schemas(data, analysis)
+    self._finalize_analysis(analysis, error_codes, tags, response_patterns)
+
+    return analysis
+
+  def _extract_api_info(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+    """Extract API information from the spec."""
     if 'info' in data:
       analysis['api_info'] = {
         'title': data['info'].get('title', ''),
@@ -105,14 +115,18 @@ class APISpecTool:
         'openapi_version': data.get('openapi', '')
       }
 
-    # Extract authentication info
+  def _extract_authentication_info(
+    self, data: Dict[str, Any], analysis: Dict[str, Any]
+  ) -> None:
+    """Extract authentication information from the spec."""
     if 'security' in data:
       analysis['authentication'] = data['security']
 
     if 'components' in data and 'securitySchemes' in data['components']:
       analysis['authentication']['schemes'] = data['components']['securitySchemes']
 
-    # Extract server info
+  def _extract_server_info(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+    """Extract server information from the spec."""
     if 'servers' in data:
       analysis['server_info'] = data['servers']
     elif 'host' in data:
@@ -122,63 +136,104 @@ class APISpecTool:
         'schemes': data.get('schemes', [])
       }
 
-    # Analyze paths
-    if 'paths' in data:
-      for path, methods in data['paths'].items():
-        for method, details in methods.items():
-          if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
-            # Extract tags
-            if 'tags' in details:
-              tags.update(details['tags'])
+  def _analyze_paths(
+    self, data: Dict[str, Any], analysis: Dict[str, Any], error_codes: Set[str],
+    tags: Set[str], response_patterns: Dict[str, Set[str]]
+  ) -> None:
+    """Analyze API paths and extract patterns."""
+    if 'paths' not in data:
+      return
 
-            # Extract parameters
-            if 'parameters' in details:
-              for param in details['parameters']:
-                param_info = {
-                  'name': param.get('name', ''),
-                  'in': param.get('in', ''),
-                  'required': param.get('required', False),
-                  'type': param.get('schema', {}).get('type', ''),
-                  'format': param.get('schema', {}).get('format', ''),
-                  'description': param.get('description', '')
-                }
-                if param_info['in'] not in analysis['parameter_patterns']:
-                  analysis['parameter_patterns'][param_info['in']] = []
+    for path, methods in data['paths'].items():
+      for method, details in methods.items():
+        if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
+          self._process_endpoint(
+            path, method, details, analysis, error_codes, tags, response_patterns
+          )
 
-                analysis['parameter_patterns'][param_info['in']].append(param_info)
+  def _process_endpoint(
+    self, path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any],
+    error_codes: Set[str], tags: Set[str], response_patterns: Dict[str, Set[str]]
+  ) -> None:
+    """Process a single endpoint and extract its information."""
+    # Extract tags
+    if 'tags' in details:
+      tags.update(details['tags'])
 
-            # Extract request body patterns
-            if 'requestBody' in details:
-              req_body = details['requestBody']
-              content_types = list(req_body.get('content', {}).keys())
-              analysis['request_body_patterns'][f"{method.upper()} {path}"] = {
-                'content_types': content_types,
-                'required': req_body.get('required', False),
-                'description': req_body.get('description', '')
-              }
+    # Extract parameters
+    self._extract_parameters(details, analysis)
 
-            # Extract response patterns
-            if 'responses' in details:
-              for status_code, response in details['responses'].items():
-                error_codes.add(status_code)
+    # Extract request body patterns
+    self._extract_request_body_patterns(path, method, details, analysis)
 
-                if 'content' in response:
-                  content_types = list(response['content'].keys())
-                  if status_code not in response_patterns:
-                    response_patterns[status_code] = set()
+    # Extract response patterns
+    self._extract_response_patterns(
+      path, method, details, analysis, error_codes, response_patterns
+    )
 
-                  response_patterns[status_code].update(content_types)
+  def _extract_parameters(self, details: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+    """Extract parameter information from endpoint details."""
+    if 'parameters' not in details:
+      return
 
-                  # Extract examples
-                  for content_type, content_info in response['content'].items():
-                    if 'example' in content_info:
-                      example_key = f"{method.upper()} {path} {status_code}"
-                      analysis['examples'][example_key] = {
-                        'content_type': content_type,
-                        'example': content_info['example']
-                      }
+    for param in details['parameters']:
+      param_info = {
+        'name': param.get('name', ''),
+        'in': param.get('in', ''),
+        'required': param.get('required', False),
+        'type': param.get('schema', {}).get('type', ''),
+        'format': param.get('schema', {}).get('format', ''),
+        'description': param.get('description', '')
+      }
+      if param_info['in'] not in analysis['parameter_patterns']:
+        analysis['parameter_patterns'][param_info['in']] = []
 
-    # Analyze schemas
+      analysis['parameter_patterns'][param_info['in']].append(param_info)
+
+  def _extract_request_body_patterns(
+    self, path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any]
+  ) -> None:
+    """Extract request body patterns from endpoint details."""
+    if 'requestBody' not in details:
+      return
+
+    req_body = details['requestBody']
+    content_types = list(req_body.get('content', {}).keys())
+    analysis['request_body_patterns'][f"{method.upper()} {path}"] = {
+      'content_types': content_types,
+      'required': req_body.get('required', False),
+      'description': req_body.get('description', '')
+    }
+
+  def _extract_response_patterns(
+    self, path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any],
+    error_codes: Set[str], response_patterns: Dict[str, Set[str]]
+  ) -> None:
+    """Extract response patterns from endpoint details."""
+    if 'responses' not in details:
+      return
+
+    for status_code, response in details['responses'].items():
+      error_codes.add(status_code)
+
+      if 'content' in response:
+        content_types = list(response['content'].keys())
+        if status_code not in response_patterns:
+          response_patterns[status_code] = set()
+
+        response_patterns[status_code].update(content_types)
+
+        # Extract examples
+        for content_type, content_info in response['content'].items():
+          if 'example' in content_info:
+            example_key = f"{method.upper()} {path} {status_code}"
+            analysis['examples'][example_key] = {
+              'content_type': content_type,
+              'example': content_info['example']
+            }
+
+  def _analyze_schemas(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+    """Analyze data schemas from the spec."""
     if 'components' in data and 'schemas' in data['components']:
       for schema_name, schema_def in data['components']['schemas'].items():
         analysis['data_models'][schema_name] = {
@@ -188,7 +243,11 @@ class APISpecTool:
           'description': schema_def.get('description', '')
         }
 
-    # Convert sets to lists for JSON serialization
+  def _finalize_analysis(
+    self, analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
+    response_patterns: Dict[str, Set[str]]
+  ) -> None:
+    """Finalize analysis by converting sets to lists for JSON serialization."""
     analysis['error_codes'] = sorted(list(error_codes))
     analysis['tags'] = sorted(list(tags))
     for status_code in response_patterns:
@@ -196,22 +255,37 @@ class APISpecTool:
         list(response_patterns[status_code])
       )
 
-    return analysis
-
   # ---------------------------------------------------------------------------
   def print_analysis(self, analysis: Dict[str, Any]) -> None:
     """Print the analysis results in a readable format."""
+    self._print_header()
+    self._print_api_info(analysis)
+    self._print_authentication(analysis)
+    self._print_server_config(analysis)
+    self._print_response_patterns(analysis)
+    self._print_error_codes(analysis)
+    self._print_tags(analysis)
+    self._print_parameter_patterns(analysis)
+    self._print_request_body_patterns(analysis)
+    self._print_data_models(analysis)
+    self._print_examples(analysis)
+    self._print_footer()
+
+  def _print_header(self) -> None:
+    """Print the analysis header."""
     print("=" * 80)
     print("BITWARDEN VAULT MANAGEMENT API - LIBRARY DEVELOPMENT ANALYSIS")
     print("=" * 80)
 
-    # API Information
+  def _print_api_info(self, analysis: Dict[str, Any]) -> None:
+    """Print API information section."""
     print("\n📋 API INFORMATION:")
     print("-" * 40)
     for key, value in analysis['api_info'].items():
       print(f"  {key}: {value}")
 
-    # Authentication
+  def _print_authentication(self, analysis: Dict[str, Any]) -> None:
+    """Print authentication section."""
     print("\n🔐 AUTHENTICATION:")
     print("-" * 40)
     if analysis['authentication']:
@@ -221,7 +295,8 @@ class APISpecTool:
       print("  No explicit authentication schemes defined")
       print("  Note: This API likely uses session-based authentication via 'bw serve'")
 
-    # Base URL
+  def _print_server_config(self, analysis: Dict[str, Any]) -> None:
+    """Print server configuration section."""
     print("\n🌐 SERVER CONFIGURATION:")
     print("-" * 40)
     if analysis['server_info']:
@@ -231,25 +306,29 @@ class APISpecTool:
       print("  No explicit server configuration")
       print("  Note: This API runs locally via 'bw serve' command")
 
-    # Response Patterns
+  def _print_response_patterns(self, analysis: Dict[str, Any]) -> None:
+    """Print response patterns section."""
     print("\n📤 RESPONSE PATTERNS:")
     print("-" * 40)
     for status_code, content_types in analysis['response_patterns'].items():
       print(f"  {status_code}: {', '.join(content_types)}")
 
-    # Error Codes
+  def _print_error_codes(self, analysis: Dict[str, Any]) -> None:
+    """Print error codes section."""
     print("\n❌ ERROR CODES:")
     print("-" * 40)
     for code in analysis['error_codes']:
       print(f"  {code}")
 
-    # Tags (API Categories)
+  def _print_tags(self, analysis: Dict[str, Any]) -> None:
+    """Print API categories (tags) section."""
     print("\n🏷️  API CATEGORIES (TAGS):")
     print("-" * 40)
     for tag in analysis['tags']:
       print(f"  - {tag}")
 
-    # Parameter Patterns
+  def _print_parameter_patterns(self, analysis: Dict[str, Any]) -> None:
+    """Print parameter patterns section."""
     print("\n📝 PARAMETER PATTERNS:")
     print("-" * 40)
     for param_type, params in analysis['parameter_patterns'].items():
@@ -263,7 +342,8 @@ class APISpecTool:
       if len(params) > 5:
         print(f"    ... and {len(params) - 5} more")
 
-    # Request Body Patterns
+  def _print_request_body_patterns(self, analysis: Dict[str, Any]) -> None:
+    """Print request body patterns section."""
     print("\n📦 REQUEST BODY PATTERNS:")
     print("-" * 40)
     for endpoint, body_info in list(analysis['request_body_patterns'].items())[:5]:
@@ -271,7 +351,8 @@ class APISpecTool:
       print(f"    Content-Types: {', '.join(body_info['content_types'])}")
       print(f"    Required: {body_info['required']}")
 
-    # Data Models
+  def _print_data_models(self, analysis: Dict[str, Any]) -> None:
+    """Print data models section."""
     print("\n🏗️  DATA MODELS (SCHEMAS):")
     print("-" * 40)
     for model_name, model_info in list(analysis['data_models'].items())[:10]:
@@ -288,7 +369,8 @@ class APISpecTool:
         if prop_count > 3:
           print(f"      ... and {prop_count - 3} more properties")
 
-    # Key Examples
+  def _print_examples(self, analysis: Dict[str, Any]) -> None:
+    """Print key examples section."""
     print("\n💡 KEY EXAMPLES:")
     print("-" * 40)
     for example_key, example_info in list(analysis['examples'].items())[:3]:
@@ -296,6 +378,8 @@ class APISpecTool:
       print(f"    Content-Type: {example_info['content_type']}")
       print(f"    Example: {str(example_info['example'])[:100]}...")
 
+  def _print_footer(self) -> None:
+    """Print the analysis footer."""
     print("\n" + "=" * 80)
     print("ANALYSIS COMPLETE")
     print("=" * 80)
@@ -462,10 +546,22 @@ class APISpecTool:
     # Use DeepDiff to find all differences
     diff = DeepDiff(obj1, obj2, ignore_order=True, exclude_paths=["root['info']"])
 
-    # Process dictionary item additions
+    # Process different types of changes
+    differences.extend(self._process_dictionary_additions(diff, obj2, path))
+    differences.extend(self._process_dictionary_removals(diff, path))
+    differences.extend(self._process_value_changes(diff, path))
+    differences.extend(self._process_type_changes(diff, path))
+    differences.extend(self._process_iterable_additions(diff, path))
+    differences.extend(self._process_iterable_removals(diff, path))
+
+    return differences
+
+  def _process_dictionary_additions(self, diff: Any, obj2: Any,
+                                    path: str) -> List[Dict[str, Any]]:
+    """Process dictionary item additions."""
+    differences = []
     if 'dictionary_item_added' in diff:
       for key_path in diff['dictionary_item_added']:
-        # Get the value at this path from obj2
         value = self.get_value_at_deepdiff_path(obj2, key_path)
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         differences.append({
@@ -475,7 +571,11 @@ class APISpecTool:
           'description': f"Add missing value at {pipe_path}"
         })
 
-    # Process dictionary item removals
+    return differences
+
+  def _process_dictionary_removals(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+    """Process dictionary item removals."""
+    differences = []
     if 'dictionary_item_removed' in diff:
       for key_path in diff['dictionary_item_removed']:
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
@@ -485,7 +585,11 @@ class APISpecTool:
           'description': f"Remove value at {pipe_path}"
         })
 
-    # Process dictionary item changes
+    return differences
+
+  def _process_value_changes(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+    """Process value changes."""
+    differences = []
     if 'values_changed' in diff:
       for key_path, change in diff['values_changed'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
@@ -497,7 +601,11 @@ class APISpecTool:
           'description': f"Update value at {pipe_path}"
         })
 
-    # Process type changes
+    return differences
+
+  def _process_type_changes(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+    """Process type changes."""
+    differences = []
     if 'type_changes' in diff:
       for key_path, change in diff['type_changes'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
@@ -517,7 +625,11 @@ class APISpecTool:
           )
         })
 
-    # Process iterable item additions
+    return differences
+
+  def _process_iterable_additions(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+    """Process iterable item additions."""
+    differences = []
     if 'iterable_item_added' in diff:
       for key_path, items in diff['iterable_item_added'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
@@ -529,7 +641,11 @@ class APISpecTool:
             'description': f"Add item to array at {pipe_path}"
           })
 
-    # Process iterable item removals
+    return differences
+
+  def _process_iterable_removals(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+    """Process iterable item removals."""
+    differences = []
     if 'iterable_item_removed' in diff:
       for key_path, items in diff['iterable_item_removed'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
@@ -741,105 +857,185 @@ class APISpecTool:
     changes_made: List[str] = []
 
     # Handle both old and new format
-    if "operations" in fixes:
-      operations = fixes["operations"]
-    elif "path_operations" in fixes and "fixes" in fixes["path_operations"]:
-      operations = fixes["path_operations"]["fixes"]
-    else:
+    operations = self._get_operations_from_fixes(fixes)
+    if not operations:
       return changes_made
 
     for op in operations:
-      # Handle both old and new format
       operation_type = op.get("type", op.get("operation", "unknown"))
       path = op["path"]
       description = op.get("description", "")
 
-      if operation_type == "rename_key":
-        success = self.rename_key_at_path(spec, path, op["old_key"], op["new_key"])
-
-        if success:
-          changes_made.append(f"Renamed key: {description}")
-        else:
-          changes_made.append(f"Key not found (skipped): {description}")
-
-      elif operation_type == "set_value":
-        if self.path_exists(spec, path):
-          current_value = self.get_value_at_spec_path(spec, path)
-
-          if current_value != op["value"]:
-            self.set_value_at_path(spec, path, op["value"])
-            changes_made.append(f"Updated value: {description}")
-          else:
-            changes_made.append(f"Value unchanged (already correct): {description}")
-        else:
-          self.set_value_at_path(spec, path, op["value"])
-          changes_made.append(f"Added new value: {description}")
-
-      elif operation_type == "add_if_missing":
-        if not self.path_exists(spec, path):
-          self.set_value_at_path(spec, path, op["value"])
-          changes_made.append(f"Added missing: {description}")
-        else:
-          changes_made.append(f"Already exists (skipped): {description}")
-
-      elif operation_type == "delete_value":
-        if self.path_exists(spec, path):
-          # Navigate to parent and remove the key
-          parts = path.split('|')
-          if len(parts) > 1:
-            parent_path = '|'.join(parts[:-1])
-            key_to_remove = parts[-1]
-            parent = self.get_value_at_spec_path(spec, parent_path)
-            if (isinstance(parent, dict) and key_to_remove in parent):
-              del parent[key_to_remove]
-              changes_made.append(f"Deleted value: {description}")
-            else:
-              changes_made.append(
-                f"Key not found for deletion (skipped): "
-                f"{description}"
-              )
-          else:
-            changes_made.append(f"Cannot delete root value (skipped): "
-                                f"{description}")
-        else:
-          changes_made.append(f"Value not found for deletion (skipped): {description}")
-
-      elif operation_type == "modify_array_element":
-        match_criteria = op.get("match_criteria", {})
-        modifications = op.get("modifications", {})
-
-        success = self.modify_array_element(spec, path, match_criteria, modifications)
-
-        if success:
-          changes_made.append(f"Modified array element: {description}")
-        else:
-          changes_made.append(f"Array element not found (skipped): {description}")
-
-      elif operation_type == "add_array_item":
-        array = self.get_value_at_spec_path(spec, path)
-        if isinstance(array, list):
-          array.append(op["value"])
-          changes_made.append(f"Added array item: {description}")
-        else:
-          changes_made.append(f"Path is not an array (skipped): {description}")
-
-      elif operation_type == "remove_array_item":
-        array = self.get_value_at_spec_path(spec, path)
-        if isinstance(array, list) and op["value"] in array:
-          array.remove(op["value"])
-          changes_made.append(f"Removed array item: {description}")
-        else:
-          changes_made.append(f"Array item not found (skipped): {description}")
-
-      else:
-        changes_made.append(f"Unknown operation {operation_type!r}: {description}")
+      change_msg = self._apply_single_operation(spec, operation_type, op, path, description)
+      changes_made.append(change_msg)
 
     return changes_made
+
+  def _get_operations_from_fixes(self, fixes: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Extract operations from fixes configuration."""
+    if "operations" in fixes:
+      operations = fixes["operations"]
+      if isinstance(operations, list):
+        return operations
+      else:
+        return []
+    elif "path_operations" in fixes and "fixes" in fixes["path_operations"]:
+      path_ops = fixes["path_operations"]
+      if isinstance(path_ops, dict) and "fixes" in path_ops:
+        fixes_list = path_ops["fixes"]
+        if isinstance(fixes_list, list):
+          return fixes_list
+        else:
+          return []
+      else:
+        return []
+    else:
+      return []
+
+  def _apply_single_operation(
+    self, spec: Dict[str, Any], operation_type: str, op: Dict[str, Any], path: str,
+    description: str
+  ) -> str:
+    """Apply a single operation and return a status message."""
+    if operation_type == "rename_key":
+      return self._apply_rename_key(spec, op, description)
+    elif operation_type == "set_value":
+      return self._apply_set_value(spec, op, path, description)
+    elif operation_type == "add_if_missing":
+      return self._apply_add_if_missing(spec, op, path, description)
+    elif operation_type == "delete_value":
+      return self._apply_delete_value(spec, path, description)
+    elif operation_type == "modify_array_element":
+      return self._apply_modify_array_element(spec, op, description)
+    elif operation_type == "add_array_item":
+      return self._apply_add_array_item(spec, op, path, description)
+    elif operation_type == "remove_array_item":
+      return self._apply_remove_array_item(spec, op, path, description)
+    else:
+      return f"Unknown operation {operation_type!r}: {description}"
+
+  def _apply_rename_key(
+    self, spec: Dict[str, Any], op: Dict[str, Any], description: str
+  ) -> str:
+    """Apply rename_key operation."""
+    success = self.rename_key_at_path(spec, op["path"], op["old_key"], op["new_key"])
+    if success:
+      return f"Renamed key: {description}"
+    else:
+      return f"Key not found (skipped): {description}"
+
+  def _apply_set_value(
+    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+  ) -> str:
+    """Apply set_value operation."""
+    if self.path_exists(spec, path):
+      current_value = self.get_value_at_spec_path(spec, path)
+      if current_value != op["value"]:
+        self.set_value_at_path(spec, path, op["value"])
+        return f"Updated value: {description}"
+      else:
+        return f"Value unchanged (already correct): {description}"
+    else:
+      self.set_value_at_path(spec, path, op["value"])
+      return f"Added new value: {description}"
+
+  def _apply_add_if_missing(
+    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+  ) -> str:
+    """Apply add_if_missing operation."""
+    if not self.path_exists(spec, path):
+      self.set_value_at_path(spec, path, op["value"])
+      return f"Added missing: {description}"
+    else:
+      return f"Already exists (skipped): {description}"
+
+  def _apply_delete_value(
+    self, spec: Dict[str, Any], path: str, description: str
+  ) -> str:
+    """Apply delete_value operation."""
+    if not self.path_exists(spec, path):
+      return f"Value not found for deletion (skipped): {description}"
+
+    # Navigate to parent and remove the key
+    parts = path.split('|')
+    if len(parts) <= 1:
+      return f"Cannot delete root value (skipped): {description}"
+
+    parent_path = '|'.join(parts[:-1])
+    key_to_remove = parts[-1]
+    parent = self.get_value_at_spec_path(spec, parent_path)
+
+    if isinstance(parent, dict) and key_to_remove in parent:
+      del parent[key_to_remove]
+      return f"Deleted value: {description}"
+    else:
+      return f"Key not found for deletion (skipped): {description}"
+
+  def _apply_modify_array_element(
+    self, spec: Dict[str, Any], op: Dict[str, Any], description: str
+  ) -> str:
+    """Apply modify_array_element operation."""
+    match_criteria = op.get("match_criteria", {})
+    modifications = op.get("modifications", {})
+    success = self.modify_array_element(spec, op["path"], match_criteria, modifications)
+
+    if success:
+      return f"Modified array element: {description}"
+    else:
+      return f"Array element not found (skipped): {description}"
+
+  def _apply_add_array_item(
+    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+  ) -> str:
+    """Apply add_array_item operation."""
+    array = self.get_value_at_spec_path(spec, path)
+    if isinstance(array, list):
+      array.append(op["value"])
+      return f"Added array item: {description}"
+    else:
+      return f"Path is not an array (skipped): {description}"
+
+  def _apply_remove_array_item(
+    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+  ) -> str:
+    """Apply remove_array_item operation."""
+    array = self.get_value_at_spec_path(spec, path)
+    if isinstance(array, list) and op["value"] in array:
+      array.remove(op["value"])
+      return f"Removed array item: {description}"
+    else:
+      return f"Array item not found (skipped): {description}"
 
 
 # -----------------------------------------------------------------------------
 def main() -> None:
   """Main entry point for the API spec tool."""
+  parser = create_argument_parser()
+  args = parser.parse_args()
+
+  if not args.command:
+    parser.print_help()
+    sys.exit(1)
+
+  tool = APISpecTool()
+
+  try:
+    if args.command == 'analyze':
+      handle_analyze_command(tool, args)
+    elif args.command == 'extract':
+      handle_extract_command(tool, args)
+    elif args.command == 'update':
+      handle_update_command(tool, args)
+    elif args.command == 'fix':
+      handle_fix_command(tool, args)
+
+  except Exception as e:
+    print(f"Error: {e}", file=sys.stderr)
+    sys.exit(1)
+
+
+def create_argument_parser() -> argparse.ArgumentParser:
+  """Create and configure the argument parser."""
   parser = argparse.ArgumentParser(
     description="Unified API Specification Tool for Bitwarden Vault Management API",
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -905,176 +1101,193 @@ def main() -> None:
     '--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file'
   )
 
-  args = parser.parse_args()
+  return parser
 
-  if not args.command:
-    parser.print_help()
+
+def handle_analyze_command(tool: APISpecTool, args: argparse.Namespace) -> None:
+  """Handle the analyze command."""
+  analysis = tool.analyze_api_structure(args.swagger_file)
+  tool.print_analysis(analysis)
+
+
+def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
+  """Handle the extract command."""
+  routes = tool.extract_routes(args.swagger_file)
+
+  if args.format == 'markdown':
+    output = tool.format_markdown(routes)
+  elif args.format == 'text':
+    output = tool.format_text(routes)
+  elif args.format == 'json':
+    output = tool.format_json(routes)
+  else:
+    print(f"Error: Unknown format {args.format}", file=sys.stderr)
     sys.exit(1)
 
-  tool = APISpecTool()
+  if args.output:
+    with os.fdopen(os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w',
+                   encoding='utf-8') as f:
+      f.write(output)
 
+    print(f"Routes extracted and saved to: {args.output}")
+  else:
+    print(output)
+
+
+def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
+  """Handle the update command."""
+  # Load the original and fixed files
+  original = tool.load_json_file(args.original_file, "original spec file")
+  fixed = tool.load_json_file(args.fixed_file, "fixed spec file")
+
+  print(f"Loaded original file: {args.original_file}")
+  print(f"Loaded fixed file: {args.fixed_file}")
+
+  # Get existing spec-fix paths
+  existing_paths = tool.get_existing_spec_fix_paths(args.output_file)
+  print(f"Found {len(existing_paths)} existing paths in spec-fixes")
+
+  # Find all differences using DeepDiff
+  print("Analyzing differences...")
+  all_differences = tool.find_differences(original, fixed)
+  print(f"Found {len(all_differences)} total differences")
+
+  # Filter out differences that are already covered
+  new_fixes = _filter_new_fixes(tool, all_differences, existing_paths)
+
+  if not new_fixes:
+    print("No new changes to add to spec-fixes.json")
+    return
+
+  print(f"\nFound {len(new_fixes)} new changes to add:")
+  for fix in new_fixes:
+    print(f"  - {fix['path']}: {fix['description']}")
+
+  if args.dry_run:
+    print("\nDry run complete. No changes made.")
+    return
+
+  # Load existing spec-fixes or create new structure
+  spec_fixes = _load_or_create_spec_fixes(args)
+
+  # Add new fixes
+  _add_new_fixes(spec_fixes, new_fixes, args)
+
+  # Write updated spec-fixes
+  with os.fdopen(os.open(args.output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
+                 'w') as f:
+    json.dump(spec_fixes, f, indent=2)
+
+  print(f"\nSuccessfully updated {args.output_file} with {len(new_fixes)} new fixes")
+
+
+def _filter_new_fixes(
+  tool: APISpecTool, all_differences: List[Dict[str, Any]], existing_paths: Set[str]
+) -> List[Dict[str, Any]]:
+  """Filter out differences that are already covered."""
+  new_fixes = []
+  for diff in all_differences:
+    spec_path = diff['path']
+
+    # Skip if already covered
+    if spec_path in existing_paths:
+      continue
+
+    # Include all types of changes (more comprehensive)
+    operation_type = diff['type']
+    value = diff.get('value')
+    old_value = diff.get('old_value')
+    description = diff.get('description')
+
+    # Skip paths with array indices for now (can be enhanced later)
+    has_array_index = any(part.isdigit() for part in spec_path.split('|'))
+
+    if not has_array_index:
+      new_fixes.append(
+        tool.create_fix_entry(
+          spec_path, value, operation_type, old_value, description or ""
+        )
+      )
+
+  return new_fixes
+
+
+def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
+  """Load existing spec-fixes or create new structure."""
   try:
-    if args.command == 'analyze':
-      analysis = tool.analyze_api_structure(args.swagger_file)
-      tool.print_analysis(analysis)
+    with open(args.output_file, 'r') as f:
+      return json.load(f)  # type: ignore[no-any-return]
+  except FileNotFoundError:
+    return {
+      "version":
+        "2.0",
+      "description":
+        "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
+      "metadata": {
+        "generated_by": "api_spec_tool.py",
+        "generated_at": "2024-01-01T00:00:00Z",
+        "original_spec": args.original_file,
+        "fixed_spec": args.fixed_file
+      },
+      "operations": []
+    }
 
-    elif args.command == 'extract':
-      routes = tool.extract_routes(args.swagger_file)
 
-      if args.format == 'markdown':
-        output = tool.format_markdown(routes)
-      elif args.format == 'text':
-        output = tool.format_text(routes)
-      elif args.format == 'json':
-        output = tool.format_json(routes)
-      else:
-        print(f"Error: Unknown format {args.format}", file=sys.stderr)
-        sys.exit(1)
+def _add_new_fixes(
+  spec_fixes: Dict[str, Any], new_fixes: List[Dict[str, Any]], args: argparse.Namespace
+) -> None:
+  """Add new fixes to the spec-fixes structure."""
+  if "operations" in spec_fixes:
+    spec_fixes["operations"].extend(new_fixes)
+  elif "path_operations" in spec_fixes and "fixes" in spec_fixes["path_operations"]:
+    # Convert old format to new format
+    spec_fixes.update({
+      "version":
+        "2.0",
+      "description":
+        "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
+      "metadata": {
+        "generated_by": "api_spec_tool.py",
+        "generated_at": "2024-01-01T00:00:00Z",
+        "original_spec": args.original_file,
+        "fixed_spec": args.fixed_file
+      },
+      "operations":
+        spec_fixes["path_operations"]["fixes"] + new_fixes
+    })
 
-      if args.output:
-        with os.fdopen(os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
-                       'w', encoding='utf-8') as f:
-          f.write(output)
 
-        print(f"Routes extracted and saved to: {args.output}")
+def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
+  """Handle the fix command."""
+  # Load files
+  original_spec = tool.load_json_file(args.original_file, "original spec file")
+  fixes_config = tool.load_json_file(args.fixes_file, "fixes configuration file")
 
-      else:
-        print(output)
+  print("📖 Loading files...")
+  print(f"   Original spec: {args.original_file}")
+  print(f"   Fixes config: {args.fixes_file}")
 
-    elif args.command == 'update':
-      # Load the original and fixed files
-      original = tool.load_json_file(args.original_file, "original spec file")
-      fixed = tool.load_json_file(args.fixed_file, "fixed spec file")
+  # Apply fixes to a copy of the original spec
+  print("🔧 Applying OpenAPI spec fixes...")
+  fixed_spec_data = original_spec.copy()
+  changes_made = tool.apply_path_operations(fixed_spec_data, fixes_config)
 
-      print(f"Loaded original file: {args.original_file}")
-      print(f"Loaded fixed file: {args.fixed_file}")
+  # Write fixed specification
+  print(f"💾 Writing fixed spec: {args.fixed_file}")
 
-      # Get existing spec-fix paths
-      existing_paths = tool.get_existing_spec_fix_paths(args.output_file)
-      print(f"Found {len(existing_paths)} existing paths in spec-fixes")
+  with os.fdopen(os.open(args.fixed_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
+                 'w') as f:
+    json.dump(fixed_spec_data, f, indent=2)
 
-      # Find all differences using DeepDiff
-      print("Analyzing differences...")
-      all_differences = tool.find_differences(original, fixed)
-      print(f"Found {len(all_differences)} total differences")
+  # Print summary
+  if changes_made:
+    print(f"\n✅ Applied {len(changes_made)} fixes:")
+    for change in changes_made:
+      print(f"   • {change}")
+  else:
+    print("\n⚠️  No fixes were applied")
 
-      # Filter out differences that are already covered
-      new_fixes = []
-      for diff in all_differences:
-        spec_path = diff['path']
-
-        # Skip if already covered
-        if spec_path in existing_paths:
-          continue
-
-        # Include all types of changes (more comprehensive)
-        operation_type = diff['type']
-        value = diff.get('value')
-        old_value = diff.get('old_value')
-        description = diff.get('description')
-
-        # Skip paths with array indices for now (can be enhanced later)
-        has_array_index = any(part.isdigit() for part in spec_path.split('|'))
-
-        if not has_array_index:
-          new_fixes.append(
-            tool.create_fix_entry(
-              spec_path, value, operation_type, old_value, description or ""
-            )
-          )
-
-      if not new_fixes:
-        print("No new changes to add to spec-fixes.json")
-        return
-
-      print(f"\nFound {len(new_fixes)} new changes to add:")
-      for fix in new_fixes:
-        print(f"  - {fix['path']}: {fix['description']}")
-
-      if args.dry_run:
-        print("\nDry run complete. No changes made.")
-        return
-
-      # Load existing spec-fixes or create new structure
-      try:
-        with open(args.output_file, 'r') as f:
-          spec_fixes = json.load(f)
-      except FileNotFoundError:
-        spec_fixes = {
-          "version":
-            "2.0",
-          "description":
-            "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
-          "metadata": {
-            "generated_by": "api_spec_tool.py",
-            "generated_at": "2024-01-01T00:00:00Z",
-            "original_spec": args.original_file,
-            "fixed_spec": args.fixed_file
-          },
-          "operations": []
-        }
-
-      # Add new fixes
-      if "operations" in spec_fixes:
-        spec_fixes["operations"].extend(new_fixes)
-      elif "path_operations" in spec_fixes and "fixes" in spec_fixes["path_operations"]:
-        # Convert old format to new format
-        spec_fixes = {
-          "version":
-            "2.0",
-          "description":
-            "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
-          "metadata": {
-            "generated_by": "api_spec_tool.py",
-            "generated_at": "2024-01-01T00:00:00Z",
-            "original_spec": args.original_file,
-            "fixed_spec": args.fixed_file
-          },
-          "operations":
-            spec_fixes["path_operations"]["fixes"] + new_fixes
-        }
-
-      # Write updated spec-fixes
-      with os.fdopen(os.open(args.output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
-                             0o644), 'w') as f:
-        json.dump(spec_fixes, f, indent=2)
-
-      print(f"\nSuccessfully updated {args.output_file} with {len(new_fixes)} new fixes")
-
-    elif args.command == 'fix':
-      # Load files
-      original_spec = tool.load_json_file(args.original_file, "original spec file")
-      fixes_config = tool.load_json_file(args.fixes_file, "fixes configuration file")
-
-      print("📖 Loading files...")
-      print(f"   Original spec: {args.original_file}")
-      print(f"   Fixes config: {args.fixes_file}")
-
-      # Apply fixes to a copy of the original spec
-      print("🔧 Applying OpenAPI spec fixes...")
-      fixed_spec_data = original_spec.copy()
-      changes_made = tool.apply_path_operations(fixed_spec_data, fixes_config)
-
-      # Write fixed specification
-      print(f"💾 Writing fixed spec: {args.fixed_file}")
-
-      with os.fdopen(os.open(args.fixed_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
-                     'w') as f:
-        json.dump(fixed_spec_data, f, indent=2)
-
-      # Print summary
-      if changes_made:
-        print(f"\n✅ Applied {len(changes_made)} fixes:")
-        for change in changes_made:
-          print(f"   • {change}")
-      else:
-        print("\n⚠️  No fixes were applied")
-
-      print(f"\n🎉 Fixed specification written to: {args.fixed_file}")
-
-  except Exception as e:
-    print(f"Error: {e}", file=sys.stderr)
-    sys.exit(1)
+  print(f"\n🎉 Fixed specification written to: {args.fixed_file}")
 
 
 if __name__ == '__main__':

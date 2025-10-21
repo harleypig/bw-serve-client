@@ -185,6 +185,18 @@ extend-ignore = [
   "D407", # Missing dashed underline after section (conflicts with Google-style docstrings)
   "D406", # Section name should end with newline (conflicts with Google-style docstrings)
   "D413", # Missing blank line after last section (conflicts with pydocstringformatter)
+  # flake8-aaa rules - disabled due to conflict with yapf formatting
+  "AAA01", # no Act block found in test
+  "AAA02", # multiple Act blocks found in test
+  "AAA03", # expected 1 blank line before Act block, found none
+  "AAA04", # expected 1 blank line before Assert block, found none
+  "AAA05", # blank line in block
+  "AAA06", # comment in Act block
+  # Basic formatting rules - disabled due to conflict with yapf formatting
+  "E261", # at least two spaces before inline comment
+  "E116", # unexpected indentation (comment)
+  "E117", # over-indented (comment)
+  "B950", # line too long (over 92 characters) - yapf handles this
 ]
 
 # Per-file ignores

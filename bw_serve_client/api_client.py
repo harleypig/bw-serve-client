@@ -13,6 +13,10 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# Type aliases for complex types
+RequestData = Optional[Union[Dict[str, Any], str]]
+QueryParams = Optional[Dict[str, Any]]
+
 
 class BitwardenAPIError(Exception):
   """Base exception for Bitwarden API errors."""
@@ -54,15 +58,15 @@ class ApiClient:
   # ---------------------------------------------------------------------------
   # for use with 'with'
 
-  def __enter__(self) -> "ApiClient":
+  def __enter__(self: "ApiClient") -> "ApiClient":
     """Context manager entry."""
     return self
 
-  def __exit__(self, _exc_type: Any, _exc_val: Any, _exc_tb: Any) -> None:
+  def __exit__(self: "ApiClient", _exc_type: Any, _exc_val: Any, _exc_tb: Any) -> None:
     """Context manager exit."""
     self.close()
 
-  def close(self) -> None:
+  def close(self: "ApiClient") -> None:
     """Close the session and clean up resources."""
     self.session.close()
 
@@ -70,7 +74,7 @@ class ApiClient:
   # Class methods
 
   def __init__(
-    self,
+    self: "ApiClient",
     protocol: str = "http",
     domain: str = "localhost",
     port: int = 8087,
@@ -79,7 +83,7 @@ class ApiClient:
     max_retries: int = 3,
     user_agent: Optional[str] = None,
     logger: Optional[logging.Logger] = None
-  ):
+  ) -> None:
     """Initialize the API client.
 
     Args:
@@ -120,7 +124,7 @@ class ApiClient:
       'User-Agent': user_agent or f'bw-serve-client/{__version__}'
     })
 
-  def _setup_default_logger(self) -> logging.Logger:
+  def _setup_default_logger(self: "ApiClient") -> logging.Logger:
     """Set up default logger for the API client."""
     logger = logging.getLogger(__name__)
     if not logger.handlers:
@@ -133,11 +137,11 @@ class ApiClient:
     return logger
 
   def _make_request(
-    self,
+    self: "ApiClient",
     method: str,
     endpoint: str,
-    data: Optional[Union[Dict[str, Any], str]] = None,
-    params: Optional[Dict[str, Any]] = None,
+    data: RequestData = None,
+    params: QueryParams = None,
     files: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None
   ) -> requests.Response:
@@ -223,7 +227,9 @@ class ApiClient:
       self.logger.exception("Request failed")
       raise BitwardenAPIError(f"Request failed: {e}") from e
 
-  def _serialize_data(self, data: Any, content_type: str = "application/json") -> Any:
+  def _serialize_data(
+    self: "ApiClient", data: Any, content_type: str = "application/json"
+  ) -> Any:
     """Serialize data for API requests.
 
     Args:
@@ -249,7 +255,7 @@ class ApiClient:
     else:
       return str(data)
 
-  def _deserialize_data(self, response: requests.Response) -> Any:
+  def _deserialize_data(self: "ApiClient", response: requests.Response) -> Any:
     """Deserialize API response data.
 
     Args:
@@ -271,7 +277,7 @@ class ApiClient:
     else:
       return response.text
 
-  def _handle_error(self, response: requests.Response) -> None:
+  def _handle_error(self: "ApiClient", response: requests.Response) -> None:
     """Handle HTTP errors and raise appropriate exceptions.
 
     Args:
@@ -314,13 +320,15 @@ class ApiClient:
   # ---------------------------------------------------------------------------
   # Public methods
 
-  def _make_request_and_deserialize(self, method: str, endpoint: str, **kwargs: Any) -> Any:
-    """Make a request and deserialize the response.
+  def _make_request_and_deserialize(
+    self: "ApiClient", method: str, endpoint: str, **kwargs: Any
+  ) -> Any:
+    r"""Make a request and deserialize the response.
 
     Args:
         method: HTTP method
         endpoint: API endpoint
-        **kwargs: Additional arguments for _make_request
+        \\**kwargs: Additional arguments for _make_request
 
     Returns:
         Deserialized response data
@@ -328,7 +336,7 @@ class ApiClient:
     response = self._make_request(method, endpoint, **kwargs)
     return self._deserialize_data(response)
 
-  def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
+  def get(self: "ApiClient", endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
     """Make a GET request.
 
     Args:
@@ -341,9 +349,9 @@ class ApiClient:
     return self._make_request_and_deserialize('GET', endpoint, params=params)
 
   def post(
-    self,
+    self: "ApiClient",
     endpoint: str,
-    data: Optional[Union[Dict[str, Any], str]] = None,
+    data: RequestData = None,
     files: Optional[Dict[str, Any]] = None
   ) -> Any:
     """Make a POST request.
@@ -358,7 +366,7 @@ class ApiClient:
     """
     return self._make_request_and_deserialize('POST', endpoint, data=data, files=files)
 
-  def put(self, endpoint: str, data: Optional[Union[Dict[str, Any], str]] = None) -> Any:
+  def put(self: "ApiClient", endpoint: str, data: RequestData = None) -> Any:
     """Make a PUT request.
 
     Args:
@@ -370,7 +378,7 @@ class ApiClient:
     """
     return self._make_request_and_deserialize('PUT', endpoint, data=data)
 
-  def delete(self, endpoint: str) -> Any:
+  def delete(self: "ApiClient", endpoint: str) -> Any:
     """Make a DELETE request.
 
     Args:

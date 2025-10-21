@@ -21,7 +21,7 @@ Examples:
 
     # Extract routes in markdown format
     python scripts/api_spec_tool.py extract --format markdown \\
-        scripts/vault-management-api-original.json
+    scripts/vault-management-api-original.json
 
     # Update spec-fixes with new changes (dry run)
     python scripts/api_spec_tool.py update --dry-run
@@ -39,17 +39,23 @@ from typing import Any, Dict, List, Set
 
 from deepdiff import DeepDiff
 
+# Type aliases for complex types
+RouteInfo = Dict[str, Any]
+RouteList = List[RouteInfo]
+GroupedRoutes = Dict[str, RouteList]
+OutputData = Dict[str, Dict[str, List[str]]]
+
 
 class APISpecTool:
   """Unified tool for working with API specifications."""
 
   # ---------------------------------------------------------------------------
-  def __init__(self) -> None:
+  def __init__(self: "APISpecTool") -> None:
     """Initialize the API spec tool."""
     self.script_dir = Path(__file__).parent
 
   # ---------------------------------------------------------------------------
-  def load_json_file(self,
+  def load_json_file(self: "APISpecTool",
                      file_path: str,
                      description: str = "JSON file") -> Dict[str, Any]:
     """Load and parse a JSON file with error handling."""
@@ -73,7 +79,7 @@ class APISpecTool:
       sys.exit(1)
 
   # ---------------------------------------------------------------------------
-  def analyze_api_structure(self, swagger_file: str) -> Dict[str, Any]:
+  def analyze_api_structure(self: "APISpecTool", swagger_file: str) -> Dict[str, Any]:
     """Analyze the API structure and extract key information."""
     data = self.load_json_file(swagger_file, "swagger file")
 
@@ -105,7 +111,9 @@ class APISpecTool:
 
     return analysis
 
-  def _extract_api_info(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+  def _extract_api_info(
+    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
+  ) -> None:
     """Extract API information from the spec."""
     if 'info' in data:
       analysis['api_info'] = {
@@ -116,7 +124,7 @@ class APISpecTool:
       }
 
   def _extract_authentication_info(
-    self, data: Dict[str, Any], analysis: Dict[str, Any]
+    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
   ) -> None:
     """Extract authentication information from the spec."""
     if 'security' in data:
@@ -125,7 +133,9 @@ class APISpecTool:
     if 'components' in data and 'securitySchemes' in data['components']:
       analysis['authentication']['schemes'] = data['components']['securitySchemes']
 
-  def _extract_server_info(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+  def _extract_server_info(
+    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
+  ) -> None:
     """Extract server information from the spec."""
     if 'servers' in data:
       analysis['server_info'] = data['servers']
@@ -137,8 +147,8 @@ class APISpecTool:
       }
 
   def _analyze_paths(
-    self, data: Dict[str, Any], analysis: Dict[str, Any], error_codes: Set[str],
-    tags: Set[str], response_patterns: Dict[str, Set[str]]
+    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any],
+    error_codes: Set[str], tags: Set[str], response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Analyze API paths and extract patterns."""
     if 'paths' not in data:
@@ -152,8 +162,9 @@ class APISpecTool:
           )
 
   def _process_endpoint(
-    self, path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any],
-    error_codes: Set[str], tags: Set[str], response_patterns: Dict[str, Set[str]]
+    self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
+    analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
+    response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Process a single endpoint and extract its information."""
     # Extract tags
@@ -171,7 +182,9 @@ class APISpecTool:
       path, method, details, analysis, error_codes, response_patterns
     )
 
-  def _extract_parameters(self, details: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+  def _extract_parameters(
+    self: "APISpecTool", details: Dict[str, Any], analysis: Dict[str, Any]
+  ) -> None:
     """Extract parameter information from endpoint details."""
     if 'parameters' not in details:
       return
@@ -191,7 +204,8 @@ class APISpecTool:
       analysis['parameter_patterns'][param_info['in']].append(param_info)
 
   def _extract_request_body_patterns(
-    self, path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any]
+    self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
+    analysis: Dict[str, Any]
   ) -> None:
     """Extract request body patterns from endpoint details."""
     if 'requestBody' not in details:
@@ -206,8 +220,8 @@ class APISpecTool:
     }
 
   def _extract_response_patterns(
-    self, path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any],
-    error_codes: Set[str], response_patterns: Dict[str, Set[str]]
+    self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
+    analysis: Dict[str, Any], error_codes: Set[str], response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Extract response patterns from endpoint details."""
     if 'responses' not in details:
@@ -232,7 +246,9 @@ class APISpecTool:
               'example': content_info['example']
             }
 
-  def _analyze_schemas(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
+  def _analyze_schemas(
+    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
+  ) -> None:
     """Analyze data schemas from the spec."""
     if 'components' in data and 'schemas' in data['components']:
       for schema_name, schema_def in data['components']['schemas'].items():
@@ -244,7 +260,7 @@ class APISpecTool:
         }
 
   def _finalize_analysis(
-    self, analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
+    self: "APISpecTool", analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
     response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Finalize analysis by converting sets to lists for JSON serialization."""
@@ -254,7 +270,7 @@ class APISpecTool:
       analysis['response_patterns'][status_code] = sorted(response_patterns[status_code])
 
   # ---------------------------------------------------------------------------
-  def print_analysis(self, analysis: Dict[str, Any]) -> None:
+  def print_analysis(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print the analysis results in a readable format."""
     self._print_header()
     self._print_api_info(analysis)
@@ -269,20 +285,20 @@ class APISpecTool:
     self._print_examples(analysis)
     self._print_footer()
 
-  def _print_header(self) -> None:
+  def _print_header(self: "APISpecTool") -> None:
     """Print the analysis header."""
     print("=" * 80)
     print("BITWARDEN VAULT MANAGEMENT API - LIBRARY DEVELOPMENT ANALYSIS")
     print("=" * 80)
 
-  def _print_api_info(self, analysis: Dict[str, Any]) -> None:
+  def _print_api_info(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print API information section."""
     print("\n📋 API INFORMATION:")
     print("-" * 40)
     for key, value in analysis['api_info'].items():
       print(f"  {key}: {value}")
 
-  def _print_authentication(self, analysis: Dict[str, Any]) -> None:
+  def _print_authentication(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print authentication section."""
     print("\n🔐 AUTHENTICATION:")
     print("-" * 40)
@@ -293,7 +309,7 @@ class APISpecTool:
       print("  No explicit authentication schemes defined")
       print("  Note: This API likely uses session-based authentication via 'bw serve'")
 
-  def _print_server_config(self, analysis: Dict[str, Any]) -> None:
+  def _print_server_config(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print server configuration section."""
     print("\n🌐 SERVER CONFIGURATION:")
     print("-" * 40)
@@ -304,28 +320,28 @@ class APISpecTool:
       print("  No explicit server configuration")
       print("  Note: This API runs locally via 'bw serve' command")
 
-  def _print_response_patterns(self, analysis: Dict[str, Any]) -> None:
+  def _print_response_patterns(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print response patterns section."""
     print("\n📤 RESPONSE PATTERNS:")
     print("-" * 40)
     for status_code, content_types in analysis['response_patterns'].items():
       print(f"  {status_code}: {', '.join(content_types)}")
 
-  def _print_error_codes(self, analysis: Dict[str, Any]) -> None:
+  def _print_error_codes(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print error codes section."""
     print("\n❌ ERROR CODES:")
     print("-" * 40)
     for code in analysis['error_codes']:
       print(f"  {code}")
 
-  def _print_tags(self, analysis: Dict[str, Any]) -> None:
+  def _print_tags(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print API categories (tags) section."""
     print("\n🏷️  API CATEGORIES (TAGS):")
     print("-" * 40)
     for tag in analysis['tags']:
       print(f"  - {tag}")
 
-  def _print_parameter_patterns(self, analysis: Dict[str, Any]) -> None:
+  def _print_parameter_patterns(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print parameter patterns section."""
     print("\n📝 PARAMETER PATTERNS:")
     print("-" * 40)
@@ -340,7 +356,7 @@ class APISpecTool:
       if len(params) > 5:
         print(f"    ... and {len(params) - 5} more")
 
-  def _print_request_body_patterns(self, analysis: Dict[str, Any]) -> None:
+  def _print_request_body_patterns(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print request body patterns section."""
     print("\n📦 REQUEST BODY PATTERNS:")
     print("-" * 40)
@@ -349,7 +365,7 @@ class APISpecTool:
       print(f"    Content-Types: {', '.join(body_info['content_types'])}")
       print(f"    Required: {body_info['required']}")
 
-  def _print_data_models(self, analysis: Dict[str, Any]) -> None:
+  def _print_data_models(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print data models section."""
     print("\n🏗️  DATA MODELS (SCHEMAS):")
     print("-" * 40)
@@ -367,7 +383,7 @@ class APISpecTool:
         if prop_count > 3:
           print(f"      ... and {prop_count - 3} more properties")
 
-  def _print_examples(self, analysis: Dict[str, Any]) -> None:
+  def _print_examples(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print key examples section."""
     print("\n💡 KEY EXAMPLES:")
     print("-" * 40)
@@ -376,14 +392,14 @@ class APISpecTool:
       print(f"    Content-Type: {example_info['content_type']}")
       print(f"    Example: {str(example_info['example'])[:100]}...")
 
-  def _print_footer(self) -> None:
+  def _print_footer(self: "APISpecTool") -> None:
     """Print the analysis footer."""
     print("\n" + "=" * 80)
     print("ANALYSIS COMPLETE")
     print("=" * 80)
 
   # ---------------------------------------------------------------------------
-  def extract_routes(self, swagger_file: str) -> List[Dict[str, Any]]:
+  def extract_routes(self: "APISpecTool", swagger_file: str) -> List[Dict[str, Any]]:
     """Extract all routes from the swagger data."""
     data = self.load_json_file(swagger_file, "swagger file")
     routes: List[Dict[str, Any]] = []
@@ -409,12 +425,12 @@ class APISpecTool:
     return routes
 
   # ---------------------------------------------------------------------------
-  def format_markdown(self, routes: List[Dict[str, Any]]) -> str:
+  def format_markdown(self: "APISpecTool", routes: RouteList) -> str:
     """Format routes as markdown."""
     output = []
 
     # Group routes by tags
-    grouped_routes: Dict[str, List[Dict[str, Any]]] = {}
+    grouped_routes: GroupedRoutes = {}
 
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
@@ -452,12 +468,12 @@ class APISpecTool:
     return "\n".join(output)
 
   # ---------------------------------------------------------------------------
-  def format_text(self, routes: List[Dict[str, Any]]) -> str:
+  def format_text(self: "APISpecTool", routes: RouteList) -> str:
     """Format routes as plain text."""
     output = []
 
     # Group routes by tags
-    grouped_routes: Dict[str, List[Dict[str, Any]]] = {}
+    grouped_routes: GroupedRoutes = {}
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
 
@@ -495,10 +511,10 @@ class APISpecTool:
     return "\n".join(output)
 
   # ---------------------------------------------------------------------------
-  def format_json(self, routes: List[Dict[str, Any]]) -> str:
+  def format_json(self: "APISpecTool", routes: RouteList) -> str:
     """Format routes as JSON."""
     # Group routes by tags
-    grouped_routes: Dict[str, List[Dict[str, Any]]] = {}
+    grouped_routes: GroupedRoutes = {}
 
     for route in routes:
       tags = route['tags'] if route['tags'] else ['Misc']
@@ -510,7 +526,7 @@ class APISpecTool:
         grouped_routes[tag].append(route)
 
     # Create simplified output structure
-    output_data: Dict[str, Dict[str, List[str]]] = {}
+    output_data: OutputData = {}
 
     for tag in sorted(grouped_routes.keys()):
       # Group routes by path within each tag
@@ -537,7 +553,10 @@ class APISpecTool:
     return json.dumps(output_data, indent=2, ensure_ascii=False)
 
   # ---------------------------------------------------------------------------
-  def find_differences(self, obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any]]:
+  def find_differences(self: "APISpecTool",
+                       obj1: Any,
+                       obj2: Any,
+                       path: str = '') -> List[Dict[str, Any]]:
     """Find all differences between two JSON objects using DeepDiff."""
     differences = []
 
@@ -554,7 +573,7 @@ class APISpecTool:
 
     return differences
 
-  def _process_dictionary_additions(self, diff: Any, obj2: Any,
+  def _process_dictionary_additions(self: "APISpecTool", diff: Any, obj2: Any,
                                     path: str) -> List[Dict[str, Any]]:
     """Process dictionary item additions."""
     differences = []
@@ -571,7 +590,8 @@ class APISpecTool:
 
     return differences
 
-  def _process_dictionary_removals(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+  def _process_dictionary_removals(self: "APISpecTool", diff: Any,
+                                   path: str) -> List[Dict[str, Any]]:
     """Process dictionary item removals."""
     differences = []
     if 'dictionary_item_removed' in diff:
@@ -585,7 +605,8 @@ class APISpecTool:
 
     return differences
 
-  def _process_value_changes(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+  def _process_value_changes(self: "APISpecTool", diff: Any,
+                             path: str) -> List[Dict[str, Any]]:
     """Process value changes."""
     differences = []
     if 'values_changed' in diff:
@@ -601,7 +622,8 @@ class APISpecTool:
 
     return differences
 
-  def _process_type_changes(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+  def _process_type_changes(self: "APISpecTool", diff: Any,
+                            path: str) -> List[Dict[str, Any]]:
     """Process type changes."""
     differences = []
     if 'type_changes' in diff:
@@ -620,7 +642,8 @@ class APISpecTool:
 
     return differences
 
-  def _process_iterable_additions(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+  def _process_iterable_additions(self: "APISpecTool", diff: Any,
+                                  path: str) -> List[Dict[str, Any]]:
     """Process iterable item additions."""
     differences = []
     if 'iterable_item_added' in diff:
@@ -636,7 +659,8 @@ class APISpecTool:
 
     return differences
 
-  def _process_iterable_removals(self, diff: Any, path: str) -> List[Dict[str, Any]]:
+  def _process_iterable_removals(self: "APISpecTool", diff: Any,
+                                 path: str) -> List[Dict[str, Any]]:
     """Process iterable item removals."""
     differences = []
     if 'iterable_item_removed' in diff:
@@ -653,7 +677,7 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def get_value_at_deepdiff_path(self, obj: Any, path: str) -> Any:
+  def get_value_at_deepdiff_path(self: "APISpecTool", obj: Any, path: str) -> Any:
     """Get value at a DeepDiff path in the object."""
     # Convert DeepDiff path to actual object navigation
     if path.startswith("root['"):
@@ -671,7 +695,9 @@ class APISpecTool:
     return None
 
   # ---------------------------------------------------------------------------
-  def convert_deepdiff_path_to_pipes(self, key_path: str, base_path: str = '') -> str:
+  def convert_deepdiff_path_to_pipes(
+    self: "APISpecTool", key_path: str, base_path: str = ''
+  ) -> str:
     """Convert DeepDiff path format to pipe-separated format."""
     # DeepDiff uses "root['key1']['key2'][3]['key3']" format, convert to "key1|key2|3|key3"
     if key_path.startswith("root['"):
@@ -698,7 +724,7 @@ class APISpecTool:
     return pipe_path
 
   # ---------------------------------------------------------------------------
-  def get_existing_spec_fix_paths(self, spec_fixes_file: str) -> Set[str]:
+  def get_existing_spec_fix_paths(self: "APISpecTool", spec_fixes_file: str) -> Set[str]:
     """Get all paths already covered in spec-fixes.json."""
     try:
       with open(spec_fixes_file, 'r') as f:
@@ -727,7 +753,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def create_fix_entry(
-    self,
+    self: "APISpecTool",
     path: str,
     value: Any,
     operation_type: str = 'set_value',
@@ -771,7 +797,7 @@ class APISpecTool:
     return entry
 
   # ---------------------------------------------------------------------------
-  def get_value_at_spec_path(self, spec: Dict[str, Any], path: str) -> Any:
+  def get_value_at_spec_path(self: "APISpecTool", spec: Dict[str, Any], path: str) -> Any:
     """Get value at a pipe-separated path in the spec."""
     parts = path.split('|')
     current = spec
@@ -785,7 +811,9 @@ class APISpecTool:
     return current
 
   # ---------------------------------------------------------------------------
-  def set_value_at_path(self, spec: Dict[str, Any], path: str, value: Any) -> None:
+  def set_value_at_path(
+    self: "APISpecTool", spec: Dict[str, Any], path: str, value: Any
+  ) -> None:
     """Set value at a pipe-separated path in the spec."""
     parts = path.split('|')
     current = spec
@@ -801,13 +829,13 @@ class APISpecTool:
     current[parts[-1]] = value
 
   # ---------------------------------------------------------------------------
-  def path_exists(self, spec: Dict[str, Any], path: str) -> bool:
+  def path_exists(self: "APISpecTool", spec: Dict[str, Any], path: str) -> bool:
     """Check if a pipe-separated path exists in the spec."""
     return self.get_value_at_spec_path(spec, path) is not None
 
   # ---------------------------------------------------------------------------
   def rename_key_at_path(
-    self, spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
+    self: "APISpecTool", spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
   ) -> bool:
     """Rename a key at the specified parent path."""
     parent = self.get_value_at_spec_path(spec, parent_path)
@@ -820,8 +848,8 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def modify_array_element(
-    self, spec: Dict[str, Any], array_path: str, match_criteria: Dict[str, Any],
-    modifications: Dict[str, Any]
+    self: "APISpecTool", spec: Dict[str, Any], array_path: str,
+    match_criteria: Dict[str, Any], modifications: Dict[str, Any]
   ) -> bool:
     """Modify a specific element in an array by matching criteria."""
     array = self.get_value_at_spec_path(spec, array_path)
@@ -845,7 +873,9 @@ class APISpecTool:
     return False
 
   # -------------------------------------------------------------------------
-  def apply_path_operations(self, spec: Dict[str, Any], fixes: Dict[str, Any]) -> List[str]:
+  def apply_path_operations(
+    self: "APISpecTool", spec: Dict[str, Any], fixes: Dict[str, Any]
+  ) -> List[str]:
     """Apply path-based operations to the spec."""
     changes_made: List[str] = []
 
@@ -864,7 +894,8 @@ class APISpecTool:
 
     return changes_made
 
-  def _get_operations_from_fixes(self, fixes: Dict[str, Any]) -> List[Dict[str, Any]]:
+  def _get_operations_from_fixes(self: "APISpecTool",
+                                 fixes: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Extract operations from fixes configuration."""
     if "operations" in fixes:
       operations = fixes["operations"]
@@ -886,8 +917,8 @@ class APISpecTool:
       return []
 
   def _apply_single_operation(
-    self, spec: Dict[str, Any], operation_type: str, op: Dict[str, Any], path: str,
-    description: str
+    self: "APISpecTool", spec: Dict[str, Any], operation_type: str, op: Dict[str, Any],
+    path: str, description: str
   ) -> str:
     """Apply a single operation and return a status message."""
     if operation_type == "rename_key":
@@ -908,7 +939,7 @@ class APISpecTool:
       return f"Unknown operation {operation_type!r}: {description}"
 
   def _apply_rename_key(
-    self, spec: Dict[str, Any], op: Dict[str, Any], description: str
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str
   ) -> str:
     """Apply rename_key operation."""
     success = self.rename_key_at_path(spec, op["path"], op["old_key"], op["new_key"])
@@ -918,7 +949,8 @@ class APISpecTool:
       return f"Key not found (skipped): {description}"
 
   def _apply_set_value(
-    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
+    description: str
   ) -> str:
     """Apply set_value operation."""
     if self.path_exists(spec, path):
@@ -933,7 +965,8 @@ class APISpecTool:
       return f"Added new value: {description}"
 
   def _apply_add_if_missing(
-    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
+    description: str
   ) -> str:
     """Apply add_if_missing operation."""
     if not self.path_exists(spec, path):
@@ -942,7 +975,9 @@ class APISpecTool:
     else:
       return f"Already exists (skipped): {description}"
 
-  def _apply_delete_value(self, spec: Dict[str, Any], path: str, description: str) -> str:
+  def _apply_delete_value(
+    self: "APISpecTool", spec: Dict[str, Any], path: str, description: str
+  ) -> str:
     """Apply delete_value operation."""
     if not self.path_exists(spec, path):
       return f"Value not found for deletion (skipped): {description}"
@@ -963,7 +998,7 @@ class APISpecTool:
       return f"Key not found for deletion (skipped): {description}"
 
   def _apply_modify_array_element(
-    self, spec: Dict[str, Any], op: Dict[str, Any], description: str
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str
   ) -> str:
     """Apply modify_array_element operation."""
     match_criteria = op.get("match_criteria", {})
@@ -976,7 +1011,8 @@ class APISpecTool:
       return f"Array element not found (skipped): {description}"
 
   def _apply_add_array_item(
-    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
+    description: str
   ) -> str:
     """Apply add_array_item operation."""
     array = self.get_value_at_spec_path(spec, path)
@@ -987,7 +1023,8 @@ class APISpecTool:
       return f"Path is not an array (skipped): {description}"
 
   def _apply_remove_array_item(
-    self, spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
+    description: str
   ) -> str:
     """Apply remove_array_item operation."""
     array = self.get_value_at_spec_path(spec, path)
@@ -1000,7 +1037,7 @@ class APISpecTool:
 
 # -----------------------------------------------------------------------------
 def main() -> None:
-  """Main entry point for the API spec tool."""
+  """Run the API spec tool with command line arguments."""
   parser = create_argument_parser()
   args = parser.parse_args()
 

@@ -5,7 +5,10 @@ import json
 import os
 import sys
 import tempfile
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+  from scripts.api_spec_tool import APISpecTool
 
 import pytest
 
@@ -28,7 +31,7 @@ APISpecTool = api_spect_tool.APISpecTool
 class TestAPISpecToolBasic:
   """Basic test cases for APISpecTool class."""
 
-  def setup_method(self) -> None:
+  def setup_method(self: "TestAPISpecToolBasic") -> None:
     """Set up test fixtures before each test method."""
     self.tool = APISpecTool()
     self.sample_swagger_data: Dict[str, Any] = {
@@ -64,12 +67,12 @@ class TestAPISpecToolBasic:
       }
     }
 
-  def test_init(self) -> None:
+  def test_init(self: "TestAPISpecToolBasic") -> None:
     """Test APISpecTool initialization."""
     tool = APISpecTool()
     assert tool is not None
 
-  def test_load_json_file_success(self) -> None:
+  def test_load_json_file_success(self: "TestAPISpecToolBasic") -> None:
     """Test successful JSON file loading."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(self.sample_swagger_data, f)
@@ -81,12 +84,12 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_load_json_file_not_found(self) -> None:
+  def test_load_json_file_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test JSON file loading when file doesn't exist."""
     with pytest.raises(SystemExit):
       self.tool.load_json_file("nonexistent.json", "test file")
 
-  def test_analyze_api_structure(self) -> None:
+  def test_analyze_api_structure(self: "TestAPISpecToolBasic") -> None:
     """Test API structure analysis."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(self.sample_swagger_data, f)
@@ -116,7 +119,7 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_extract_routes(self) -> None:
+  def test_extract_routes(self: "TestAPISpecToolBasic") -> None:
     """Test route extraction."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(self.sample_swagger_data, f)
@@ -134,7 +137,7 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_format_markdown(self) -> None:
+  def test_format_markdown(self: "TestAPISpecToolBasic") -> None:
     """Test markdown formatting."""
     routes = [{
       'path': '/users',
@@ -147,7 +150,7 @@ class TestAPISpecToolBasic:
     assert "# users" in result
     assert "/users (GET)" in result
 
-  def test_format_text(self) -> None:
+  def test_format_text(self: "TestAPISpecToolBasic") -> None:
     """Test text formatting."""
     routes = [{
       'path': '/users',
@@ -160,7 +163,7 @@ class TestAPISpecToolBasic:
     assert "users" in result
     assert "/users (GET)" in result
 
-  def test_format_json(self) -> None:
+  def test_format_json(self: "TestAPISpecToolBasic") -> None:
     """Test JSON formatting."""
     routes = [{
       'path': '/users',
@@ -175,7 +178,7 @@ class TestAPISpecToolBasic:
     assert '/users' in parsed['users']
     assert 'GET' in parsed['users']['/users']
 
-  def test_find_differences(self) -> None:
+  def test_find_differences(self: "TestAPISpecToolBasic") -> None:
     """Test finding differences between two objects."""
     obj1 = {"a": 1, "b": 2}
     obj2 = {"a": 1, "b": 3, "c": 4}
@@ -189,7 +192,7 @@ class TestAPISpecToolBasic:
     diff_types = [diff['type'] for diff in differences]
     assert 'set_value' in diff_types or 'add_if_missing' in diff_types
 
-  def test_create_fix_entry(self) -> None:
+  def test_create_fix_entry(self: "TestAPISpecToolBasic") -> None:
     """Test creating fix entries."""
     fix_entry = self.tool.create_fix_entry(
       path="test|path",
@@ -203,7 +206,7 @@ class TestAPISpecToolBasic:
     assert fix_entry['type'] == "set_value"
     assert fix_entry['description'] == "Test fix"
 
-  def test_path_exists(self) -> None:
+  def test_path_exists(self: "TestAPISpecToolBasic") -> None:
     """Test path existence checking."""
     spec = {"test": {"nested": {"value": "test"}}}
 
@@ -211,21 +214,21 @@ class TestAPISpecToolBasic:
     assert not self.tool.path_exists(spec, "test|nonexistent")
     assert not self.tool.path_exists(spec, "nonexistent|path")
 
-  def test_get_value_at_spec_path(self) -> None:
+  def test_get_value_at_spec_path(self: "TestAPISpecToolBasic") -> None:
     """Test getting values at spec paths."""
     spec = {"test": {"nested": {"value": "test"}}}
 
     assert self.tool.get_value_at_spec_path(spec, "test|nested|value") == "test"
     assert self.tool.get_value_at_spec_path(spec, "test|nested") == {"value": "test"}
 
-  def test_set_value_at_path(self) -> None:
+  def test_set_value_at_path(self: "TestAPISpecToolBasic") -> None:
     """Test setting values at spec paths."""
     spec: Dict[str, Any] = {"test": {"nested": {}}}
 
     self.tool.set_value_at_path(spec, "test|nested|new_key", "new_value")
     assert spec["test"]["nested"]["new_key"] == "new_value"
 
-  def test_apply_path_operations_set_value(self) -> None:
+  def test_apply_path_operations_set_value(self: "TestAPISpecToolBasic") -> None:
     """Test applying set_value operations."""
     spec = {"test": {"nested": {"value": "old"}}}
     fixes = {
@@ -243,7 +246,7 @@ class TestAPISpecToolBasic:
     assert "Updated value" in changes[0]
     assert spec["test"]["nested"]["value"] == "new"
 
-  def test_apply_path_operations_add_if_missing(self) -> None:
+  def test_apply_path_operations_add_if_missing(self: "TestAPISpecToolBasic") -> None:
     """Test applying add_if_missing operations."""
     spec = {"test": {"existing": "value"}}
     fixes = {
@@ -261,7 +264,7 @@ class TestAPISpecToolBasic:
     assert "Added missing" in changes[0]
     assert spec["test"]["new_key"] == "new_value"
 
-  def test_apply_path_operations_delete_value(self) -> None:
+  def test_apply_path_operations_delete_value(self: "TestAPISpecToolBasic") -> None:
     """Test applying delete_value operations."""
     spec = {"test": {"to_delete": "value", "keep": "value"}}
     fixes = {
@@ -279,7 +282,7 @@ class TestAPISpecToolBasic:
     assert "to_delete" not in spec["test"]
     assert "keep" in spec["test"]
 
-  def test_get_existing_spec_fix_paths_v2_format(self) -> None:
+  def test_get_existing_spec_fix_paths_v2_format(self: "TestAPISpecToolBasic") -> None:
     """Test getting existing spec fix paths from v2 format."""
     v2_fixes = {
       "version":
@@ -304,7 +307,7 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_get_existing_spec_fix_paths_old_format(self) -> None:
+  def test_get_existing_spec_fix_paths_old_format(self: "TestAPISpecToolBasic") -> None:
     """Test getting existing spec fix paths from old format."""
     old_fixes = {
       "path_operations": {
@@ -329,12 +332,12 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_get_existing_spec_fix_paths_file_not_found(self) -> None:
+  def test_get_existing_spec_fix_paths_file_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test getting existing spec fix paths when file doesn't exist."""
     paths = self.tool.get_existing_spec_fix_paths("nonexistent.json")
     assert paths == set()
 
-  def test_rename_key_at_path(self) -> None:
+  def test_rename_key_at_path(self: "TestAPISpecToolBasic") -> None:
     """Test renaming keys at paths."""
     spec = {"test": {"old_key": "value"}}
 
@@ -345,7 +348,7 @@ class TestAPISpecToolBasic:
     assert "old_key" not in spec["test"]
     assert spec["test"]["new_key"] == "value"
 
-  def test_rename_key_at_path_not_found(self) -> None:
+  def test_rename_key_at_path_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test renaming keys when the key doesn't exist."""
     spec = {"test": {"existing_key": "value"}}
 
@@ -355,7 +358,7 @@ class TestAPISpecToolBasic:
     assert "existing_key" in spec["test"]
     assert "new_key" not in spec["test"]
 
-  def test_modify_array_element(self) -> None:
+  def test_modify_array_element(self: "TestAPISpecToolBasic") -> None:
     """Test modifying array elements."""
     spec = {
       "test": {
@@ -380,7 +383,7 @@ class TestAPISpecToolBasic:
     assert spec["test"]["items"][0]["value"] == "new"
     assert spec["test"]["items"][1]["value"] == "keep"
 
-  def test_modify_array_element_not_found(self) -> None:
+  def test_modify_array_element_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test modifying array elements when no match is found."""
     spec = {"test": {"items": [{"name": "item1", "value": "old"}]}}
 
@@ -394,7 +397,7 @@ class TestAPISpecToolBasic:
     assert not success
     assert spec["test"]["items"][0]["value"] == "old"
 
-  def test_full_workflow_integration(self) -> None:
+  def test_full_workflow_integration(self: "TestAPISpecToolBasic") -> None:
     """Test a complete workflow from analysis to fix application."""
     # Create test data
     original_spec = {

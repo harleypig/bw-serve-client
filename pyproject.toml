@@ -87,6 +87,11 @@ flake8-comprehensions = "^3.17.0"
 flake8-picky-parentheses = "^0.6.0"
 flake8-return = "^1.2.0"
 tryceratops = "^2.4.1"
+flake8-annotations-complexity = "^0.1.0"
+flake8-raise = "^0.0.5"
+flake8-docstrings = "^1.7.0"
+flake8-rst-docstrings = "^0.4.0"
+flake8-annotations = "^3.2.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -158,6 +163,7 @@ extend-ignore = [
   "TRY300", # Moving returns to else blocks often reduces readability
   "TRY101", # Too many try blocks is often overly restrictive
   "TRY301", # Abstracting raise to inner function often adds unnecessary complexity
+  "RST203", # Definition list formatting is often overly strict
 ]
 
 # Enable bugbear rules (B-series)

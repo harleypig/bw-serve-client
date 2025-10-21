@@ -70,7 +70,7 @@ class TestAPISpecToolBasic:
 
     assert tool is not None
 
-  def test_load_json_file_success(self: "TestAPISpecToolBasic") -> None:
+  def test_load_json_file_success(self: "TestAPISpecToolBasic") -> None:  # noqa: AAA01
     """Test successful JSON file loading."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(self.sample_swagger_data, f)
@@ -87,7 +87,7 @@ class TestAPISpecToolBasic:
     with pytest.raises(SystemExit):  # act
       self.tool.load_json_file("nonexistent.json", "test file")
 
-  def test_analyze_api_structure(self: "TestAPISpecToolBasic") -> None:
+  def test_analyze_api_structure(self: "TestAPISpecToolBasic") -> None:  # noqa: AAA01
     """Test API structure analysis."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(self.sample_swagger_data, f)
@@ -117,7 +117,7 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_extract_routes(self: "TestAPISpecToolBasic") -> None:
+  def test_extract_routes(self: "TestAPISpecToolBasic") -> None:  # noqa: AAA01
     """Test route extraction."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
       json.dump(self.sample_swagger_data, f)
@@ -284,7 +284,7 @@ class TestAPISpecToolBasic:
     assert "to_delete" not in spec["test"]
     assert "keep" in spec["test"]
 
-  def test_get_existing_spec_fix_paths_v2_format(self: "TestAPISpecToolBasic") -> None:
+  def test_get_existing_spec_fix_paths_v2_format(self: "TestAPISpecToolBasic") -> None:  # noqa: AAA01
     """Test getting existing spec fix paths from v2 format."""
     v2_fixes = {
       "version":
@@ -309,7 +309,7 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_get_existing_spec_fix_paths_old_format(self: "TestAPISpecToolBasic") -> None:
+  def test_get_existing_spec_fix_paths_old_format(self: "TestAPISpecToolBasic") -> None:  # noqa: AAA01
     """Test getting existing spec fix paths from old format."""
     old_fixes = {
       "path_operations": {

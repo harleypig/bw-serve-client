@@ -149,7 +149,7 @@ class TestEndToEndWorkflow:
       }
     }
 
-  def test_complete_workflow(self: "TestEndToEndWorkflow") -> None:
+  def test_complete_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test complete workflow from analysis to fix application."""
     # Step 1: Analyze original spec
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
@@ -185,7 +185,7 @@ class TestEndToEndWorkflow:
     # (exact match might not be possible due to DeepDiff limitations)
     assert "/test" in test_spec["paths"]
 
-  def test_spec_fixes_v2_format_workflow(self: "TestEndToEndWorkflow") -> None:
+  def test_spec_fixes_v2_format_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test workflow with v2 spec-fixes format."""
     # Create v2 spec-fixes file
     v2_fixes = {
@@ -226,7 +226,7 @@ class TestEndToEndWorkflow:
     finally:
       os.unlink(fixes_file)
 
-  def test_spec_fixes_old_format_workflow(self: "TestEndToEndWorkflow") -> None:
+  def test_spec_fixes_old_format_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test workflow with old spec-fixes format."""
     # Create old format spec-fixes file
     old_fixes = {
@@ -286,7 +286,7 @@ class TestEndToEndWorkflow:
     finally:
       os.unlink(temp_file)
 
-  def test_edge_cases(self: "TestEndToEndWorkflow") -> None:
+  def test_edge_cases(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test edge cases and boundary conditions."""
     # Test with empty spec
     empty_spec = {"openapi": "3.0.0", "info": {"title": "Empty", "version": "1.0.0"}}
@@ -346,7 +346,7 @@ class TestEndToEndWorkflow:
     }
 
     changes = self.tool.apply_path_operations(spec, fixes)  # act
-    assert len(changes) > 0
+    assert len(changes) > 0  # noqa: AAA04
     assert spec["test"]["items"][0]["value"] == "new"
     assert spec["test"]["items"][1]["value"] == "keep"
 
@@ -364,7 +364,7 @@ class TestEndToEndWorkflow:
     }
 
     changes = self.tool.apply_path_operations(spec, fixes)  # act
-    assert len(changes) > 0
+    assert len(changes) > 0  # noqa: AAA04
     assert "new_key" in spec["test"]
     assert "old_key" not in spec["test"]
     assert spec["test"]["new_key"] == "value"

@@ -302,7 +302,7 @@ class TestApiClient:
     )
     assert result == {"uploaded": True}
 
-  def test_context_manager(self: "TestApiClient") -> None:
+  def test_context_manager(self: "TestApiClient") -> None:  # noqa: AAA01
     """Test context manager functionality."""
     with patch('bw_serve_client.api_client.requests.Session') as mock_session_class:
       mock_session = Mock()

@@ -185,7 +185,7 @@ class TestEndToEndWorkflow:
     # (exact match might not be possible due to DeepDiff limitations)
     assert "/test" in test_spec["paths"]
 
-  def test_spec_fixes_v2_format_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
+  def test_spec_fixes_v2_format_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01  # yapf: disable
     """Test workflow with v2 spec-fixes format."""
     # Create v2 spec-fixes file
     v2_fixes = {

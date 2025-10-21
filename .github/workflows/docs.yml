@@ -3,8 +3,14 @@ name: Build and Deploy Documentation
 on:
   push:
     branches: [ master, main ]
+    paths:
+      - 'docs/**'
+      - 'doc/**'
   pull_request:
     branches: [ master, main ]
+    paths:
+      - 'docs/**'
+      - 'doc/**'
   workflow_dispatch:
 
 permissions:

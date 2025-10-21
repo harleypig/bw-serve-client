@@ -86,6 +86,7 @@ deepdiff = {extras = ["cli"], version = "^8.6.1"}
 flake8-comprehensions = "^3.17.0"
 flake8-picky-parentheses = "^0.6.0"
 flake8-return = "^1.2.0"
+tryceratops = "^2.4.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -153,10 +154,15 @@ extend-ignore = [
   "PAR103", # Nope
   "R505", # elif after return/raise is often semantically correct
   "R506", # elif after raise statement is often semantically correct
+  "TRY003", # Long error messages in raise statements are often more readable
+  "TRY300", # Moving returns to else blocks often reduces readability
+  "TRY101", # Too many try blocks is often overly restrictive
+  "TRY301", # Abstracting raise to inner function often adds unnecessary complexity
 ]
 
 # Enable bugbear rules (B-series)
-extend-select = ["B9"]
+# Enable tryceratops rules (TRY-series)
+extend-select = ["B9","TRY"]
 
 per-file-ignores = [
   "tests/*:SCS108", # tests need asserts
@@ -173,6 +179,10 @@ max-complexity = 10
 
 # unused-arguments
 unused-arguments-ignore-dunder = true
+
+[tool.tryceratops]
+experimental = false
+
 
 [tool.isort]
 profile = "google"

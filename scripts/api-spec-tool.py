@@ -58,7 +58,7 @@ class APISpecTool:
         data = json.load(f)
 
       if not isinstance(data, dict):
-        raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
+        raise TypeError(f"Expected JSON object (dict), got {type(data).__name__}")
 
       return data
 

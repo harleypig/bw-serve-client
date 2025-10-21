@@ -220,7 +220,7 @@ class ApiClient:
       return response
 
     except requests.exceptions.RequestException as e:
-      self.logger.error(f"Request failed: {e}")
+      self.logger.exception("Request failed")
       raise BitwardenAPIError(f"Request failed: {e}") from e
 
   def _serialize_data(self, data: Any, content_type: str = "application/json") -> Any:

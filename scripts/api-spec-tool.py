@@ -248,11 +248,11 @@ class APISpecTool:
     response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Finalize analysis by converting sets to lists for JSON serialization."""
-    analysis['error_codes'] = sorted(list(error_codes))
-    analysis['tags'] = sorted(list(tags))
+    analysis['error_codes'] = sorted(error_codes)
+    analysis['tags'] = sorted(tags)
     for status_code in response_patterns:
       analysis['response_patterns'][status_code] = sorted(
-        list(response_patterns[status_code])
+        response_patterns[status_code]
       )
 
   # ---------------------------------------------------------------------------

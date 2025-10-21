@@ -317,7 +317,7 @@ skips = ["B101", "B601"]
 formatters = ["isort"]
 input = "scripts/vault-management-api-fixed.json"
 input-file-type = "openapi"
-output = "bw_serve_client/models"
+output = "bw_serve_client/models.py"
 
 output-model-type = "pydantic_v2.BaseModel"
 

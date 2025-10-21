@@ -3183,8 +3183,8 @@
             "description": "Master password re-prompt requirement (0=none, 1=required)"
           }
         },
-        "title": "ItemTemplateSchema",
-        "description": "Template schema for vault items with all possible fields"
+        "description": "Template schema for vault items with all possible fields",
+        "title": "ItemTemplateSchema"
       },
       "item.login": {
         "properties": {
@@ -3205,8 +3205,8 @@
             "description": "TOTP secret for two-factor authentication"
           }
         },
-        "title": "ItemLoginSchema",
-        "description": "Login-specific data schema for vault items"
+        "description": "Login-specific data schema for vault items",
+        "title": "ItemLoginSchema"
       },
       "item.secureNote": {
         "properties": {
@@ -3218,8 +3218,8 @@
             "description": "Secure note type (always 0)"
           }
         },
-        "title": "ItemSecurenoteSchema",
-        "description": "Secure note data schema for vault items"
+        "description": "Secure note data schema for vault items",
+        "title": "ItemSecureNoteSchema"
       },
       "item.card": {
         "properties": {
@@ -3245,8 +3245,8 @@
             "type": "string"
           }
         },
-        "title": "ItemCardSchema",
-        "description": "Credit card data schema for vault items"
+        "description": "Credit card data schema for vault items",
+        "title": "ItemCardSchema"
       },
       "item.identity": {
         "properties": {
@@ -3305,8 +3305,8 @@
             "type": "string"
           }
         },
-        "title": "ItemIdentitySchema",
-        "description": "Identity data schema for vault items"
+        "description": "Identity data schema for vault items",
+        "title": "ItemIdentitySchema"
       },
       "uris": {
         "properties": {
@@ -3327,8 +3327,8 @@
             "description": "The URI/URL value"
           }
         },
-        "title": "UrisSchema",
-        "description": "URI collection schema for login items"
+        "description": "URI collection schema for login items",
+        "title": "UrisSchema"
       },
       "field": {
         "properties": {
@@ -3351,8 +3351,8 @@
             "description": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)"
           }
         },
-        "title": "FieldSchema",
-        "description": "Custom field schema for vault items"
+        "description": "Custom field schema for vault items",
+        "title": "FieldSchema"
       },
       "folder": {
         "properties": {
@@ -3361,8 +3361,8 @@
             "description": "Name of the folder"
           }
         },
-        "title": "FolderSchema",
-        "description": "Folder schema for organizing vault items"
+        "description": "Folder schema for organizing vault items",
+        "title": "FolderSchema"
       },
       "send.template": {
         "properties": {
@@ -3409,8 +3409,8 @@
             "type": "boolean"
           }
         },
-        "title": "SendTemplateSchema",
-        "description": "Template schema for Bitwarden Send items"
+        "description": "Template schema for Bitwarden Send items",
+        "title": "SendTemplateSchema"
       },
       "send.text": {
         "properties": {
@@ -3423,8 +3423,8 @@
             "description": "Whether the text is hidden by default"
           }
         },
-        "title": "SendTextSchema",
-        "description": "Text content schema for Bitwarden Send items"
+        "description": "Text content schema for Bitwarden Send items",
+        "title": "SendTextSchema"
       },
       "collection": {
         "properties": {
@@ -3445,8 +3445,8 @@
             }
           }
         },
-        "title": "CollectionSchema",
-        "description": "Collection schema for organizing vault items"
+        "description": "Collection schema for organizing vault items",
+        "title": "CollectionSchema"
       },
       "group": {
         "properties": {
@@ -3461,8 +3461,8 @@
             "type": "boolean"
           }
         },
-        "title": "GroupSchema",
-        "description": "Group schema for user management"
+        "description": "Group schema for user management",
+        "title": "GroupSchema"
       },
       "status": {
         "properties": {
@@ -3510,8 +3510,8 @@
             }
           }
         },
-        "title": "StatusSchema",
-        "description": "Status response schema for API operations"
+        "description": "AGENT: fixme",
+        "title": "StatusSchema"
       },
       "lockunlock.success": {
         "properties": {
@@ -3536,16 +3536,16 @@
             }
           }
         },
-        "title": "LockunlockSuccessSchema",
-        "description": "Success response schema for lock/unlock operations"
+        "description": "Success response schema for lock/unlock operations",
+        "title": "LockUnlockSuccessSchema"
       },
       "deviceapprovallist": {
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/deviceapprovalproperties"
         },
-        "title": "DeviceapprovallistSchema",
-        "description": "Device approval list schema for organization management"
+        "description": "Device approval list schema for organization management",
+        "title": "DeviceApprovalListSchema"
       },
       "deviceapprovalproperties": {
         "type": "object",
@@ -3572,8 +3572,8 @@
             "type": "string"
           }
         },
-        "title": "DeviceapprovalpropertiesSchema",
-        "description": "Device approval properties schema for organization management"
+        "description": "Device approval properties schema for organization management",
+        "title": "DeviceApprovalPropertiesSchema"
       }
     }
   }

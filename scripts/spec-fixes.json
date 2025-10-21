@@ -9,6 +9,48 @@
   },
   "operations": [
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|collection|description",
+      "description": "Add missing value at components|schemas|collection|description",
+      "value": "Collection schema for organizing vault items"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|collection|title",
+      "description": "Add missing value at components|schemas|collection|title",
+      "value": "CollectionSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|deviceapprovallist|description",
+      "description": "Add missing value at components|schemas|deviceapprovallist|description",
+      "value": "Device approval list schema for organization management"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|deviceapprovallist|title",
+      "description": "Add missing value at components|schemas|deviceapprovallist|title",
+      "value": "DeviceApprovalListSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|deviceapprovalproperties|description",
+      "description": "Add missing value at components|schemas|deviceapprovalproperties|description",
+      "value": "Device approval properties schema for organization management"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|deviceapprovalproperties|title",
+      "description": "Add missing value at components|schemas|deviceapprovalproperties|title",
+      "value": "DeviceApprovalPropertiesSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|field|description",
+      "description": "Add missing value at components|schemas|field|description",
+      "value": "Custom field schema for vault items"
+    },
+    {
       "operation": "add_if_missing",
       "path": "components|schemas|field|properties|name|description",
       "value": "Name of the custom field",
@@ -27,10 +69,70 @@
       "description": "Add description to field value property"
     },
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|field|title",
+      "description": "Add missing value at components|schemas|field|title",
+      "value": "FieldSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|folder|description",
+      "description": "Add missing value at components|schemas|folder|description",
+      "value": "Folder schema for organizing vault items"
+    },
+    {
       "operation": "add_if_missing",
       "path": "components|schemas|folder|properties|name|description",
       "value": "Name of the folder",
       "description": "Add description to folder name property"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|folder|title",
+      "description": "Add missing value at components|schemas|folder|title",
+      "value": "FolderSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|group|description",
+      "description": "Add missing value at components|schemas|group|description",
+      "value": "Group schema for user management"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|group|title",
+      "description": "Add missing value at components|schemas|group|title",
+      "value": "GroupSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.card|description",
+      "description": "Add missing value at components|schemas|item.card|description",
+      "value": "Credit card data schema for vault items"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.card|title",
+      "description": "Add missing value at components|schemas|item.card|title",
+      "value": "ItemCardSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.identity|description",
+      "description": "Add missing value at components|schemas|item.identity|description",
+      "value": "Identity data schema for vault items"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.identity|title",
+      "description": "Add missing value at components|schemas|item.identity|title",
+      "value": "ItemIdentitySchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.login|description",
+      "description": "Add missing value at components|schemas|item.login|description",
+      "value": "Login-specific data schema for vault items"
     },
     {
       "operation": "add_if_missing",
@@ -57,10 +159,34 @@
       "description": "Add description to login username property"
     },
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.login|title",
+      "description": "Add missing value at components|schemas|item.login|title",
+      "value": "ItemLoginSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.secureNote|description",
+      "description": "Add missing value at components|schemas|item.secureNote|description",
+      "value": "Secure note data schema for vault items"
+    },
+    {
       "operation": "add_if_missing",
       "path": "components|schemas|item.secureNote|properties|type|description",
       "value": "Secure note type (always 0)",
       "description": "Add description to secureNote type property"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.secureNote|title",
+      "description": "Add missing value at components|schemas|item.secureNote|title",
+      "value": "ItemSecureNoteSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.template|description",
+      "description": "Add missing value at components|schemas|item.template|description",
+      "value": "Template schema for vault items with all possible fields"
     },
     {
       "operation": "add_if_missing",
@@ -141,6 +267,30 @@
       "description": "Add description to type property"
     },
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|item.template|title",
+      "description": "Add missing value at components|schemas|item.template|title",
+      "value": "ItemTemplateSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|lockunlock.success|description",
+      "description": "Add missing value at components|schemas|lockunlock.success|description",
+      "value": "Success response schema for lock/unlock operations"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|lockunlock.success|title",
+      "description": "Add missing value at components|schemas|lockunlock.success|title",
+      "value": "LockUnlockSuccessSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|send.template|description",
+      "description": "Add missing value at components|schemas|send.template|description",
+      "value": "Template schema for Bitwarden Send items"
+    },
+    {
       "operation": "add_if_missing",
       "path": "components|schemas|send.template|properties|name|description",
       "value": "Name of the Send",
@@ -159,6 +309,18 @@
       "description": "Add description to send type property"
     },
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|send.template|title",
+      "description": "Add missing value at components|schemas|send.template|title",
+      "value": "SendTemplateSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|send.text|description",
+      "description": "Add missing value at components|schemas|send.text|description",
+      "value": "Text content schema for Bitwarden Send items"
+    },
+    {
       "operation": "add_if_missing",
       "path": "components|schemas|send.text|properties|hidden|description",
       "value": "Whether the text is hidden by default",
@@ -171,16 +333,28 @@
       "description": "Add description to send text property"
     },
     {
-      "operation": "add",
+      "type": "add_if_missing",
+      "path": "components|schemas|send.text|title",
+      "description": "Add missing value at components|schemas|send.text|title",
+      "value": "SendTextSchema"
+    },
+    {
+      "operation": "add_if_missing",
       "path": "components|schemas|status|description",
       "value": "AGENT: fixme",
       "description": "Add description to status schema property"
     },
     {
-      "operation": "add",
+      "operation": "add_if_missing",
       "path": "components|schemas|status|title",
       "value": "StatusSchema",
       "description": "Add title to status schema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|uris|description",
+      "description": "Add missing value at components|schemas|uris|description",
+      "value": "URI collection schema for login items"
     },
     {
       "operation": "add_if_missing",
@@ -195,11 +369,79 @@
       "description": "Add description to uri property"
     },
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|uris|title",
+      "description": "Add missing value at components|schemas|uris|title",
+      "value": "UrisSchema"
+    },
+    {
       "operation": "rename_key",
       "path": "paths",
       "old_key": "/device-approval/{organizationId}/approve/{request-id}}",
       "new_key": "/device-approval/{organizationId}/approve/{request-id}",
       "description": "Fix extra } in device approval path"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "paths|/device-approval/{organizationId}/approve/{request-id}",
+      "description": "Add missing value at paths|/device-approval/{organizationId}/approve/{request-id}",
+      "value": {
+        "post": {
+          "tags": [
+            "Trusted Device Approval"
+          ],
+          "summary": "Approve a specific device approval request.",
+          "description": "Approve a specific device approval request ([learn more](https://bitwarden.com/help/approve-a-trusted-device/)) by specifying an `organizationId` and specific `request-id` in the path.<br><br>Request identifiers can be retrieved using `GET /device-approval/{organizationId}`.",
+          "parameters": [
+            {
+              "name": "organizationId",
+              "in": "path",
+              "required": true,
+              "description": "A unique identifier for the Organization.",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            {
+              "name": "request-id",
+              "in": "path",
+              "required": true,
+              "description": "A unique identifier for the device approval request.",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success.",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "success": true
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request."
+            },
+            "404": {
+              "description": "Not Found."
+            },
+            "500": {
+              "description": "Internal Server Error."
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "delete_value",
+      "path": "paths|/device-approval/{organizationId}/approve/{request-id}}",
+      "description": "Remove value at paths|/device-approval/{organizationId}/approve/{request-id}}"
     },
     {
       "operation": "set_value",

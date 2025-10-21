@@ -256,6 +256,7 @@ class TestApiClient:
     client.session = mock_session
 
     data = {"name": "test"}
+
     result = client.post("/test", data=data)
 
     # Data should be serialized by _serialize_data
@@ -295,6 +296,7 @@ class TestApiClient:
 
     data = {"name": "test"}
     files = {"file": "content"}
+
     result = client.post("/test", data=data, files=files)
 
     mock_session.request.assert_called_once_with(
@@ -339,6 +341,7 @@ class TestApiClient:
     """Test JSON data serialization with invalid JSON string."""
     client = ApiClient()
     data = '{"invalid": json}'    # Invalid JSON
+
     result = client._serialize_data(data, "application/json")
     assert result == data         # Should return original string
 
@@ -346,12 +349,14 @@ class TestApiClient:
     """Test data serialization with other content type."""
     client = ApiClient()
     data = {"key": "value"}
+
     result = client._serialize_data(data, "text/plain")
     assert result == str(data)
 
   def test_serialize_data_none(self: "TestApiClient") -> None:
     """Test data serialization with None data."""
     client = ApiClient()
+
     result = client._serialize_data(None, "application/json")
     assert result is None
 
@@ -359,6 +364,7 @@ class TestApiClient:
     """Test data serialization with list data."""
     client = ApiClient()
     data = [1, 2, 3, {"nested": "value"}]
+
     result = client._serialize_data(data, "application/json")
     assert result == data
 
@@ -366,18 +372,21 @@ class TestApiClient:
     """Test data serialization with nested dictionary."""
     client = ApiClient()
     data = {"level1": {"level2": {"level3": "deep_value", "array": [1, 2, 3]}}}
+
     result = client._serialize_data(data, "application/json")
     assert result == data
 
   def test_serialize_data_empty_string(self: "TestApiClient") -> None:
     """Test data serialization with empty string."""
     client = ApiClient()
+
     result = client._serialize_data("", "application/json")
     assert result == ""
 
   def test_serialize_data_whitespace_string(self: "TestApiClient") -> None:
     """Test data serialization with whitespace-only string."""
     client = ApiClient()
+
     result = client._serialize_data("   ", "application/json")
     assert result == "   "
 
@@ -385,6 +394,7 @@ class TestApiClient:
     """Test data serialization with unicode string."""
     client = ApiClient()
     data = '{"unicode": "测试", "emoji": "🚀"}'
+
     result = client._serialize_data(data, "application/json")
     expected = {"unicode": "测试", "emoji": "🚀"}
     assert result == expected
@@ -603,6 +613,7 @@ class TestApiClient:
     client.session = mock_session
 
     data = {"name": "updated"}
+
     result = client.put("/test", data=data)
 
     mock_session.request.assert_called_once_with(
@@ -769,6 +780,7 @@ class TestApiClient:
 
     # Test with JSON string data
     json_string = '{"name": "test", "value": 123}'
+
     result = client.post("/process", data=json_string)
 
     # The string should be parsed by _serialize_data and converted to dict

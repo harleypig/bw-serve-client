@@ -1173,6 +1173,9 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   # Add new fixes
   _add_new_fixes(spec_fixes, new_fixes, args)
 
+  # Sort operations by path for consistent output
+  _sort_operations_by_path(spec_fixes)
+
   # Write updated spec-fixes
   with os.fdopen(os.open(args.output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
                  'w') as f:
@@ -1255,6 +1258,12 @@ def _add_new_fixes(
       "operations":
         spec_fixes["path_operations"]["fixes"] + new_fixes
     })
+
+
+def _sort_operations_by_path(spec_fixes: Dict[str, Any]) -> None:
+  """Sort operations by path for consistent output."""
+  if "operations" in spec_fixes and isinstance(spec_fixes["operations"], list):
+    spec_fixes["operations"].sort(key=lambda op: op.get("path", ""))
 
 
 def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:

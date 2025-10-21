@@ -176,6 +176,7 @@ extend-ignore = [
   "TRY101", # Too many try blocks is often overly restrictive
   "TRY301", # Abstracting raise to inner function often adds unnecessary complexity
   "DCO010", # Conflicts with DOC301 - __init__ methods should not have docstrings
+  "D107", # Conflicts with DOC301 - __init__ methods should not have docstrings
   "RST203", # Definition list formatting is often overly strict
   "D213", # Multi-line docstring summary on first line (conflicts with pydocstringformatter)
   "D203", # Blank line before class docstring (conflicts with pydocstringformatter)

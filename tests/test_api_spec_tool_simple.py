@@ -5,10 +5,7 @@ import json
 import os
 import sys
 import tempfile
-from typing import Any, Dict, TYPE_CHECKING
-
-if TYPE_CHECKING:
-  from scripts.api_spec_tool import APISpecTool
+from typing import Any, Dict
 
 import pytest
 

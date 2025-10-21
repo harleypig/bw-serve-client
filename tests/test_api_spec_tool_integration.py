@@ -269,7 +269,6 @@ class TestEndToEndWorkflow:
 
   def test_error_handling_scenarios(self: "TestEndToEndWorkflow") -> None:
     """Test various error handling scenarios."""
-    # Test with invalid file path
     with pytest.raises(SystemExit):
       self.tool.load_json_file("nonexistent.json", "test file")
 

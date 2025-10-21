@@ -20,75 +20,125 @@ class TestApiClient:
 
   def test_init_default_values(self: "TestApiClient") -> None:
     """Test ApiClient initialization with default values."""
+    # Arrange
+
+    # Act
     client = ApiClient()
+
+    # Assert
     assert client.base_url == "http://localhost:8087"
     assert client.timeout == 30
     assert client.session is not None
 
   def test_init_custom_values(self: "TestApiClient") -> None:
     """Test ApiClient initialization with custom values."""
+    # Arrange
     logger = Mock()
+
+    # Act
     client = ApiClient(protocol="http", domain="test", port=8080, timeout=60, logger=logger)
+
+    # Assert
     assert client.base_url == "http://test:8080"
     assert client.timeout == 60
     assert client.logger == logger
 
   def test_init_custom_user_agent(self: "TestApiClient") -> None:
     """Test ApiClient initialization with custom user agent."""
+    # Arrange
+
+    # Act
     client = ApiClient(user_agent="MyApp/2.0.0")
+
+    # Assert
     assert client.session.headers['User-Agent'] == "MyApp/2.0.0"
 
   def test_init_default_user_agent(self: "TestApiClient") -> None:
     """Test ApiClient initialization with default user agent."""
+    # Arrange
+
+    # Act
     client = ApiClient()
+
+    # Assert
     assert client.session.headers['User-Agent'] == "bw-serve-client/0.1.1"
 
   def test_init_with_individual_parameters(self: "TestApiClient") -> None:
     """Test ApiClient initialization with individual parameters."""
+    # Arrange
+
+    # Act
     client = ApiClient(protocol="https", domain="api.example.com", port=443, path="/v1")
+
+    # Assert
     assert client.base_url == "https://api.example.com:443/v1"
     assert client.timeout == 30
 
   def test_init_with_individual_parameters_defaults(self: "TestApiClient") -> None:
     """Test ApiClient initialization with individual parameters using defaults."""
+    # Arrange
+
+    # Act
     client = ApiClient(protocol="https", domain="secure.example.com")
+
+    # Assert
     assert client.base_url == "https://secure.example.com:8087"
     assert client.timeout == 30
 
   def test_init_with_path_only(self: "TestApiClient") -> None:
     """Test ApiClient initialization with custom path only."""
+    # Arrange
+
+    # Act
     client = ApiClient(path="/api/v2")
+
+    # Assert
     assert client.base_url == "http://localhost:8087/api/v2"
 
   def test_serialize_data_json(self: "TestApiClient") -> None:
     """Test JSON data serialization."""
+    # Arrange
     client = ApiClient()
     data = {"key": "value"}
+
     result = client._serialize_data(data, "application/json")
+
+    # Assert
     assert result == data
 
   def test_serialize_data_string(self: "TestApiClient") -> None:
     """Test string data serialization."""
+    # Arrange
     client = ApiClient()
     data = '{"key": "value"}'
+
     result = client._serialize_data(data, "application/json")
+
+    # Assert
     assert result == {"key": "value"}
 
   def test_serialize_data_multipart(self: "TestApiClient") -> None:
     """Test multipart data serialization."""
+    # Arrange
     client = ApiClient()
     data = {"file": "content"}
+
     result = client._serialize_data(data, "multipart/form-data")
+
+    # Assert
     assert result == data
 
   def test_deserialize_data_json(self: "TestApiClient") -> None:
     """Test JSON response deserialization."""
+    # Arrange
     client = ApiClient()
     response = Mock()
     response.headers = {"content-type": "application/json"}
     response.json.return_value = {"key": "value"}
 
     result = client._deserialize_data(response)
+
+    # Assert
     assert result == {"key": "value"}
 
   def test_deserialize_data_text(self: "TestApiClient") -> None:
@@ -99,6 +149,7 @@ class TestApiClient:
     response.text = "plain text"
 
     result = client._deserialize_data(response)
+
     assert result == "plain text"
 
   def test_handle_error_success(self: "TestApiClient") -> None:
@@ -835,7 +886,6 @@ class TestApiClient:
     """Test that _make_request raises error for unsupported HTTP methods."""
     client = ApiClient()
 
-    # Test unsupported method
     with pytest.raises(BitwardenAPIError) as exc_info:
       client._make_request("PATCH", "/test")
 
@@ -857,9 +907,8 @@ class TestApiClient:
       client = ApiClient()
       client.session = mock_session
 
-      # Test lowercase method
       result = client._make_request("get", "/test")
-      assert result == mock_response   # _make_request returns the response object
+      assert result == mock_response
 
       # Verify the method was converted to uppercase
       call_args = mock_session.request.call_args

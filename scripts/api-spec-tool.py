@@ -47,11 +47,15 @@ OutputData = Dict[str, Dict[str, List[str]]]
 
 
 class APISpecTool:
-  """Unified tool for working with API specifications."""
+  """Unified tool for working with API specifications.
+
+  This tool provides functionality for analyzing, extracting, updating, and fixing
+  OpenAPI specifications. It initializes with the script directory for relative
+  path operations.
+  """
 
   # ---------------------------------------------------------------------------
   def __init__(self: "APISpecTool") -> None:
-    """Initialize the API spec tool."""
     self.script_dir = Path(__file__).parent
 
   # ---------------------------------------------------------------------------

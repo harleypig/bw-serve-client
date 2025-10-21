@@ -53,6 +53,16 @@ class ApiClient:
 
   Handles all HTTP requests, response processing, error handling, and
   data serialization/deserialization for the Bitwarden API.
+
+  Args:
+      protocol: Protocol to use (http, https) - default: http
+      domain: Domain or IP address - default: localhost
+      port: Port number - default: 8087
+      path: Base path - default: empty string
+      timeout: Request timeout in seconds
+      max_retries: Maximum number of retry attempts
+      user_agent: Custom User-Agent string (default: 'bw-serve-client/0.1.0')
+      logger: Optional logger instance for logging requests/responses
   """
 
   # ---------------------------------------------------------------------------
@@ -88,18 +98,6 @@ class ApiClient:
     user_agent: Optional[str] = None,
     logger: Optional[logging.Logger] = None
   ) -> None:
-    """Initialize the API client.
-
-    Args:
-        protocol: Protocol to use (http, https) - default: http
-        domain: Domain or IP address - default: localhost
-        port: Port number - default: 8087
-        path: Base path - default: empty string
-        timeout: Request timeout in seconds
-        max_retries: Maximum number of retry attempts
-        user_agent: Custom User-Agent string (default: 'bw-serve-client/0.1.0')
-        logger: Optional logger instance for logging requests/responses
-    """
     # Build base_url from components
     self.base_url = f"{protocol}://{domain}:{port}{path}".rstrip('/')
 

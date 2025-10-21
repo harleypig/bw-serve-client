@@ -197,7 +197,7 @@ class ApiClient:
 
       # Determine whether to use json or data parameter based on content type
       content_type_str = str(request_headers.get('Content-Type', 'application/json'))
-      use_json = (not files and content_type_str.startswith('application/json'))
+      use_json = not files and content_type_str.startswith('application/json')
 
       response = self.session.request(
         method=method,

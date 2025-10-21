@@ -665,6 +665,21 @@ files = [
 flake8 = ">=3,<3.2 || >3.2"
 
 [[package]]
+name = "flake8-picky-parentheses"
+version = "0.6.0"
+description = "flake8 plugin to nitpick about parenthesis, brackets, and braces"
+optional = false
+python-versions = ">=3.7"
+groups = ["dev"]
+files = [
+    {file = "flake8_picky_parentheses-0.6.0-py3-none-any.whl", hash = "sha256:d099e8f489a1350ea5c95154eefa967bbf51a7445c807f8e493414d52495d570"},
+    {file = "flake8_picky_parentheses-0.6.0.tar.gz", hash = "sha256:adf6190c90523b378ca4362ee91c3893bfd66c2503ba46474a243f51f3d78485"},
+]
+
+[package.dependencies]
+flake8 = ">=3.7,<8.0"
+
+[[package]]
 name = "flake8-pyprojecttoml"
 version = "0.0.2"
 description = "Inject pyproject.toml support into flake8."
@@ -3097,4 +3112,4 @@ tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "4ae2f71dec45c4058249fce734531ce7ecdd222d7da34ed02df4b2a941945319"
+content-hash = "6de1c44cc24f261fac8fb1ad54087a07afdccd6c75881a8b06dd96c23680a4a0"

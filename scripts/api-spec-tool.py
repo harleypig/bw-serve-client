@@ -608,19 +608,14 @@ class APISpecTool:
       for key_path, change in diff['type_changes'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         differences.append({
-          "path":
-            pipe_path,
-          "type":
-            "set_value",
-          "value":
-            change["new_value"],
-          "old_value":
-            change["old_value"],
-          "description": (
+          "path": pipe_path,
+          "type": "set_value",
+          "value": change["new_value"],
+          "old_value": change["old_value"],
+          "description":
             f"Change type at {pipe_path} from "
             f"{type(change['old_value']).__name__} to "
             f"{type(change['new_value']).__name__}"
-          )
         })
 
     return differences
@@ -747,7 +742,7 @@ class APISpecTool:
           if 'components|schemas|' in path:
             schema_name = path.split('|')[2]
             prop_name = path.split('|')[-2] if 'properties' in path else 'schema'
-            description = (f"Add description to {schema_name} {prop_name} property")
+            description = f"Add description to {schema_name} {prop_name} property"
           else:
             description = f"Add description to {path.split('|')[-1]}"
         elif 'title' in path:

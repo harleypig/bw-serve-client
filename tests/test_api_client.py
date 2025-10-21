@@ -654,21 +654,24 @@ class TestApiClient:
 
     # Test with complex nested response
     complex_response = {
-      "data": [{
-        "id": 1,
-        "name": "Item 1",
-        "attributes": {
-          "color": "red",
-          "size": "large"
-        }
-      }, {
-        "id": 2,
-        "name": "Item 2",
-        "attributes": {
-          "color": "blue",
-          "size": "small"
-        }
-      }],
+      "data": [
+        {
+          "id": 1,
+          "name": "Item 1",
+          "attributes": {
+            "color": "red",
+            "size": "large"
+          },
+        },
+        {
+          "id": 2,
+          "name": "Item 2",
+          "attributes": {
+            "color": "blue",
+            "size": "small"
+          },
+        },
+      ],
       "pagination": {
         "page": 1,
         "total": 2,

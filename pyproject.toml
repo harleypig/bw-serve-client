@@ -84,6 +84,7 @@ flake8-unused-arguments = "^0.0.13"
 flake8-clean-block = "^0.1.2"
 deepdiff = {extras = ["cli"], version = "^8.6.1"}
 flake8-comprehensions = "^3.17.0"
+flake8-picky-parentheses = "^0.6.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -148,6 +149,7 @@ extend-ignore = [
   "E111", "E114", "E122", "E131",
   "E251", # unexpected spaces around keyword/parameter equals to match yapf style
   "E501", # line too long in favor of bugbear's B950
+  "PAR103", # Nope
 ]
 
 # Enable bugbear rules (B-series)

@@ -949,9 +949,7 @@ class APISpecTool:
     else:
       return f"Already exists (skipped): {description}"
 
-  def _apply_delete_value(
-    self, spec: Dict[str, Any], path: str, description: str
-  ) -> str:
+  def _apply_delete_value(self, spec: Dict[str, Any], path: str, description: str) -> str:
     """Apply delete_value operation."""
     if not self.path_exists(spec, path):
       return f"Value not found for deletion (skipped): {description}"
@@ -1219,7 +1217,7 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
   """Load existing spec-fixes or create new structure."""
   try:
     with open(args.output_file, 'r') as f:
-      return json.load(f)  # type: ignore[no-any-return]
+      return json.load(f)                                                              # type: ignore[no-any-return]
   except FileNotFoundError:
     return {
       "version":

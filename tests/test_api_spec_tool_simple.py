@@ -1,21 +1,20 @@
 """Simple tests for API Specification Tool."""
 
+import importlib.util
 import json
 import os
+import sys
 import tempfile
-from unittest.mock import Mock
-from unittest.mock import patch
 
 import pytest
 
 # Import the tool from the scripts directory
-import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
-# Import with the correct module name (hyphen becomes underscore)
-import importlib.util
-spec = importlib.util.spec_from_file_location("api_spect_tool", 
-    os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py'))
+spec = importlib.util.spec_from_file_location(
+  "api_spect_tool",
+  os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py')
+)
 api_spect_tool = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(api_spect_tool)
 
@@ -23,441 +22,445 @@ APISpecTool = api_spect_tool.APISpecTool
 
 
 class TestAPISpecToolBasic:
-    """Basic test cases for APISpecTool class."""
+  """Basic test cases for APISpecTool class."""
 
-    def setup_method(self):
-        """Set up test fixtures before each test method."""
-        self.tool = APISpecTool()
-        self.sample_swagger_data = {
-            "openapi": "3.0.0",
-            "info": {
-                "title": "Test API",
-                "description": "A test API",
-                "version": "1.0.0"
-            },
-            "servers": [
-                {"url": "https://api.example.com", "description": "Test server"}
-            ],
-            "paths": {
-                "/users": {
-                    "get": {
-                        "tags": ["users"],
-                        "summary": "Get users",
-                        "responses": {
-                            "200": {
-                                "description": "Success",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {"type": "array"}
-                                    }
-                                }
-                            }
-                        }
+  def setup_method(self):
+    """Set up test fixtures before each test method."""
+    self.tool = APISpecTool()
+    self.sample_swagger_data = {
+      "openapi": "3.0.0",
+      "info": {
+        "title": "Test API",
+        "description": "A test API",
+        "version": "1.0.0"
+      },
+      "servers": [{
+        "url": "https://api.example.com",
+        "description": "Test server"
+      }],
+      "paths": {
+        "/users": {
+          "get": {
+            "tags": ["users"],
+            "summary": "Get users",
+            "responses": {
+              "200": {
+                "description": "Success",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array"
                     }
+                  }
                 }
+              }
             }
+          }
         }
+      }
+    }
 
-    def test_init(self):
-        """Test APISpecTool initialization."""
-        tool = APISpecTool()
-        assert tool is not None
+  def test_init(self):
+    """Test APISpecTool initialization."""
+    tool = APISpecTool()
+    assert tool is not None
 
-    def test_load_json_file_success(self):
-        """Test successful JSON file loading."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(self.sample_swagger_data, f)
-            temp_file = f.name
+  def test_load_json_file_success(self):
+    """Test successful JSON file loading."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+      json.dump(self.sample_swagger_data, f)
+      temp_file = f.name
 
-        try:
-            result = self.tool.load_json_file(temp_file, "test file")
-            assert result == self.sample_swagger_data
-        finally:
-            os.unlink(temp_file)
+    try:
+      result = self.tool.load_json_file(temp_file, "test file")
+      assert result == self.sample_swagger_data
+    finally:
+      os.unlink(temp_file)
 
-    def test_load_json_file_not_found(self):
-        """Test JSON file loading when file doesn't exist."""
-        with pytest.raises(SystemExit):
-            self.tool.load_json_file("nonexistent.json", "test file")
+  def test_load_json_file_not_found(self):
+    """Test JSON file loading when file doesn't exist."""
+    with pytest.raises(SystemExit):
+      self.tool.load_json_file("nonexistent.json", "test file")
 
-    def test_analyze_api_structure(self):
-        """Test API structure analysis."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(self.sample_swagger_data, f)
-            temp_file = f.name
+  def test_analyze_api_structure(self):
+    """Test API structure analysis."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+      json.dump(self.sample_swagger_data, f)
+      temp_file = f.name
 
-        try:
-            analysis = self.tool.analyze_api_structure(temp_file)
-            
-            # Check basic structure
-            assert 'api_info' in analysis
-            assert 'authentication' in analysis
-            assert 'server_info' in analysis
-            assert 'response_patterns' in analysis
-            assert 'error_codes' in analysis
-            assert 'data_models' in analysis
-            assert 'parameter_patterns' in analysis
-            assert 'request_body_patterns' in analysis
-            assert 'tags' in analysis
-            assert 'examples' in analysis
-            assert 'validation_rules' in analysis
+    try:
+      analysis = self.tool.analyze_api_structure(temp_file)
 
-            # Check specific values
-            assert analysis['api_info']['title'] == "Test API"
-            assert analysis['api_info']['version'] == "1.0.0"
-            assert "users" in analysis['tags']
-            assert "200" in analysis['error_codes']
-        finally:
-            os.unlink(temp_file)
+      # Check basic structure
+      assert 'api_info' in analysis
+      assert 'authentication' in analysis
+      assert 'server_info' in analysis
+      assert 'response_patterns' in analysis
+      assert 'error_codes' in analysis
+      assert 'data_models' in analysis
+      assert 'parameter_patterns' in analysis
+      assert 'request_body_patterns' in analysis
+      assert 'tags' in analysis
+      assert 'examples' in analysis
+      assert 'validation_rules' in analysis
 
-    def test_extract_routes(self):
-        """Test route extraction."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(self.sample_swagger_data, f)
-            temp_file = f.name
+      # Check specific values
+      assert analysis['api_info']['title'] == "Test API"
+      assert analysis['api_info']['version'] == "1.0.0"
+      assert "users" in analysis['tags']
+      assert "200" in analysis['error_codes']
+    finally:
+      os.unlink(temp_file)
 
-        try:
-            routes = self.tool.extract_routes(temp_file)
-            
-            # Check that routes were extracted
-            assert len(routes) > 0
-            
-            # Check for expected routes
-            route_paths = [route['path'] for route in routes]
-            assert "/users" in route_paths
-        finally:
-            os.unlink(temp_file)
+  def test_extract_routes(self):
+    """Test route extraction."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+      json.dump(self.sample_swagger_data, f)
+      temp_file = f.name
 
-    def test_format_markdown(self):
-        """Test markdown formatting."""
-        routes = [
-            {
-                'path': '/users',
-                'method': 'GET',
-                'summary': 'Get users',
-                'tags': ['users']
+    try:
+      routes = self.tool.extract_routes(temp_file)
+
+      # Check that routes were extracted
+      assert len(routes) > 0
+
+      # Check for expected routes
+      route_paths = [route['path'] for route in routes]
+      assert "/users" in route_paths
+    finally:
+      os.unlink(temp_file)
+
+  def test_format_markdown(self):
+    """Test markdown formatting."""
+    routes = [{
+      'path': '/users',
+      'method': 'GET',
+      'summary': 'Get users',
+      'tags': ['users']
+    }]
+
+    result = self.tool.format_markdown(routes)
+    assert "# users" in result
+    assert "/users (GET)" in result
+
+  def test_format_text(self):
+    """Test text formatting."""
+    routes = [{
+      'path': '/users',
+      'method': 'GET',
+      'summary': 'Get users',
+      'tags': ['users']
+    }]
+
+    result = self.tool.format_text(routes)
+    assert "users" in result
+    assert "/users (GET)" in result
+
+  def test_format_json(self):
+    """Test JSON formatting."""
+    routes = [{
+      'path': '/users',
+      'method': 'GET',
+      'summary': 'Get users',
+      'tags': ['users']
+    }]
+
+    result = self.tool.format_json(routes)
+    parsed = json.loads(result)
+    assert 'users' in parsed
+    assert '/users' in parsed['users']
+    assert 'GET' in parsed['users']['/users']
+
+  def test_find_differences(self):
+    """Test finding differences between two objects."""
+    obj1 = {"a": 1, "b": 2}
+    obj2 = {"a": 1, "b": 3, "c": 4}
+
+    differences = self.tool.find_differences(obj1, obj2)
+
+    # Should find changes and additions
+    assert len(differences) > 0
+
+    # Check for specific difference types
+    diff_types = [diff['type'] for diff in differences]
+    assert 'set_value' in diff_types or 'add_if_missing' in diff_types
+
+  def test_create_fix_entry(self):
+    """Test creating fix entries."""
+    fix_entry = self.tool.create_fix_entry(
+      path="test|path",
+      value="test_value",
+      operation_type="set_value",
+      description="Test fix"
+    )
+
+    assert fix_entry['path'] == "test|path"
+    assert fix_entry['value'] == "test_value"
+    assert fix_entry['type'] == "set_value"
+    assert fix_entry['description'] == "Test fix"
+
+  def test_path_exists(self):
+    """Test path existence checking."""
+    spec = {"test": {"nested": {"value": "test"}}}
+
+    assert self.tool.path_exists(spec, "test|nested|value")
+    assert not self.tool.path_exists(spec, "test|nonexistent")
+    assert not self.tool.path_exists(spec, "nonexistent|path")
+
+  def test_get_value_at_spec_path(self):
+    """Test getting values at spec paths."""
+    spec = {"test": {"nested": {"value": "test"}}}
+
+    assert self.tool.get_value_at_spec_path(spec, "test|nested|value") == "test"
+    assert self.tool.get_value_at_spec_path(spec, "test|nested") == {"value": "test"}
+
+  def test_set_value_at_path(self):
+    """Test setting values at spec paths."""
+    spec = {"test": {"nested": {}}}
+
+    self.tool.set_value_at_path(spec, "test|nested|new_key", "new_value")
+    assert spec["test"]["nested"]["new_key"] == "new_value"
+
+  def test_apply_path_operations_set_value(self):
+    """Test applying set_value operations."""
+    spec = {"test": {"nested": {"value": "old"}}}
+    fixes = {
+      "operations": [{
+        "type": "set_value",
+        "path": "test|nested|value",
+        "value": "new",
+        "description": "Update value"
+      }]
+    }
+
+    changes = self.tool.apply_path_operations(spec, fixes)
+
+    assert len(changes) > 0
+    assert "Updated value" in changes[0]
+    assert spec["test"]["nested"]["value"] == "new"
+
+  def test_apply_path_operations_add_if_missing(self):
+    """Test applying add_if_missing operations."""
+    spec = {"test": {"existing": "value"}}
+    fixes = {
+      "operations": [{
+        "type": "add_if_missing",
+        "path": "test|new_key",
+        "value": "new_value",
+        "description": "Add new key"
+      }]
+    }
+
+    changes = self.tool.apply_path_operations(spec, fixes)
+
+    assert len(changes) > 0
+    assert "Added missing" in changes[0]
+    assert spec["test"]["new_key"] == "new_value"
+
+  def test_apply_path_operations_delete_value(self):
+    """Test applying delete_value operations."""
+    spec = {"test": {"to_delete": "value", "keep": "value"}}
+    fixes = {
+      "operations": [{
+        "type": "delete_value",
+        "path": "test|to_delete",
+        "description": "Delete key"
+      }]
+    }
+
+    changes = self.tool.apply_path_operations(spec, fixes)
+
+    assert len(changes) > 0
+    assert "Deleted value" in changes[0]
+    assert "to_delete" not in spec["test"]
+    assert "keep" in spec["test"]
+
+  def test_get_existing_spec_fix_paths_v2_format(self):
+    """Test getting existing spec fix paths from v2 format."""
+    v2_fixes = {
+      "version":
+        "2.0",
+      "operations": [{
+        "path": "test|path1",
+        "type": "set_value"
+      }, {
+        "path": "test|path2",
+        "type": "add_if_missing"
+      }]
+    }
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+      json.dump(v2_fixes, f)
+      temp_file = f.name
+
+    try:
+      paths = self.tool.get_existing_spec_fix_paths(temp_file)
+      assert "test|path1" in paths
+      assert "test|path2" in paths
+    finally:
+      os.unlink(temp_file)
+
+  def test_get_existing_spec_fix_paths_old_format(self):
+    """Test getting existing spec fix paths from old format."""
+    old_fixes = {
+      "path_operations": {
+        "fixes": [{
+          "path": "test|path1",
+          "operation": "set_value"
+        }, {
+          "path": "test|path2",
+          "operation": "add_if_missing"
+        }]
+      }
+    }
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+      json.dump(old_fixes, f)
+      temp_file = f.name
+
+    try:
+      paths = self.tool.get_existing_spec_fix_paths(temp_file)
+      assert "test|path1" in paths
+      assert "test|path2" in paths
+    finally:
+      os.unlink(temp_file)
+
+  def test_get_existing_spec_fix_paths_file_not_found(self):
+    """Test getting existing spec fix paths when file doesn't exist."""
+    paths = self.tool.get_existing_spec_fix_paths("nonexistent.json")
+    assert paths == set()
+
+  def test_rename_key_at_path(self):
+    """Test renaming keys at paths."""
+    spec = {"test": {"old_key": "value"}}
+
+    success = self.tool.rename_key_at_path(spec, "test", "old_key", "new_key")
+
+    assert success
+    assert "new_key" in spec["test"]
+    assert "old_key" not in spec["test"]
+    assert spec["test"]["new_key"] == "value"
+
+  def test_rename_key_at_path_not_found(self):
+    """Test renaming keys when the key doesn't exist."""
+    spec = {"test": {"existing_key": "value"}}
+
+    success = self.tool.rename_key_at_path(spec, "test", "nonexistent", "new_key")
+
+    assert not success
+    assert "existing_key" in spec["test"]
+    assert "new_key" not in spec["test"]
+
+  def test_modify_array_element(self):
+    """Test modifying array elements."""
+    spec = {
+      "test": {
+        "items": [{
+          "name": "item1",
+          "value": "old"
+        }, {
+          "name": "item2",
+          "value": "keep"
+        }]
+      }
+    }
+
+    match_criteria = {"name": "item1"}
+    modifications = {"value": "new"}
+
+    success = self.tool.modify_array_element(
+      spec, "test|items", match_criteria, modifications
+    )
+
+    assert success
+    assert spec["test"]["items"][0]["value"] == "new"
+    assert spec["test"]["items"][1]["value"] == "keep"
+
+  def test_modify_array_element_not_found(self):
+    """Test modifying array elements when no match is found."""
+    spec = {"test": {"items": [{"name": "item1", "value": "old"}]}}
+
+    match_criteria = {"name": "nonexistent"}
+    modifications = {"value": "new"}
+
+    success = self.tool.modify_array_element(
+      spec, "test|items", match_criteria, modifications
+    )
+
+    assert not success
+    assert spec["test"]["items"][0]["value"] == "old"
+
+  def test_full_workflow_integration(self):
+    """Test a complete workflow from analysis to fix application."""
+    # Create test data
+    original_spec = {
+      "openapi": "3.0.0",
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
+      "paths": {
+        "/test": {
+          "get": {
+            "responses": {
+              "200": {
+                "description": "Success"
+              }
             }
-        ]
-        
-        result = self.tool.format_markdown(routes)
-        assert "# users" in result
-        assert "/users (GET)" in result
-
-    def test_format_text(self):
-        """Test text formatting."""
-        routes = [
-            {
-                'path': '/users',
-                'method': 'GET',
-                'summary': 'Get users',
-                'tags': ['users']
-            }
-        ]
-        
-        result = self.tool.format_text(routes)
-        assert "users" in result
-        assert "/users (GET)" in result
-
-    def test_format_json(self):
-        """Test JSON formatting."""
-        routes = [
-            {
-                'path': '/users',
-                'method': 'GET',
-                'summary': 'Get users',
-                'tags': ['users']
-            }
-        ]
-        
-        result = self.tool.format_json(routes)
-        parsed = json.loads(result)
-        assert 'users' in parsed
-        assert '/users' in parsed['users']
-        assert 'GET' in parsed['users']['/users']
-
-    def test_find_differences(self):
-        """Test finding differences between two objects."""
-        obj1 = {"a": 1, "b": 2}
-        obj2 = {"a": 1, "b": 3, "c": 4}
-        
-        differences = self.tool.find_differences(obj1, obj2)
-        
-        # Should find changes and additions
-        assert len(differences) > 0
-        
-        # Check for specific difference types
-        diff_types = [diff['type'] for diff in differences]
-        assert 'set_value' in diff_types or 'add_if_missing' in diff_types
-
-    def test_create_fix_entry(self):
-        """Test creating fix entries."""
-        fix_entry = self.tool.create_fix_entry(
-            path="test|path",
-            value="test_value",
-            operation_type="set_value",
-            description="Test fix"
-        )
-        
-        assert fix_entry['path'] == "test|path"
-        assert fix_entry['value'] == "test_value"
-        assert fix_entry['type'] == "set_value"
-        assert fix_entry['description'] == "Test fix"
-
-    def test_path_exists(self):
-        """Test path existence checking."""
-        spec = {"test": {"nested": {"value": "test"}}}
-        
-        assert self.tool.path_exists(spec, "test|nested|value")
-        assert not self.tool.path_exists(spec, "test|nonexistent")
-        assert not self.tool.path_exists(spec, "nonexistent|path")
-
-    def test_get_value_at_spec_path(self):
-        """Test getting values at spec paths."""
-        spec = {"test": {"nested": {"value": "test"}}}
-        
-        assert self.tool.get_value_at_spec_path(spec, "test|nested|value") == "test"
-        assert self.tool.get_value_at_spec_path(spec, "test|nested") == {"value": "test"}
-
-    def test_set_value_at_path(self):
-        """Test setting values at spec paths."""
-        spec = {"test": {"nested": {}}}
-        
-        self.tool.set_value_at_path(spec, "test|nested|new_key", "new_value")
-        assert spec["test"]["nested"]["new_key"] == "new_value"
-
-    def test_apply_path_operations_set_value(self):
-        """Test applying set_value operations."""
-        spec = {"test": {"nested": {"value": "old"}}}
-        fixes = {
-            "operations": [
-                {
-                    "type": "set_value",
-                    "path": "test|nested|value",
-                    "value": "new",
-                    "description": "Update value"
-                }
-            ]
+          }
         }
-        
-        changes = self.tool.apply_path_operations(spec, fixes)
-        
-        assert len(changes) > 0
-        assert "Updated value" in changes[0]
-        assert spec["test"]["nested"]["value"] == "new"
+      }
+    }
 
-    def test_apply_path_operations_add_if_missing(self):
-        """Test applying add_if_missing operations."""
-        spec = {"test": {"existing": "value"}}
-        fixes = {
-            "operations": [
-                {
-                    "type": "add_if_missing",
-                    "path": "test|new_key",
-                    "value": "new_value",
-                    "description": "Add new key"
-                }
-            ]
-        }
-        
-        changes = self.tool.apply_path_operations(spec, fixes)
-        
-        assert len(changes) > 0
-        assert "Added missing" in changes[0]
-        assert spec["test"]["new_key"] == "new_value"
-
-    def test_apply_path_operations_delete_value(self):
-        """Test applying delete_value operations."""
-        spec = {"test": {"to_delete": "value", "keep": "value"}}
-        fixes = {
-            "operations": [
-                {
-                    "type": "delete_value",
-                    "path": "test|to_delete",
-                    "description": "Delete key"
-                }
-            ]
-        }
-        
-        changes = self.tool.apply_path_operations(spec, fixes)
-        
-        assert len(changes) > 0
-        assert "Deleted value" in changes[0]
-        assert "to_delete" not in spec["test"]
-        assert "keep" in spec["test"]
-
-    def test_get_existing_spec_fix_paths_v2_format(self):
-        """Test getting existing spec fix paths from v2 format."""
-        v2_fixes = {
-            "version": "2.0",
-            "operations": [
-                {"path": "test|path1", "type": "set_value"},
-                {"path": "test|path2", "type": "add_if_missing"}
-            ]
-        }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(v2_fixes, f)
-            temp_file = f.name
-
-        try:
-            paths = self.tool.get_existing_spec_fix_paths(temp_file)
-            assert "test|path1" in paths
-            assert "test|path2" in paths
-        finally:
-            os.unlink(temp_file)
-
-    def test_get_existing_spec_fix_paths_old_format(self):
-        """Test getting existing spec fix paths from old format."""
-        old_fixes = {
-            "path_operations": {
-                "fixes": [
-                    {"path": "test|path1", "operation": "set_value"},
-                    {"path": "test|path2", "operation": "add_if_missing"}
-                ]
-            }
-        }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(old_fixes, f)
-            temp_file = f.name
-
-        try:
-            paths = self.tool.get_existing_spec_fix_paths(temp_file)
-            assert "test|path1" in paths
-            assert "test|path2" in paths
-        finally:
-            os.unlink(temp_file)
-
-    def test_get_existing_spec_fix_paths_file_not_found(self):
-        """Test getting existing spec fix paths when file doesn't exist."""
-        paths = self.tool.get_existing_spec_fix_paths("nonexistent.json")
-        assert paths == set()
-
-    def test_rename_key_at_path(self):
-        """Test renaming keys at paths."""
-        spec = {"test": {"old_key": "value"}}
-        
-        success = self.tool.rename_key_at_path(spec, "test", "old_key", "new_key")
-        
-        assert success
-        assert "new_key" in spec["test"]
-        assert "old_key" not in spec["test"]
-        assert spec["test"]["new_key"] == "value"
-
-    def test_rename_key_at_path_not_found(self):
-        """Test renaming keys when the key doesn't exist."""
-        spec = {"test": {"existing_key": "value"}}
-        
-        success = self.tool.rename_key_at_path(spec, "test", "nonexistent", "new_key")
-        
-        assert not success
-        assert "existing_key" in spec["test"]
-        assert "new_key" not in spec["test"]
-
-    def test_modify_array_element(self):
-        """Test modifying array elements."""
-        spec = {
-            "test": {
-                "items": [
-                    {"name": "item1", "value": "old"},
-                    {"name": "item2", "value": "keep"}
-                ]
-            }
-        }
-        
-        match_criteria = {"name": "item1"}
-        modifications = {"value": "new"}
-        
-        success = self.tool.modify_array_element(
-            spec, "test|items", match_criteria, modifications
-        )
-        
-        assert success
-        assert spec["test"]["items"][0]["value"] == "new"
-        assert spec["test"]["items"][1]["value"] == "keep"
-
-    def test_modify_array_element_not_found(self):
-        """Test modifying array elements when no match is found."""
-        spec = {
-            "test": {
-                "items": [
-                    {"name": "item1", "value": "old"}
-                ]
-            }
-        }
-        
-        match_criteria = {"name": "nonexistent"}
-        modifications = {"value": "new"}
-        
-        success = self.tool.modify_array_element(
-            spec, "test|items", match_criteria, modifications
-        )
-        
-        assert not success
-        assert spec["test"]["items"][0]["value"] == "old"
-
-    def test_full_workflow_integration(self):
-        """Test a complete workflow from analysis to fix application."""
-        # Create test data
-        original_spec = {
-            "openapi": "3.0.0",
-            "info": {"title": "Test API", "version": "1.0.0"},
-            "paths": {
-                "/test": {
-                    "get": {
-                        "responses": {"200": {"description": "Success"}}
+    fixed_spec = {
+      "openapi": "3.0.0",
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
+      "paths": {
+        "/test": {
+          "get": {
+            "responses": {
+              "200": {
+                "description": "Success",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object"
                     }
+                  }
                 }
+              }
             }
+          }
         }
-        
-        fixed_spec = {
-            "openapi": "3.0.0",
-            "info": {"title": "Test API", "version": "1.0.0"},
-            "paths": {
-                "/test": {
-                    "get": {
-                        "responses": {
-                            "200": {
-                                "description": "Success",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {"type": "object"}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        # Find differences
-        differences = self.tool.find_differences(original_spec, fixed_spec)
-        assert len(differences) > 0
-        
-        # Create fix entries
-        fixes = {
-            "operations": [
-                self.tool.create_fix_entry(
-                    diff['path'], 
-                    diff.get('value'), 
-                    diff['type'],
-                    diff.get('old_value'),
-                    diff.get('description', '')
-                ) for diff in differences
-            ]
-        }
-        
-        # Apply fixes
-        test_spec = original_spec.copy()
-        changes = self.tool.apply_path_operations(test_spec, fixes)
-        
-        # Verify changes were applied
-        assert len(changes) > 0
-        # The exact structure might vary, but we should have some changes
-        assert "/test" in test_spec["paths"]
+      }
+    }
+
+    # Find differences
+    differences = self.tool.find_differences(original_spec, fixed_spec)
+    assert len(differences) > 0
+
+    # Create fix entries
+    fixes = {
+      "operations": [
+        self.tool.create_fix_entry(
+          diff['path'], diff.get('value'), diff['type'], diff.get('old_value'),
+          diff.get('description', '')
+        ) for diff in differences
+      ]
+    }
+
+    # Apply fixes
+    test_spec = original_spec.copy()
+    changes = self.tool.apply_path_operations(test_spec, fixes)
+
+    # Verify changes were applied
+    assert len(changes) > 0
+    # The exact structure might vary, but we should have some changes
+    assert "/test" in test_spec["paths"]
 
 
 if __name__ == '__main__':
-    pytest.main([__file__])
+  pytest.main([__file__])

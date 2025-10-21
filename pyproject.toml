@@ -11,11 +11,11 @@ keywords = ["Vault Management API", "vaultwarden", "bitwarden", "api-client", "p
 requires-python = ">=3.10,<4.0"
 dependencies = [
     "aenum>=3.1.11",
+    "openapi-spec-validator[dev]>=0.7.2,<0.8.0",
     "pydantic>=2.0.0,<3.0.0",
     "python-dateutil>=2.5.3",
     "requests>=2.25.0,<3.0.0",
     "urllib3>=1.25.3,<2.1.0",
-    "openapi-spec-validator[dev]>=0.7.2,<0.8.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -37,7 +37,6 @@ Documentation = "https://harleypig.github.io/bw-serve-client"
 "Bug Tracker" = "https://github.com/harleypig/bw-serve-client/issues"
 Changelog = "https://github.com/harleypig/bw-serve-client/blob/main/CHANGELOG.md"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -47,22 +46,35 @@ packages = [{include = "bw_serve_client"}]
 exclude = ["scripts/**"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0"
 aenum = ">=3.1.11"
+openapi-spec-validator = {extras = ["dev"], version = ">=0.7.2,<0.8.0"}
 pydantic = ">=2.0.0,<3.0.0"
+python = ">=3.10,<4.0"
 python-dateutil = ">=2.5.3"
 requests = ">=2.25.0,<3.0.0"
 urllib3 = ">=1.25.3,<2.1.0"
-openapi-spec-validator = {extras = ["dev"], version = ">=0.7.2,<0.8.0"}
 
 [tool.poetry.group.dev.dependencies]
 bandit = ">=1.7.5,<2.0.0"
 bump2version = ">=1.0.1,<2.0.0"
 datamodel-code-generator = ">=0.35.0,<0.36.0"
+deepdiff = {extras = ["cli"], version = "^8.6.1"}
 flake8 = ">=4.0.0"
+flake8-annotations = "^3.2.0"
+flake8-annotations-complexity = "^0.1.0"
 flake8-bugbear = ">=24.12.12,<25.0.0"
+flake8-clean-block = "^0.1.2"
+flake8-comprehensions = "^3.17.0"
+flake8-docstrings = "^1.7.0"
+flake8-logging = "^1.8.0"
+flake8-picky-parentheses = "^0.6.0"
 flake8-pyprojecttoml = ">=0.0.2,<0.0.3"
+flake8-raise = "^0.0.5"
+flake8-return = "^1.2.0"
+flake8-rst-docstrings = "^0.4.0"
+flake8-secure-coding-standard = "^1.4.1"
 flake8-simplify = ">=0.22.0,<0.23.0"
+flake8-unused-arguments = "^0.0.13"
 isort = ">=5.12.0,<6.0.0"
 lxml = ">=5.1.0,<6.0.0"
 mypy = ">=1.9.0,<2.0.0"
@@ -73,26 +85,19 @@ pyright = ">=1.1.406,<2.0.0"
 setuptools = ">=65.0.0"
 setuptools-scm = ">=9.2.1,<10.0.0"
 tox = ">=3.9.0"
+tryceratops = "^2.4.1"
 types-mock = ">=5.2.0.20250924,<6.0.0.0"
 types-python-dateutil = ">=2.8.0"
 types-requests = ">=2.32.4.20250913,<3.0.0.0"
 types-urllib3 = ">=1.26.0"
 yamllint = ">=1.37.1"
 yapf = ">=0.40.2,<1.0.0"
-flake8-secure-coding-standard = "^1.4.1"
-flake8-unused-arguments = "^0.0.13"
-flake8-clean-block = "^0.1.2"
-deepdiff = {extras = ["cli"], version = "^8.6.1"}
-flake8-comprehensions = "^3.17.0"
-flake8-picky-parentheses = "^0.6.0"
-flake8-return = "^1.2.0"
-tryceratops = "^2.4.1"
-flake8-annotations-complexity = "^0.1.0"
-flake8-raise = "^0.0.5"
-flake8-docstrings = "^1.7.0"
-flake8-rst-docstrings = "^0.4.0"
-flake8-annotations = "^3.2.0"
-flake8-logging = "^1.8.0"
+flake8-logging-format = "^2024.24.12"
+flake8-isort = "^6.1.2"
+dlint = "^0.16.0"
+flake8-pytest-style = "^2.2.0"
+flake8-assertive = "^2.2.0"
+flake8-aaa = "^0.17.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.2.1"
@@ -152,6 +157,11 @@ linewrap-full-docstring = true
 [tool.flake8]
 # Match yapf configuration
 max-line-length = 92
+
+# Enable bugbear rules (B-series)
+# Enable tryceratops rules (TRY-series)
+extend-select = ["B9","TRY"]
+
 extend-ignore = [
   # indentation not multiple of 4 since we use 2-space indentation
   "E111", "E114", "E122", "E131",
@@ -167,29 +177,36 @@ extend-ignore = [
   "RST203", # Definition list formatting is often overly strict
 ]
 
-# Enable bugbear rules (B-series)
-# Enable tryceratops rules (TRY-series)
-extend-select = ["B9","TRY"]
-
 per-file-ignores = [
   "tests/*:SCS108", # tests need asserts
 ]
 
+# dlint
+print-dlint-linters = true
+
+# assertive
+assertive-test-pattern = "tests/**"
+
 # bugbear
 extend-immutable-calls = ["pathlib.Path","Path"]
 
-# pyflakes
-doctests = true
+# docstrings
+docstring-convention = "all"
 
-# mccabe
-max-complexity = 10
+# logging format
+enable-extra-whitelist = true
 
 # unused-arguments
 unused-arguments-ignore-dunder = true
 
+# mccabe
+max-complexity = 10
+
+# pyflakes
+doctests = true
+
 [tool.tryceratops]
 experimental = false
-
 
 [tool.isort]
 profile = "google"

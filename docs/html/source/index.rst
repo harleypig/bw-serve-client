@@ -59,7 +59,7 @@ Examples
    :maxdepth: 1
    :caption: Examples:
 
-   ../doc/examples/basic-usage
+   examples/basic-usage
 
 Indices and tables
 ==================

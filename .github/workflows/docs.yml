@@ -5,12 +5,10 @@ on:
     branches: [ master, main ]
     paths:
       - 'docs/**'
-      - 'doc/**'
   pull_request:
     branches: [ master, main ]
     paths:
       - 'docs/**'
-      - 'doc/**'
   workflow_dispatch:
 
 permissions:

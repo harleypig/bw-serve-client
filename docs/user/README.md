@@ -63,7 +63,7 @@ Welcome to the `bw-serve-client` library documentation! This section contains ev
 
 ## 📝 Examples
 
-Check out the [examples directory](../../doc/examples/) for practical code samples:
+Check out the [examples directory](../examples/) for practical code samples:
 
 - Basic usage patterns
 - Error handling examples

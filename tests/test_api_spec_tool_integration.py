@@ -288,7 +288,7 @@ class TestEndToEndWorkflow:
     finally:
       os.unlink(temp_file)
 
-  def test_edge_cases(self: "TestEndToEndWorkflow") -> None:                       # noqa: AAA01
+  def test_edge_cases(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test edge cases and boundary conditions."""
     # Test with empty spec
     empty_spec = {"openapi": "3.0.0", "info": {"title": "Empty", "version": "1.0.0"}}

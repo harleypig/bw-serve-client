@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Unified API Specification Tool for Bitwarden Vault Management API.
+r"""Unified API Specification Tool for Bitwarden Vault Management API.
 
 This script provides a unified interface for working with the Bitwarden Vault
 Management API OpenAPI specification. It combines functionality from multiple
@@ -57,10 +57,10 @@ class APISpecTool:
       with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-        if not isinstance(data, dict):
-          raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
+      if not isinstance(data, dict):
+        raise ValueError(f"Expected JSON object (dict), got {type(data).__name__}")
 
-        return data
+      return data
 
     except FileNotFoundError:
       print(f"Error: {description} not found: {file_path}", file=sys.stderr)
@@ -82,27 +82,27 @@ class APISpecTool:
     response_patterns: Dict[str, Set[str]] = {}
 
     analysis: Dict[str, Any] = {
-        'api_info': {},
-        'authentication': {},
-        'server_info': {},
-        'response_patterns': response_patterns,
-        'error_codes': error_codes,
-        'data_models': {},
-        'parameter_patterns': {},
-        'request_body_patterns': {},
-        'tags': tags,
-        'endpoint_categories': {},
-        'examples': {},
-        'validation_rules': {}
+      'api_info': {},
+      'authentication': {},
+      'server_info': {},
+      'response_patterns': response_patterns,
+      'error_codes': error_codes,
+      'data_models': {},
+      'parameter_patterns': {},
+      'request_body_patterns': {},
+      'tags': tags,
+      'endpoint_categories': {},
+      'examples': {},
+      'validation_rules': {}
     }
 
     # Extract API info
     if 'info' in data:
       analysis['api_info'] = {
-          'title': data['info'].get('title', ''),
-          'description': data['info'].get('description', ''),
-          'version': data['info'].get('version', ''),
-          'openapi_version': data.get('openapi', '')
+        'title': data['info'].get('title', ''),
+        'description': data['info'].get('description', ''),
+        'version': data['info'].get('version', ''),
+        'openapi_version': data.get('openapi', '')
       }
 
     # Extract authentication info
@@ -117,9 +117,9 @@ class APISpecTool:
       analysis['server_info'] = data['servers']
     elif 'host' in data:
       analysis['server_info'] = {
-          'host': data.get('host', ''),
-          'basePath': data.get('basePath', ''),
-          'schemes': data.get('schemes', [])
+        'host': data.get('host', ''),
+        'basePath': data.get('basePath', ''),
+        'schemes': data.get('schemes', [])
       }
 
     # Analyze paths
@@ -135,12 +135,12 @@ class APISpecTool:
             if 'parameters' in details:
               for param in details['parameters']:
                 param_info = {
-                    'name': param.get('name', ''),
-                    'in': param.get('in', ''),
-                    'required': param.get('required', False),
-                    'type': param.get('schema', {}).get('type', ''),
-                    'format': param.get('schema', {}).get('format', ''),
-                    'description': param.get('description', '')
+                  'name': param.get('name', ''),
+                  'in': param.get('in', ''),
+                  'required': param.get('required', False),
+                  'type': param.get('schema', {}).get('type', ''),
+                  'format': param.get('schema', {}).get('format', ''),
+                  'description': param.get('description', '')
                 }
                 if param_info['in'] not in analysis['parameter_patterns']:
                   analysis['parameter_patterns'][param_info['in']] = []
@@ -152,9 +152,9 @@ class APISpecTool:
               req_body = details['requestBody']
               content_types = list(req_body.get('content', {}).keys())
               analysis['request_body_patterns'][f"{method.upper()} {path}"] = {
-                  'content_types': content_types,
-                  'required': req_body.get('required', False),
-                  'description': req_body.get('description', '')
+                'content_types': content_types,
+                'required': req_body.get('required', False),
+                'description': req_body.get('description', '')
               }
 
             # Extract response patterns
@@ -174,18 +174,18 @@ class APISpecTool:
                     if 'example' in content_info:
                       example_key = f"{method.upper()} {path} {status_code}"
                       analysis['examples'][example_key] = {
-                          'content_type': content_type,
-                          'example': content_info['example']
+                        'content_type': content_type,
+                        'example': content_info['example']
                       }
 
     # Analyze schemas
     if 'components' in data and 'schemas' in data['components']:
       for schema_name, schema_def in data['components']['schemas'].items():
         analysis['data_models'][schema_name] = {
-            'type': schema_def.get('type', 'object'),
-            'properties': schema_def.get('properties', {}),
-            'required': schema_def.get('required', []),
-            'description': schema_def.get('description', '')
+          'type': schema_def.get('type', 'object'),
+          'properties': schema_def.get('properties', {}),
+          'required': schema_def.get('required', []),
+          'description': schema_def.get('description', '')
         }
 
     # Convert sets to lists for JSON serialization
@@ -193,7 +193,7 @@ class APISpecTool:
     analysis['tags'] = sorted(list(tags))
     for status_code in response_patterns:
       analysis['response_patterns'][status_code] = sorted(
-          list(response_patterns[status_code])
+        list(response_patterns[status_code])
       )
 
     return analysis
@@ -256,8 +256,8 @@ class APISpecTool:
       print(f"  {param_type.upper()} parameters:")
       for param in params[:5]:                             # Show first 5 examples
         print(
-            f"    - {param['name']} ({param['type']}) - "
-            f"{param['description'][:50]}..."
+          f"    - {param['name']} ({param['type']}) - "
+          f"{param['description'][:50]}..."
         )
 
       if len(params) > 5:
@@ -314,13 +314,13 @@ class APISpecTool:
       for method, details in methods.items():
         if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
           route_info = {
-              'path': path,
-              'method': method.upper(),
-              'summary': details.get('summary', ''),
-              'description': details.get('description', ''),
-              'tags': details.get('tags', []),
-              'parameters': details.get('parameters', []),
-              'responses': list(details.get('responses', {}).keys())
+            'path': path,
+            'method': method.upper(),
+            'summary': details.get('summary', ''),
+            'description': details.get('description', ''),
+            'tags': details.get('tags', []),
+            'parameters': details.get('parameters', []),
+            'responses': list(details.get('responses', {}).keys())
           }
           routes.append(route_info)
 
@@ -469,10 +469,10 @@ class APISpecTool:
         value = self.get_value_at_deepdiff_path(obj2, key_path)
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         differences.append({
-            'path': pipe_path,
-            'type': 'add_if_missing',
-            'value': value,
-            'description': f"Add missing value at {pipe_path}"
+          'path': pipe_path,
+          'type': 'add_if_missing',
+          'value': value,
+          'description': f"Add missing value at {pipe_path}"
         })
 
     # Process dictionary item removals
@@ -480,9 +480,9 @@ class APISpecTool:
       for key_path in diff['dictionary_item_removed']:
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         differences.append({
-            'path': pipe_path,
-            'type': 'delete_value',
-            'description': f"Remove value at {pipe_path}"
+          'path': pipe_path,
+          'type': 'delete_value',
+          'description': f"Remove value at {pipe_path}"
         })
 
     # Process dictionary item changes
@@ -490,11 +490,11 @@ class APISpecTool:
       for key_path, change in diff['values_changed'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         differences.append({
-            'path': pipe_path,
-            'type': 'set_value',
-            'value': change['new_value'],
-            'old_value': change['old_value'],
-            'description': f"Update value at {pipe_path}"
+          'path': pipe_path,
+          'type': 'set_value',
+          'value': change['new_value'],
+          'old_value': change['old_value'],
+          'description': f"Update value at {pipe_path}"
         })
 
     # Process type changes
@@ -502,19 +502,19 @@ class APISpecTool:
       for key_path, change in diff['type_changes'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         differences.append({
-            "path":
-                pipe_path,
-            "type":
-                "set_value",
-            "value":
-                change["new_value"],
-            "old_value":
-                change["old_value"],
-            "description": (
-                f"Change type at {pipe_path} from "
-                f"{type(change['old_value']).__name__} to "
-                f"{type(change['new_value']).__name__}"
-            )
+          "path":
+            pipe_path,
+          "type":
+            "set_value",
+          "value":
+            change["new_value"],
+          "old_value":
+            change["old_value"],
+          "description": (
+            f"Change type at {pipe_path} from "
+            f"{type(change['old_value']).__name__} to "
+            f"{type(change['new_value']).__name__}"
+          )
         })
 
     # Process iterable item additions
@@ -523,10 +523,10 @@ class APISpecTool:
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         for item in items:
           differences.append({
-              'path': pipe_path,
-              'type': 'add_array_item',
-              'value': item,
-              'description': f"Add item to array at {pipe_path}"
+            'path': pipe_path,
+            'type': 'add_array_item',
+            'value': item,
+            'description': f"Add item to array at {pipe_path}"
           })
 
     # Process iterable item removals
@@ -535,10 +535,10 @@ class APISpecTool:
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         for item in items:
           differences.append({
-              'path': pipe_path,
-              'type': 'remove_array_item',
-              'value': item,
-              'description': f"Remove item from array at {pipe_path}"
+            'path': pipe_path,
+            'type': 'remove_array_item',
+            'value': item,
+            'description': f"Remove item from array at {pipe_path}"
           })
 
     return differences
@@ -618,12 +618,12 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def create_fix_entry(
-      self,
-      path: str,
-      value: Any,
-      operation_type: str = 'set_value',
-      old_value: Any = None,
-      description: str = None
+    self,
+    path: str,
+    value: Any,
+    operation_type: str = 'set_value',
+    old_value: Any = None,
+    description: str | None = None
   ) -> Dict[str, Any]:
     """Create a fix entry for the new spec-fixes v2 format."""
     # Generate description if not provided
@@ -698,7 +698,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def rename_key_at_path(
-      self, spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
+    self, spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
   ) -> bool:
     """Rename a key at the specified parent path."""
     parent = self.get_value_at_spec_path(spec, parent_path)
@@ -711,8 +711,8 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def modify_array_element(
-      self, spec: Dict[str, Any], array_path: str, match_criteria: Dict[str, Any],
-      modifications: Dict[str, Any]
+    self, spec: Dict[str, Any], array_path: str, match_criteria: Dict[str, Any],
+    modifications: Dict[str, Any]
   ) -> bool:
     """Modify a specific element in an array by matching criteria."""
     array = self.get_value_at_spec_path(spec, array_path)
@@ -733,107 +733,106 @@ class APISpecTool:
 
           return True
 
-        return False
+    return False
 
-    # -------------------------------------------------------------------------
-    def apply_path_operations(self, spec: Dict[str, Any], fixes: Dict[str,
-                                                                      Any]) -> List[str]:
-      """Apply path-based operations to the spec."""
-      changes_made: List[str] = []
+  # -------------------------------------------------------------------------
+  def apply_path_operations(self, spec: Dict[str, Any], fixes: Dict[str, Any]) -> List[str]:
+    """Apply path-based operations to the spec."""
+    changes_made: List[str] = []
 
+    # Handle both old and new format
+    if "operations" in fixes:
+      operations = fixes["operations"]
+    elif "path_operations" in fixes and "fixes" in fixes["path_operations"]:
+      operations = fixes["path_operations"]["fixes"]
+    else:
+      return changes_made
+
+    for op in operations:
       # Handle both old and new format
-      if "operations" in fixes:
-        operations = fixes["operations"]
-      elif "path_operations" in fixes and "fixes" in fixes["path_operations"]:
-        operations = fixes["path_operations"]["fixes"]
-      else:
-        return changes_made
+      operation_type = op.get("type", op.get("operation", "unknown"))
+      path = op["path"]
+      description = op.get("description", "")
 
-      for op in operations:
-        # Handle both old and new format
-        operation_type = op.get("type", op.get("operation", "unknown"))
-        path = op["path"]
-        description = op.get("description", "")
+      if operation_type == "rename_key":
+        success = self.rename_key_at_path(spec, path, op["old_key"], op["new_key"])
 
-        if operation_type == "rename_key":
-          success = self.rename_key_at_path(spec, path, op["old_key"], op["new_key"])
-
-          if success:
-            changes_made.append(f"Renamed key: {description}")
-          else:
-            changes_made.append(f"Key not found (skipped): {description}")
-
-        elif operation_type == "set_value":
-          if self.path_exists(spec, path):
-            current_value = self.get_value_at_spec_path(spec, path)
-
-            if current_value != op["value"]:
-              self.set_value_at_path(spec, path, op["value"])
-              changes_made.append(f"Updated value: {description}")
-            else:
-              changes_made.append(f"Value unchanged (already correct): {description}")
-          else:
-            self.set_value_at_path(spec, path, op["value"])
-            changes_made.append(f"Added new value: {description}")
-
-        elif operation_type == "add_if_missing":
-          if not self.path_exists(spec, path):
-            self.set_value_at_path(spec, path, op["value"])
-            changes_made.append(f"Added missing: {description}")
-          else:
-            changes_made.append(f"Already exists (skipped): {description}")
-
-        elif operation_type == "delete_value":
-          if self.path_exists(spec, path):
-            # Navigate to parent and remove the key
-            parts = path.split('|')
-            if len(parts) > 1:
-              parent_path = '|'.join(parts[:-1])
-              key_to_remove = parts[-1]
-              parent = self.get_value_at_spec_path(spec, parent_path)
-              if (isinstance(parent, dict) and key_to_remove in parent):
-                del parent[key_to_remove]
-                changes_made.append(f"Deleted value: {description}")
-              else:
-                changes_made.append(
-                    f"Key not found for deletion (skipped): "
-                    f"{description}"
-                )
-            else:
-              changes_made.append(f"Cannot delete root value (skipped): "
-                                  f"{description}")
-          else:
-            changes_made.append(f"Value not found for deletion (skipped): {description}")
-
-        elif operation_type == "modify_array_element":
-          match_criteria = op.get("match_criteria", {})
-          modifications = op.get("modifications", {})
-
-          success = self.modify_array_element(spec, path, match_criteria, modifications)
-
-          if success:
-            changes_made.append(f"Modified array element: {description}")
-          else:
-            changes_made.append(f"Array element not found (skipped): {description}")
-
-        elif operation_type == "add_array_item":
-          array = self.get_value_at_spec_path(spec, path)
-          if isinstance(array, list):
-            array.append(op["value"])
-            changes_made.append(f"Added array item: {description}")
-          else:
-            changes_made.append(f"Path is not an array (skipped): {description}")
-
-        elif operation_type == "remove_array_item":
-          array = self.get_value_at_spec_path(spec, path)
-          if isinstance(array, list) and op["value"] in array:
-            array.remove(op["value"])
-            changes_made.append(f"Removed array item: {description}")
-          else:
-            changes_made.append(f"Array item not found (skipped): {description}")
-
+        if success:
+          changes_made.append(f"Renamed key: {description}")
         else:
-          changes_made.append(f"Unknown operation {operation_type!r}: {description}")
+          changes_made.append(f"Key not found (skipped): {description}")
+
+      elif operation_type == "set_value":
+        if self.path_exists(spec, path):
+          current_value = self.get_value_at_spec_path(spec, path)
+
+          if current_value != op["value"]:
+            self.set_value_at_path(spec, path, op["value"])
+            changes_made.append(f"Updated value: {description}")
+          else:
+            changes_made.append(f"Value unchanged (already correct): {description}")
+        else:
+          self.set_value_at_path(spec, path, op["value"])
+          changes_made.append(f"Added new value: {description}")
+
+      elif operation_type == "add_if_missing":
+        if not self.path_exists(spec, path):
+          self.set_value_at_path(spec, path, op["value"])
+          changes_made.append(f"Added missing: {description}")
+        else:
+          changes_made.append(f"Already exists (skipped): {description}")
+
+      elif operation_type == "delete_value":
+        if self.path_exists(spec, path):
+          # Navigate to parent and remove the key
+          parts = path.split('|')
+          if len(parts) > 1:
+            parent_path = '|'.join(parts[:-1])
+            key_to_remove = parts[-1]
+            parent = self.get_value_at_spec_path(spec, parent_path)
+            if (isinstance(parent, dict) and key_to_remove in parent):
+              del parent[key_to_remove]
+              changes_made.append(f"Deleted value: {description}")
+            else:
+              changes_made.append(
+                f"Key not found for deletion (skipped): "
+                f"{description}"
+              )
+          else:
+            changes_made.append(f"Cannot delete root value (skipped): "
+                                f"{description}")
+        else:
+          changes_made.append(f"Value not found for deletion (skipped): {description}")
+
+      elif operation_type == "modify_array_element":
+        match_criteria = op.get("match_criteria", {})
+        modifications = op.get("modifications", {})
+
+        success = self.modify_array_element(spec, path, match_criteria, modifications)
+
+        if success:
+          changes_made.append(f"Modified array element: {description}")
+        else:
+          changes_made.append(f"Array element not found (skipped): {description}")
+
+      elif operation_type == "add_array_item":
+        array = self.get_value_at_spec_path(spec, path)
+        if isinstance(array, list):
+          array.append(op["value"])
+          changes_made.append(f"Added array item: {description}")
+        else:
+          changes_made.append(f"Path is not an array (skipped): {description}")
+
+      elif operation_type == "remove_array_item":
+        array = self.get_value_at_spec_path(spec, path)
+        if isinstance(array, list) and op["value"] in array:
+          array.remove(op["value"])
+          changes_made.append(f"Removed array item: {description}")
+        else:
+          changes_made.append(f"Array item not found (skipped): {description}")
+
+      else:
+        changes_made.append(f"Unknown operation {operation_type!r}: {description}")
 
     return changes_made
 
@@ -842,9 +841,9 @@ class APISpecTool:
 def main() -> None:
   """Main entry point for the API spec tool."""
   parser = argparse.ArgumentParser(
-      description="Unified API Specification Tool for Bitwarden Vault Management API",
-      formatter_class=argparse.RawDescriptionHelpFormatter,
-      epilog=__doc__
+    description="Unified API Specification Tool for Bitwarden Vault Management API",
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    epilog=__doc__
   )
 
   subparsers = parser.add_subparsers(dest='command', help='Available subcommands')
@@ -857,53 +856,53 @@ def main() -> None:
   extract_parser = subparsers.add_parser('extract', help='Extract and format API routes')
   extract_parser.add_argument('swagger_file', help='Path to the swagger JSON file')
   extract_parser.add_argument(
-      '--format',
-      '-f',
-      choices=['markdown', 'text', 'json'],
-      default='text',
-      help='Output format (default: text)'
+    '--format',
+    '-f',
+    choices=['markdown', 'text', 'json'],
+    default='text',
+    help='Output format (default: text)'
   )
   extract_parser.add_argument('--output', '-o', help='Output file (default: stdout)')
 
   # Update subcommand
   update_parser = subparsers.add_parser(
-      'update', help='Update spec-fixes.json with new changes'
+    'update', help='Update spec-fixes.json with new changes'
   )
   update_parser.add_argument(
-      '--dry-run',
-      action='store_true',
-      help='Show what would be added without making changes'
+    '--dry-run',
+    action='store_true',
+    help='Show what would be added without making changes'
   )
   update_parser.add_argument(
-      '--output-file',
-      default='scripts/spec-fixes.json',
-      help='Output file path (default: scripts/spec-fixes.json)'
+    '--output-file',
+    default='scripts/spec-fixes.json',
+    help='Output file path (default: scripts/spec-fixes.json)'
   )
   update_parser.add_argument(
-      '--original-file',
-      default='scripts/vault-management-api-original.json',
-      help='Original API spec file'
+    '--original-file',
+    default='scripts/vault-management-api-original.json',
+    help='Original API spec file'
   )
   update_parser.add_argument(
-      '--fixed-file',
-      default='scripts/vault-management-api-fixed.json',
-      help='Fixed API spec file'
+    '--fixed-file',
+    default='scripts/vault-management-api-fixed.json',
+    help='Fixed API spec file'
   )
 
   # Fix subcommand
   fix_parser = subparsers.add_parser('fix', help='Apply fixes to the OpenAPI specification')
   fix_parser.add_argument(
-      '--original-file',
-      default='scripts/vault-management-api-original.json',
-      help='Original API spec file'
+    '--original-file',
+    default='scripts/vault-management-api-original.json',
+    help='Original API spec file'
   )
   fix_parser.add_argument(
-      '--fixed-file',
-      default='scripts/vault-management-api-fixed.json',
-      help='Fixed API spec file'
+    '--fixed-file',
+    default='scripts/vault-management-api-fixed.json',
+    help='Fixed API spec file'
   )
   fix_parser.add_argument(
-      '--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file'
+    '--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file'
   )
 
   args = parser.parse_args()
@@ -979,9 +978,9 @@ def main() -> None:
 
         if not has_array_index:
           new_fixes.append(
-              tool.create_fix_entry(
-                  spec_path, value, operation_type, old_value, description
-              )
+            tool.create_fix_entry(
+              spec_path, value, operation_type, old_value, description or ""
+            )
           )
 
       if not new_fixes:
@@ -1002,17 +1001,17 @@ def main() -> None:
           spec_fixes = json.load(f)
       except FileNotFoundError:
         spec_fixes = {
-            "version":
-                "2.0",
-            "description":
-                "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
-            "metadata": {
-                "generated_by": "api_spec_tool.py",
-                "generated_at": "2024-01-01T00:00:00Z",
-                "original_spec": args.original_file,
-                "fixed_spec": args.fixed_file
-            },
-            "operations": []
+          "version":
+            "2.0",
+          "description":
+            "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
+          "metadata": {
+            "generated_by": "api_spec_tool.py",
+            "generated_at": "2024-01-01T00:00:00Z",
+            "original_spec": args.original_file,
+            "fixed_spec": args.fixed_file
+          },
+          "operations": []
         }
 
       # Add new fixes
@@ -1021,18 +1020,18 @@ def main() -> None:
       elif "path_operations" in spec_fixes and "fixes" in spec_fixes["path_operations"]:
         # Convert old format to new format
         spec_fixes = {
-            "version":
-                "2.0",
-            "description":
-                "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
-            "metadata": {
-                "generated_by": "api_spec_tool.py",
-                "generated_at": "2024-01-01T00:00:00Z",
-                "original_spec": args.original_file,
-                "fixed_spec": args.fixed_file
-            },
-            "operations":
-                spec_fixes["path_operations"]["fixes"] + new_fixes
+          "version":
+            "2.0",
+          "description":
+            "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
+          "metadata": {
+            "generated_by": "api_spec_tool.py",
+            "generated_at": "2024-01-01T00:00:00Z",
+            "original_spec": args.original_file,
+            "fixed_spec": args.fixed_file
+          },
+          "operations":
+            spec_fixes["path_operations"]["fixes"] + new_fixes
         }
 
       # Write updated spec-fixes

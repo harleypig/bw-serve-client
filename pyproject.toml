@@ -143,9 +143,8 @@ linewrap-full-docstring = true
 # Match yapf configuration
 max-line-length = 92
 extend-ignore = [
-  "E111", # indentation not multiple of 4 since we use 2-space indentation
-  "E114", # indentation not multiple of 4 since we use 2-space indentation
-  "E122", # indentation not multiple of 4 since we use 2-space indentation
+  # indentation not multiple of 4 since we use 2-space indentation
+  "E111", "E114", "E122", "E131",
   "E251", # unexpected spaces around keyword/parameter equals to match yapf style
   "E501", # line too long in favor of bugbear's B950
 ]
@@ -184,7 +183,7 @@ based_on_style = "google"
 # Basic formatting
 indent_width = 2
 column_limit = 92
-continuation_indent_width = 4
+continuation_indent_width = 2
 
 # Whitespace and docstring settings
 allow_multiline_dictionary_keys = true

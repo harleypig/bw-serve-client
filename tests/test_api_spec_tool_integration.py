@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from typing import Any, Dict
 
 import pytest
 
@@ -16,6 +17,9 @@ spec = importlib.util.spec_from_file_location(
   "api_spect_tool",
   os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spect-tool.py')
 )
+if spec is None or spec.loader is None:
+  raise ImportError("Could not load api_spect_tool module")
+
 api_spect_tool = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(api_spect_tool)
 
@@ -25,7 +29,7 @@ APISpecTool = api_spect_tool.APISpecTool
 class TestCommandLineInterface:
   """Test cases for command-line interface."""
 
-  def test_help_command(self):
+  def test_help_command(self) -> None:
     """Test that the help command works."""
     result = subprocess.run([
       sys.executable,
@@ -41,7 +45,7 @@ class TestCommandLineInterface:
     assert "update" in result.stdout
     assert "fix" in result.stdout
 
-  def test_analyze_help(self):
+  def test_analyze_help(self) -> None:
     """Test analyze subcommand help."""
     result = subprocess.run([
       sys.executable,
@@ -54,7 +58,7 @@ class TestCommandLineInterface:
     assert result.returncode == 0
     assert "swagger_file" in result.stdout
 
-  def test_extract_help(self):
+  def test_extract_help(self) -> None:
     """Test extract subcommand help."""
     result = subprocess.run([
       sys.executable,
@@ -68,7 +72,7 @@ class TestCommandLineInterface:
     assert "format" in result.stdout
     assert "output" in result.stdout
 
-  def test_update_help(self):
+  def test_update_help(self) -> None:
     """Test update subcommand help."""
     result = subprocess.run([
       sys.executable,
@@ -81,7 +85,7 @@ class TestCommandLineInterface:
     assert result.returncode == 0
     assert "dry-run" in result.stdout
 
-  def test_fix_help(self):
+  def test_fix_help(self) -> None:
     """Test fix subcommand help."""
     result = subprocess.run([
       sys.executable,
@@ -99,10 +103,10 @@ class TestCommandLineInterface:
 class TestEndToEndWorkflow:
   """End-to-end workflow tests."""
 
-  def setup_method(self):
+  def setup_method(self) -> None:
     """Set up test fixtures before each test method."""
     self.tool = APISpecTool()
-    self.original_spec = {
+    self.original_spec: Dict[str, Any] = {
       "openapi": "3.0.0",
       "info": {
         "title": "Test API",
@@ -147,7 +151,7 @@ class TestEndToEndWorkflow:
       }
     }
 
-  def test_complete_workflow(self):
+  def test_complete_workflow(self) -> None:
     """Test complete workflow from analysis to fix application."""
     # Step 1: Analyze original spec
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
@@ -184,7 +188,7 @@ class TestEndToEndWorkflow:
     # (exact match might not be possible due to DeepDiff limitations)
     assert "/test" in test_spec["paths"]
 
-  def test_spec_fixes_v2_format_workflow(self):
+  def test_spec_fixes_v2_format_workflow(self) -> None:
     """Test workflow with v2 spec-fixes format."""
     # Create v2 spec-fixes file
     v2_fixes = {
@@ -220,14 +224,14 @@ class TestEndToEndWorkflow:
       assert "paths|/test|get|responses|200|content" in existing_paths
 
       # Test applying fixes
-      test_spec = self.original_spec.copy()
+      test_spec: Dict[str, Any] = self.original_spec.copy()
       changes = self.tool.apply_path_operations(test_spec, v2_fixes)
       assert len(changes) > 0
       assert "content" in test_spec["paths"]["/test"]["get"]["responses"]["200"]
     finally:
       os.unlink(fixes_file)
 
-  def test_spec_fixes_old_format_workflow(self):
+  def test_spec_fixes_old_format_workflow(self) -> None:
     """Test workflow with old spec-fixes format."""
     # Create old format spec-fixes file
     old_fixes = {
@@ -257,14 +261,14 @@ class TestEndToEndWorkflow:
       assert "paths|/test|get|responses|200|content" in existing_paths
 
       # Test applying fixes
-      test_spec = self.original_spec.copy()
+      test_spec: Dict[str, Any] = self.original_spec.copy()
       changes = self.tool.apply_path_operations(test_spec, old_fixes)
       assert len(changes) > 0
       assert "content" in test_spec["paths"]["/test"]["get"]["responses"]["200"]
     finally:
       os.unlink(fixes_file)
 
-  def test_error_handling_scenarios(self):
+  def test_error_handling_scenarios(self) -> None:
     """Test various error handling scenarios."""
     # Test with invalid file path
     with pytest.raises(SystemExit):
@@ -292,7 +296,7 @@ class TestEndToEndWorkflow:
     finally:
       os.unlink(temp_file)
 
-  def test_edge_cases(self):
+  def test_edge_cases(self) -> None:
     """Test edge cases and boundary conditions."""
     # Test with empty spec
     empty_spec = {"openapi": "3.0.0", "info": {"title": "Empty", "version": "1.0.0"}}
@@ -328,7 +332,7 @@ class TestEndToEndWorkflow:
     finally:
       os.unlink(temp_file)
 
-  def test_array_operations(self):
+  def test_array_operations(self) -> None:
     """Test array modification operations."""
     spec = {
       "test": {
@@ -361,7 +365,7 @@ class TestEndToEndWorkflow:
     assert spec["test"]["items"][0]["value"] == "new"
     assert spec["test"]["items"][1]["value"] == "keep"
 
-  def test_key_rename_operations(self):
+  def test_key_rename_operations(self) -> None:
     """Test key rename operations."""
     spec = {"test": {"old_key": "value"}}
 

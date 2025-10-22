@@ -243,26 +243,6 @@
                   "data": [],
                   "revisionDate": "2022-03-07T20:13:51.536Z",
                   "deleteDate": null
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/item.template"
-                    },
-                    "revisionDate": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "deleteDate": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    }
-                  }
                 }
               }
             }
@@ -421,26 +401,6 @@
                   "data": [],
                   "revisionDate": "2022-03-07T20:13:51.536Z",
                   "deleteDate": null
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/item.template"
-                    },
-                    "revisionDate": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "deleteDate": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    }
-                  }
                 }
               }
             }
@@ -484,26 +444,6 @@
                   "data": [],
                   "revisionDate": "2022-03-07T20:13:51.536Z",
                   "deleteDate": null
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/item.template"
-                    },
-                    "revisionDate": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "deleteDate": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    }
-                  }
                 }
               }
             }
@@ -544,14 +484,6 @@
               "application/json": {
                 "example": {
                   "success": true
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    }
-                  }
                 }
               }
             }
@@ -594,14 +526,6 @@
               "application/json": {
                 "example": {
                   "success": true
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    }
-                  }
                 }
               }
             }
@@ -689,31 +613,6 @@
                   "data": {
                     "object": "list",
                     "data": []
-                  }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "object": {
-                          "type": "string",
-                          "enum": [
-                            "list"
-                          ]
-                        },
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/item.template"
-                          }
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -1220,17 +1119,6 @@
                     "id": "a0663107-6e57-401f-9e22-ae51015bb2cf",
                     "name": "My Folder"
                   }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/folder"
-                    }
-                  }
                 }
               }
             }
@@ -1291,17 +1179,6 @@
                     "id": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
                     "name": "My Folder's New Name"
                   }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/folder"
-                    }
-                  }
                 }
               }
             }
@@ -1347,17 +1224,6 @@
                     "id": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
                     "name": "My Folder"
                   }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/folder"
-                    }
-                  }
                 }
               }
             }
@@ -1398,14 +1264,6 @@
               "application/json": {
                 "example": {
                   "success": true
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    }
-                  }
                 }
               }
             }
@@ -1449,31 +1307,6 @@
                   "data": {
                     "object": "list",
                     "data": []
-                  }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "object": {
-                          "type": "string",
-                          "enum": [
-                            "list"
-                          ]
-                        },
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/folder"
-                          }
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -1552,17 +1385,6 @@
                     "text": {
                       "text": "Secret Information",
                       "hidden": true
-                    }
-                  }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/send.template"
                     }
                   }
                 }
@@ -1656,17 +1478,6 @@
                       "hidden": true
                     }
                   }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/send.template"
-                    }
-                  }
                 }
               }
             }
@@ -1729,17 +1540,6 @@
                       "hidden": true
                     }
                   }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/send.template"
-                    }
-                  }
                 }
               }
             }
@@ -1780,14 +1580,6 @@
               "application/json": {
                 "example": {
                   "success": true
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    }
-                  }
                 }
               }
             }
@@ -1831,31 +1623,6 @@
                   "data": {
                     "object": "list",
                     "data": []
-                  }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "object": {
-                          "type": "string",
-                          "enum": [
-                            "list"
-                          ]
-                        },
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/send.template"
-                          }
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -1921,17 +1688,6 @@
                       "hidden": true
                     }
                   }
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/send.template"
-                    }
-                  }
                 }
               }
             }
@@ -1974,32 +1730,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "description": "Unique identifier of the Organization to move the item to.",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "MoveItemidOrganizationIdPostRequest",
-              "x-python-alias": "MoveItemidOrganizationIdPostRequest",
-              "description": "Request schema for moving an item to a collection"
-            }
-          },
-          {
-            "name": "itemid",
-            "in": "path",
-            "required": true,
-            "description": "Unique identifier of the item to move.",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "MoveItemidOrganizationIdPostParameters",
-              "x-python-alias": "MoveItemidOrganizationIdPostParameters",
-              "description": "Path parameters for moving an item to a collection"
             }
           }
         ],

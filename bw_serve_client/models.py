@@ -211,13 +211,19 @@ class GroupSchema(BaseModel):
     hide_passwords: Annotated[bool | None, Field(alias='hidePasswords')]
 
 
-class Status(Enum):
+class StatusEnum(Enum):
+    """
+    Vault status (locked, unlocked, or unauthenticated)
+    """
     LOCKED = 'locked'
     UNLOCKED = 'unlocked'
     UNAUTHENTICATED = 'unauthenticated'
 
 
-class Template(BaseModel):
+class TemplateSchema(BaseModel):
+    """
+    Vault template schema containing server URL, sync info, and user details
+    """
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
@@ -226,16 +232,25 @@ class Template(BaseModel):
     last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
     user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
     user_id: Annotated[UUID | None, Field(alias='userID')]
-    status: Status | None
+    status: Annotated[StatusEnum | None, Field(title='StatusEnum')]
+    """
+    Vault status (locked, unlocked, or unauthenticated)
+    """
 
 
-class Data(BaseModel):
+class StatusDataSchema(BaseModel):
+    """
+    Status response data containing template information
+    """
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
     )
     object: Literal['template'] | None
-    template: Template | None
+    template: Annotated[TemplateSchema | None, Field(title='TemplateSchema')]
+    """
+    Vault template schema containing server URL, sync info, and user details
+    """
 
 
 class StatusSchema(BaseModel):
@@ -247,10 +262,16 @@ class StatusSchema(BaseModel):
         populate_by_name=True,
     )
     success: bool | None
-    data: Data | None
+    data: Annotated[StatusDataSchema | None, Field(title='StatusDataSchema')]
+    """
+    Status response data containing template information
+    """
 
 
 class LockUnlockDataSchema(BaseModel):
+    """
+    Data schema for lock/unlock response containing status message and display options
+    """
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
@@ -271,6 +292,9 @@ class LockUnlockSuccessSchema(BaseModel):
     )
     success: bool | None
     data: Annotated[LockUnlockDataSchema | None, Field(title='LockUnlockDataSchema')]
+    """
+    Data schema for lock/unlock response containing status message and display options
+    """
 
 
 class DeviceApprovalPropertiesSchema(BaseModel):
@@ -290,7 +314,10 @@ class DeviceApprovalPropertiesSchema(BaseModel):
     creation_date: Annotated[str | None, Field(alias='creationDate')]
 
 
-class UnlockPostRequest(BaseModel):
+class UnlockPostRequestSchema(BaseModel):
+    """
+    Request schema for unlocking the vault with master password
+    """
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
@@ -452,6 +479,9 @@ class ListObjectFoldersGetParameters(BaseModel):
 
 
 class FolderListDataSchema(BaseModel):
+    """
+    List data schema containing array of folder objects
+    """
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
@@ -467,6 +497,9 @@ class ListObjectFoldersGetResponse(BaseModel):
     )
     success: bool | None
     data: Annotated[FolderListDataSchema | None, Field(title='FolderListDataSchema')]
+    """
+    List data schema containing array of folder objects
+    """
 
 
 
@@ -733,6 +766,9 @@ ObjectSendIdGetResponse = ObjectSendPostResponse
 
 
 class SendListDataSchema(BaseModel):
+    """
+    List data schema containing array of send templates
+    """
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
@@ -748,6 +784,9 @@ class ListObjectSendGetResponse(BaseModel):
     )
     success: bool | None
     data: Annotated[SendListDataSchema | None, Field(title='SendListDataSchema')]
+    """
+    List data schema containing array of send templates
+    """
 
 
 
@@ -842,6 +881,9 @@ ObjectItemIdGetResponse = ObjectItemPostResponse
 
 
 class ItemListDataSchema(BaseModel):
+    """
+    List data schema containing array of item templates
+    """
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
@@ -857,3 +899,6 @@ class ListObjectItemsGetResponse(BaseModel):
     )
     success: bool | None
     data: Annotated[ItemListDataSchema | None, Field(title='ItemListDataSchema')]
+    """
+    List data schema containing array of item templates
+    """

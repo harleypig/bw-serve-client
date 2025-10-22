@@ -62,7 +62,10 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "title": "UnlockPostRequestSchema",
+                "x-python-alias": "UnlockPostRequest",
+                "description": "Request schema for unlocking the vault with master password"
               },
               "example": {
                 "password": "myp@$$w0rd"
@@ -711,7 +714,8 @@
                         }
                       },
                       "title": "ItemListDataSchema",
-                      "x-python-alias": "ItemListData"
+                      "x-python-alias": "ItemListData",
+                      "description": "List data schema containing array of item templates"
                     }
                   }
                 }
@@ -1473,7 +1477,8 @@
                         }
                       },
                       "title": "FolderListDataSchema",
-                      "x-python-alias": "FolderListData"
+                      "x-python-alias": "FolderListData",
+                      "description": "List data schema containing array of folder objects"
                     }
                   }
                 }
@@ -1857,7 +1862,8 @@
                         }
                       },
                       "title": "SendListDataSchema",
-                      "x-python-alias": "SendListData"
+                      "x-python-alias": "SendListData",
+                      "description": "List data schema containing array of send templates"
                     }
                   }
                 }
@@ -3518,11 +3524,20 @@
                       "locked",
                       "unlocked",
                       "unauthenticated"
-                    ]
+                    ],
+                    "description": "Vault status (locked, unlocked, or unauthenticated)",
+                    "title": "StatusEnum",
+                    "x-python-alias": "Status"
                   }
-                }
+                },
+                "title": "TemplateSchema",
+                "x-python-alias": "Template",
+                "description": "Vault template schema containing server URL, sync info, and user details"
               }
-            }
+            },
+            "title": "StatusDataSchema",
+            "x-python-alias": "StatusData",
+            "description": "Status response data containing template information"
           }
         },
         "description": "Status of the vault (locked, unlocked, or unauthenticated)",
@@ -3550,7 +3565,8 @@
               }
             },
             "title": "LockUnlockDataSchema",
-            "x-python-alias": "LockUnlockData"
+            "x-python-alias": "LockUnlockData",
+            "description": "Data schema for lock/unlock response containing status message and display options"
           }
         },
         "description": "Success response schema for lock/unlock operations",

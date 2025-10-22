@@ -157,6 +157,12 @@ max-line-length = 92
 summary-quotes-same-line = true
 linewrap-full-docstring = true
 
+[tool.pyright]
+include = ["bw_serve_client", "scripts", "tests"]
+exclude = ["**/__pycache__"]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
+
 [tool.flake8]
 # Match yapf configuration
 max-line-length = 92
@@ -364,6 +370,8 @@ wrap-string-literal = true
 
 # Import customization
 use-type-checking = true
+
+# Docstring customization
 
 # OpenAPI options
 include-path-parameters = true

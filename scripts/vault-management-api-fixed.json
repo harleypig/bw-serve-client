@@ -1982,7 +1982,10 @@
               "schema": {
                 "properties": {
                   "array": {
-                    "type": "array"
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 }
               },
@@ -3510,7 +3513,7 @@
             }
           }
         },
-        "description": "AGENT: fixme",
+        "description": "Status of the vault (locked, unlocked, or unauthenticated)",
         "title": "StatusSchema"
       },
       "lockunlock.success": {

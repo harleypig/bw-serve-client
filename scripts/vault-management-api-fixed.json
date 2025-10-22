@@ -595,7 +595,10 @@
             "description": "Unique identifier of the item to restore.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "RestoreItemIdPostParameters",
+              "x-python-alias": "RestoreItemIdPostParameters",
+              "description": "Path parameters for restoring a deleted item"
             }
           }
         ],
@@ -1292,7 +1295,10 @@
             "description": "Unique identifier of the item to edit.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectFolderIdPutResponse",
+              "x-python-alias": "ObjectFolderIdPutResponse",
+              "description": "Path parameters for updating a folder"
             }
           }
         ],
@@ -1639,8 +1645,8 @@
             "schema": {
               "type": "string",
               "format": "uuid",
-              "title": "ObjectSendIdPutResponse",
-              "x-python-alias": "ObjectSendIdPutResponse",
+              "title": "ObjectSendIdPutParameters",
+              "x-python-alias": "ObjectSendIdPutParameters",
               "description": "Path parameters for updating a send"
             }
           }
@@ -1711,7 +1717,10 @@
                     "data": {
                       "$ref": "#/components/schemas/send.template"
                     }
-                  }
+                  },
+                  "title": "ObjectSendIdPutResponse",
+                  "x-python-alias": "ObjectSendIdPutResponse",
+                  "description": "Response schema for updating a send"
                 }
               }
             }
@@ -1863,9 +1872,9 @@
             "description": "List all Sends that contain this search term.",
             "schema": {
               "type": "string",
-              "title": "ListObjectSendGetResponse",
-              "x-python-alias": "ListObjectSendGetResponse",
-              "description": "Response schema for listing sends"
+              "title": "ListObjectSendGetParameters",
+              "x-python-alias": "ListObjectSendGetParameters",
+              "description": "Query parameters for listing sends"
             }
           }
         ],
@@ -1907,7 +1916,10 @@
                       "x-python-alias": "SendListData",
                       "description": "List data schema containing array of send templates"
                     }
-                  }
+                  },
+                  "title": "ListObjectSendGetResponse",
+                  "x-python-alias": "ListObjectSendGetResponse",
+                  "description": "Response schema for listing sends"
                 }
               }
             }
@@ -2293,7 +2305,10 @@
             "description": "Unique identifier of the Collection.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectOrgCollectionIdGetParameters",
+              "x-python-alias": "ObjectOrgCollectionIdGetParameters",
+              "description": "Path parameters for retrieving an organization collection"
             }
           },
           {
@@ -2668,7 +2683,10 @@
             "description": "A unique identifier for the Organization.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "DeviceApprovalOrganizationIdGetParameters",
+              "x-python-alias": "DeviceApprovalOrganizationIdGetParameters",
+              "description": "Path parameters for retrieving device approval requests"
             }
           }
         ],

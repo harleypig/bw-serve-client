@@ -39,8 +39,7 @@ class ItemSecureNoteSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  type: Literal[0] | None
-  """Secure note type (always 0)."""
+  type: Annotated[Literal[0] | None, Field(description='Secure note type (always 0)')]
 
 
 class ItemCardSchema(BaseModel):
@@ -99,10 +98,13 @@ class UrisSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  match: Match | None
-  """URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)."""
-  uri: str | None
-  """The URI/URL value."""
+  match: Annotated[
+    Match | None,
+    Field(
+      description=
+      'URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)'
+    )]
+  uri: Annotated[str | None, Field(description='The URI/URL value')]
 
 
 class FieldTypeEnum(Enum):
@@ -119,12 +121,13 @@ class FieldSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: str | None
-  """Name of the custom field."""
-  value: str | None
-  """Value of the custom field."""
-  type: Annotated[FieldTypeEnum | None, Field(title='FieldTypeEnum')]
-  """Field type (0=text, 1=hidden, 2=boolean, 3=linked)."""
+  name: Annotated[str | None, Field(description='Name of the custom field')]
+  value: Annotated[str | None, Field(description='Value of the custom field')]
+  type: Annotated[FieldTypeEnum | None,
+                  Field(
+                    description='Field type (0=text, 1=hidden, 2=boolean, 3=linked)',
+                    title='FieldTypeEnum'
+                  )]
 
 
 class FolderSchema(BaseModel):
@@ -133,8 +136,7 @@ class FolderSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: str | None
-  """Name of the folder."""
+  name: Annotated[str | None, Field(description='Name of the folder')]
 
 
 class SendTypeEnum(Enum):
@@ -149,10 +151,8 @@ class SendTextSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  text: str | None
-  """Text content of the Send."""
-  hidden: bool | None
-  """Whether the text is hidden by default."""
+  text: Annotated[str | None, Field(description='Text content of the Send')]
+  hidden: Annotated[bool | None, Field(description='Whether the text is hidden by default')]
 
 
 class GroupSchema(BaseModel):
@@ -183,8 +183,11 @@ class TemplateSchema(BaseModel):
   last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
   user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
   user_id: Annotated[UUID | None, Field(alias='userID')]
-  status: Annotated[StatusEnum | None, Field(title='StatusEnum')]
-  """Vault status (locked, unlocked, or unauthenticated)."""
+  status: Annotated[
+    StatusEnum | None,
+    Field(
+      description='Vault status (locked, unlocked, or unauthenticated)', title='StatusEnum'
+    )]
 
 
 class StatusDataSchema(BaseModel):
@@ -194,8 +197,12 @@ class StatusDataSchema(BaseModel):
     populate_by_name=True,
   )
   object: Literal['template'] | None
-  template: Annotated[TemplateSchema | None, Field(title='TemplateSchema')]
-  """Vault template schema containing server URL, sync info, and user details."""
+  template: Annotated[
+    TemplateSchema | None,
+    Field(
+      description='Vault template schema containing server URL, sync info, and user details',
+      title='TemplateSchema'
+    )]
 
 
 class StatusSchema(BaseModel):
@@ -205,8 +212,11 @@ class StatusSchema(BaseModel):
     populate_by_name=True,
   )
   success: bool | None
-  data: Annotated[StatusDataSchema | None, Field(title='StatusDataSchema')]
-  """Status response data containing template information."""
+  data: Annotated[StatusDataSchema | None,
+                  Field(
+                    description='Status response data containing template information',
+                    title='StatusDataSchema'
+                  )]
 
 
 class LockUnlockDataSchema(BaseModel):
@@ -228,8 +238,13 @@ class LockUnlockSuccessSchema(BaseModel):
     populate_by_name=True,
   )
   success: bool | None
-  data: Annotated[LockUnlockDataSchema | None, Field(title='LockUnlockDataSchema')]
-  """Data schema for lock/unlock response containing status message and display options."""
+  data: Annotated[
+    LockUnlockDataSchema | None,
+    Field(
+      description=
+      'Data schema for lock/unlock response containing status message and display options',
+      title='LockUnlockDataSchema'
+    )]
 
 
 class DeviceApprovalPropertiesSchema(BaseModel):
@@ -257,18 +272,27 @@ class UnlockPostRequestSchema(BaseModel):
 
 
 class ObjectItemIdPutParameters(BaseModel):
-  id: Annotated[UUID, Field(title='ObjectItemIdPutParameters')]
-  """Path parameters for editing an item in the vault."""
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for editing an item in the vault',
+                  title='ObjectItemIdPutParameters'
+                )]
 
 
 class ObjectItemIdGetParameters(BaseModel):
-  id: Annotated[UUID, Field(title='ObjectItemIdGetParameters')]
-  """Path parameters for retrieving an item from the vault."""
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for retrieving an item from the vault',
+                  title='ObjectItemIdGetParameters'
+                )]
 
 
 class ObjectItemIdDeleteParameters(BaseModel):
-  id: Annotated[UUID, Field(title='ObjectItemIdDeleteResponse')]
-  """Path parameters for deleting an item from the vault."""
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for deleting an item from the vault',
+                  title='ObjectItemIdDeleteResponse'
+                )]
 
 
 class ObjectItemIdDeleteResponse(BaseModel):
@@ -280,7 +304,11 @@ class ObjectItemIdDeleteResponse(BaseModel):
 
 
 class RestoreItemIdPostParameters(BaseModel):
-  id: UUID
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for restoring a deleted item',
+                  title='RestoreItemIdPostParameters'
+                )]
 
 
 RestoreItemIdPostResponse = ObjectItemIdDeleteResponse
@@ -289,8 +317,11 @@ RestoreItemIdPostResponse = ObjectItemIdDeleteResponse
 class ListObjectItemsGetParameters(BaseModel):
   organization_id: Annotated[
     UUID | None,
-    Field(alias='organizationId', title='ListObjectItemsGetParameters')]
-  """Query parameters for listing items in the vault."""
+    Field(
+      alias='organizationId',
+      description='Query parameters for listing items in the vault',
+      title='ListObjectItemsGetParameters'
+    )]
   collection_id: Annotated[UUID | None, Field(alias='collectionId')]
   folderid: UUID | None
   url: AnyUrl | None
@@ -299,8 +330,11 @@ class ListObjectItemsGetParameters(BaseModel):
 
 
 class AttachmentPostParameters(BaseModel):
-  itemid: Annotated[UUID, Field(title='AttachmentPostParameters')]
-  """Query parameters for attaching a file to an item."""
+  itemid: Annotated[UUID,
+                    Field(
+                      description='Query parameters for attaching a file to an item',
+                      title='AttachmentPostParameters'
+                    )]
 
 
 class AttachmentPostRequest(BaseModel):
@@ -312,8 +346,11 @@ class AttachmentPostRequest(BaseModel):
 
 
 class ObjectAttachmentIdGetParameters(BaseModel):
-  id: Annotated[UUID, Field(title='ObjectAttachmentIdGetParameters')]
-  """Path parameters for retrieving an attachment."""
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for retrieving an attachment',
+                  title='ObjectAttachmentIdGetParameters'
+                )]
   itemid: UUID
 
 
@@ -322,17 +359,19 @@ class ObjectAttachmentIdDeleteParameters(BaseModel):
   itemid: UUID
 
 
-ObjectUsernameIdGetParameters = RestoreItemIdPostParameters
+class ObjectUsernameIdGetParameters(BaseModel):
+  id: UUID
 
-ObjectPasswordIdGetParameters = RestoreItemIdPostParameters
 
-ObjectUriIdGetParameters = RestoreItemIdPostParameters
+ObjectPasswordIdGetParameters = ObjectUsernameIdGetParameters
 
-ObjectTotpIdGetParameters = RestoreItemIdPostParameters
+ObjectUriIdGetParameters = ObjectUsernameIdGetParameters
 
-ObjectNotesIdGetParameters = RestoreItemIdPostParameters
+ObjectTotpIdGetParameters = ObjectUsernameIdGetParameters
 
-ObjectExposedIdGetParameters = RestoreItemIdPostParameters
+ObjectNotesIdGetParameters = ObjectUsernameIdGetParameters
+
+ObjectExposedIdGetParameters = ObjectUsernameIdGetParameters
 
 
 class ObjectFolderPostResponse(BaseModel):
@@ -345,7 +384,12 @@ class ObjectFolderPostResponse(BaseModel):
   data: FolderSchema | None
 
 
-ObjectFolderIdPutParameters = RestoreItemIdPostParameters
+class ObjectFolderIdPutParameters(BaseModel):
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for updating a folder',
+                  title='ObjectFolderIdPutResponse'
+                )]
 
 
 class ObjectFolderIdPutResponse(BaseModel):
@@ -357,18 +401,21 @@ class ObjectFolderIdPutResponse(BaseModel):
   data: FolderSchema | None
 
 
-ObjectFolderIdGetParameters = RestoreItemIdPostParameters
+ObjectFolderIdGetParameters = ObjectUsernameIdGetParameters
 
 ObjectFolderIdGetResponse = ObjectFolderIdPutResponse
 
-ObjectFolderIdDeleteParameters = RestoreItemIdPostParameters
+ObjectFolderIdDeleteParameters = ObjectUsernameIdGetParameters
 
 ObjectFolderIdDeleteResponse = ObjectItemIdDeleteResponse
 
 
 class ListObjectFoldersGetParameters(BaseModel):
-  search: Annotated[str | None, Field(title='ListObjectFoldersGetParameters')]
-  """Query parameters for listing folders."""
+  search: Annotated[str | None,
+                    Field(
+                      description='Query parameters for listing folders',
+                      title='ListObjectFoldersGetParameters'
+                    )]
 
 
 class FolderListDataSchema(BaseModel):
@@ -388,36 +435,52 @@ class ListObjectFoldersGetResponse(BaseModel):
     populate_by_name=True,
   )
   success: bool | None
-  data: Annotated[FolderListDataSchema | None, Field(title='FolderListDataSchema')]
-  """List data schema containing array of folder objects."""
+  data: Annotated[FolderListDataSchema | None,
+                  Field(
+                    description='List data schema containing array of folder objects',
+                    title='FolderListDataSchema'
+                  )]
 
 
 class ObjectSendIdPutParameters(BaseModel):
-  id: Annotated[UUID, Field(title='ObjectSendIdPutResponse')]
-  """Path parameters for updating a send."""
+  id: Annotated[
+    UUID,
+    Field(
+      description='Path parameters for updating a send', title='ObjectSendIdPutParameters'
+    )]
 
 
-ObjectSendIdGetParameters = RestoreItemIdPostParameters
+ObjectSendIdGetParameters = ObjectUsernameIdGetParameters
 
-ObjectSendIdDeleteParameters = RestoreItemIdPostParameters
+ObjectSendIdDeleteParameters = ObjectUsernameIdGetParameters
 
 ObjectSendIdDeleteResponse = ObjectItemIdDeleteResponse
 
 
 class ListObjectSendGetParameters(BaseModel):
-  search: Annotated[str | None, Field(title='ListObjectSendGetResponse')]
-  """Response schema for listing sends."""
+  search: Annotated[
+    str | None,
+    Field(
+      description='Query parameters for listing sends', title='ListObjectSendGetParameters'
+    )]
 
 
-SendIdRemovePasswordPostParameters = RestoreItemIdPostParameters
+SendIdRemovePasswordPostParameters = ObjectUsernameIdGetParameters
 
 
 class MoveItemidOrganizationIdPostParameters(BaseModel):
-  itemid: Annotated[UUID, Field(title='MoveItemidOrganizationIdPostParameters')]
-  """Path parameters for moving an item to a collection."""
+  itemid: Annotated[UUID,
+                    Field(
+                      description='Path parameters for moving an item to a collection',
+                      title='MoveItemidOrganizationIdPostParameters'
+                    )]
   organization_id: Annotated[
-    UUID, Field(alias='organizationId', title='MoveItemidOrganizationIdPostRequest')]
-  """Request schema for moving an item to a collection."""
+    UUID,
+    Field(
+      alias='organizationId',
+      description='Request schema for moving an item to a collection',
+      title='MoveItemidOrganizationIdPostRequest'
+    )]
 
 
 class MoveItemidOrganizationIdPostRequest(BaseModel):
@@ -430,35 +493,54 @@ class MoveItemidOrganizationIdPostRequest(BaseModel):
 
 class ObjectOrgCollectionPostParameters(BaseModel):
   organization_id: Annotated[
-    UUID, Field(alias='organizationId', title='ObjectOrgCollectionPostParameters')]
-  """Path parameters for creating an organization collection."""
+    UUID,
+    Field(
+      alias='organizationId',
+      description='Path parameters for creating an organization collection',
+      title='ObjectOrgCollectionPostParameters'
+    )]
 
 
 class ObjectOrgCollectionIdPutParameters(BaseModel):
-  id: Annotated[UUID, Field(title='ObjectOrgCollectionIdPutParameters')]
-  """Path parameters for updating an organization collection."""
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for updating an organization collection',
+                  title='ObjectOrgCollectionIdPutParameters'
+                )]
   organization_id: Annotated[UUID, Field(alias='organizationId')]
 
 
 class ObjectOrgCollectionIdGetParameters(BaseModel):
-  id: UUID
+  id: Annotated[UUID,
+                Field(
+                  description='Path parameters for retrieving an organization collection',
+                  title='ObjectOrgCollectionIdGetParameters'
+                )]
   organization_id: Annotated[UUID, Field(alias='organizationId')]
 
 
-ObjectOrgCollectionIdDeleteParameters = ObjectOrgCollectionIdGetParameters
+class ObjectOrgCollectionIdDeleteParameters(BaseModel):
+  id: UUID
+  organization_id: Annotated[UUID, Field(alias='organizationId')]
 
 
 class ListObjectOrgCollectionsGetParameters(BaseModel):
   organization_id: Annotated[
     UUID,
-    Field(alias='organizationId', title='ListObjectOrgCollectionsGetParameters')]
-  """Query parameters for listing organization collections."""
+    Field(
+      alias='organizationId',
+      description='Query parameters for listing organization collections',
+      title='ListObjectOrgCollectionsGetParameters'
+    )]
   search: str | None
 
 
 class ListObjectCollectionsGetParameters(BaseModel):
-  search: Annotated[str | None, Field(title='ListObjectCollectionsGetParameters')]
-  """Query parameters for listing collections."""
+  search: Annotated[str | None,
+                    Field(
+                      description='Query parameters for listing collections',
+                      title='ListObjectCollectionsGetParameters'
+                    )]
 
 
 class ListObjectOrganizationsGetParameters(BaseModel):
@@ -467,18 +549,29 @@ class ListObjectOrganizationsGetParameters(BaseModel):
 
 class ListObjectOrgMembersGetParameters(BaseModel):
   organization_id: Annotated[
-    UUID, Field(alias='organizationId', title='ListObjectOrgMembersGetParameters')]
-  """Query parameters for listing organization members."""
+    UUID,
+    Field(
+      alias='organizationId',
+      description='Query parameters for listing organization members',
+      title='ListObjectOrgMembersGetParameters'
+    )]
 
 
-ConfirmOrgMemberIdPostParameters = ObjectOrgCollectionIdGetParameters
+ConfirmOrgMemberIdPostParameters = ObjectOrgCollectionIdDeleteParameters
 
 
 class DeviceApprovalOrganizationIdGetParameters(BaseModel):
+  organization_id: Annotated[
+    UUID,
+    Field(
+      alias='organizationId',
+      description='Path parameters for retrieving device approval requests',
+      title='DeviceApprovalOrganizationIdGetParameters'
+    )]
+
+
+class DeviceApprovalOrganizationIdApproveAllPostParameters(BaseModel):
   organization_id: Annotated[UUID, Field(alias='organizationId')]
-
-
-DeviceApprovalOrganizationIdApproveAllPostParameters = DeviceApprovalOrganizationIdGetParameters
 
 
 class DeviceApprovalOrganizationIdDenyRequestIdPostParameters(BaseModel):
@@ -486,17 +579,21 @@ class DeviceApprovalOrganizationIdDenyRequestIdPostParameters(BaseModel):
   request_id: Annotated[
     UUID,
     Field(
-      alias='request-id', title='DeviceApprovalOrganizationIdDenyRequestIdPostParameters'
+      alias='request-id',
+      description='Path parameters for denying a device approval request',
+      title='DeviceApprovalOrganizationIdDenyRequestIdPostParameters'
     )]
-  """Path parameters for denying a device approval request."""
 
 
-DeviceApprovalOrganizationIdDenyAllPostParameters = DeviceApprovalOrganizationIdGetParameters
+DeviceApprovalOrganizationIdDenyAllPostParameters = DeviceApprovalOrganizationIdApproveAllPostParameters
 
 
 class GenerateGetParameters(BaseModel):
-  length: Annotated[int | None, Field(title='GenerateGetParameters')]
-  """Query parameters for generating passwords."""
+  length: Annotated[int | None,
+                    Field(
+                      description='Query parameters for generating passwords',
+                      title='GenerateGetParameters'
+                    )]
   uppercase: bool | None
   lowercase: bool | None
   number: bool | None
@@ -525,8 +622,10 @@ class ObjectTemplateTypeGetParameters1(Enum):
 
 class ObjectTemplateTypeGetParameters(BaseModel):
   type: Annotated[ObjectTemplateTypeGetParameters1,
-                  Field(title='ObjectTemplateTypeGetParameters')]
-  """Path parameters for retrieving template by type."""
+                  Field(
+                    description='Path parameters for retrieving template by type',
+                    title='ObjectTemplateTypeGetParameters'
+                  )]
 
 
 class DeviceApprovalOrganizationIdApproveRequestIdPostParameters(BaseModel):
@@ -534,9 +633,9 @@ class DeviceApprovalOrganizationIdApproveRequestIdPostParameters(BaseModel):
     UUID,
     Field(
       alias='organizationId',
+      description='Path parameters for approving a device approval request',
       title='DeviceApprovalOrganizationIdApproveRequestIdPostParameters'
     )]
-  """Path parameters for approving a device approval request."""
   request_id: Annotated[UUID, Field(alias='request-id')]
 
 
@@ -546,14 +645,12 @@ class ItemLoginSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  uris: UrisSchema | None
-  """Array of URIs associated with this login."""
-  username: str | None
-  """Username for the login."""
-  password: str | None
-  """Password for the login."""
-  totp: str | None
-  """TOTP secret for two-factor authentication."""
+  uris: Annotated[UrisSchema | None,
+                  Field(description='Array of URIs associated with this login')]
+  username: Annotated[str | None, Field(description='Username for the login')]
+  password: Annotated[str | None, Field(description='Password for the login')]
+  totp: Annotated[str | None,
+                  Field(description='TOTP secret for two-factor authentication')]
 
 
 class SendTemplateSchema(BaseModel):
@@ -562,12 +659,10 @@ class SendTemplateSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: str | None
-  """Name of the Send."""
-  notes: str | None
-  """Notes for the Send."""
-  type: Annotated[SendTypeEnum | None, Field(title='SendTypeEnum')]
-  """Type of Send (0=text, 1=file)."""
+  name: Annotated[str | None, Field(description='Name of the Send')]
+  notes: Annotated[str | None, Field(description='Notes for the Send')]
+  type: Annotated[SendTypeEnum | None,
+                  Field(description='Type of Send (0=text, 1=file)', title='SendTypeEnum')]
   text: SendTextSchema | None
   file: str | None
   max_access_count: Annotated[int | None, Field(alias='maxAccessCount')]
@@ -594,8 +689,10 @@ class DeviceApprovalListSchema(RootModel[Sequence[DeviceApprovalPropertiesSchema
   """Device approval list schema for organization management."""
   model_config = ConfigDict(populate_by_name=True,)
   root: Annotated[Sequence[DeviceApprovalPropertiesSchema],
-                  Field(title='DeviceApprovalListSchema')]
-  """Device approval list schema for organization management."""
+                  Field(
+                    description='Device approval list schema for organization management',
+                    title='DeviceApprovalListSchema'
+                  )]
 
 
 class ObjectSendPostResponse(BaseModel):
@@ -609,6 +706,7 @@ class ObjectSendPostResponse(BaseModel):
 
 
 class ObjectSendIdPutResponse(BaseModel):
+  """Response schema for updating a send."""
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -617,7 +715,13 @@ class ObjectSendIdPutResponse(BaseModel):
   data: SendTemplateSchema | None
 
 
-ObjectSendIdGetResponse = ObjectSendIdPutResponse
+class ObjectSendIdGetResponse(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  success: bool | None
+  data: SendTemplateSchema | None
 
 
 class SendListDataSchema(BaseModel):
@@ -631,16 +735,20 @@ class SendListDataSchema(BaseModel):
 
 
 class ListObjectSendGetResponse(BaseModel):
+  """Response schema for listing sends."""
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
   success: bool | None
-  data: Annotated[SendListDataSchema | None, Field(title='SendListDataSchema')]
-  """List data schema containing array of send templates."""
+  data: Annotated[SendListDataSchema | None,
+                  Field(
+                    description='List data schema containing array of send templates',
+                    title='SendListDataSchema'
+                  )]
 
 
-SendIdRemovePasswordPostResponse = ObjectSendIdPutResponse
+SendIdRemovePasswordPostResponse = ObjectSendIdGetResponse
 
 
 class ItemTemplateSchema(BaseModel):
@@ -649,32 +757,40 @@ class ItemTemplateSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  organization_id: Annotated[UUID | None, Field(alias='organizationId')]
-  """Organization ID if item belongs to an organization."""
-  collection_ids: Annotated[Sequence[UUID] | None, Field(alias='collectionIds')]
-  """Array of collection IDs for organization items."""
-  folder_id: Annotated[UUID | None, Field(alias='folderId')]
-  """Folder ID for organizing the item."""
-  type: Type | None
-  """Type of vault item (1=login, 2=note, 3=card, 4=identity)."""
-  name: str | None
-  """Display name of the vault item."""
-  notes: str | None
-  """Free-form notes associated with the item."""
-  favorite: bool | None
-  """Whether the item is marked as a favorite."""
-  fields: Sequence[FieldSchema] | None
-  """Array of custom fields."""
-  login: ItemLoginSchema | None
-  """Login-specific data (username, password, URIs, TOTP)."""
-  secure_note: Annotated[ItemSecureNoteSchema | None, Field(alias='secureNote')]
-  """Secure note data."""
-  card: ItemCardSchema | None
-  """Credit card data."""
-  identity: ItemIdentitySchema | None
-  """Identity data."""
-  reprompt: Reprompt | None
-  """Master password re-prompt requirement (0=none, 1=required)."""
+  organization_id: Annotated[
+    UUID | None,
+    Field(
+      alias='organizationId',
+      description='Organization ID if item belongs to an organization'
+    )]
+  collection_ids: Annotated[
+    Sequence[UUID] | None,
+    Field(
+      alias='collectionIds', description='Array of collection IDs for organization items'
+    )]
+  folder_id: Annotated[
+    UUID | None,
+    Field(alias='folderId', description='Folder ID for organizing the item')]
+  type: Annotated[
+    Type | None,
+    Field(description='Type of vault item (1=login, 2=note, 3=card, 4=identity)')]
+  name: Annotated[str | None, Field(description='Display name of the vault item')]
+  notes: Annotated[str | None,
+                   Field(description='Free-form notes associated with the item')]
+  favorite: Annotated[bool | None,
+                      Field(description='Whether the item is marked as a favorite')]
+  fields: Annotated[Sequence[FieldSchema] | None,
+                    Field(description='Array of custom fields')]
+  login: Annotated[
+    ItemLoginSchema | None,
+    Field(description='Login-specific data (username, password, URIs, TOTP)')]
+  secure_note: Annotated[ItemSecureNoteSchema | None,
+                         Field(alias='secureNote', description='Secure note data')]
+  card: Annotated[ItemCardSchema | None, Field(description='Credit card data')]
+  identity: Annotated[ItemIdentitySchema | None, Field(description='Identity data')]
+  reprompt: Annotated[
+    Reprompt | None,
+    Field(description='Master password re-prompt requirement (0=none, 1=required)')]
 
 
 class ObjectItemPostResponse(BaseModel):
@@ -720,5 +836,8 @@ class ListObjectItemsGetResponse(BaseModel):
     populate_by_name=True,
   )
   success: bool | None
-  data: Annotated[ItemListDataSchema | None, Field(title='ItemListDataSchema')]
-  """List data schema containing array of item templates."""
+  data: Annotated[ItemListDataSchema | None,
+                  Field(
+                    description='List data schema containing array of item templates',
+                    title='ItemListDataSchema'
+                  )]

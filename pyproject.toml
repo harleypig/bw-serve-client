@@ -346,7 +346,7 @@ strip-default-none = true
 union-mode = "smart"
 use-default = true
 use-default-kwarg = true
-use-field-description = true
+use-field-description = false
 
 # Model customization
 allow-population-by-field-name = true

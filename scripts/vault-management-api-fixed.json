@@ -709,7 +709,9 @@
                             "$ref": "#/components/schemas/item.template"
                           }
                         }
-                      }
+                      },
+                      "title": "ItemListDataSchema",
+                      "x-python-alias": "ItemListData"
                     }
                   }
                 }
@@ -1469,7 +1471,9 @@
                             "$ref": "#/components/schemas/folder"
                           }
                         }
-                      }
+                      },
+                      "title": "FolderListDataSchema",
+                      "x-python-alias": "FolderListData"
                     }
                   }
                 }
@@ -1851,7 +1855,9 @@
                             "$ref": "#/components/schemas/send.template"
                           }
                         }
-                      }
+                      },
+                      "title": "SendListDataSchema",
+                      "x-python-alias": "SendListData"
                     }
                   }
                 }
@@ -2987,7 +2993,9 @@
                 "collection",
                 "item-collections",
                 "org-collection"
-              ]
+              ],
+              "title": "TemplateTypeEnum",
+              "x-python-alias": "TemplateType"
             }
           }
         ],
@@ -3351,7 +3359,9 @@
               2,
               3
             ],
-            "description": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)"
+            "description": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)",
+            "title": "FieldTypeEnum",
+            "x-python-alias": "FieldType"
           }
         },
         "description": "Custom field schema for vault items",
@@ -3383,7 +3393,9 @@
               0,
               1
             ],
-            "description": "Type of Send (0=text, 1=file)"
+            "description": "Type of Send (0=text, 1=file)",
+            "title": "SendTypeEnum",
+            "x-python-alias": "SendType"
           },
           "text": {
             "$ref": "#/components/schemas/send.text"
@@ -3536,7 +3548,9 @@
               "message": {
                 "type": "string"
               }
-            }
+            },
+            "title": "LockUnlockDataSchema",
+            "x-python-alias": "LockUnlockData"
           }
         },
         "description": "Success response schema for lock/unlock operations",

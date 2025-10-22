@@ -3483,7 +3483,7 @@
                 "properties": {
                   "serverUrl": {
                     "type": "string",
-                    "format": "hostname"
+                    "format": "uri"
                   },
                   "lastSync": {
                     "type": "string",

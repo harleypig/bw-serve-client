@@ -193,11 +193,14 @@ extend-ignore = [
   "B950", # line too long (over 92 characters) - yapf handles this
 ]
 
+
 # Per-file ignores
 per-file-ignores = [
   # Ignore CLB100 in tests (conflicts with AAA patterns)
   # Ignore SCS108 in tests (tests need asserts)
   "tests/*:CLB100,SCS108",
+  # Ignore TYP001 in generated models (type checking imports not properly guarded)
+  "bw_serve_client/models.py:TYP001",
 ]
 
 # dlint
@@ -328,6 +331,7 @@ field-constraints = true
 set-default-enum-member = true
 use-annotated = true
 use-union-operator = true
+use-generic-container-types = true
 
 # Field customization
 capitalise-enum-members = true
@@ -357,6 +361,9 @@ custom-file-header-path = "scripts/generated-header.txt"
 encoding = "utf8"
 use-double-quotes = true
 wrap-string-literal = true
+
+# Import customization
+use-type-checking = true
 
 # OpenAPI options
 include-path-parameters = true

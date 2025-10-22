@@ -1,3 +1,5 @@
-# Bitwarden Vault Management API Models
-# Generated from OpenAPI specification
-# DO NOT EDIT MANUALLY
+"""Bitwarden Vault Management API Models.
+
+Generated from OpenAPI specification.
+DO NOT EDIT MANUALLY.
+"""

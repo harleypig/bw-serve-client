@@ -1,19 +1,20 @@
-# Bitwarden Vault Management API Models
-# Generated from OpenAPI specification
-# DO NOT EDIT MANUALLY
+"""Bitwarden Vault Management API Models.
+
+Generated from OpenAPI specification.
+DO NOT EDIT MANUALLY.
+"""
 
 
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, List, Literal
+from typing import Annotated, Literal, Sequence
 from uuid import UUID
 
 from pydantic import AnyUrl
 from pydantic import AwareDatetime
 from pydantic import BaseModel
 from pydantic import ConfigDict
-from pydantic import constr
 from pydantic import EmailStr
 from pydantic import Field
 from pydantic import RootModel
@@ -221,7 +222,7 @@ class Template(BaseModel):
         extra='forbid',
         populate_by_name=True,
     )
-    server_url: Annotated[constr(pattern=r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]{0,61}[A-Za-z0-9])$') | None, Field(alias='serverUrl')]
+    server_url: Annotated[AnyUrl | None, Field(alias='serverUrl')]
     last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
     user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
     user_id: Annotated[UUID | None, Field(alias='userID')]
@@ -456,7 +457,7 @@ class Data3(BaseModel):
         populate_by_name=True,
     )
     object: Literal['list'] | None
-    data: List[FolderSchema] | None
+    data: Sequence[FolderSchema] | None
 
 
 class ListObjectFoldersGetResponse(BaseModel):
@@ -514,7 +515,7 @@ class MoveItemidOrganizationIdPostRequest(BaseModel):
         extra='forbid',
         populate_by_name=True,
     )
-    array: List | None
+    array: Sequence | None
 
 
 class ObjectOrgCollectionPostParameters(BaseModel):
@@ -694,17 +695,17 @@ class CollectionSchema(BaseModel):
     organization_id: Annotated[UUID | None, Field(alias='organizationId')]
     name: str | None
     external_id: Annotated[str | None, Field(alias='externalId')]
-    groups: List[GroupSchema] | None
+    groups: Sequence[GroupSchema] | None
 
 
-class DeviceApprovalListSchema(RootModel[List[DeviceApprovalPropertiesSchema]]):
+class DeviceApprovalListSchema(RootModel[Sequence[DeviceApprovalPropertiesSchema]]):
     """
     Device approval list schema for organization management
     """
     model_config = ConfigDict(
         populate_by_name=True,
     )
-    root: Annotated[List[DeviceApprovalPropertiesSchema], Field(title='DeviceApprovalListSchema')]
+    root: Annotated[Sequence[DeviceApprovalPropertiesSchema], Field(title='DeviceApprovalListSchema')]
     """
     Device approval list schema for organization management
     """
@@ -737,7 +738,7 @@ class Data4(BaseModel):
         populate_by_name=True,
     )
     object: Literal['list'] | None
-    data: List[SendTemplateSchema] | None
+    data: Sequence[SendTemplateSchema] | None
 
 
 class ListObjectSendGetResponse(BaseModel):
@@ -767,7 +768,7 @@ class ItemTemplateSchema(BaseModel):
     """
     Organization ID if item belongs to an organization
     """
-    collection_ids: Annotated[List[UUID] | None, Field(alias='collectionIds')]
+    collection_ids: Annotated[Sequence[UUID] | None, Field(alias='collectionIds')]
     """
     Array of collection IDs for organization items
     """
@@ -791,7 +792,7 @@ class ItemTemplateSchema(BaseModel):
     """
     Whether the item is marked as a favorite
     """
-    fields: List[FieldSchema] | None
+    fields: Sequence[FieldSchema] | None
     """
     Array of custom fields
     """
@@ -846,7 +847,7 @@ class Data2(BaseModel):
         populate_by_name=True,
     )
     object: Literal['list'] | None
-    data: List[ItemTemplateSchema] | None
+    data: Sequence[ItemTemplateSchema] | None
 
 
 class ListObjectItemsGetResponse(BaseModel):

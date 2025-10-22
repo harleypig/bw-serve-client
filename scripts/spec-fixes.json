@@ -651,6 +651,62 @@
       "description": "Add response schema for GET /list/object/send"
     },
     {
+      "type": "set_value",
+      "path": "paths|/move/{itemid}/{organizationId}|post|parameters|",
+      "description": "Update value at paths|/move/{itemid}/{organizationId}|post|parameters|",
+      "value": {
+        "name": "organizationId",
+        "in": "path",
+        "required": true,
+        "description": "Unique identifier of the Organization to move the item to.",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "MoveItemidOrganizationIdPostRequest",
+          "x-python-alias": "MoveItemidOrganizationIdPostRequest",
+          "description": "Request schema for moving an item to a collection"
+        }
+      },
+      "old_value": {
+        "name": "organizationId",
+        "in": "path",
+        "required": true,
+        "description": "Unique identifier of the Organization to move the item to.",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    {
+      "type": "set_value",
+      "path": "paths|/move/{itemid}/{organizationId}|post|parameters|",
+      "description": "Update value at paths|/move/{itemid}/{organizationId}|post|parameters|",
+      "value": {
+        "name": "itemid",
+        "in": "path",
+        "required": true,
+        "description": "Unique identifier of the item to move.",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "MoveItemidOrganizationIdPostParameters",
+          "x-python-alias": "MoveItemidOrganizationIdPostParameters",
+          "description": "Path parameters for moving an item to a collection"
+        }
+      },
+      "old_value": {
+        "name": "itemid",
+        "in": "path",
+        "required": true,
+        "description": "Unique identifier of the item to move.",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    {
       "type": "add_if_missing",
       "path": "paths|/move/{itemid}/{organizationId}|post|requestBody|content|application/json|schema|properties|array|items",
       "description": "Add missing value at paths|/move/{itemid}/{organizationId}|post|requestBody|content|application/json|schema|properties|array|items",

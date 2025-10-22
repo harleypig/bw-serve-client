@@ -63,6 +63,18 @@
       "description": "Add description to field type property"
     },
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|field|properties|type|title",
+      "description": "Add missing value at components|schemas|field|properties|type|title",
+      "value": "FieldTypeEnum"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|field|properties|type|x-python-alias",
+      "description": "Add missing value at components|schemas|field|properties|type|x-python-alias",
+      "value": "FieldType"
+    },
+    {
       "operation": "add_if_missing",
       "path": "components|schemas|field|properties|value|description",
       "value": "Value of the custom field",
@@ -280,6 +292,18 @@
     },
     {
       "type": "add_if_missing",
+      "path": "components|schemas|lockunlock.success|properties|data|title",
+      "description": "Add missing value at components|schemas|lockunlock.success|properties|data|title",
+      "value": "LockUnlockDataSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|lockunlock.success|properties|data|x-python-alias",
+      "description": "Add missing value at components|schemas|lockunlock.success|properties|data|x-python-alias",
+      "value": "LockUnlockData"
+    },
+    {
+      "type": "add_if_missing",
       "path": "components|schemas|lockunlock.success|title",
       "description": "Add missing value at components|schemas|lockunlock.success|title",
       "value": "LockUnlockSuccessSchema"
@@ -307,6 +331,18 @@
       "path": "components|schemas|send.template|properties|type|description",
       "value": "Type of Send (0=text, 1=file)",
       "description": "Add description to send type property"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|send.template|properties|type|title",
+      "description": "Add missing value at components|schemas|send.template|properties|type|title",
+      "value": "SendTypeEnum"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|send.template|properties|type|x-python-alias",
+      "description": "Add missing value at components|schemas|send.template|properties|type|x-python-alias",
+      "value": "SendType"
     },
     {
       "type": "add_if_missing",

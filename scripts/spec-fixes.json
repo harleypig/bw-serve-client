@@ -51,16 +51,16 @@
       "value": "Custom field schema for vault items"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|field|properties|name|description",
       "value": "Name of the custom field",
-      "description": "Add description to field name property"
+      "description": "Add description to field name property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|field|properties|type|description",
       "value": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)",
-      "description": "Add description to field type property"
+      "description": "Add description to field type property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -75,10 +75,10 @@
       "value": "FieldType"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|field|properties|value|description",
       "value": "Value of the custom field",
-      "description": "Add description to field value property"
+      "description": "Add description to field value property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -93,10 +93,10 @@
       "value": "Folder schema for organizing vault items"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|folder|properties|name|description",
       "value": "Name of the folder",
-      "description": "Add description to folder name property"
+      "description": "Add description to folder name property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -147,28 +147,28 @@
       "value": "Login-specific data schema for vault items"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.login|properties|password|description",
       "value": "Password for the login",
-      "description": "Add description to login password property"
+      "description": "Add description to login password property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.login|properties|totp|description",
       "value": "TOTP secret for two-factor authentication",
-      "description": "Add description to login totp property"
+      "description": "Add description to login totp property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.login|properties|uris|description",
       "value": "Array of URIs associated with this login",
-      "description": "Add description to login uris property"
+      "description": "Add description to login uris property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.login|properties|username|description",
       "value": "Username for the login",
-      "description": "Add description to login username property"
+      "description": "Add description to login username property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -183,10 +183,10 @@
       "value": "Secure note data schema for vault items"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.secureNote|properties|type|description",
       "value": "Secure note type (always 0)",
-      "description": "Add description to secureNote type property"
+      "description": "Add description to secureNote type property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -201,82 +201,82 @@
       "value": "Template schema for vault items with all possible fields"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|card|description",
       "value": "Credit card data",
-      "description": "Add description to card property"
+      "description": "Add description to card property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|collectionIds|description",
       "value": "Array of collection IDs for organization items",
-      "description": "Add description to collectionIds property"
+      "description": "Add description to collectionIds property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|favorite|description",
       "value": "Whether the item is marked as a favorite",
-      "description": "Add description to favorite property"
+      "description": "Add description to favorite property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|fields|description",
       "value": "Array of custom fields",
-      "description": "Add description to fields property"
+      "description": "Add description to fields property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|folderId|description",
       "value": "Folder ID for organizing the item",
-      "description": "Add description to folderId property"
+      "description": "Add description to folderId property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|identity|description",
       "value": "Identity data",
-      "description": "Add description to identity property"
+      "description": "Add description to identity property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|login|description",
       "value": "Login-specific data (username, password, URIs, TOTP)",
-      "description": "Add description to login property"
+      "description": "Add description to login property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|name|description",
       "value": "Display name of the vault item",
-      "description": "Add description to name property"
+      "description": "Add description to name property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|notes|description",
       "value": "Free-form notes associated with the item",
-      "description": "Add description to notes property"
+      "description": "Add description to notes property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|organizationId|description",
       "value": "Organization ID if item belongs to an organization",
-      "description": "Add description to organizationId property"
+      "description": "Add description to organizationId property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|reprompt|description",
       "value": "Master password re-prompt requirement (0=none, 1=required)",
-      "description": "Add description to reprompt property"
+      "description": "Add description to reprompt property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|secureNote|description",
       "value": "Secure note data",
-      "description": "Add description to secureNote property"
+      "description": "Add description to secureNote property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|item.template|properties|type|description",
       "value": "Type of vault item (1=login, 2=note, 3=card, 4=identity)",
-      "description": "Add description to type property"
+      "description": "Add description to type property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -321,22 +321,22 @@
       "value": "Template schema for Bitwarden Send items"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|send.template|properties|name|description",
       "value": "Name of the Send",
-      "description": "Add description to send name property"
+      "description": "Add description to send name property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|send.template|properties|notes|description",
       "value": "Notes for the Send",
-      "description": "Add description to send notes property"
+      "description": "Add description to send notes property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|send.template|properties|type|description",
       "value": "Type of Send (0=text, 1=file)",
-      "description": "Add description to send type property"
+      "description": "Add description to send type property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -363,16 +363,16 @@
       "value": "Text content schema for Bitwarden Send items"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|send.text|properties|hidden|description",
       "value": "Whether the text is hidden by default",
-      "description": "Add description to send text hidden property"
+      "description": "Add description to send text hidden property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|send.text|properties|text|description",
       "value": "Text content of the Send",
-      "description": "Add description to send text property"
+      "description": "Add description to send text property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -381,10 +381,10 @@
       "value": "SendTextSchema"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|status|description",
       "value": "AGENT: fixme",
-      "description": "Add description to status schema property"
+      "description": "Add description to status schema property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -448,10 +448,10 @@
       "value": "StatusData"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|status|title",
       "value": "StatusSchema",
-      "description": "Add title to status schema"
+      "description": "Add title to status schema",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -460,16 +460,16 @@
       "value": "URI collection schema for login items"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|uris|properties|match|description",
       "value": "URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)",
-      "description": "Add description to match property"
+      "description": "Add description to match property",
+      "type": "add_if_missing"
     },
     {
-      "operation": "add_if_missing",
       "path": "components|schemas|uris|properties|uri|description",
       "value": "The URI/URL value",
-      "description": "Add description to uri property"
+      "description": "Add description to uri property",
+      "type": "add_if_missing"
     },
     {
       "type": "add_if_missing",
@@ -478,11 +478,11 @@
       "value": "UrisSchema"
     },
     {
-      "operation": "rename_key",
       "path": "paths",
       "old_key": "/device-approval/{organizationId}/approve/{request-id}}",
       "new_key": "/device-approval/{organizationId}/approve/{request-id}",
-      "description": "Fix extra } in device approval path"
+      "description": "Fix extra } in device approval path",
+      "type": "rename_key"
     },
     {
       "type": "add_if_missing",
@@ -547,7 +547,6 @@
       "description": "Remove value at paths|/device-approval/{organizationId}/approve/{request-id}}"
     },
     {
-      "operation": "set_value",
       "path": "paths|/list/object/folders|get|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -574,10 +573,10 @@
           }
         }
       },
-      "description": "Add response schema for GET /list/object/folders"
+      "description": "Add response schema for GET /list/object/folders",
+      "type": "set_value"
     },
     {
-      "operation": "modify_array_element",
       "path": "paths|/list/object/items|get|parameters",
       "match_criteria": {
         "name": "url"
@@ -588,10 +587,10 @@
           "format": "uri"
         }
       },
-      "description": "Change url parameter format from 'url' to 'uri'"
+      "description": "Change url parameter format from 'url' to 'uri'",
+      "type": "modify_array_element"
     },
     {
-      "operation": "set_value",
       "path": "paths|/list/object/items|get|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -618,10 +617,10 @@
           }
         }
       },
-      "description": "Add response schema for GET /list/object/items"
+      "description": "Add response schema for GET /list/object/items",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/list/object/send|get|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -648,11 +647,12 @@
           }
         }
       },
-      "description": "Add response schema for GET /list/object/send"
+      "description": "Add response schema for GET /list/object/send",
+      "type": "set_value"
     },
     {
-      "type": "set_value",
-      "path": "paths|/move/{itemid}/{organizationId}|post|parameters|",
+      "type": "add_array_item",
+      "path": "paths|/move/{itemid}/{organizationId}|post|parameters",
       "description": "Update value at paths|/move/{itemid}/{organizationId}|post|parameters|",
       "value": {
         "name": "organizationId",
@@ -679,8 +679,8 @@
       }
     },
     {
-      "type": "set_value",
-      "path": "paths|/move/{itemid}/{organizationId}|post|parameters|",
+      "type": "add_array_item",
+      "path": "paths|/move/{itemid}/{organizationId}|post|parameters",
       "description": "Update value at paths|/move/{itemid}/{organizationId}|post|parameters|",
       "value": {
         "name": "itemid",
@@ -715,7 +715,6 @@
       }
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/folder/{id}|delete|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -725,10 +724,10 @@
           }
         }
       },
-      "description": "Add response schema for DELETE /object/folder/{id}"
+      "description": "Add response schema for DELETE /object/folder/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/folder/{id}|get|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -741,10 +740,10 @@
           }
         }
       },
-      "description": "Add response schema for GET /object/folder/{id}"
+      "description": "Add response schema for GET /object/folder/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/folder/{id}|put|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -757,10 +756,10 @@
           }
         }
       },
-      "description": "Add response schema for PUT /object/folder/{id}"
+      "description": "Add response schema for PUT /object/folder/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/folder|post|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -773,10 +772,10 @@
           }
         }
       },
-      "description": "Add response schema for POST /object/folder"
+      "description": "Add response schema for POST /object/folder",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/item/{id}|delete|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -786,10 +785,10 @@
           }
         }
       },
-      "description": "Add response schema for DELETE /object/item/{id}"
+      "description": "Add response schema for DELETE /object/item/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/item/{id}|get|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -811,10 +810,10 @@
           }
         }
       },
-      "description": "Add response schema for GET /object/item/{id}"
+      "description": "Add response schema for GET /object/item/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/item/{id}|put|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -836,10 +835,10 @@
           }
         }
       },
-      "description": "Add response schema for PUT /object/item/{id}"
+      "description": "Add response schema for PUT /object/item/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/item|post|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -861,10 +860,10 @@
           }
         }
       },
-      "description": "Add response schema for POST /object/item"
+      "description": "Add response schema for POST /object/item",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/send/{id}|delete|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -874,10 +873,10 @@
           }
         }
       },
-      "description": "Add response schema for DELETE /object/send/{id}"
+      "description": "Add response schema for DELETE /object/send/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/send/{id}|get|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -890,10 +889,10 @@
           }
         }
       },
-      "description": "Add response schema for GET /object/send/{id}"
+      "description": "Add response schema for GET /object/send/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/send/{id}|put|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -906,10 +905,10 @@
           }
         }
       },
-      "description": "Add response schema for PUT /object/send/{id}"
+      "description": "Add response schema for PUT /object/send/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/object/send|post|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -922,10 +921,10 @@
           }
         }
       },
-      "description": "Add response schema for POST /object/send"
+      "description": "Add response schema for POST /object/send",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/restore/item/{id}|post|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -935,10 +934,10 @@
           }
         }
       },
-      "description": "Add response schema for POST /restore/item/{id}"
+      "description": "Add response schema for POST /restore/item/{id}",
+      "type": "set_value"
     },
     {
-      "operation": "set_value",
       "path": "paths|/send/{id}/remove-password|post|responses|200|content|application/json|schema",
       "value": {
         "type": "object",
@@ -951,7 +950,8 @@
           }
         }
       },
-      "description": "Add response schema for POST /send/{id}/remove-password"
+      "description": "Add response schema for POST /send/{id}/remove-password",
+      "type": "set_value"
     },
     {
       "type": "set_value",

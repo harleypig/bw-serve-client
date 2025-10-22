@@ -31,11 +31,12 @@ Examples:
 """
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
 import sys
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, Tuple
 
 from deepdiff import DeepDiff
 
@@ -620,6 +621,51 @@ class APISpecTool:
     return json.dumps(output_data, indent=2, ensure_ascii=False)
 
   # ---------------------------------------------------------------------------
+  def create_content_hash(self: "APISpecTool", obj: Any) -> str:
+    """Create a content-based hash for an object.
+    
+    Arguments:
+        obj: The object to hash.
+        
+    Returns:
+        str: A hash string representing the object's content.
+    """
+    # Convert to JSON string with sorted keys for consistent hashing
+    json_str = json.dumps(obj, sort_keys=True, separators=(',', ':'))
+    return hashlib.md5(json_str.encode('utf-8')).hexdigest()
+
+  # ---------------------------------------------------------------------------
+  def find_array_element_mappings(self: "APISpecTool", 
+                                  old_array: List[Any], 
+                                  new_array: List[Any]) -> Dict[int, int]:
+    """Find mappings between old and new array elements based on content hash.
+    
+    Arguments:
+        old_array: The original array.
+        new_array: The modified array.
+        
+    Returns:
+        Dict[int, int]: Mapping from old index to new index, or -1 if element was removed.
+    """
+    # Create hash maps for both arrays
+    old_hashes = {i: self.create_content_hash(item) for i, item in enumerate(old_array)}
+    new_hashes = {i: self.create_content_hash(item) for i, item in enumerate(new_array)}
+    
+    # Create reverse mapping from hash to index
+    old_hash_to_index = {hash_val: idx for idx, hash_val in old_hashes.items()}
+    new_hash_to_index = {hash_val: idx for idx, hash_val in new_hashes.items()}
+    
+    # Map old indices to new indices
+    mapping = {}
+    for old_idx, old_hash in old_hashes.items():
+      if old_hash in new_hash_to_index:
+        mapping[old_idx] = new_hash_to_index[old_hash]
+      else:
+        mapping[old_idx] = -1  # Element was removed
+    
+    return mapping
+
+  # ---------------------------------------------------------------------------
   def find_differences(self: "APISpecTool",
                        obj1: Any,
                        obj2: Any,
@@ -648,6 +694,484 @@ class APISpecTool:
     differences.extend(self._process_iterable_additions(diff, path))
     differences.extend(self._process_iterable_removals(diff, path))
 
+    return differences
+
+  # ---------------------------------------------------------------------------
+  def find_differences_with_array_tracking(self: "APISpecTool",
+                                          obj1: Any,
+                                          obj2: Any,
+                                          path: str = '') -> List[Dict[str, Any]]:
+    """Find differences with intelligent array element tracking.
+
+    This method extends the basic difference finding to handle array position
+    changes by using content-based hashing to track elements across changes.
+
+    Arguments:
+        obj1: First object to compare.
+        obj2: Second object to compare.
+        path: Base path for the comparison.
+
+    Returns:
+        List[Dict[str, Any]]: List of difference dictionaries with array tracking.
+    """
+    differences = []
+    
+    # First, get basic differences
+    basic_differences = self.find_differences(obj1, obj2, path)
+    
+    # Also find array-specific differences by comparing arrays directly
+    array_differences = self._find_array_differences(obj1, obj2, path)
+    
+    # Combine all differences
+    all_differences = basic_differences + array_differences
+    
+    # Process each difference to handle array position changes
+    for diff in all_differences:
+      if self._is_array_path(diff['path']):
+        # Handle array-specific differences
+        array_diffs = self._process_array_differences(obj1, obj2, diff, path)
+        differences.extend(array_diffs)
+      else:
+        differences.append(diff)
+    
+    return differences
+
+  def _find_array_differences(self: "APISpecTool", obj1: Any, obj2: Any, path: str) -> List[Dict[str, Any]]:
+    """Find differences specifically in arrays by comparing them element by element.
+    
+    Arguments:
+        obj1: First object to compare.
+        obj2: Second object to compare.
+        path: Base path for the comparison.
+        
+    Returns:
+        List[Dict[str, Any]]: List of array-specific differences.
+    """
+    differences = []
+    
+    if isinstance(obj1, dict) and isinstance(obj2, dict):
+      for key in set(obj1.keys()) | set(obj2.keys()):
+        if key in obj1 and key in obj2:
+          if isinstance(obj1[key], list) and isinstance(obj2[key], list):
+            # Both are arrays - compare them
+            array_diffs = self._compare_arrays(obj1[key], obj2[key], f"{path}|{key}" if path else key)
+            differences.extend(array_diffs)
+          else:
+            # Recurse into nested objects
+            nested_diffs = self._find_array_differences(obj1[key], obj2[key], f"{path}|{key}" if path else key)
+            differences.extend(nested_diffs)
+    
+    return differences
+
+  def _compare_arrays(self: "APISpecTool", old_array: List[Any], new_array: List[Any], array_path: str) -> List[Dict[str, Any]]:
+    """Compare two arrays and find differences with position tracking.
+    
+    Arguments:
+        old_array: Original array.
+        new_array: Modified array.
+        array_path: Path to the array.
+        
+    Returns:
+        List[Dict[str, Any]]: List of array differences.
+    """
+    differences = []
+    
+    # Find element mappings
+    mappings = self.find_array_element_mappings(old_array, new_array)
+    
+    # Check for added items
+    old_hashes = {self.create_content_hash(item) for item in old_array}
+    new_hashes = {self.create_content_hash(item) for item in new_array}
+    
+    added_hashes = new_hashes - old_hashes
+    removed_hashes = old_hashes - new_hashes
+    
+    # Process added items - but check for field modifications first
+    for new_idx, item in enumerate(new_array):
+      item_hash = self.create_content_hash(item)
+      if item_hash in added_hashes:
+        # Check if this might be a field modification of an existing item
+        is_field_mod = False
+        for old_idx, old_item in enumerate(old_array):
+          if self._is_field_modification(old_item, item):
+            # This is a field modification, not an addition
+            field_diffs = self._find_field_differences(old_item, item, f"{array_path}|{new_idx}")
+            differences.extend(field_diffs)
+            is_field_mod = True
+            break
+        
+        if not is_field_mod:
+          differences.append({
+            'path': f"{array_path}|{new_idx}",
+            'type': 'add_array_item',
+            'value': item,
+            'description': f"Add new array item at position {new_idx}: {str(item)[:50]}...",
+            'content_hash': item_hash,
+            'array_tracking': True
+          })
+    
+    # Process removed items - but check for field modifications first
+    for old_idx, item in enumerate(old_array):
+      item_hash = self.create_content_hash(item)
+      if item_hash in removed_hashes:
+        # Check if this might be a field modification of an existing item
+        is_field_mod = False
+        for new_idx, new_item in enumerate(new_array):
+          if self._is_field_modification(item, new_item):
+            # This is a field modification, not a removal
+            # We already handled this in the added items section
+            is_field_mod = True
+            break
+        
+        if not is_field_mod:
+          differences.append({
+            'path': f"{array_path}|{old_idx}",
+            'type': 'remove_array_item',
+            'value': item,
+            'description': f"Remove array item from position {old_idx}: {str(item)[:50]}...",
+            'content_hash': item_hash,
+            'array_tracking': True
+          })
+    
+    # Process moved/changed items
+    for old_idx, new_idx in mappings.items():
+      if new_idx != -1:  # Item wasn't removed
+        old_item = old_array[old_idx]
+        new_item = new_array[new_idx]
+        
+        if self.create_content_hash(old_item) != self.create_content_hash(new_item):
+          # Item content changed - check if it's a field modification or complete replacement
+          if self._is_field_modification(old_item, new_item):
+            # Generate field-level differences instead of replacing the entire item
+            field_diffs = self._find_field_differences(old_item, new_item, f"{array_path}|{new_idx}")
+            differences.extend(field_diffs)
+          else:
+            # Complete item replacement
+            differences.append({
+              'path': f"{array_path}|{new_idx}",
+              'type': 'set_value',
+              'value': new_item,
+              'old_value': old_item,
+              'description': f"Update array item at position {new_idx}: {str(new_item)[:50]}...",
+              'content_hash': self.create_content_hash(new_item),
+              'old_content_hash': self.create_content_hash(old_item),
+              'array_tracking': True
+            })
+        elif old_idx != new_idx:
+          # Item moved but content unchanged - we might want to track this
+          differences.append({
+            'path': f"{array_path}|{new_idx}",
+            'type': 'move_array_item',
+            'value': new_item,
+            'old_position': old_idx,
+            'new_position': new_idx,
+            'description': f"Array item moved from position {old_idx} to {new_idx}: {str(new_item)[:50]}...",
+            'content_hash': self.create_content_hash(new_item),
+            'array_tracking': True
+          })
+    
+    return differences
+
+  def _is_field_modification(self: "APISpecTool", old_item: Any, new_item: Any) -> bool:
+    """Check if the change is a field modification within the same object structure.
+    
+    Arguments:
+        old_item: Original item.
+        new_item: Modified item.
+        
+    Returns:
+        bool: True if this is a field modification, False if it's a complete replacement.
+    """
+    # Both items must be dictionaries for field modification
+    if not isinstance(old_item, dict) or not isinstance(new_item, dict):
+      return False
+    
+    # Check if they have the same keys (allowing for additions/removals)
+    old_keys = set(old_item.keys())
+    new_keys = set(new_item.keys())
+    
+    # If more than 50% of keys changed, treat as complete replacement
+    common_keys = old_keys & new_keys
+    if len(common_keys) < max(len(old_keys), len(new_keys)) * 0.5:
+      return False
+    
+    # Check if most values are the same (allowing for a few field changes)
+    same_values = 0
+    total_values = 0
+    
+    for key in common_keys:
+      if old_item[key] == new_item[key]:
+        same_values += 1
+      total_values += 1
+    
+    # If more than 70% of values are the same, treat as field modification
+    return total_values > 0 and (same_values / total_values) > 0.7
+
+  def _find_field_differences(self: "APISpecTool", old_item: Any, new_item: Any, base_path: str) -> List[Dict[str, Any]]:
+    """Find field-level differences within an object.
+    
+    Arguments:
+        old_item: Original item.
+        new_item: Modified item.
+        base_path: Base path for the object.
+        
+    Returns:
+        List[Dict[str, Any]]: List of field-level differences.
+    """
+    differences = []
+    
+    if not isinstance(old_item, dict) or not isinstance(new_item, dict):
+      return differences
+    
+    # Check for changed fields
+    all_keys = set(old_item.keys()) | set(new_item.keys())
+    
+    for key in all_keys:
+      old_value = old_item.get(key)
+      new_value = new_item.get(key)
+      
+      if old_value != new_value:
+        field_path = f"{base_path}|{key}"
+        
+        if key in old_item and key in new_item:
+          # Field changed - check if it's a nested object
+          if isinstance(old_value, dict) and isinstance(new_value, dict):
+            # Recursively find differences in nested objects
+            nested_diffs = self._find_field_differences(old_value, new_value, field_path)
+            differences.extend(nested_diffs)
+          else:
+            # Simple field change
+            differences.append({
+              'path': field_path,
+              'type': 'set_value',
+              'value': new_value,
+              'old_value': old_value,
+              'description': f"Update field '{key}': {str(new_value)[:50]}...",
+              'array_tracking': True
+            })
+        elif key in new_item:
+          # Field added
+          differences.append({
+            'path': field_path,
+            'type': 'set_value',
+            'value': new_value,
+            'description': f"Add field '{key}': {str(new_value)[:50]}...",
+            'array_tracking': True
+          })
+        elif key in old_item:
+          # Field removed
+          differences.append({
+            'path': field_path,
+            'type': 'delete_value',
+            'old_value': old_value,
+            'description': f"Remove field '{key}'",
+            'array_tracking': True
+          })
+    
+    return differences
+
+  def _is_array_path(self: "APISpecTool", path: str) -> bool:
+    """Check if a path contains array indices.
+    
+    Arguments:
+        path: Pipe-separated path string.
+        
+    Returns:
+        bool: True if the path contains array indices.
+    """
+    parts = path.split('|')
+    return any(part.isdigit() for part in parts)
+
+  def _process_array_differences(self: "APISpecTool", 
+                                obj1: Any, 
+                                obj2: Any, 
+                                diff: Dict[str, Any], 
+                                base_path: str) -> List[Dict[str, Any]]:
+    """Process differences that involve arrays with position tracking.
+    
+    Arguments:
+        obj1: Original object.
+        obj2: Modified object.
+        diff: The difference dictionary to process.
+        base_path: Base path for the comparison.
+        
+    Returns:
+        List[Dict[str, Any]]: List of processed difference dictionaries.
+    """
+    differences = []
+    path = diff['path']
+    
+    # Extract array path and index
+    array_path, array_index = self._extract_array_path_and_index(path)
+    if array_path is None:
+      # Not an array path, return original diff
+      return [diff]
+    
+    # Get the arrays
+    old_array = self.get_value_at_spec_path(obj1, array_path)
+    new_array = self.get_value_at_spec_path(obj2, array_path)
+    
+    if not isinstance(old_array, list) or not isinstance(new_array, list):
+      return [diff]
+    
+    # Find element mappings
+    mappings = self.find_array_element_mappings(old_array, new_array)
+    
+    # Process based on operation type
+    if diff['type'] == 'add_array_item':
+      differences.extend(self._process_array_item_addition(diff, mappings, old_array, new_array))
+    elif diff['type'] == 'remove_array_item':
+      differences.extend(self._process_array_item_removal(diff, mappings, old_array, new_array))
+    elif diff['type'] == 'set_value':
+      differences.extend(self._process_array_value_change(diff, mappings, old_array, new_array))
+    else:
+      differences.append(diff)
+    
+    return differences
+
+  def _extract_array_path_and_index(self: "APISpecTool", path: str) -> Tuple[str, int]:
+    """Extract array path and index from a full path.
+    
+    Arguments:
+        path: Pipe-separated path string.
+        
+    Returns:
+        Tuple[str, int]: Array path and index, or (None, -1) if not an array path.
+    """
+    parts = path.split('|')
+    
+    # Find the last numeric part (array index)
+    for i in range(len(parts) - 1, -1, -1):
+      if parts[i].isdigit():
+        array_path = '|'.join(parts[:i])
+        array_index = int(parts[i])
+        return array_path, array_index
+    
+    return None, -1
+
+  def _process_array_item_addition(self: "APISpecTool", 
+                                  diff: Dict[str, Any], 
+                                  mappings: Dict[int, int], 
+                                  old_array: List[Any], 
+                                  new_array: List[Any]) -> List[Dict[str, Any]]:
+    """Process array item addition with position tracking.
+    
+    Arguments:
+        diff: The original difference dictionary.
+        mappings: Element mappings from old to new indices.
+        old_array: Original array.
+        new_array: Modified array.
+        
+    Returns:
+        List[Dict[str, Any]]: List of processed differences.
+    """
+    differences = []
+    
+    # Find items that were added (not in old array)
+    old_hashes = {self.create_content_hash(item) for item in old_array}
+    new_hashes = {self.create_content_hash(item) for item in new_array}
+    
+    added_hashes = new_hashes - old_hashes
+    
+    for new_idx, item in enumerate(new_array):
+      item_hash = self.create_content_hash(item)
+      if item_hash in added_hashes:
+        # This is a new item
+        array_path = diff['path'].rsplit('|', 1)[0]  # Remove the index part
+        new_path = f"{array_path}|{new_idx}"
+        
+        differences.append({
+          'path': new_path,
+          'type': 'add_array_item',
+          'value': item,
+          'description': f"Add new array item at position {new_idx}: {str(item)[:50]}...",
+          'content_hash': self.create_content_hash(item),
+          'array_tracking': True
+        })
+    
+    return differences
+
+  def _process_array_item_removal(self: "APISpecTool", 
+                                 diff: Dict[str, Any], 
+                                 mappings: Dict[int, int], 
+                                 old_array: List[Any], 
+                                 new_array: List[Any]) -> List[Dict[str, Any]]:
+    """Process array item removal with position tracking.
+    
+    Arguments:
+        diff: The original difference dictionary.
+        mappings: Element mappings from old to new indices.
+        old_array: Original array.
+        new_array: Modified array.
+        
+    Returns:
+        List[Dict[str, Any]]: List of processed differences.
+    """
+    differences = []
+    
+    # Find items that were removed (not in new array)
+    old_hashes = {self.create_content_hash(item) for item in old_array}
+    new_hashes = {self.create_content_hash(item) for item in new_array}
+    
+    removed_hashes = old_hashes - new_hashes
+    
+    for old_idx, item in enumerate(old_array):
+      item_hash = self.create_content_hash(item)
+      if item_hash in removed_hashes:
+        # This item was removed
+        array_path = diff['path'].rsplit('|', 1)[0]  # Remove the index part
+        
+        differences.append({
+          'path': f"{array_path}|{old_idx}",
+          'type': 'remove_array_item',
+          'value': item,
+          'description': f"Remove array item from position {old_idx}: {str(item)[:50]}...",
+          'content_hash': self.create_content_hash(item),
+          'array_tracking': True
+        })
+    
+    return differences
+
+  def _process_array_value_change(self: "APISpecTool", 
+                                 diff: Dict[str, Any], 
+                                 mappings: Dict[int, int], 
+                                 old_array: List[Any], 
+                                 new_array: List[Any]) -> List[Dict[str, Any]]:
+    """Process array value changes with position tracking.
+    
+    Arguments:
+        diff: The original difference dictionary.
+        mappings: Element mappings from old to new indices.
+        old_array: Original array.
+        new_array: Modified array.
+        
+    Returns:
+        List[Dict[str, Any]]: List of processed differences.
+    """
+    differences = []
+    
+    # Find items that changed (same position but different content)
+    for old_idx, new_idx in mappings.items():
+      if new_idx != -1:  # Item wasn't removed
+        old_item = old_array[old_idx]
+        new_item = new_array[new_idx]
+        
+        if self.create_content_hash(old_item) != self.create_content_hash(new_item):
+          # Item content changed
+          array_path = diff['path'].rsplit('|', 1)[0]  # Remove the index part
+          new_path = f"{array_path}|{new_idx}"
+          
+          differences.append({
+            'path': new_path,
+            'type': 'set_value',
+            'value': new_item,
+            'old_value': old_item,
+            'description': f"Update array item at position {new_idx}: {str(new_item)[:50]}...",
+            'content_hash': self.create_content_hash(new_item),
+            'old_content_hash': self.create_content_hash(old_item),
+            'array_tracking': True
+          })
+    
     return differences
 
   def _process_dictionary_additions(self: "APISpecTool", diff: Any, obj2: Any,
@@ -871,14 +1395,9 @@ class APISpecTool:
 
       existing_paths = set()
 
-      # Handle new v2 format
+      # Handle v2 format
       if "operations" in spec_fixes:
         for fix in spec_fixes["operations"]:
-          if 'path' in fix:
-            existing_paths.add(fix['path'])
-      # Handle old format
-      elif 'path_operations' in spec_fixes and 'fixes' in spec_fixes['path_operations']:
-        for fix in spec_fixes['path_operations']['fixes']:
           if 'path' in fix:
             existing_paths.add(fix['path'])
 
@@ -899,7 +1418,7 @@ class APISpecTool:
     old_value: Any = None,
     description: str | None = None
   ) -> Dict[str, Any]:
-    """Create a fix entry for the new spec-fixes v2 format.
+    """Create a fix entry for the spec-fixes format.
 
     Arguments:
         path: The path where the fix should be applied.
@@ -948,6 +1467,46 @@ class APISpecTool:
     return entry
 
   # ---------------------------------------------------------------------------
+  def create_array_aware_fix_entry(
+    self: "APISpecTool",
+    path: str,
+    value: Any,
+    operation_type: str = 'set_value',
+    old_value: Any = None,
+    description: str | None = None,
+    content_hash: str | None = None
+  ) -> Dict[str, Any]:
+    """Create a fix entry with array position tracking support.
+
+    Arguments:
+        path: The path where the fix should be applied.
+        value: The value to set (for set_value operations).
+        operation_type: Type of operation ('set_value', 'add_if_missing', etc.).
+        old_value: Previous value (for comparison operations).
+        description: Optional description of the fix.
+        content_hash: Content hash for array element tracking.
+
+    Returns:
+        Dict[str, Any]: Fix entry dictionary with array tracking support.
+    """
+    # Create the base entry
+    entry = self.create_fix_entry(path, value, operation_type, old_value, description)
+    
+    # Add content hash for array elements
+    if content_hash:
+      entry["content_hash"] = content_hash
+    
+    # Add array tracking metadata
+    if self._is_array_path(path):
+      entry["array_tracking"] = True
+      array_path, array_index = self._extract_array_path_and_index(path)
+      if array_path:
+        entry["array_path"] = array_path
+        entry["array_index"] = array_index
+    
+    return entry
+
+  # ---------------------------------------------------------------------------
   def get_value_at_spec_path(self: "APISpecTool", spec: Dict[str, Any], path: str) -> Any:
     """Get value at a pipe-separated path in the spec.
 
@@ -962,10 +1521,10 @@ class APISpecTool:
     current = spec
 
     for part in parts:
-      if part.isdigit():
+      if part.isdigit() and isinstance(current, list):
         # Array index
         index = int(part)
-        if isinstance(current, list) and 0 <= index < len(current):
+        if 0 <= index < len(current):
           current = current[index]
         else:
           return None
@@ -994,14 +1553,14 @@ class APISpecTool:
 
     # Navigate to the parent of the target
     for part in parts[:-1]:
-      # Check if this part is an array index
-      if part.isdigit():
+      # Check if this part is an array index (only if current is a list)
+      if part.isdigit() and isinstance(current, list):
         # Convert to integer and access array element
         index = int(part)
-        if isinstance(current, list) and 0 <= index < len(current):
+        if 0 <= index < len(current):
           current = current[index]
         else:
-          raise IndexError(f"Array index {index} out of range or not a list")
+          raise IndexError(f"Array index {index} out of range")
       else:
         # Regular dictionary key
         if part not in current:
@@ -1010,13 +1569,13 @@ class APISpecTool:
 
     # Set the final value
     final_key = parts[-1]
-    if final_key.isdigit():
+    if final_key.isdigit() and isinstance(current, list):
       # Final part is an array index
       index = int(final_key)
-      if isinstance(current, list) and 0 <= index < len(current):
+      if 0 <= index < len(current):
         current[index] = value
       else:
-        raise IndexError(f"Array index {index} out of range or not a list")
+        raise IndexError(f"Array index {index} out of range")
     else:
       # Final part is a dictionary key
       current[final_key] = value
@@ -1123,7 +1682,7 @@ class APISpecTool:
 
       # Categorize messages based on their content
       if any(skip_indicator in change_msg.lower() for skip_indicator in
-             ['skipped', 'already exists', 'not found', 'unchanged', 'no changes']):
+             ['skipped', 'already exists', 'not found', 'unchanged', 'no changes', 'already in correct position']):
         skipped_changes.append(change_msg)
       else:
         successful_changes.append(change_msg)
@@ -1143,16 +1702,6 @@ class APISpecTool:
         return operations
       else:
         return []
-    elif "path_operations" in fixes and "fixes" in fixes["path_operations"]:
-      path_ops = fixes["path_operations"]
-      if isinstance(path_ops, dict) and "fixes" in path_ops:
-        fixes_list = path_ops["fixes"]
-        if isinstance(fixes_list, list):
-          return fixes_list
-        else:
-          return []
-      else:
-        return []
     else:
       return []
 
@@ -1161,6 +1710,11 @@ class APISpecTool:
     path: str, description: str
   ) -> str:
     """Apply a single operation and return a status message."""
+    # Check if this is an array-aware operation
+    if op.get('array_tracking', False):
+      return self._apply_array_aware_operation(spec, op, path, description)
+    
+    # Regular operations
     if operation_type == "rename_key":
       return self._apply_rename_key(spec, op, description)
     elif operation_type == "set_value":
@@ -1175,6 +1729,8 @@ class APISpecTool:
       return self._apply_add_array_item(spec, op, path, description)
     elif operation_type == "remove_array_item":
       return self._apply_remove_array_item(spec, op, path, description)
+    elif operation_type == "move_array_item":
+      return self._apply_move_array_item(spec, op, path, description)
     else:
       return f"Unknown operation {operation_type!r}: {description}"
 
@@ -1273,6 +1829,83 @@ class APISpecTool:
       return f"Removed array item: {description}"
     else:
       return f"Array item not found (skipped): {description}"
+
+  def _apply_move_array_item(
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
+    description: str
+  ) -> str:
+    """Apply move_array_item operation."""
+    array = self.get_value_at_spec_path(spec, path)
+    if not isinstance(array, list):
+      return f"Path is not an array (skipped): {description}"
+    
+    # For move operations, we don't need to do anything since the array
+    # is already in the correct order in the target specification
+    # This operation is mainly for tracking/documentation purposes
+    return f"Array item already in correct position (skipped): {description}"
+
+  def _apply_array_aware_operation(
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
+    description: str
+  ) -> str:
+    """Apply array-aware operations using content hashing.
+    
+    Arguments:
+        spec: The specification dictionary to modify.
+        op: The operation dictionary.
+        path: The path where the operation should be applied.
+        description: Description of the operation.
+        
+    Returns:
+        str: Status message for the operation.
+    """
+    if not op.get('array_tracking', False):
+      # Fall back to regular operation
+      return self._apply_single_operation(spec, op.get('type', 'set_value'), op, path, description)
+    
+    # Extract array path from the operation path
+    array_path, array_index = self._extract_array_path_and_index(path)
+    if not array_path:
+      return f"Array path not found (skipped): {description}"
+    
+    array = self.get_value_at_spec_path(spec, array_path)
+    if not isinstance(array, list):
+      return f"Path is not an array (skipped): {description}"
+    
+    content_hash = op.get('content_hash')
+    operation_type = op.get('type', 'set_value')
+    
+    if operation_type == 'add_array_item':
+      # Add the item to the array
+      array.append(op['value'])
+      return f"Added array item: {description}"
+    
+    elif operation_type == 'remove_array_item':
+      # Find and remove item by content hash
+      for i, item in enumerate(array):
+        if self.create_content_hash(item) == content_hash:
+          array.pop(i)
+          return f"Removed array item: {description}"
+      return f"Array item not found (skipped): {description}"
+    
+    elif operation_type == 'set_value':
+      # Find and update item by content hash
+      for i, item in enumerate(array):
+        if self.create_content_hash(item) == content_hash:
+          array[i] = op['value']
+          return f"Updated array item: {description}"
+      return f"Array item not found (skipped): {description}"
+    
+    elif operation_type == 'move_array_item':
+      # For move operations, the array is already in the correct order
+      # in the target specification, so we just verify the item exists
+      for item in array:
+        if self.create_content_hash(item) == content_hash:
+          return f"Array item already in correct position (skipped): {description}"
+      return f"Array item not found (skipped): {description}"
+    
+    else:
+      return f"Unknown array operation {operation_type}: {description}"
 
 
 # -----------------------------------------------------------------------------
@@ -1434,9 +2067,9 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   existing_paths = tool.get_existing_spec_fix_paths(args.output_file)
   print(f"Found {len(existing_paths)} existing paths in spec-fixes")
 
-  # Find all differences using DeepDiff
+  # Find all differences using DeepDiff with array tracking
   print("Analyzing differences...")
-  all_differences = tool.find_differences(original, fixed)
+  all_differences = tool.find_differences_with_array_tracking(original, fixed)
   print(f"Found {len(all_differences)} total differences")
 
   # Filter out differences that are already covered
@@ -1489,11 +2122,19 @@ def _filter_new_fixes(
     old_value = diff.get('old_value')
     description = diff.get('description')
 
-    # Handle array indices properly instead of skipping them
-    # For now, we'll include all changes including array indices
-    new_fixes.append(
-      tool.create_fix_entry(spec_path, value, operation_type, old_value, description or "")
-    )
+    # Handle array indices with content-based tracking
+    if diff.get('array_tracking', False):
+      content_hash = diff.get('content_hash')
+      old_content_hash = diff.get('old_content_hash')
+      new_fixes.append(
+        tool.create_array_aware_fix_entry(
+          spec_path, value, operation_type, old_value, description or "", content_hash
+        )
+      )
+    else:
+      new_fixes.append(
+        tool.create_fix_entry(spec_path, value, operation_type, old_value, description or "")
+      )
 
   return new_fixes
 
@@ -1506,14 +2147,15 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
   except FileNotFoundError:
     return {
       "version":
-        "2.0",
+        "3.0",  # Version 3.0 adds array position tracking and content-based hashing
       "description":
-        "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
+        "Machine-focused OpenAPI specification fixes with array position tracking generated by DeepDiff analysis",
       "metadata": {
         "generated_by": "api_spec_tool.py",
         "generated_at": "2024-01-01T00:00:00Z",
         "original_spec": args.original_file,
-        "fixed_spec": args.fixed_file
+        "fixed_spec": args.fixed_file,
+        "features": ["array_position_tracking", "content_based_hashing", "element_mapping"]
       },
       "operations": []
     }
@@ -1529,24 +2171,8 @@ def _add_new_fixes(
       new_fixes: List of new fixes to add.
       args: Parsed command line arguments.
   """
-  if "operations" in spec_fixes:
-    spec_fixes["operations"].extend(new_fixes)
-  elif "path_operations" in spec_fixes and "fixes" in spec_fixes["path_operations"]:
-    # Convert old format to new format
-    spec_fixes.update({
-      "version":
-        "2.0",
-      "description":
-        "Machine-focused OpenAPI specification fixes generated by DeepDiff analysis",
-      "metadata": {
-        "generated_by": "api_spec_tool.py",
-        "generated_at": "2024-01-01T00:00:00Z",
-        "original_spec": args.original_file,
-        "fixed_spec": args.fixed_file
-      },
-      "operations":
-        spec_fixes["path_operations"]["fixes"] + new_fixes
-    })
+  # Add new fixes to operations
+  spec_fixes["operations"].extend(new_fixes)
 
 
 def _sort_operations_by_path(spec_fixes: Dict[str, Any]) -> None:

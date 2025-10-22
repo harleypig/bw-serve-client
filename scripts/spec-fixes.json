@@ -345,6 +345,13 @@
       "description": "Add description to status schema property"
     },
     {
+      "type": "set_value",
+      "path": "components|schemas|status|properties|data|properties|template|properties|serverUrl|format",
+      "description": "Update value at components|schemas|status|properties|data|properties|template|properties|serverUrl|format",
+      "value": "uri",
+      "old_value": "hostname"
+    },
+    {
       "operation": "add_if_missing",
       "path": "components|schemas|status|title",
       "value": "StatusSchema",

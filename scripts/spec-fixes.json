@@ -555,6 +555,14 @@
       "description": "Add response schema for GET /list/object/send"
     },
     {
+      "type": "add_if_missing",
+      "path": "paths|/move/{itemid}/{organizationId}|post|requestBody|content|application/json|schema|properties|array|items",
+      "description": "Add missing value at paths|/move/{itemid}/{organizationId}|post|requestBody|content|application/json|schema|properties|array|items",
+      "value": {
+        "type": "string"
+      }
+    },
+    {
       "operation": "set_value",
       "path": "paths|/object/folder/{id}|delete|responses|200|content|application/json|schema",
       "value": {

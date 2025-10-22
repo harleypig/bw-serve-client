@@ -689,6 +689,7 @@ class APISpecTool:
     if 'values_changed' in diff:
       for key_path, change in diff['values_changed'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
+
         differences.append({
           'path': pipe_path,
           'type': 'set_value',
@@ -735,11 +736,22 @@ class APISpecTool:
       for key_path, items in diff['iterable_item_added'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         for item in items:
+          # Check if this is actually an array item addition or object property addition
+          # If the item is a simple string and the path ends with a pipe, it's likely
+          # a property name being added to an object within an array, not an array item
+          if isinstance(item, str) and pipe_path.endswith('|'):
+            # Skip these as they're likely object property additions, not array items
+            continue
+
+          # Generate a more descriptive description
+          item_desc = str(item)[:50] + "..." if len(str(item)) > 50 else str(item)
+          description = f"Add array item to {pipe_path}: {item_desc}"
+
           differences.append({
             'path': pipe_path,
             'type': 'add_array_item',
             'value': item,
-            'description': f"Add item to array at {pipe_path}"
+            'description': description
           })
 
     return differences
@@ -760,11 +772,22 @@ class APISpecTool:
       for key_path, items in diff['iterable_item_removed'].items():
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
         for item in items:
+          # Check if this is actually an array item removal or object property removal
+          # If the item is a simple string and the path ends with a pipe, it's likely
+          # a property name being removed from an object within an array, not an array item
+          if isinstance(item, str) and pipe_path.endswith('|'):
+            # Skip these as they're likely object property removals, not array items
+            continue
+
+          # Generate a more descriptive description
+          item_desc = str(item)[:50] + "..." if len(str(item)) > 50 else str(item)
+          description = f"Remove array item from {pipe_path}: {item_desc}"
+
           differences.append({
             'path': pipe_path,
             'type': 'remove_array_item',
             'value': item,
-            'description': f"Remove item from array at {pipe_path}"
+            'description': description
           })
 
     return differences
@@ -939,10 +962,19 @@ class APISpecTool:
     current = spec
 
     for part in parts:
-      if isinstance(current, dict) and part in current:
-        current = current[part]
+      if part.isdigit():
+        # Array index
+        index = int(part)
+        if isinstance(current, list) and 0 <= index < len(current):
+          current = current[index]
+        else:
+          return None
       else:
-        return None
+        # Dictionary key
+        if isinstance(current, dict) and part in current:
+          current = current[part]
+        else:
+          return None
 
     return current
 
@@ -962,13 +994,32 @@ class APISpecTool:
 
     # Navigate to the parent of the target
     for part in parts[:-1]:
-      if part not in current:
-        current[part] = {}
-
-      current = current[part]
+      # Check if this part is an array index
+      if part.isdigit():
+        # Convert to integer and access array element
+        index = int(part)
+        if isinstance(current, list) and 0 <= index < len(current):
+          current = current[index]
+        else:
+          raise IndexError(f"Array index {index} out of range or not a list")
+      else:
+        # Regular dictionary key
+        if part not in current:
+          current[part] = {}
+        current = current[part]
 
     # Set the final value
-    current[parts[-1]] = value
+    final_key = parts[-1]
+    if final_key.isdigit():
+      # Final part is an array index
+      index = int(final_key)
+      if isinstance(current, list) and 0 <= index < len(current):
+        current[index] = value
+      else:
+        raise IndexError(f"Array index {index} out of range or not a list")
+    else:
+      # Final part is a dictionary key
+      current[final_key] = value
 
   # ---------------------------------------------------------------------------
   def path_exists(self: "APISpecTool", spec: Dict[str, Any], path: str) -> bool:
@@ -1438,15 +1489,11 @@ def _filter_new_fixes(
     old_value = diff.get('old_value')
     description = diff.get('description')
 
-    # Skip paths with array indices for now (can be enhanced later)
-    has_array_index = any(part.isdigit() for part in spec_path.split('|'))
-
-    if not has_array_index:
-      new_fixes.append(
-        tool.create_fix_entry(
-          spec_path, value, operation_type, old_value, description or ""
-        )
-      )
+    # Handle array indices properly instead of skipping them
+    # For now, we'll include all changes including array indices
+    new_fixes.append(
+      tool.create_fix_entry(spec_path, value, operation_type, old_value, description or "")
+    )
 
   return new_fixes
 

@@ -292,6 +292,12 @@
     },
     {
       "type": "add_if_missing",
+      "path": "components|schemas|lockunlock.success|properties|data|description",
+      "description": "Add missing value at components|schemas|lockunlock.success|properties|data|description",
+      "value": "Data schema for lock/unlock response containing status message and display options"
+    },
+    {
+      "type": "add_if_missing",
       "path": "components|schemas|lockunlock.success|properties|data|title",
       "description": "Add missing value at components|schemas|lockunlock.success|properties|data|title",
       "value": "LockUnlockDataSchema"
@@ -381,11 +387,65 @@
       "description": "Add description to status schema property"
     },
     {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|description",
+      "description": "Add missing value at components|schemas|status|properties|data|description",
+      "value": "Status response data containing template information"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|properties|template|description",
+      "description": "Add missing value at components|schemas|status|properties|data|properties|template|description",
+      "value": "Vault template schema containing server URL, sync info, and user details"
+    },
+    {
       "type": "set_value",
       "path": "components|schemas|status|properties|data|properties|template|properties|serverUrl|format",
       "description": "Update value at components|schemas|status|properties|data|properties|template|properties|serverUrl|format",
       "value": "uri",
       "old_value": "hostname"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|properties|template|properties|status|description",
+      "description": "Add missing value at components|schemas|status|properties|data|properties|template|properties|status|description",
+      "value": "Vault status (locked, unlocked, or unauthenticated)"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|properties|template|properties|status|title",
+      "description": "Add missing value at components|schemas|status|properties|data|properties|template|properties|status|title",
+      "value": "StatusEnum"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|properties|template|properties|status|x-python-alias",
+      "description": "Add missing value at components|schemas|status|properties|data|properties|template|properties|status|x-python-alias",
+      "value": "Status"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|properties|template|title",
+      "description": "Add missing value at components|schemas|status|properties|data|properties|template|title",
+      "value": "TemplateSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|properties|template|x-python-alias",
+      "description": "Add missing value at components|schemas|status|properties|data|properties|template|x-python-alias",
+      "value": "Template"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|title",
+      "description": "Add missing value at components|schemas|status|properties|data|title",
+      "value": "StatusDataSchema"
+    },
+    {
+      "type": "add_if_missing",
+      "path": "components|schemas|status|properties|data|x-python-alias",
+      "description": "Add missing value at components|schemas|status|properties|data|x-python-alias",
+      "value": "StatusData"
     },
     {
       "operation": "add_if_missing",
@@ -836,6 +896,28 @@
         }
       },
       "description": "Add response schema for POST /send/{id}/remove-password"
+    },
+    {
+      "type": "set_value",
+      "path": "paths|/unlock|post|requestBody|content|application/json|schema",
+      "description": "Update value at paths|/unlock|post|requestBody|content|application/json|schema",
+      "value": {
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        },
+        "title": "UnlockPostRequestSchema",
+        "x-python-alias": "UnlockPostRequest",
+        "description": "Request schema for unlocking the vault with master password"
+      },
+      "old_value": {
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        }
+      }
     }
   ]
 }

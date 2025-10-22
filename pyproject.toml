@@ -206,7 +206,9 @@ per-file-ignores = [
   # Ignore SCS108 in tests (tests need asserts)
   "tests/*:CLB100,SCS108",
   # Ignore TYP001 in generated models (type checking imports not properly guarded)
-  "bw_serve_client/models.py:TYP001",
+  # Ignore D101 in generated models (parameter classes don't get docstrings from datamodel-codegen)
+  # Ignore D204 and DCO060 in generated models (docstring formatting issues from datamodel-codegen)
+  "bw_serve_client/models.py:TYP001,D101,D204,DCO060",
 ]
 
 # dlint

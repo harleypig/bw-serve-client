@@ -1069,9 +1069,9 @@ class APISpecTool:
       description = op.get("description", "")
 
       change_msg = self._apply_single_operation(spec, operation_type, op, path, description)
-      
+
       # Categorize messages based on their content
-      if any(skip_indicator in change_msg.lower() for skip_indicator in 
+      if any(skip_indicator in change_msg.lower() for skip_indicator in
              ['skipped', 'already exists', 'not found', 'unchanged', 'no changes']):
         skipped_changes.append(change_msg)
       else:
@@ -1526,7 +1526,9 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   # Apply fixes to a copy of the original spec
   print("🔧 Applying OpenAPI spec fixes...")
   fixed_spec_data = original_spec.copy()
-  successful_changes, skipped_changes = tool.apply_path_operations(fixed_spec_data, fixes_config)
+  successful_changes, skipped_changes = tool.apply_path_operations(
+    fixed_spec_data, fixes_config
+  )
 
   # Write fixed specification
   print(f"💾 Writing fixed spec: {args.fixed_file}")
@@ -1545,7 +1547,9 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
 
   # Print skipped changes last for easier cleanup
   if skipped_changes:
-    print(f"\n⏭️  Skipped {len(skipped_changes)} operations (already exist/no changes needed):")
+    print(
+      f"\n⏭️  Skipped {len(skipped_changes)} operations (already exist/no changes needed):"
+    )
     for change in skipped_changes:
       print(f"   • {change}")
 

@@ -262,7 +262,10 @@
                       "format": "date-time",
                       "nullable": true
                     }
-                  }
+                  },
+                  "title": "ObjectItemPostResponse",
+                  "x-python-alias": "ObjectItemPostResponse",
+                  "description": "Response schema for creating an item"
                 }
               }
             }
@@ -294,7 +297,10 @@
             "description": "Unique identifier of the item to edit.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectItemIdPutParameters",
+              "x-python-alias": "ObjectItemIdPutParameters",
+              "description": "Path parameters for editing an item in the vault"
             }
           }
         ],
@@ -470,7 +476,10 @@
             "description": "Unique identifier of the item to retrieve.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectItemIdGetParameters",
+              "x-python-alias": "ObjectItemIdGetParameters",
+              "description": "Path parameters for retrieving an item from the vault"
             }
           }
         ],
@@ -533,7 +542,10 @@
             "description": "Unique identifier of the item to delete.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectItemIdDeleteResponse",
+              "x-python-alias": "ObjectItemIdDeleteResponse",
+              "description": "Path parameters for deleting an item from the vault"
             }
           }
         ],
@@ -632,7 +644,10 @@
             "description": "List all items with this unique Organization identifier.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ListObjectItemsGetParameters",
+              "x-python-alias": "ListObjectItemsGetParameters",
+              "description": "Query parameters for listing items in the vault"
             }
           },
           {
@@ -717,7 +732,10 @@
                       "x-python-alias": "ItemListData",
                       "description": "List data schema containing array of item templates"
                     }
-                  }
+                  },
+                  "title": "ListObjectItemsGetResponse",
+                  "x-python-alias": "ListObjectItemsGetResponse",
+                  "description": "Response schema for listing items"
                 }
               }
             }
@@ -749,7 +767,10 @@
             "description": "Unique identifier of the item to attach a file to.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "AttachmentPostParameters",
+              "x-python-alias": "AttachmentPostParameters",
+              "description": "Query parameters for attaching a file to an item"
             }
           }
         ],
@@ -834,7 +855,10 @@
             "description": "Unique identifier of the attachment.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectAttachmentIdGetParameters",
+              "x-python-alias": "ObjectAttachmentIdGetParameters",
+              "description": "Path parameters for retrieving an attachment"
             }
           },
           {
@@ -1233,7 +1257,10 @@
                     "data": {
                       "$ref": "#/components/schemas/folder"
                     }
-                  }
+                  },
+                  "title": "ObjectFolderPostResponse",
+                  "x-python-alias": "ObjectFolderPostResponse",
+                  "description": "Response schema for creating a folder"
                 }
               }
             }
@@ -1438,7 +1465,10 @@
             "in": "query",
             "description": "List all folders that contain this search term.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "title": "ListObjectFoldersGetParameters",
+              "x-python-alias": "ListObjectFoldersGetParameters",
+              "description": "Query parameters for listing folders"
             }
           }
         ],
@@ -1480,7 +1510,10 @@
                       "x-python-alias": "FolderListData",
                       "description": "List data schema containing array of folder objects"
                     }
-                  }
+                  },
+                  "title": "ListObjectFoldersGetResponse",
+                  "x-python-alias": "ListObjectFoldersGetResponse",
+                  "description": "Response schema for listing folders"
                 }
               }
             }
@@ -1570,7 +1603,10 @@
                     "data": {
                       "$ref": "#/components/schemas/send.template"
                     }
-                  }
+                  },
+                  "title": "ObjectSendPostResponse",
+                  "x-python-alias": "ObjectSendPostResponse",
+                  "description": "Response schema for creating a send"
                 }
               }
             }
@@ -1602,7 +1638,10 @@
             "description": "Unique identifier of the Send to edit.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectSendIdPutResponse",
+              "x-python-alias": "ObjectSendIdPutResponse",
+              "description": "Path parameters for updating a send"
             }
           }
         ],
@@ -1823,7 +1862,10 @@
             "in": "query",
             "description": "List all Sends that contain this search term.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "title": "ListObjectSendGetResponse",
+              "x-python-alias": "ListObjectSendGetResponse",
+              "description": "Response schema for listing sends"
             }
           }
         ],
@@ -1972,7 +2014,10 @@
             "description": "Unique identifier of the item to move.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "MoveItemidOrganizationIdPostParameters",
+              "x-python-alias": "MoveItemidOrganizationIdPostParameters",
+              "description": "Path parameters for moving an item to a collection"
             }
           },
           {
@@ -1982,7 +2027,10 @@
             "description": "Unique identifier of the Organization to move the item to.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "MoveItemidOrganizationIdPostRequest",
+              "x-python-alias": "MoveItemidOrganizationIdPostRequest",
+              "description": "Request schema for moving an item to a collection"
             }
           }
         ],
@@ -2076,7 +2124,10 @@
             "description": "Unique identifier of the Organization.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectOrgCollectionPostParameters",
+              "x-python-alias": "ObjectOrgCollectionPostParameters",
+              "description": "Path parameters for creating an organization collection"
             }
           }
         ],
@@ -2154,7 +2205,10 @@
             "description": "Unique identifier of the Collection.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ObjectOrgCollectionIdPutParameters",
+              "x-python-alias": "ObjectOrgCollectionIdPutParameters",
+              "description": "Path parameters for updating an organization collection"
             }
           },
           {
@@ -2354,7 +2408,10 @@
             "description": "Unique identifier of the Organization.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ListObjectOrgCollectionsGetParameters",
+              "x-python-alias": "ListObjectOrgCollectionsGetParameters",
+              "description": "Query parameters for listing organization collections"
             }
           },
           {
@@ -2406,7 +2463,10 @@
             "in": "query",
             "description": "List only Collections that contain this search term.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "title": "ListObjectCollectionsGetParameters",
+              "x-python-alias": "ListObjectCollectionsGetParameters",
+              "description": "Query parameters for listing collections"
             }
           }
         ],
@@ -2496,7 +2556,10 @@
             "description": "Unique identifier of the Organization.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "ListObjectOrgMembersGetParameters",
+              "x-python-alias": "ListObjectOrgMembersGetParameters",
+              "description": "Query parameters for listing organization members"
             }
           }
         ],
@@ -2709,7 +2772,10 @@
             "description": "A unique identifier for the device approval request.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "DeviceApprovalOrganizationIdDenyRequestIdPostParameters",
+              "x-python-alias": "DeviceApprovalOrganizationIdDenyRequestIdPostParameters",
+              "description": "Path parameters for denying a device approval request"
             }
           }
         ],
@@ -2870,7 +2936,10 @@
             "in": "query",
             "description": "Number of characters in the **password**.",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "title": "GenerateGetParameters",
+              "x-python-alias": "GenerateGetParameters",
+              "description": "Query parameters for generating passwords"
             }
           },
           {
@@ -3000,8 +3069,9 @@
                 "item-collections",
                 "org-collection"
               ],
-              "title": "TemplateTypeEnum",
-              "x-python-alias": "TemplateType"
+              "title": "ObjectTemplateTypeGetParameters",
+              "x-python-alias": "ObjectTemplateTypeGetParameters",
+              "description": "Path parameters for retrieving template by type"
             }
           }
         ],
@@ -3086,7 +3156,10 @@
             "description": "A unique identifier for the Organization.",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "title": "DeviceApprovalOrganizationIdApproveRequestIdPostParameters",
+              "x-python-alias": "DeviceApprovalOrganizationIdApproveRequestIdPostParameters",
+              "description": "Path parameters for approving a device approval request"
             }
           },
           {

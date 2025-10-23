@@ -112,7 +112,7 @@ class APISpecTool:
         TypeError: When the JSON file does not contain a dictionary.
         FileNotFoundError: When the specified file does not exist.
         JSONDecodeError: When the file contains invalid JSON.
-        Exception: When an unexpected error occurs while reading the file.
+        APISpecToolError: When an unexpected error occurs while reading the file.
     """
     self._debug(f"Loading {description}: {file_path}")
     try:
@@ -966,7 +966,31 @@ class APISpecTool:
     added_hashes = new_hashes - old_hashes
     removed_hashes = old_hashes - new_hashes
 
-    # Process added items - but check for field modifications first
+    # Process added items
+    differences.extend(
+      self._process_added_items(old_array, new_array, added_hashes, array_path)
+    )
+
+    # Process removed items
+    differences.extend(
+      self._process_removed_items(old_array, new_array, removed_hashes, array_path)
+    )
+
+    # Process moved/changed items
+    differences.extend(
+      self._process_changed_items(old_array, new_array, mappings, array_path)
+    )
+
+    return differences
+
+  # ---------------------------------------------------------------------------
+  def _process_added_items(
+    self: "APISpecTool", old_array: List[Any], new_array: List[Any], added_hashes: Set[str],
+    array_path: str
+  ) -> List[Dict[str, Any]]:
+    """Process added items in array comparison."""
+    differences = []
+
     for new_idx, item in enumerate(new_array):
       item_hash = self.create_content_hash(item)
 
@@ -974,7 +998,7 @@ class APISpecTool:
         # Check if this might be a field modification of an existing item
         is_field_mod = False
 
-        for old_idx, old_item in enumerate(old_array):
+        for _old_idx, old_item in enumerate(old_array):
           if self._is_field_modification(old_item, item):
             # This is a field modification, not an addition
             field_diffs = self._find_field_differences(
@@ -994,7 +1018,16 @@ class APISpecTool:
             'array_tracking': True
           })
 
-    # Process removed items - but check for field modifications first
+    return differences
+
+  # ---------------------------------------------------------------------------
+  def _process_removed_items(
+    self: "APISpecTool", old_array: List[Any], new_array: List[Any],
+    removed_hashes: Set[str], array_path: str
+  ) -> List[Dict[str, Any]]:
+    """Process removed items in array comparison."""
+    differences = []
+
     for old_idx, item in enumerate(old_array):
       item_hash = self.create_content_hash(item)
 
@@ -1002,7 +1035,7 @@ class APISpecTool:
         # Check if this might be a field modification of an existing item
         is_field_mod = False
 
-        for new_idx, new_item in enumerate(new_array):
+        for _new_idx, new_item in enumerate(new_array):
           if self._is_field_modification(item, new_item):
             # This is a field modification, not a removal
             # We already handled this in the added items section
@@ -1025,7 +1058,16 @@ class APISpecTool:
               True
           })
 
-    # Process moved/changed items
+    return differences
+
+  # ---------------------------------------------------------------------------
+  def _process_changed_items(
+    self: "APISpecTool", old_array: List[Any], new_array: List[Any],
+    mappings: Dict[int, int], array_path: str
+  ) -> List[Dict[str, Any]]:
+    """Process changed/moved items in array comparison."""
+    differences = []
+
     for old_idx, new_idx in mappings.items():
       if new_idx != -1:  # Item wasn't removed
         old_item = old_array[old_idx]
@@ -1110,9 +1152,9 @@ class APISpecTool:
 
     # Check if most values are the same (allowing for a few field changes)
     same_values = 0
-    total_values = 0
+    total_values = len(common_keys)
 
-    for total_values, key in enumerate(common_keys, 1):
+    for key in common_keys:
       if old_item[key] == new_item[key]:
         same_values += 1
 
@@ -1205,7 +1247,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_array_differences(
-    self: "APISpecTool", obj1: Any, obj2: Any, diff: Dict[str, Any], _base_path: str
+    self: "APISpecTool", obj1: Any, obj2: Any, diff: Dict[str, Any]
   ) -> List[Dict[str, Any]]:
     """Process differences that involve arrays with position tracking.
 
@@ -1282,14 +1324,12 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_array_item_addition(
-    self: "APISpecTool", diff: Dict[str, Any], _mappings: Dict[int, int],
-    old_array: List[Any], new_array: List[Any]
+    self: "APISpecTool", diff: Dict[str, Any], old_array: List[Any], new_array: List[Any]
   ) -> List[Dict[str, Any]]:
     """Process array item addition with position tracking.
 
     Arguments:
         diff: The original difference dictionary.
-        mappings: Element mappings from old to new indices.
         old_array: Original array.
         new_array: Modified array.
 
@@ -1325,13 +1365,12 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_array_item_removal(
-    self: "APISpecTool", diff: Dict[str, Any], _mappings: Dict[int, int],
-    old_array: List[Any], new_array: List[Any]
+    self: "APISpecTool", diff: Dict[str, Any], old_array: List[Any], new_array: List[Any]
   ) -> List[Dict[str, Any]]:
     """Process array item removal with position tracking.
 
     Arguments:
-        mappings: Element mappings from old to new indices.
+        diff: The original difference dictionary.
         old_array: Original array.
         new_array: Modified array.
 
@@ -1372,6 +1411,7 @@ class APISpecTool:
 
     Arguments:
         diff: The original difference dictionary.
+        mappings: Element mappings from old to new indices.
         old_array: Original array.
         new_array: Modified array.
 
@@ -1970,6 +2010,7 @@ class APISpecTool:
 
     return successful_changes, skipped_changes
 
+  # ---------------------------------------------------------------------------
   def _get_operations_from_fixes(self: "APISpecTool",
                                  fixes: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Extract operations from fixes configuration.
@@ -1989,6 +2030,7 @@ class APISpecTool:
     else:
       return []
 
+  # ---------------------------------------------------------------------------
   def _apply_single_operation(
     self: "APISpecTool", spec: Dict[str, Any], operation_type: str, op: Dict[str, Any],
     path: str, description: str
@@ -2140,8 +2182,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _apply_move_array_item(
-    self: "APISpecTool", spec: Dict[str, Any], _op: Dict[str, Any], path: str,
-    description: str
+    self: "APISpecTool", spec: Dict[str, Any], path: str, description: str
   ) -> str:
     """Apply move_array_item operation."""
     array = self.get_value_at_spec_path(spec, path)
@@ -2190,40 +2231,65 @@ class APISpecTool:
     content_hash = op.get('content_hash')
     operation_type = op.get('type', 'set_value')
 
+    # Route to specific operation handlers
     if operation_type == 'add_array_item':
-      # Add the item to the array
-      array.append(op['value'])
-      return f"Added array item: {description}"
+      return self._handle_add_array_item(array, op, description)
 
     elif operation_type == 'remove_array_item':
-      # Find and remove item by content hash
-      for i, item in enumerate(array):
-        if self.create_content_hash(item) == content_hash:
-          array.pop(i)
-          return f"Removed array item: {description}"
-
-      return f"Array item not found (skipped): {description}"
+      return self._handle_remove_array_item(array, content_hash, description)
 
     elif operation_type == 'set_value':
-      # Find and update item by content hash
-      for i, item in enumerate(array):
-        if self.create_content_hash(item) == content_hash:
-          array[i] = op['value']
-          return f"Updated array item: {description}"
-
-      return f"Array item not found (skipped): {description}"
+      return self._handle_set_array_value(array, op, content_hash, description)
 
     elif operation_type == 'move_array_item':
-      # For move operations, the array is already in the correct order
-      # in the target specification, so we just verify the item exists
-      for item in array:
-        if self.create_content_hash(item) == content_hash:
-          return f"Array item already in correct position (skipped): {description}"
-
-      return f"Array item not found (skipped): {description}"
+      return self._handle_move_array_item(array, content_hash, description)
 
     else:
       return f"Unknown array operation {operation_type}: {description}"
+
+  # ---------------------------------------------------------------------------
+  def _handle_add_array_item(
+    self: "APISpecTool", array: List[Any], op: Dict[str, Any], description: str
+  ) -> str:
+    """Handle adding an array item."""
+    array.append(op['value'])
+    return f"Added array item: {description}"
+
+  # ---------------------------------------------------------------------------
+  def _handle_remove_array_item(
+    self: "APISpecTool", array: List[Any], content_hash: str, description: str
+  ) -> str:
+    """Handle removing an array item by content hash."""
+    for i, item in enumerate(array):
+      if self.create_content_hash(item) == content_hash:
+        array.pop(i)
+        return f"Removed array item: {description}"
+
+    return f"Array item not found (skipped): {description}"
+
+  # ---------------------------------------------------------------------------
+  def _handle_set_array_value(
+    self: "APISpecTool", array: List[Any], op: Dict[str, Any], content_hash: str,
+    description: str
+  ) -> str:
+    """Handle setting an array value by content hash."""
+    for i, item in enumerate(array):
+      if self.create_content_hash(item) == content_hash:
+        array[i] = op['value']
+        return f"Updated array item: {description}"
+
+    return f"Array item not found (skipped): {description}"
+
+  # ---------------------------------------------------------------------------
+  def _handle_move_array_item(
+    self: "APISpecTool", array: List[Any], content_hash: str, description: str
+  ) -> str:
+    """Handle moving an array item (verify it exists)."""
+    for item in array:
+      if self.create_content_hash(item) == content_hash:
+        return f"Array item already in correct position (skipped): {description}"
+
+    return f"Array item not found (skipped): {description}"
 
 
 # -----------------------------------------------------------------------------
@@ -2253,49 +2319,85 @@ def main() -> None:
     tool._debug(f"Quiet mode: {tool.quiet}, Debug mode: {tool.debug}")
 
   try:
-    if args.command == 'analyze':
-      handle_analyze_command(tool, args)
-
-    elif args.command == 'extract':
-      handle_extract_command(tool, args)
-
-    elif args.command == 'update':
-      handle_update_command(tool, args)
-
-    elif args.command == 'fix':
-      handle_fix_command(tool, args)
+    _execute_command(tool, args)
 
   except FileNotFoundError as e:
-    tool._debug(f"FileNotFoundError caught: {e}")
-
-    if not getattr(args, 'quiet', False):
-      print(f"Error: File not found: {e}", file=sys.stderr)
-
-    sys.exit(1)
+    _handle_file_not_found_error(tool, args, e)
 
   except json.JSONDecodeError as e:
-    tool._debug(f"JSONDecodeError caught: {e}")
-
-    if not getattr(args, 'quiet', False):
-      print(f"Error: Invalid JSON: {e}", file=sys.stderr)
-
-    sys.exit(2)
+    _handle_json_decode_error(tool, args, e)
 
   except KeyError as e:
-    tool._debug(f"KeyError caught: {e}")
-
-    if not getattr(args, 'quiet', False):
-      print(f"Error: Missing required field in API spec: {e}", file=sys.stderr)
-
-    sys.exit(2)
+    _handle_key_error(tool, args, e)
 
   except Exception as e:
-    tool._debug(f"Exception caught: {type(e).__name__}: {e}")
+    _handle_general_error(tool, args, e)
 
-    if not getattr(args, 'quiet', False):
-      print(f"Error: {e}", file=sys.stderr)
 
-    sys.exit(3)
+# -----------------------------------------------------------------------------
+def _execute_command(tool: APISpecTool, args: argparse.Namespace) -> None:
+  """Execute the specified command."""
+  if args.command == 'analyze':
+    handle_analyze_command(tool, args)
+
+  elif args.command == 'extract':
+    handle_extract_command(tool, args)
+
+  elif args.command == 'update':
+    handle_update_command(tool, args)
+
+  elif args.command == 'fix':
+    handle_fix_command(tool, args)
+
+
+# -----------------------------------------------------------------------------
+def _handle_file_not_found_error(
+  tool: APISpecTool, args: argparse.Namespace, e: FileNotFoundError
+) -> None:
+  """Handle FileNotFoundError."""
+  tool._debug(f"FileNotFoundError caught: {e}")
+
+  if not getattr(args, 'quiet', False):
+    print(f"Error: File not found: {e}", file=sys.stderr)
+
+  sys.exit(1)
+
+
+# -----------------------------------------------------------------------------
+def _handle_json_decode_error(
+  tool: APISpecTool, args: argparse.Namespace, e: json.JSONDecodeError
+) -> None:
+  """Handle JSONDecodeError."""
+  tool._debug(f"JSONDecodeError caught: {e}")
+
+  if not getattr(args, 'quiet', False):
+    print(f"Error: Invalid JSON: {e}", file=sys.stderr)
+
+  sys.exit(2)
+
+
+# -----------------------------------------------------------------------------
+def _handle_key_error(tool: APISpecTool, args: argparse.Namespace, e: KeyError) -> None:
+  """Handle KeyError."""
+  tool._debug(f"KeyError caught: {e}")
+
+  if not getattr(args, 'quiet', False):
+    print(f"Error: Missing required field in API spec: {e}", file=sys.stderr)
+
+  sys.exit(2)
+
+
+# -----------------------------------------------------------------------------
+def _handle_general_error(
+  tool: APISpecTool, args: argparse.Namespace, e: Exception
+) -> None:
+  """Handle general exceptions."""
+  tool._debug(f"Exception caught: {type(e).__name__}: {e}")
+
+  if not getattr(args, 'quiet', False):
+    print(f"Error: {e}", file=sys.stderr)
+
+  sys.exit(3)
 
 
 # -----------------------------------------------------------------------------
@@ -2512,7 +2614,29 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   tool._debug(f"Output file: {args.output_file}")
   tool._debug(f"Dry run: {getattr(args, 'dry_run', False)}")
 
-  # Load the original and fixed files
+  # Load files and analyze differences
+  original, fixed = _load_spec_files(tool, args)
+  existing_paths = _get_existing_paths(tool, args)
+  all_differences = _find_differences(tool, original, fixed, args)
+  new_fixes = _filter_new_fixes(tool, all_differences, existing_paths)
+
+  # Handle dry run or apply changes
+  if not new_fixes:
+    _handle_no_new_fixes(args)
+    return
+
+  _display_new_fixes(new_fixes, args)
+
+  if args.dry_run:
+    _handle_dry_run(args)
+    return
+
+  _apply_updates(args, new_fixes)
+
+
+def _load_spec_files(tool: APISpecTool,
+                     args: argparse.Namespace) -> tuple[Dict[str, Any], Dict[str, Any]]:
+  """Load the original and fixed spec files."""
   original = tool.load_json_file(args.original_file, "original spec file")
   fixed = tool.load_json_file(args.fixed_file, "fixed spec file")
 
@@ -2520,13 +2644,24 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
     print(f"Loaded original file: {args.original_file}")
     print(f"Loaded fixed file: {args.fixed_file}")
 
-  # Get existing spec-fix paths
+  return original, fixed
+
+
+def _get_existing_paths(tool: APISpecTool, args: argparse.Namespace) -> Set[str]:
+  """Get existing spec-fix paths."""
   existing_paths = tool.get_existing_spec_fix_paths(args.output_file)
 
   if not args.quiet:
     print(f"Found {len(existing_paths)} existing paths in spec-fixes")
 
-  # Find all differences using DeepDiff with array tracking
+  return existing_paths
+
+
+def _find_differences(
+  tool: APISpecTool, original: Dict[str, Any], fixed: Dict[str, Any],
+  args: argparse.Namespace
+) -> List[Dict[str, Any]]:
+  """Find differences between original and fixed specs."""
   if not args.quiet:
     print("Analyzing differences...")
 
@@ -2535,32 +2670,37 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   if not args.quiet:
     print(f"Found {len(all_differences)} total differences")
 
-  # Filter out differences that are already covered
-  new_fixes = _filter_new_fixes(tool, all_differences, existing_paths)
+  return all_differences
 
-  if not new_fixes:
-    if not args.quiet:
-      print("No new changes to add to spec-fixes.json")
 
-    return
+def _handle_no_new_fixes(args: argparse.Namespace) -> None:
+  """Handle case when no new fixes are found."""
+  if not args.quiet:
+    print("No new changes to add to spec-fixes.json")
 
+
+def _display_new_fixes(new_fixes: List[Dict[str, Any]], args: argparse.Namespace) -> None:
+  """Display the new fixes that will be added."""
   if not args.quiet:
     print(f"\nFound {len(new_fixes)} new changes to add:")
 
     for fix in new_fixes:
       print(f"  - {fix['path']}: {fix['description']}")
 
-  if args.dry_run:
-    if not args.quiet:
-      print("\nDry run complete. No changes made.")
 
-    return
+def _handle_dry_run(args: argparse.Namespace) -> None:
+  """Handle dry run mode."""
+  if not args.quiet:
+    print("\nDry run complete. No changes made.")
 
+
+def _apply_updates(args: argparse.Namespace, new_fixes: List[Dict[str, Any]]) -> None:
+  """Apply the updates to spec-fixes.json."""
   # Load existing spec-fixes or create new structure
   spec_fixes = _load_or_create_spec_fixes(args)
 
   # Add new fixes
-  _add_new_fixes(spec_fixes, new_fixes, args)
+  _add_new_fixes(spec_fixes, new_fixes)
 
   # Sort operations by path for consistent output
   _sort_operations_by_path(spec_fixes)
@@ -2645,9 +2785,7 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
 
 
 # -----------------------------------------------------------------------------
-def _add_new_fixes(
-  spec_fixes: Dict[str, Any], new_fixes: List[Dict[str, Any]], _args: argparse.Namespace
-) -> None:
+def _add_new_fixes(spec_fixes: Dict[str, Any], new_fixes: List[Dict[str, Any]]) -> None:
   """Add new fixes to the spec-fixes structure.
 
   Arguments:

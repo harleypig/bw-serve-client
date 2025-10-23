@@ -175,28 +175,32 @@ extend-select = ["B9","DOC","TRY"]
 extend-ignore = [
   # indentation not multiple of 4 since we use 2-space indentation
   "E111", "E114", "E122", "E131",
-  "E251", # unexpected spaces around keyword/parameter equals to match yapf style
-  "E501", # line too long in favor of bugbear's B950
-  "PAR103", # Nope
-  "R505", # elif after return/raise is often semantically correct
-  "R506", # elif after raise statement is often semantically correct
-  "TRY003", # Long error messages in raise statements are often more readable
-  "TRY300", # Moving returns to else blocks often reduces readability
-  "TRY101", # Too many try blocks is often overly restrictive
-  "TRY301", # Abstracting raise to inner function often adds unnecessary complexity
+
+  "D107",   # Conflicts with DOC301 - __init__ methods should not have docstrings
+  "D203",   # Blank line before class docstring (conflicts with pydocstringformatter)
+  "D213",   # Multi-line docstring summary on first line (conflicts with pydocstringformatter)
+  "D406",   # Section name should end with newline (conflicts with Google-style docstrings)
+  "D407",   # Missing dashed underline after section (conflicts with Google-style docstrings)
+  "D413",   # Missing blank line after last section (conflicts with pydocstringformatter)
   "DCO010", # Conflicts with DOC301 - __init__ methods should not have docstrings
-  "D107", # Conflicts with DOC301 - __init__ methods should not have docstrings
+  "E251",   # unexpected spaces around keyword/parameter equals to match yapf style
+  "PAR103", # Nope
+  "R505",   # elif after return/raise is often semantically correct
+  "R506",   # elif after raise statement is often semantically correct
   "RST203", # Definition list formatting is often overly strict
-  "D213", # Multi-line docstring summary on first line (conflicts with pydocstringformatter)
-  "D203", # Blank line before class docstring (conflicts with pydocstringformatter)
-  "D211", # No blank lines before class docstring (conflicts with D203)
-  "D407", # Missing dashed underline after section (conflicts with Google-style docstrings)
-  "D406", # Section name should end with newline (conflicts with Google-style docstrings)
-  "D413", # Missing blank line after last section (conflicts with pydocstringformatter)
+  "TRY003", # Long error messages in raise statements are often more readable
+  "TRY101", # Too many try blocks is often overly restrictive
+  "TRY300", # Moving returns to else blocks often reduces readability
+  "TRY301", # Abstracting raise to inner function often adds unnecessary complexity
+
   # Basic formatting rules - disabled due to conflict with yapf formatting
+  "B950", # line too long (over 92 characters) - yapf handles this
   "E116", # unexpected indentation (comment)
   "E117", # over-indented (comment)
-  "B950", # line too long (over 92 characters) - yapf handles this
+
+  # Work on fixing these if possible
+  "D211", # No blank lines before class docstring (conflicts with D203)
+  "E501", # line too long in favor of bugbear's B950
 ]
 
 
@@ -204,11 +208,12 @@ extend-ignore = [
 per-file-ignores = [
   # Ignore CLB100 in tests (conflicts with AAA patterns)
   # Ignore SCS108 in tests (tests need asserts)
-  "tests/*:CLB100,SCS108",
+  # XXX: Fix AAA violations
+  "tests/*:CLB100,SCS108,AAA01",
   # Ignore TYP001 in generated models (type checking imports not properly guarded)
   # Ignore D101 in generated models (parameter classes don't get docstrings from datamodel-codegen)
   # Ignore D204 and DCO060 in generated models (docstring formatting issues from datamodel-codegen)
-  "bw_serve_client/models.py:TYP001,D101,D204,DCO060",
+  "bw_serve_client/models.py:TYP001,D101,D204,DCO060,PAR101",
 ]
 
 # dlint
@@ -377,6 +382,7 @@ use-type-checking = true
 
 # OpenAPI options
 include-path-parameters = true
+#openapi-scopes = ["schemas","paths","tags","parameters"]
 openapi-scopes = ["schemas","paths","tags","parameters"]
 strict-nullable = true
 #use-operation-id-as-name = true

@@ -563,20 +563,18 @@ class TestEndToEndWorkflow:
     # Step 3: Apply fixes (simulating fix command)
     test_spec = original_spec.copy()
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, fixes)  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      test_spec, fixes
+    )  # act
 
     # Step 4: Verify the result
     assert len(successful_changes) > 0
     assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
 
     # Verify the change was applied correctly
+    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"]["type"] == "string"
     assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
-    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"][
-        "type"
-    ] == "string"  # Unchanged
-    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"][
-        "type"
-    ] == "string"  # Unchanged
+    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"]["type"] == "string"
 
 
 if __name__ == '__main__':

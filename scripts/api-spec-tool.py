@@ -67,6 +67,7 @@ OutputData = Dict[str, Dict[str, List[str]]]
 
 class APISpecToolError(Exception):
   """Base exception for APISpecTool errors."""
+
   pass
 
 
@@ -1161,7 +1162,7 @@ class APISpecTool:
               'type': 'set_value',
               'value': new_value,
               'old_value': old_value,
-              'description': f"Update field '{key}': {str(new_value)[:50]}...",
+              'description': f"Update field {key!r}: {str(new_value)[:50]}...",
               'array_tracking': True
             })
 
@@ -1171,7 +1172,7 @@ class APISpecTool:
             'path': field_path,
             'type': 'set_value',
             'value': new_value,
-            'description': f"Add field '{key}': {str(new_value)[:50]}...",
+            'description': f"Add field {key!r}: {str(new_value)[:50]}...",
             'array_tracking': True
           })
 
@@ -1181,7 +1182,7 @@ class APISpecTool:
             'path': field_path,
             'type': 'delete_value',
             'old_value': old_value,
-            'description': f"Remove field '{key}'",
+            'description': f"Remove field {key!r}",
             'array_tracking': True
           })
 
@@ -1212,7 +1213,6 @@ class APISpecTool:
         obj1: Original object.
         obj2: Modified object.
         diff: The difference dictionary to process.
-        base_path: Base path for the comparison.
 
     Returns:
         List[Dict[str, Any]]: List of processed difference dictionaries.
@@ -1331,7 +1331,6 @@ class APISpecTool:
     """Process array item removal with position tracking.
 
     Arguments:
-        diff: The original difference dictionary.
         mappings: Element mappings from old to new indices.
         old_array: Original array.
         new_array: Modified array.
@@ -1373,7 +1372,6 @@ class APISpecTool:
 
     Arguments:
         diff: The original difference dictionary.
-        mappings: Element mappings from old to new indices.
         old_array: Original array.
         new_array: Modified array.
 
@@ -1689,7 +1687,7 @@ class APISpecTool:
         Dict[str, Any]: Fix entry dictionary with type, path, description,
             and optional value/old_value fields.
     """
-    self._debug(f"Creating fix entry: {operation_type} for path '{path}'")
+    self._debug(f"Creating fix entry: {operation_type} for path {path!r}")
 
     # Generate description if not provided
     if description is None:
@@ -2508,7 +2506,7 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
       tool: APISpecTool instance to use for analysis.
       args: Parsed command line arguments.
   """
-  tool._debug(f"Starting update command")
+  tool._debug("Starting update command")
   tool._debug(f"Original file: {args.original_file}")
   tool._debug(f"Fixed file: {args.fixed_file}")
   tool._debug(f"Output file: {args.output_file}")
@@ -2655,7 +2653,6 @@ def _add_new_fixes(
   Arguments:
       spec_fixes: The spec-fixes dictionary to update.
       new_fixes: List of new fixes to add.
-      args: Parsed command line arguments.
   """
   # Add new fixes to operations
   spec_fixes["operations"].extend(new_fixes)
@@ -2676,7 +2673,7 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
       tool: APISpecTool instance to use for fixing.
       args: Parsed command line arguments.
   """
-  tool._debug(f"Starting fix command")
+  tool._debug("Starting fix command")
   tool._debug(f"Original file: {args.original_file}")
   tool._debug(f"Fixes file: {args.fixes_file}")
   tool._debug(f"Output file: {args.output_file}")

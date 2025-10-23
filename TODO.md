@@ -77,7 +77,10 @@ library for Bitwarden Vault Management API.
     2. **Parent array identification**: Detect array parent paths by finding numeric indices anywhere in path, not just at end
     3. **Robust element mapping**: Implement proper array element mapping that handles both structural changes (additions/removals) and property modifications within elements
     4. **DeepDiff integration**: Consider leveraging DeepDiff's built-in array tracking features or implement custom comparison logic
-  - **Why This Matters**: Future array structures with nested properties will likely break current logic, so need robust solution that can handle array elements with complex nested properties, array reordering, and mixed changes
+  - **Why This Matters**: Future array structures with nested properties will
+      likely break current logic, so need robust solution that can handle
+      array elements with complex nested properties, array reordering, and
+      mixed changes
 
 - [ ] **Enhance array difference detection**
   - Improve field-level modification detection within array elements

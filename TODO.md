@@ -67,6 +67,18 @@ library for Bitwarden Vault Management API.
   - **Context**: Most OpenAPI array order changes are cosmetic and don't affect semantic meaning
   - **Documentation Needed**: Add to developer docs explaining the design rationale and its implications
 
+- [ ] **CRITICAL: Fix fragile array handling in api-spec-tool.py**
+  - **Current Problem**: `_is_array_path` logic is too simplistic and will break with complex array structures
+  - **Issue**: Only checks if last path component is numeric, but fails for nested array properties like `parameters[3].schema.format`
+  - **Impact**: Current fix works for immediate issue but creates technical debt for future array structures
+  - **Constraint**: Must work with DeepDiff `ignore_order=True` (needed to prevent false positives for array reordering)
+  - **Suggested Solution**:
+    1. **Content-based array element tracking**: Use hashing of entire array element values to maintain identity across changes
+    2. **Parent array identification**: Detect array parent paths by finding numeric indices anywhere in path, not just at end
+    3. **Robust element mapping**: Implement proper array element mapping that handles both structural changes (additions/removals) and property modifications within elements
+    4. **DeepDiff integration**: Consider leveraging DeepDiff's built-in array tracking features or implement custom comparison logic
+  - **Why This Matters**: Future array structures with nested properties will likely break current logic, so need robust solution that can handle array elements with complex nested properties, array reordering, and mixed changes
+
 - [ ] **Enhance array difference detection**
   - Improve field-level modification detection within array elements
   - Add support for nested object changes in arrays

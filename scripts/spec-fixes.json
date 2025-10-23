@@ -546,6 +546,13 @@
       "description": "Remove value at paths|/device-approval/{organizationId}/approve/{request-id}}"
     },
     {
+      "type": "set_value",
+      "path": "paths|/list/object/items|get|parameters|3|schema|format",
+      "description": "Update value at paths|/list/object/items|get|parameters|3|schema|format",
+      "value": "uri",
+      "old_value": "url"
+    },
+    {
       "type": "add_if_missing",
       "path": "paths|/move/{itemid}/{organizationId}|post|requestBody|content|application/json|schema|properties|array|items",
       "description": "Add missing value at paths|/move/{itemid}/{organizationId}|post|requestBody|content|application/json|schema|properties|array|items",

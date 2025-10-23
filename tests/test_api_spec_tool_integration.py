@@ -220,12 +220,13 @@ class TestEndToEndWorkflow:
 
       # Test applying fixes
       test_spec: Dict[str, Any] = self.original_spec.copy()
-      successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, v2_fixes)
+      successful_changes, skipped_changes = self.tool.apply_path_operations(
+        test_spec, v2_fixes
+      )
       assert len(successful_changes) > 0
       assert "content" in test_spec["paths"]["/test"]["get"]["responses"]["200"]
     finally:
       os.unlink(fixes_file)
-
 
   def test_error_handling_scenarios(self: "TestEndToEndWorkflow") -> None:
     """Test various error handling scenarios."""
@@ -311,7 +312,9 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      spec, fixes
+    )  # act
     assert len(successful_changes) > 0  # noqa: AAA04
     assert spec["test"]["items"][0]["value"] == "new"
     assert spec["test"]["items"][1]["value"] == "keep"
@@ -321,31 +324,65 @@ class TestEndToEndWorkflow:
     # Create original spec with array elements
     original_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
-            "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "url"}},
-              {"name": "param3", "schema": {"type": "string"}}
-            ]
+            "parameters": [{
+              "name": "param1",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param2",
+              "schema": {
+                "type": "string",
+                "format": "url"
+              }
+            }, {
+              "name": "param3",
+              "schema": {
+                "type": "string"
+              }
+            }]
           }
         }
       }
     }
-    
+
     # Create fixed spec with array element changes
     fixed_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
             "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "uri"}},  # Changed from url to uri
-              {"name": "param3", "schema": {"type": "string"}}
+              {
+                "name": "param1",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              {
+                "name": "param2",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },  # Changed from url to uri
+              {
+                "name": "param3",
+                "schema": {
+                  "type": "string"
+                }
+              }
             ]
           }
         }
@@ -354,11 +391,13 @@ class TestEndToEndWorkflow:
 
     # Test that differences are found including array index changes
     differences = self.tool.find_differences(original_spec, fixed_spec)  # act
-    
+
     # Should find the array index change
-    array_index_changes = [diff for diff in differences if 'parameters|1|schema|format' in diff['path']]
+    array_index_changes = [
+      diff for diff in differences if 'parameters|1|schema|format' in diff['path']
+    ]
     assert len(array_index_changes) > 0
-    
+
     # The change should be detected as a set_value operation
     format_change = array_index_changes[0]
     assert format_change['type'] == 'set_value'
@@ -371,16 +410,28 @@ class TestEndToEndWorkflow:
       "paths": {
         "/test": {
           "get": {
-            "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "url"}},
-              {"name": "param3", "schema": {"type": "string"}}
-            ]
+            "parameters": [{
+              "name": "param1",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param2",
+              "schema": {
+                "type": "string",
+                "format": "url"
+              }
+            }, {
+              "name": "param3",
+              "schema": {
+                "type": "string"
+              }
+            }]
           }
         }
       }
     }
-    
+
     fixes = {
       "operations": [{
         "type": "set_value",
@@ -391,8 +442,10 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
-    
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      spec, fixes
+    )  # act
+
     assert len(successful_changes) > 0
     assert "Updated value" in successful_changes[0]
     assert spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
@@ -410,42 +463,80 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      spec, fixes
+    )  # act
     assert len(successful_changes) > 0  # noqa: AAA04
     assert "new_key" in spec["test"]
     assert "old_key" not in spec["test"]
     assert spec["test"]["new_key"] == "value"
 
-  def test_complete_array_index_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
+  def test_complete_array_index_workflow(
+    self: "TestEndToEndWorkflow"
+  ) -> None:  # noqa: AAA01
     """Test complete workflow with array index changes."""
     # Create original spec with array elements
     original_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
-            "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "url"}},
-              {"name": "param3", "schema": {"type": "string"}}
-            ]
+            "parameters": [{
+              "name": "param1",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param2",
+              "schema": {
+                "type": "string",
+                "format": "url"
+              }
+            }, {
+              "name": "param3",
+              "schema": {
+                "type": "string"
+              }
+            }]
           }
         }
       }
     }
-    
+
     # Create fixed spec with array element changes
     fixed_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
             "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "uri"}},  # Changed from url to uri
-              {"name": "param3", "schema": {"type": "string"}}
+              {
+                "name": "param1",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              {
+                "name": "param2",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },  # Changed from url to uri
+              {
+                "name": "param3",
+                "schema": {
+                  "type": "string"
+                }
+              }
             ]
           }
         }
@@ -454,11 +545,13 @@ class TestEndToEndWorkflow:
 
     # Step 1: Find differences (simulating update command)
     differences = self.tool.find_differences(original_spec, fixed_spec)  # act
-    
+
     # Should find the array index change
-    array_index_changes = [diff for diff in differences if 'parameters|1|schema|format' in diff['path']]
+    array_index_changes = [
+      diff for diff in differences if 'parameters|1|schema|format' in diff['path']
+    ]
     assert len(array_index_changes) > 0
-    
+
     # Step 2: Create fix entries (simulating update command)
     fixes = {
       "operations": [
@@ -468,19 +561,23 @@ class TestEndToEndWorkflow:
         ) for diff in differences
       ]
     }
-    
+
     # Step 3: Apply fixes (simulating fix command)
     test_spec = original_spec.copy()
-    successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, fixes)  # act
-    
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      test_spec, fixes
+    )  # act
+
     # Step 4: Verify the result
     assert len(successful_changes) > 0
     assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
-    
+
     # Verify the change was applied correctly
     assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
-    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"]["type"] == "string"  # Unchanged
-    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"]["type"] == "string"  # Unchanged
+    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"][
+      "type"] == "string"  # Unchanged
+    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"][
+      "type"] == "string"  # Unchanged
 
 
 if __name__ == '__main__':

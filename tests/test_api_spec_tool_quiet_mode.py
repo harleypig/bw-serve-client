@@ -76,20 +76,24 @@ class TestQuietModeFunctionality:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', '-q', temp_file
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should only print the concise summary, not verbose output
       assert "API Analysis Complete: 1 endpoints found" in result.stdout
-      assert "API Analysis Complete" not in result.stdout or result.stdout.count("API Analysis Complete") == 1
-      
+      assert "API Analysis Complete" not in result.stdout or result.stdout.count(
+        "API Analysis Complete"
+      ) == 1
+
       # Should not contain verbose analysis details
       assert "API Info:" not in result.stdout
       assert "Authentication:" not in result.stdout
       assert "Server Info:" not in result.stdout
-      
+
     finally:
       os.unlink(temp_file)
 
@@ -104,16 +108,18 @@ class TestQuietModeFunctionality:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should contain verbose analysis details
       assert "📋 API INFORMATION:" in result.stdout
       assert "🔐 AUTHENTICATION:" in result.stdout
       assert "🌐 SERVER CONFIGURATION:" in result.stdout
-      
+
     finally:
       os.unlink(temp_file)
 
@@ -131,17 +137,19 @@ class TestQuietModeFunctionality:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'extract', '-q', temp_file, '-o', output_path
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should not print success message in quiet mode
       assert "Routes extracted and saved to:" not in result.stdout
-      
+
       # Should still create the output file
       assert os.path.exists(output_path)
-      
+
     finally:
       os.unlink(temp_file)
       if os.path.exists(output_path):
@@ -161,14 +169,16 @@ class TestQuietModeFunctionality:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'extract', temp_file, '-o', output_path
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should print success message in verbose mode
       assert "Routes extracted and saved to:" in result.stdout
-      
+
     finally:
       os.unlink(temp_file)
       if os.path.exists(output_path):
@@ -191,13 +201,16 @@ class TestQuietModeFunctionality:
     try:
       result = subprocess.run([
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-        'update', '-q', '--original-file', original_file, '--fixed-file', fixed_file, '--output-file', spec_fixes_file
-      ], capture_output=True, text=True)
+        os.path.join(os.path.dirname(__file__), '..', 'scripts',
+                     'api-spec-tool.py'), 'update', '-q', '--original-file', original_file,
+        '--fixed-file', fixed_file, '--output-file', spec_fixes_file
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should not print verbose messages in quiet mode
       assert "Loading original spec file:" not in result.stdout
       assert "Loading fixed spec file:" not in result.stdout
@@ -207,7 +220,7 @@ class TestQuietModeFunctionality:
       assert "New changes found:" not in result.stdout
       assert "Dry run complete." not in result.stdout
       assert "Successfully updated" not in result.stdout
-      
+
     finally:
       os.unlink(original_file)
       os.unlink(fixed_file)
@@ -231,20 +244,23 @@ class TestQuietModeFunctionality:
     try:
       result = subprocess.run([
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-        'update', '--original-file', original_file, '--fixed-file', fixed_file, '--output-file', spec_fixes_file
-      ], capture_output=True, text=True)
+        os.path.join(os.path.dirname(__file__), '..', 'scripts',
+                     'api-spec-tool.py'), 'update', '--original-file', original_file,
+        '--fixed-file', fixed_file, '--output-file', spec_fixes_file
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should print verbose messages in verbose mode
       assert "Loaded original file:" in result.stdout
       assert "Loaded fixed file:" in result.stdout
       assert "Found" in result.stdout and "existing paths" in result.stdout
       assert "Analyzing differences..." in result.stdout
       assert "Found" in result.stdout and "total differences" in result.stdout
-      
+
     finally:
       os.unlink(original_file)
       os.unlink(fixed_file)
@@ -268,13 +284,16 @@ class TestQuietModeFunctionality:
     try:
       result = subprocess.run([
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-        'fix', '-q', '--original-file', original_file, '--fixed-file', fixed_file, '--fixes-file', spec_fixes_file
-      ], capture_output=True, text=True)
+        os.path.join(os.path.dirname(__file__), '..', 'scripts',
+                     'api-spec-tool.py'), 'fix', '-q', '--original-file', original_file,
+        '--fixed-file', fixed_file, '--fixes-file', spec_fixes_file
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should not print verbose messages in quiet mode
       assert "Loading original spec file:" not in result.stdout
       assert "Loading fixed spec file:" not in result.stdout
@@ -283,7 +302,7 @@ class TestQuietModeFunctionality:
       assert "Writing fixed spec to:" not in result.stdout
       assert "Successfully applied" not in result.stdout
       assert "Skipped" not in result.stdout
-      
+
     finally:
       os.unlink(original_file)
       os.unlink(fixed_file)
@@ -307,20 +326,23 @@ class TestQuietModeFunctionality:
     try:
       result = subprocess.run([
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-        'fix', '--original-file', original_file, '--fixed-file', fixed_file, '--fixes-file', spec_fixes_file
-      ], capture_output=True, text=True)
+        os.path.join(os.path.dirname(__file__), '..', 'scripts',
+                     'api-spec-tool.py'), 'fix', '--original-file', original_file,
+        '--fixed-file', fixed_file, '--fixes-file', spec_fixes_file
+      ],
+                              capture_output=True,
+                              text=True)
 
       # Should exit with success code
       assert result.returncode == 0
-      
+
       # Should print verbose messages in verbose mode
       assert "📖 Loading files..." in result.stdout
       assert "Original spec:" in result.stdout
       assert "Fixes config:" in result.stdout
       assert "🔧 Applying OpenAPI spec fixes..." in result.stdout
       assert "💾 Writing fixed spec:" in result.stdout
-      
+
     finally:
       os.unlink(original_file)
       os.unlink(fixed_file)
@@ -335,7 +357,10 @@ class TestExitCodes:
     """Test that successful operations return exit code 0."""
     sample_data = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {}
     }
 
@@ -348,7 +373,9 @@ class TestExitCodes:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 0
 
@@ -361,7 +388,9 @@ class TestExitCodes:
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', 'nonexistent.json'
-    ], capture_output=True, text=True)
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 1
 
@@ -371,7 +400,9 @@ class TestExitCodes:
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', '-q', 'nonexistent.json'
-    ], capture_output=True, text=True)
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 1
     # In quiet mode, should not print error message
@@ -389,7 +420,9 @@ class TestExitCodes:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 2
 
@@ -407,7 +440,9 @@ class TestExitCodes:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', '-q', temp_file
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 2
       # In quiet mode, should not print error message
@@ -428,7 +463,9 @@ class TestExitCodes:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 3
 
@@ -440,7 +477,9 @@ class TestExitCodes:
     result = subprocess.run([
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
-    ], capture_output=True, text=True)
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 1
 
@@ -450,7 +489,9 @@ class TestExitCodes:
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'invalid_command'
-    ], capture_output=True, text=True)
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 2
 
@@ -458,9 +499,10 @@ class TestExitCodes:
     """Test that help command returns exit code 0."""
     result = subprocess.run([
       sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-      '--help'
-    ], capture_output=True, text=True)
+      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 0
 
@@ -470,7 +512,9 @@ class TestExitCodes:
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', '--help'
-    ], capture_output=True, text=True)
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 0
 
@@ -478,20 +522,26 @@ class TestExitCodes:
 class TestQuietModeErrorHandling:
   """Test cases for error handling in quiet mode."""
 
-  def test_quiet_mode_suppresses_all_error_messages(self: "TestQuietModeErrorHandling") -> None:
+  def test_quiet_mode_suppresses_all_error_messages(
+    self: "TestQuietModeErrorHandling"
+  ) -> None:
     """Test that quiet mode suppresses all error messages."""
     # Test file not found error
     result = subprocess.run([
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', '-q', 'nonexistent.json'
-    ], capture_output=True, text=True)
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 1
     assert result.stdout == ""
     assert result.stderr == ""
 
-  def test_quiet_mode_suppresses_json_error_messages(self: "TestQuietModeErrorHandling") -> None:
+  def test_quiet_mode_suppresses_json_error_messages(
+    self: "TestQuietModeErrorHandling"
+  ) -> None:
     """Test that quiet mode suppresses JSON error messages."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       f.write("invalid json")
@@ -502,7 +552,9 @@ class TestQuietModeErrorHandling:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', '-q', temp_file
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 2
       assert result.stdout == ""
@@ -517,20 +569,31 @@ class TestQuietModeErrorHandling:
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', 'nonexistent.json'
-    ], capture_output=True, text=True)
+    ],
+                            capture_output=True,
+                            text=True)
 
     assert result.returncode == 1
     assert "Error: File not found:" in result.stderr
 
-  def test_quiet_mode_still_creates_output_files(self: "TestQuietModeErrorHandling") -> None:
+  def test_quiet_mode_still_creates_output_files(
+    self: "TestQuietModeErrorHandling"
+  ) -> None:
     """Test that quiet mode still creates output files when successful."""
     sample_data = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
-            "responses": {"200": {"description": "Success"}}
+            "responses": {
+              "200": {
+                "description": "Success"
+              }
+            }
           }
         }
       }
@@ -548,11 +611,13 @@ class TestQuietModeErrorHandling:
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'extract', '-q', temp_file, '-o', output_path
-      ], capture_output=True, text=True)
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 0
       assert os.path.exists(output_path)
-      
+
       # Verify the file was created and has content
       with open(output_path, 'r') as f:
         content = f.read()
@@ -571,11 +636,18 @@ class TestQuietModeIntegration:
     """Test complete workflow in quiet mode."""
     original_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
-            "responses": {"200": {"description": "Success"}}
+            "responses": {
+              "200": {
+                "description": "Success"
+              }
+            }
           }
         }
       }
@@ -583,7 +655,10 @@ class TestQuietModeIntegration:
 
     fixed_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
@@ -592,7 +667,9 @@ class TestQuietModeIntegration:
                 "description": "Success",
                 "content": {
                   "application/json": {
-                    "schema": {"type": "object"}
+                    "schema": {
+                      "type": "object"
+                    }
                   }
                 }
               }
@@ -618,9 +695,12 @@ class TestQuietModeIntegration:
       # Step 1: Update command in quiet mode
       result = subprocess.run([
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-        'update', '-q', '--original-file', original_file, '--fixed-file', fixed_file, '--output-file', spec_fixes_file
-      ], capture_output=True, text=True)
+        os.path.join(os.path.dirname(__file__), '..', 'scripts',
+                     'api-spec-tool.py'), 'update', '-q', '--original-file', original_file,
+        '--fixed-file', fixed_file, '--output-file', spec_fixes_file
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 0
       assert result.stdout == ""  # Should be completely quiet
@@ -628,9 +708,12 @@ class TestQuietModeIntegration:
       # Step 2: Fix command in quiet mode
       result = subprocess.run([
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-        'fix', '-q', '--original-file', original_file, '--fixed-file', fixed_file, '--fixes-file', spec_fixes_file
-      ], capture_output=True, text=True)
+        os.path.join(os.path.dirname(__file__), '..', 'scripts',
+                     'api-spec-tool.py'), 'fix', '-q', '--original-file', original_file,
+        '--fixed-file', fixed_file, '--fixes-file', spec_fixes_file
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 0
       assert result.stdout == ""  # Should be completely quiet
@@ -645,11 +728,18 @@ class TestQuietModeIntegration:
     """Test quiet mode with dry run option."""
     original_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
-            "responses": {"200": {"description": "Success"}}
+            "responses": {
+              "200": {
+                "description": "Success"
+              }
+            }
           }
         }
       }
@@ -657,7 +747,10 @@ class TestQuietModeIntegration:
 
     fixed_spec = {
       "openapi": "3.0.0",
-      "info": {"title": "Test API", "version": "1.0.0"},
+      "info": {
+        "title": "Test API",
+        "version": "1.0.0"
+      },
       "paths": {
         "/test": {
           "get": {
@@ -666,7 +759,9 @@ class TestQuietModeIntegration:
                 "description": "Success",
                 "content": {
                   "application/json": {
-                    "schema": {"type": "object"}
+                    "schema": {
+                      "type": "object"
+                    }
                   }
                 }
               }
@@ -691,9 +786,12 @@ class TestQuietModeIntegration:
     try:
       result = subprocess.run([
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-        'update', '-q', '--dry-run', '--original-file', original_file, '--fixed-file', fixed_file, '--output-file', spec_fixes_file
-      ], capture_output=True, text=True)
+        os.path.join(os.path.dirname(__file__), '..', 'scripts',
+                     'api-spec-tool.py'), 'update', '-q', '--dry-run', '--original-file',
+        original_file, '--fixed-file', fixed_file, '--output-file', spec_fixes_file
+      ],
+                              capture_output=True,
+                              text=True)
 
       assert result.returncode == 0
       assert result.stdout == ""  # Should be completely quiet even with dry run

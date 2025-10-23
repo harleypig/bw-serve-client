@@ -236,17 +236,30 @@ class TestAPISpecToolBasic:
       "paths": {
         "/test": {
           "get": {
-            "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string"}},
-              {"name": "param3", "schema": {"type": "string"}}
-            ]
+            "parameters": [{
+              "name": "param1",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param2",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param3",
+              "schema": {
+                "type": "string"
+              }
+            }]
           }
         }
       }
     }
 
-    self.tool.set_value_at_path(spec, "paths|/test|get|parameters|1|schema|format", "uri")  # act
+    self.tool.set_value_at_path(
+      spec, "paths|/test|get|parameters|1|schema|format", "uri"
+    )  # act
 
     assert spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
 
@@ -256,17 +269,31 @@ class TestAPISpecToolBasic:
       "paths": {
         "/test": {
           "get": {
-            "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "uri"}},
-              {"name": "param3", "schema": {"type": "string"}}
-            ]
+            "parameters": [{
+              "name": "param1",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param2",
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              }
+            }, {
+              "name": "param3",
+              "schema": {
+                "type": "string"
+              }
+            }]
           }
         }
       }
     }
 
-    result = self.tool.get_value_at_spec_path(spec, "paths|/test|get|parameters|1|schema|format")  # act
+    result = self.tool.get_value_at_spec_path(
+      spec, "paths|/test|get|parameters|1|schema|format"
+    )  # act
 
     assert result == "uri"
 
@@ -276,10 +303,18 @@ class TestAPISpecToolBasic:
       "paths": {
         "/test": {
           "get": {
-            "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "uri"}}
-            ]
+            "parameters": [{
+              "name": "param1",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param2",
+              "schema": {
+                "type": "string",
+                "format": "uri"
+              }
+            }]
           }
         }
       }
@@ -287,7 +322,9 @@ class TestAPISpecToolBasic:
 
     assert self.tool.path_exists(spec, "paths|/test|get|parameters|1|schema|format")  # act
     assert not self.tool.path_exists(spec, "paths|/test|get|parameters|2|schema|format")
-    assert not self.tool.path_exists(spec, "paths|/test|get|parameters|1|schema|nonexistent")
+    assert not self.tool.path_exists(
+      spec, "paths|/test|get|parameters|1|schema|nonexistent"
+    )
 
   def test_apply_path_operations_set_value(self: "TestAPISpecToolBasic") -> None:
     """Test applying set_value operations."""
@@ -301,23 +338,39 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      spec, fixes
+    )  # act
 
     assert len(successful_changes) > 0
     assert "Updated value" in successful_changes[0]
     assert spec["test"]["nested"]["value"] == "new"
 
-  def test_apply_path_operations_set_value_with_array_index(self: "TestAPISpecToolBasic") -> None:
+  def test_apply_path_operations_set_value_with_array_index(
+    self: "TestAPISpecToolBasic"
+  ) -> None:
     """Test applying set_value operations with array indices."""
     spec = {
       "paths": {
         "/test": {
           "get": {
-            "parameters": [
-              {"name": "param1", "schema": {"type": "string"}},
-              {"name": "param2", "schema": {"type": "string", "format": "url"}},
-              {"name": "param3", "schema": {"type": "string"}}
-            ]
+            "parameters": [{
+              "name": "param1",
+              "schema": {
+                "type": "string"
+              }
+            }, {
+              "name": "param2",
+              "schema": {
+                "type": "string",
+                "format": "url"
+              }
+            }, {
+              "name": "param3",
+              "schema": {
+                "type": "string"
+              }
+            }]
           }
         }
       }
@@ -331,7 +384,9 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      spec, fixes
+    )  # act
 
     assert len(successful_changes) > 0
     assert "Updated value" in successful_changes[0]
@@ -349,7 +404,9 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      spec, fixes
+    )  # act
 
     assert len(successful_changes) > 0
     assert "Added missing" in successful_changes[0]
@@ -366,7 +423,9 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(
+      spec, fixes
+    )  # act
 
     assert len(successful_changes) > 0
     assert "Deleted value" in successful_changes[0]
@@ -399,7 +458,6 @@ class TestAPISpecToolBasic:
       assert "test|path2" in paths
     finally:
       os.unlink(temp_file)
-
 
   def test_get_existing_spec_fix_paths_file_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test getting existing spec fix paths when file doesn't exist."""

@@ -9,11 +9,20 @@ scripts into a single tool with subcommands.
 Usage:
     python scripts/api_spec_tool.py <subcommand> [options]
 
+Global Options:
+    -q, --quiet    Suppress verbose output, only show errors and exit codes
+
 Subcommands:
     analyze    Analyze API structure and extract key information
     extract    Extract and format API routes
     update     Update spec-fixes.json with new changes
     fix        Apply fixes to the OpenAPI specification
+
+Exit Codes:
+    0    Success
+    1    General error (invalid arguments, file not found, etc.)
+    2    Analysis error (malformed JSON, invalid API spec, etc.)
+    3    Processing error (DeepDiff failure, fix application error, etc.)
 
 Examples:
     # Analyze the API structure
@@ -28,6 +37,10 @@ Examples:
 
     # Apply fixes to create a fixed specification
     python scripts/api_spec_tool.py fix
+
+    # Quiet mode - suppress verbose output
+    python scripts/api_spec_tool.py update --quiet
+    python scripts/api_spec_tool.py fix --quiet
 """
 
 import argparse
@@ -85,14 +98,11 @@ class APISpecTool:
       return data
 
     except FileNotFoundError:
-      print(f"Error: {description} not found: {file_path}", file=sys.stderr)
-      sys.exit(1)
+      raise FileNotFoundError(f"{description} not found: {file_path}")
     except json.JSONDecodeError as e:
-      print(f"Error: Invalid JSON in {description}: {e}", file=sys.stderr)
-      sys.exit(1)
+      raise json.JSONDecodeError(f"Invalid JSON in {description}: {e}", e.doc, e.pos)
     except Exception as e:
-      print(f"Error reading {description}: {e}", file=sys.stderr)
-      sys.exit(1)
+      raise Exception(f"Error reading {description}: {e}")
 
   # ---------------------------------------------------------------------------
   def analyze_api_structure(self: "APISpecTool", swagger_file: str) -> Dict[str, Any]:
@@ -980,7 +990,9 @@ class APISpecTool:
         bool: True if the path contains array indices.
     """
     parts = path.split('|')
-    return any(part.isdigit() for part in parts)
+    # Only consider it an array path if the last part is numeric
+    # This indicates we're modifying the array itself, not a property of an array element
+    return len(parts) > 0 and parts[-1].isdigit()
 
   def _process_array_differences(self: "APISpecTool", 
                                 obj1: Any, 
@@ -1910,7 +1922,14 @@ class APISpecTool:
 
 # -----------------------------------------------------------------------------
 def main() -> None:
-  """Run the API spec tool with command line arguments."""
+  """Run the API spec tool with command line arguments.
+  
+  Exit codes:
+      0: Success
+      1: General error (invalid arguments, file not found, etc.)
+      2: Analysis error (malformed JSON, invalid API spec, etc.)
+      3: Processing error (DeepDiff failure, fix application error, etc.)
+  """
   parser = create_argument_parser()
   args = parser.parse_args()
 
@@ -1930,9 +1949,22 @@ def main() -> None:
     elif args.command == 'fix':
       handle_fix_command(tool, args)
 
-  except Exception as e:
-    print(f"Error: {e}", file=sys.stderr)
+  except FileNotFoundError as e:
+    if not getattr(args, 'quiet', False):
+      print(f"Error: File not found: {e}", file=sys.stderr)
     sys.exit(1)
+  except json.JSONDecodeError as e:
+    if not getattr(args, 'quiet', False):
+      print(f"Error: Invalid JSON: {e}", file=sys.stderr)
+    sys.exit(2)
+  except KeyError as e:
+    if not getattr(args, 'quiet', False):
+      print(f"Error: Missing required field in API spec: {e}", file=sys.stderr)
+    sys.exit(2)
+  except Exception as e:
+    if not getattr(args, 'quiet', False):
+      print(f"Error: {e}", file=sys.stderr)
+    sys.exit(3)
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
@@ -1947,11 +1979,23 @@ def create_argument_parser() -> argparse.ArgumentParser:
     epilog=__doc__
   )
 
+  # Global options
+  parser.add_argument(
+    '-q', '--quiet',
+    action='store_true',
+    help='Suppress verbose output, only show errors and exit codes'
+  )
+
   subparsers = parser.add_subparsers(dest='command', help='Available subcommands')
 
   # Analyze subcommand
   analyze_parser = subparsers.add_parser('analyze', help='Analyze API structure')
   analyze_parser.add_argument('swagger_file', help='Path to the swagger JSON file')
+  analyze_parser.add_argument(
+    '-q', '--quiet',
+    action='store_true',
+    help='Suppress verbose output, only show errors and exit codes'
+  )
 
   # Extract subcommand
   extract_parser = subparsers.add_parser('extract', help='Extract and format API routes')
@@ -1964,6 +2008,11 @@ def create_argument_parser() -> argparse.ArgumentParser:
     help='Output format (default: text)'
   )
   extract_parser.add_argument('--output', '-o', help='Output file (default: stdout)')
+  extract_parser.add_argument(
+    '-q', '--quiet',
+    action='store_true',
+    help='Suppress verbose output, only show errors and exit codes'
+  )
 
   # Update subcommand
   update_parser = subparsers.add_parser(
@@ -1989,6 +2038,11 @@ def create_argument_parser() -> argparse.ArgumentParser:
     default='scripts/vault-management-api-fixed.json',
     help='Fixed API spec file'
   )
+  update_parser.add_argument(
+    '-q', '--quiet',
+    action='store_true',
+    help='Suppress verbose output, only show errors and exit codes'
+  )
 
   # Fix subcommand
   fix_parser = subparsers.add_parser('fix', help='Apply fixes to the OpenAPI specification')
@@ -2005,6 +2059,11 @@ def create_argument_parser() -> argparse.ArgumentParser:
   fix_parser.add_argument(
     '--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file'
   )
+  fix_parser.add_argument(
+    '-q', '--quiet',
+    action='store_true',
+    help='Suppress verbose output, only show errors and exit codes'
+  )
 
   return parser
 
@@ -2017,7 +2076,11 @@ def handle_analyze_command(tool: APISpecTool, args: argparse.Namespace) -> None:
       args: Parsed command line arguments.
   """
   analysis = tool.analyze_api_structure(args.swagger_file)
-  tool.print_analysis(analysis)
+  if not args.quiet:
+    tool.print_analysis(analysis)
+  else:
+    # In quiet mode, just print the summary
+    print(f"API Analysis Complete: {len(analysis.get('endpoints', []))} endpoints found")
 
 
 def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
@@ -2044,7 +2107,8 @@ def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
                    encoding='utf-8') as f:
       f.write(output)
 
-    print(f"Routes extracted and saved to: {args.output}")
+    if not args.quiet:
+      print(f"Routes extracted and saved to: {args.output}")
   else:
     print(output)
 
@@ -2060,31 +2124,38 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   original = tool.load_json_file(args.original_file, "original spec file")
   fixed = tool.load_json_file(args.fixed_file, "fixed spec file")
 
-  print(f"Loaded original file: {args.original_file}")
-  print(f"Loaded fixed file: {args.fixed_file}")
+  if not args.quiet:
+    print(f"Loaded original file: {args.original_file}")
+    print(f"Loaded fixed file: {args.fixed_file}")
 
   # Get existing spec-fix paths
   existing_paths = tool.get_existing_spec_fix_paths(args.output_file)
-  print(f"Found {len(existing_paths)} existing paths in spec-fixes")
+  if not args.quiet:
+    print(f"Found {len(existing_paths)} existing paths in spec-fixes")
 
   # Find all differences using DeepDiff with array tracking
-  print("Analyzing differences...")
+  if not args.quiet:
+    print("Analyzing differences...")
   all_differences = tool.find_differences_with_array_tracking(original, fixed)
-  print(f"Found {len(all_differences)} total differences")
+  if not args.quiet:
+    print(f"Found {len(all_differences)} total differences")
 
   # Filter out differences that are already covered
   new_fixes = _filter_new_fixes(tool, all_differences, existing_paths)
 
   if not new_fixes:
-    print("No new changes to add to spec-fixes.json")
+    if not args.quiet:
+      print("No new changes to add to spec-fixes.json")
     return
 
-  print(f"\nFound {len(new_fixes)} new changes to add:")
-  for fix in new_fixes:
-    print(f"  - {fix['path']}: {fix['description']}")
+  if not args.quiet:
+    print(f"\nFound {len(new_fixes)} new changes to add:")
+    for fix in new_fixes:
+      print(f"  - {fix['path']}: {fix['description']}")
 
   if args.dry_run:
-    print("\nDry run complete. No changes made.")
+    if not args.quiet:
+      print("\nDry run complete. No changes made.")
     return
 
   # Load existing spec-fixes or create new structure
@@ -2101,7 +2172,8 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
                  'w') as f:
     json.dump(spec_fixes, f, indent=2)
 
-  print(f"\nSuccessfully updated {args.output_file} with {len(new_fixes)} new fixes")
+  if not args.quiet:
+    print(f"\nSuccessfully updated {args.output_file} with {len(new_fixes)} new fixes")
 
 
 def _filter_new_fixes(
@@ -2192,41 +2264,45 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   original_spec = tool.load_json_file(args.original_file, "original spec file")
   fixes_config = tool.load_json_file(args.fixes_file, "fixes configuration file")
 
-  print("📖 Loading files...")
-  print(f"   Original spec: {args.original_file}")
-  print(f"   Fixes config: {args.fixes_file}")
+  if not args.quiet:
+    print("📖 Loading files...")
+    print(f"   Original spec: {args.original_file}")
+    print(f"   Fixes config: {args.fixes_file}")
 
   # Apply fixes to a copy of the original spec
-  print("🔧 Applying OpenAPI spec fixes...")
+  if not args.quiet:
+    print("🔧 Applying OpenAPI spec fixes...")
   fixed_spec_data = original_spec.copy()
   successful_changes, skipped_changes = tool.apply_path_operations(
     fixed_spec_data, fixes_config
   )
 
   # Write fixed specification
-  print(f"💾 Writing fixed spec: {args.fixed_file}")
+  if not args.quiet:
+    print(f"💾 Writing fixed spec: {args.fixed_file}")
 
   with os.fdopen(os.open(args.fixed_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
                  'w') as f:
     json.dump(fixed_spec_data, f, indent=2)
 
   # Print summary - successful changes first
-  if successful_changes:
-    print(f"\n✅ Applied {len(successful_changes)} fixes:")
-    for change in successful_changes:
-      print(f"   • {change}")
-  else:
-    print("\n⚠️  No fixes were applied")
+  if not args.quiet:
+    if successful_changes:
+      print(f"\n✅ Applied {len(successful_changes)} fixes:")
+      for change in successful_changes:
+        print(f"   • {change}")
+    else:
+      print("\n⚠️  No fixes were applied")
 
-  # Print skipped changes last for easier cleanup
-  if skipped_changes:
-    print(
-      f"\n⏭️  Skipped {len(skipped_changes)} operations (already exist/no changes needed):"
-    )
-    for change in skipped_changes:
-      print(f"   • {change}")
+    # Print skipped changes last for easier cleanup
+    if skipped_changes:
+      print(
+        f"\n⏭️  Skipped {len(skipped_changes)} operations (already exist/no changes needed):"
+      )
+      for change in skipped_changes:
+        print(f"   • {change}")
 
-  print(f"\n🎉 Fixed specification written to: {args.fixed_file}")
+    print(f"\n🎉 Fixed specification written to: {args.fixed_file}")
 
 
 if __name__ == '__main__':

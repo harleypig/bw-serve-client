@@ -41,30 +41,13 @@ library for Bitwarden Vault Management API.
 
 ## API Spec Tool Improvements
 
-- [ ] **Fix key replacement detection in dictionary values**
-  - **Problem**: When a key in a dictionary is replaced in the fixed spec, the entire value is treated as new during `api-spec-tool update`
+- [ ] **Document key replacement limitation**
+  - **Known Issue**: When a key in a dictionary is replaced in the fixed spec, the entire value is treated as new during `api-spec-tool update`
   - **Impact**: Even if the content of the value hasn't changed, it will be detected as a difference
-  - **Example**: If the path that has `"{request_id}}"` becomes `"{requestId}"` in a path object, the entire path object is treated as new
-  - **Location**: This affects the `_compare_arrays` and difference detection logic in `scripts/api-spec-tool.py`
-  - **Current behavior**: DeepDiff with `ignore_order=True` doesn't handle key renames properly
-
-- [ ] **Design solution for key replacement detection**
-  - Research approaches to detect when a dictionary change is just a key rename
-  - Consider content-based comparison that ignores key names for certain patterns
-  - Evaluate if we can detect "semantic equivalence" between old and new values
-  - Design algorithm to distinguish between:
-    - Key renames (same content, different key)
-    - Value changes (same key, different content)  
-    - Complete replacements (different key and content)
-  - Consider configuration options for which keys should be treated as "renameable"
-
-- [ ] **Implement key replacement fix**
-  - Modify difference detection logic to handle key renames
-  - Update `_compare_arrays` method to detect key renames in array elements
-  - Add new operation type: `rename_key` for dictionary key renames
-  - Ensure fix application can handle key renames correctly
-  - Add tests for key rename scenarios
-  - Update spec-fixes.json format if needed (version 3.2+)
+  - **Example**: Path `"/device-approval/{organizationId}/approve/{request-id}}"` becomes `"/device-approval/{organizationId}/approve/{request-id}"` - entire POST operation definition is duplicated
+  - **Root Cause**: DeepDiff with `ignore_order=True` doesn't recognize key renames, treats them as complete removal + addition
+  - **Current Workaround**: No practical solution exists - this is a fundamental limitation of the current approach
+  - **Documentation Needed**: Add to developer docs (README.md or docs/api-spec-tool.md) explaining this limitation and its impact on spec-fixes.json size
 
 - [ ] **Enhance array difference detection**
   - Improve field-level modification detection within array elements

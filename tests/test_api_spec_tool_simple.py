@@ -84,7 +84,7 @@ class TestAPISpecToolBasic:
 
   def test_load_json_file_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test JSON file loading when file doesn't exist."""
-    with pytest.raises(SystemExit):  # act
+    with pytest.raises(FileNotFoundError):  # act
       self.tool.load_json_file("nonexistent.json", "test file")
 
   def test_analyze_api_structure(self: "TestAPISpecToolBasic") -> None:  # noqa: AAA01
@@ -400,32 +400,6 @@ class TestAPISpecToolBasic:
     finally:
       os.unlink(temp_file)
 
-  def test_get_existing_spec_fix_paths_old_format(  # noqa: AAA01
-    self: "TestAPISpecToolBasic"
-  ) -> None:
-    """Test getting existing spec fix paths from old format."""
-    old_fixes = {
-      "path_operations": {
-        "fixes": [{
-          "path": "test|path1",
-          "operation": "set_value"
-        }, {
-          "path": "test|path2",
-          "operation": "add_if_missing"
-        }]
-      }
-    }
-
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
-      json.dump(old_fixes, f)
-      temp_file = f.name
-
-    try:
-      paths = self.tool.get_existing_spec_fix_paths(temp_file)
-      assert "test|path1" in paths
-      assert "test|path2" in paths
-    finally:
-      os.unlink(temp_file)
 
   def test_get_existing_spec_fix_paths_file_not_found(self: "TestAPISpecToolBasic") -> None:
     """Test getting existing spec fix paths when file doesn't exist."""

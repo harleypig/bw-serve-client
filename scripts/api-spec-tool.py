@@ -172,7 +172,16 @@ class APISpecTool:
   ) -> None:
     """Extract server information from the spec."""
     if 'servers' in data:
-      analysis['server_info'] = data['servers']
+      # Convert servers list to a more readable format
+      servers = data['servers']
+      if isinstance(servers, list) and len(servers) > 0:
+        analysis['server_info'] = {
+          'servers': servers,
+          'primary_url': servers[0].get('url', '') if isinstance(servers[0], dict) else str(servers[0]),
+          'count': len(servers)
+        }
+      else:
+        analysis['server_info'] = {'servers': servers}
     elif 'host' in data:
       analysis['server_info'] = {
         'host': data.get('host', ''),
@@ -2080,7 +2089,10 @@ def handle_analyze_command(tool: APISpecTool, args: argparse.Namespace) -> None:
     tool.print_analysis(analysis)
   else:
     # In quiet mode, just print the summary
-    print(f"API Analysis Complete: {len(analysis.get('endpoints', []))} endpoints found")
+    # Count endpoints by using the extract_routes function
+    routes = tool.extract_routes(args.swagger_file)
+    endpoint_count = len(routes)
+    print(f"API Analysis Complete: {endpoint_count} endpoints found")
 
 
 def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:

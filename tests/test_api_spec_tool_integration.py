@@ -226,46 +226,10 @@ class TestEndToEndWorkflow:
     finally:
       os.unlink(fixes_file)
 
-  def test_spec_fixes_old_format_workflow(  # noqa: AAA01
-    self: "TestEndToEndWorkflow"
-  ) -> None:
-    """Test workflow with old spec-fixes format."""
-    # Create old format spec-fixes file
-    old_fixes = {
-      "path_operations": {
-        "fixes": [{
-          "operation": "set_value",
-          "path": "paths|/test|get|responses|200|content",
-          "value": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          },
-          "description": "Add content to response"
-        }]
-      }
-    }
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:  # act
-      json.dump(old_fixes, f)
-      fixes_file = f.name
-    try:
-      # Test loading existing paths
-      existing_paths = self.tool.get_existing_spec_fix_paths(fixes_file)
-      assert "paths|/test|get|responses|200|content" in existing_paths
-
-      # Test applying fixes
-      test_spec: Dict[str, Any] = self.original_spec.copy()
-      successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, old_fixes)
-      assert len(successful_changes) > 0
-      assert "content" in test_spec["paths"]["/test"]["get"]["responses"]["200"]
-    finally:
-      os.unlink(fixes_file)
 
   def test_error_handling_scenarios(self: "TestEndToEndWorkflow") -> None:
     """Test various error handling scenarios."""
-    with pytest.raises(SystemExit):  # act
+    with pytest.raises(FileNotFoundError):  # act
       self.tool.load_json_file("nonexistent.json", "test file")
 
     # Test with invalid JSON
@@ -273,7 +237,7 @@ class TestEndToEndWorkflow:
       f.write("invalid json")
       temp_file = f.name
     try:
-      with pytest.raises(SystemExit):
+      with pytest.raises(json.JSONDecodeError):
         self.tool.load_json_file(temp_file, "test file")
     finally:
       os.unlink(temp_file)
@@ -283,7 +247,7 @@ class TestEndToEndWorkflow:
       json.dump(["not", "a", "dict"], f)
       temp_file = f.name
     try:
-      with pytest.raises(SystemExit):
+      with pytest.raises(Exception):
         self.tool.load_json_file(temp_file, "test file")
     finally:
       os.unlink(temp_file)

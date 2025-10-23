@@ -109,6 +109,7 @@ class APISpecTool:
     try:
       with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+
       self._debug(f"Successfully loaded {description}, size: {len(str(data))} characters")
 
       if not isinstance(data, dict):
@@ -121,9 +122,11 @@ class APISpecTool:
     except FileNotFoundError:
       self._debug(f"File not found: {file_path}")
       raise FileNotFoundError(f"{description} not found: {file_path}")
+
     except json.JSONDecodeError as e:
       self._debug(f"JSON decode error at position {e.pos}: {e}")
       raise json.JSONDecodeError(f"Invalid JSON in {description}: {e}", e.doc, e.pos)
+
     except Exception as e:
       self._debug(f"Unexpected error loading {description}: {type(e).__name__}: {e}")
       raise Exception(f"Error reading {description}: {e}")
@@ -171,32 +174,40 @@ class APISpecTool:
 
     return analysis
 
+  # ---------------------------------------------------------------------------
   def _extract_api_info(
     self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
   ) -> None:
     """Extract API information from the spec."""
     self._debug("Extracting API info from spec")
+
     if 'info' in data:
       info_data = data['info']
       self._debug(f"Found info section with keys: {list(info_data.keys())}")
+
       analysis['api_info'] = {
         'title': info_data.get('title', ''),
         'description': info_data.get('description', ''),
         'version': info_data.get('version', ''),
         'openapi_version': data.get('openapi', '')
       }
+
       self._debug(f"Extracted API info: {analysis['api_info']}")
+
     else:
       self._debug("No 'info' section found in spec")
 
+  # ---------------------------------------------------------------------------
   def _extract_authentication_info(
     self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
   ) -> None:
     """Extract authentication information from the spec."""
     self._debug("Extracting authentication info from spec")
+
     if 'security' in data:
       self._debug(f"Found security section: {data['security']}")
       analysis['authentication'] = data['security']
+
     else:
       self._debug("No 'security' section found in spec")
 
@@ -204,20 +215,24 @@ class APISpecTool:
       schemes = data['components']['securitySchemes']
       self._debug(f"Found security schemes: {list(schemes.keys())}")
       analysis['authentication']['schemes'] = schemes
+
     else:
       self._debug("No security schemes found in components")
 
+  # ---------------------------------------------------------------------------
   def _extract_server_info(
     self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
   ) -> None:
     """Extract server information from the spec."""
     self._debug("Extracting server info from spec")
+
     if 'servers' in data:
       # Convert servers list to a more readable format
       servers = data['servers']
       self._debug(
         f"Found servers section with {len(servers) if isinstance(servers, list) else 'non-list'} entries"
       )
+
       if isinstance(servers, list) and len(servers) > 0:
         primary_url = servers[0].get('url', '') if isinstance(servers[0],
                                                               dict) else str(servers[0])
@@ -227,9 +242,11 @@ class APISpecTool:
           'primary_url': primary_url,
           'count': len(servers)
         }
+
       else:
         self._debug("Servers list is empty or not a list")
         analysis['server_info'] = {'servers': servers}
+
     elif 'host' in data:
       self._debug("Using legacy host/basePath format")
       analysis['server_info'] = {
@@ -237,15 +254,18 @@ class APISpecTool:
         'basePath': data.get('basePath', ''),
         'schemes': data.get('schemes', [])
       }
+
     else:
       self._debug("No server information found in spec")
 
+  # ---------------------------------------------------------------------------
   def _analyze_paths(
     self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any],
     error_codes: Set[str], tags: Set[str], response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Analyze API paths and extract patterns."""
     self._debug("Analyzing API paths")
+
     if 'paths' not in data:
       self._debug("No 'paths' section found in spec")
       return
@@ -256,6 +276,7 @@ class APISpecTool:
 
     for path, methods in paths.items():
       self._debug(f"Processing path: {path}")
+
       for method, details in methods.items():
         if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
           self._debug(f"  Processing {method.upper()} method")
@@ -266,6 +287,7 @@ class APISpecTool:
 
     self._debug(f"Processed {endpoint_count} endpoints total")
 
+  # ---------------------------------------------------------------------------
   def _process_endpoint(
     self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
     analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
@@ -273,6 +295,7 @@ class APISpecTool:
   ) -> None:
     """Process a single endpoint and extract its information."""
     self._debug(f"    Processing endpoint: {method.upper()} {path}")
+
     # Extract tags
     if 'tags' in details:
       tags.update(details['tags'])
@@ -288,6 +311,7 @@ class APISpecTool:
       path, method, details, analysis, error_codes, response_patterns
     )
 
+  # ---------------------------------------------------------------------------
   def _extract_parameters(
     self: "APISpecTool", details: Dict[str, Any], analysis: Dict[str, Any]
   ) -> None:
@@ -304,11 +328,13 @@ class APISpecTool:
         'format': param.get('schema', {}).get('format', ''),
         'description': param.get('description', '')
       }
+
       if param_info['in'] not in analysis['parameter_patterns']:
         analysis['parameter_patterns'][param_info['in']] = []
 
       analysis['parameter_patterns'][param_info['in']].append(param_info)
 
+  # ---------------------------------------------------------------------------
   def _extract_request_body_patterns(
     self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
     analysis: Dict[str, Any]
@@ -319,12 +345,14 @@ class APISpecTool:
 
     req_body = details['requestBody']
     content_types = list(req_body.get('content', {}).keys())
+
     analysis['request_body_patterns'][f"{method.upper()} {path}"] = {
       'content_types': content_types,
       'required': req_body.get('required', False),
       'description': req_body.get('description', '')
     }
 
+  # ---------------------------------------------------------------------------
   def _extract_response_patterns(
     self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
     analysis: Dict[str, Any], error_codes: Set[str], response_patterns: Dict[str, Set[str]]
@@ -338,6 +366,7 @@ class APISpecTool:
 
       if 'content' in response:
         content_types = list(response['content'].keys())
+
         if status_code not in response_patterns:
           response_patterns[status_code] = set()
 
@@ -352,25 +381,31 @@ class APISpecTool:
               'example': content_info['example']
             }
 
+  # ---------------------------------------------------------------------------
   def _analyze_schemas(
     self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
   ) -> None:
     """Analyze data schemas from the spec."""
     self._debug("Analyzing data schemas")
+
     if 'components' in data and 'schemas' in data['components']:
       schemas = data['components']['schemas']
       self._debug(f"Found {len(schemas)} schemas to analyze")
+
       for schema_name, schema_def in schemas.items():
         self._debug(f"  Analyzing schema: {schema_name}")
+
         analysis['data_models'][schema_name] = {
           'type': schema_def.get('type', 'object'),
           'properties': schema_def.get('properties', {}),
           'required': schema_def.get('required', []),
           'description': schema_def.get('description', '')
         }
+
     else:
       self._debug("No schemas found in components")
 
+  # ---------------------------------------------------------------------------
   def _finalize_analysis(
     self: "APISpecTool", analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
     response_patterns: Dict[str, Set[str]]
@@ -385,6 +420,7 @@ class APISpecTool:
     """
     analysis['error_codes'] = sorted(error_codes)
     analysis['tags'] = sorted(tags)
+
     for status_code in response_patterns:
       analysis['response_patterns'][status_code] = sorted(response_patterns[status_code])
 
@@ -408,68 +444,86 @@ class APISpecTool:
     self._print_examples(analysis)
     self._print_footer()
 
+  # ---------------------------------------------------------------------------
   def _print_header(self: "APISpecTool") -> None:
     """Print the analysis header."""
     print("=" * 80)
     print("BITWARDEN VAULT MANAGEMENT API - LIBRARY DEVELOPMENT ANALYSIS")
     print("=" * 80)
 
+  # ---------------------------------------------------------------------------
   def _print_api_info(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print API information section."""
     print("\n📋 API INFORMATION:")
     print("-" * 40)
+
     for key, value in analysis['api_info'].items():
       print(f"  {key}: {value}")
 
+  # ---------------------------------------------------------------------------
   def _print_authentication(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print authentication section."""
     print("\n🔐 AUTHENTICATION:")
     print("-" * 40)
+
     if analysis['authentication']:
       for key, value in analysis['authentication'].items():
         print(f"  {key}: {value}")
+
     else:
       print("  No explicit authentication schemes defined")
       print("  Note: This API likely uses session-based authentication via 'bw serve'")
 
+  # ---------------------------------------------------------------------------
   def _print_server_config(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print server configuration section."""
     print("\n🌐 SERVER CONFIGURATION:")
     print("-" * 40)
+
     if analysis['server_info']:
       for key, value in analysis['server_info'].items():
         print(f"  {key}: {value}")
+
     else:
       print("  No explicit server configuration")
       print("  Note: This API runs locally via 'bw serve' command")
 
+  # ---------------------------------------------------------------------------
   def _print_response_patterns(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print response patterns section."""
     print("\n📤 RESPONSE PATTERNS:")
     print("-" * 40)
+
     for status_code, content_types in analysis['response_patterns'].items():
       print(f"  {status_code}: {', '.join(content_types)}")
 
+  # ---------------------------------------------------------------------------
   def _print_error_codes(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print error codes section."""
     print("\n❌ ERROR CODES:")
     print("-" * 40)
+
     for code in analysis['error_codes']:
       print(f"  {code}")
 
+  # ---------------------------------------------------------------------------
   def _print_tags(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print API categories (tags) section."""
     print("\n🏷️  API CATEGORIES (TAGS):")
     print("-" * 40)
+
     for tag in analysis['tags']:
       print(f"  - {tag}")
 
+  # ---------------------------------------------------------------------------
   def _print_parameter_patterns(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print parameter patterns section."""
     print("\n📝 PARAMETER PATTERNS:")
     print("-" * 40)
+
     for param_type, params in analysis['parameter_patterns'].items():
       print(f"  {param_type.upper()} parameters:")
+
       for param in params[:5]:  # Show first 5 examples
         print(
           f"    - {param['name']} ({param['type']}) - "
@@ -479,25 +533,31 @@ class APISpecTool:
       if len(params) > 5:
         print(f"    ... and {len(params) - 5} more")
 
+  # ---------------------------------------------------------------------------
   def _print_request_body_patterns(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print request body patterns section."""
     print("\n📦 REQUEST BODY PATTERNS:")
     print("-" * 40)
+
     for endpoint, body_info in list(analysis['request_body_patterns'].items())[:5]:
       print(f"  {endpoint}:")
       print(f"    Content-Types: {', '.join(body_info['content_types'])}")
       print(f"    Required: {body_info['required']}")
 
+  # ---------------------------------------------------------------------------
   def _print_data_models(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print data models section."""
     print("\n🏗️  DATA MODELS (SCHEMAS):")
     print("-" * 40)
+
     for model_name, model_info in list(analysis['data_models'].items())[:10]:
       print(f"  {model_name}:")
       print(f"    Type: {model_info['type']}")
+
       if model_info['properties']:
         prop_count = len(model_info['properties'])
         print(f"    Properties: {prop_count} fields")
+
         # Show a few key properties
         for prop_name, prop_info in list(model_info['properties'].items())[:3]:
           prop_type = prop_info.get('type', 'unknown')
@@ -506,6 +566,7 @@ class APISpecTool:
         if prop_count > 3:
           print(f"      ... and {prop_count - 3} more properties")
 
+  # ---------------------------------------------------------------------------
   def _print_examples(self: "APISpecTool", analysis: Dict[str, Any]) -> None:
     """Print key examples section.
 
@@ -514,11 +575,13 @@ class APISpecTool:
     """
     print("\n💡 KEY EXAMPLES:")
     print("-" * 40)
+
     for example_key, example_info in list(analysis['examples'].items())[:3]:
       print(f"  {example_key}:")
       print(f"    Content-Type: {example_info['content_type']}")
       print(f"    Example: {str(example_info['example'])[:100]}...")
 
+  # ---------------------------------------------------------------------------
   def _print_footer(self: "APISpecTool") -> None:
     """Print the analysis footer."""
     print("\n" + "=" * 80)
@@ -550,9 +613,11 @@ class APISpecTool:
 
     for path, methods in paths.items():
       self._debug(f"Processing path: {path}")
+
       for method, details in methods.items():
         if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
           self._debug(f"  Extracting {method.upper()} method")
+
           route_info = {
             'path': path,
             'method': method.upper(),
@@ -562,6 +627,7 @@ class APISpecTool:
             'parameters': details.get('parameters', []),
             'responses': list(details.get('responses', {}).keys())
           }
+
           routes.append(route_info)
           self._debug(f"    Added route: {method.upper()} {path}")
 
@@ -749,14 +815,16 @@ class APISpecTool:
     new_hashes = {i: self.create_content_hash(item) for i, item in enumerate(new_array)}
 
     # Create reverse mapping from hash to index
-    old_hash_to_index = {hash_val: idx for idx, hash_val in old_hashes.items()}
+    # old_hash_to_index = {hash_val: idx for idx, hash_val in old_hashes.items()}
     new_hash_to_index = {hash_val: idx for idx, hash_val in new_hashes.items()}
 
     # Map old indices to new indices
     mapping = {}
+
     for old_idx, old_hash in old_hashes.items():
       if old_hash in new_hash_to_index:
         mapping[old_idx] = new_hash_to_index[old_hash]
+
       else:
         mapping[old_idx] = -1  # Element was removed
 
@@ -827,11 +895,13 @@ class APISpecTool:
         # Handle array-specific differences
         array_diffs = self._process_array_differences(obj1, obj2, diff, path)
         differences.extend(array_diffs)
+
       else:
         differences.append(diff)
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _find_array_differences(self: "APISpecTool", obj1: Any, obj2: Any,
                               path: str) -> List[Dict[str, Any]]:
     """Find differences specifically in arrays by comparing them element by element.
@@ -855,6 +925,7 @@ class APISpecTool:
               obj1[key], obj2[key], f"{path}|{key}" if path else key
             )
             differences.extend(array_diffs)
+
           else:
             # Recurse into nested objects
             nested_diffs = self._find_array_differences(
@@ -864,6 +935,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _compare_arrays(
     self: "APISpecTool", old_array: List[Any], new_array: List[Any], array_path: str
   ) -> List[Dict[str, Any]]:
@@ -892,9 +964,11 @@ class APISpecTool:
     # Process added items - but check for field modifications first
     for new_idx, item in enumerate(new_array):
       item_hash = self.create_content_hash(item)
+
       if item_hash in added_hashes:
         # Check if this might be a field modification of an existing item
         is_field_mod = False
+
         for old_idx, old_item in enumerate(old_array):
           if self._is_field_modification(old_item, item):
             # This is a field modification, not an addition
@@ -918,9 +992,11 @@ class APISpecTool:
     # Process removed items - but check for field modifications first
     for old_idx, item in enumerate(old_array):
       item_hash = self.create_content_hash(item)
+
       if item_hash in removed_hashes:
         # Check if this might be a field modification of an existing item
         is_field_mod = False
+
         for new_idx, new_item in enumerate(new_array):
           if self._is_field_modification(item, new_item):
             # This is a field modification, not a removal
@@ -958,6 +1034,7 @@ class APISpecTool:
               old_item, new_item, f"{array_path}|{new_idx}"
             )
             differences.extend(field_diffs)
+
           else:
             # Complete item replacement
             differences.append({
@@ -978,6 +1055,7 @@ class APISpecTool:
               'array_tracking':
                 True
             })
+
         elif old_idx != new_idx:
           # Item moved but content unchanged - we might want to track this
           differences.append({
@@ -1001,6 +1079,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _is_field_modification(self: "APISpecTool", old_item: Any, new_item: Any) -> bool:
     """Check if the change is a field modification within the same object structure.
 
@@ -1031,11 +1110,13 @@ class APISpecTool:
     for key in common_keys:
       if old_item[key] == new_item[key]:
         same_values += 1
+
       total_values += 1
 
     # If more than 70% of values are the same, treat as field modification
     return total_values > 0 and (same_values / total_values) > 0.7
 
+  # ---------------------------------------------------------------------------
   def _find_field_differences(
     self: "APISpecTool", old_item: Any, new_item: Any, base_path: str
   ) -> List[Dict[str, Any]]:
@@ -1070,6 +1151,7 @@ class APISpecTool:
             # Recursively find differences in nested objects
             nested_diffs = self._find_field_differences(old_value, new_value, field_path)
             differences.extend(nested_diffs)
+
           else:
             # Simple field change
             differences.append({
@@ -1080,6 +1162,7 @@ class APISpecTool:
               'description': f"Update field '{key}': {str(new_value)[:50]}...",
               'array_tracking': True
             })
+
         elif key in new_item:
           # Field added
           differences.append({
@@ -1089,6 +1172,7 @@ class APISpecTool:
             'description': f"Add field '{key}': {str(new_value)[:50]}...",
             'array_tracking': True
           })
+
         elif key in old_item:
           # Field removed
           differences.append({
@@ -1101,6 +1185,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _is_array_path(self: "APISpecTool", path: str) -> bool:
     """Check if a path contains array indices.
 
@@ -1115,6 +1200,7 @@ class APISpecTool:
     # This indicates we're modifying the array itself, not a property of an array element
     return len(parts) > 0 and parts[-1].isdigit()
 
+  # ---------------------------------------------------------------------------
   def _process_array_differences(
     self: "APISpecTool", obj1: Any, obj2: Any, diff: Dict[str, Any], base_path: str
   ) -> List[Dict[str, Any]]:
@@ -1134,6 +1220,7 @@ class APISpecTool:
 
     # Extract array path and index
     array_path, array_index = self._extract_array_path_and_index(path)
+
     if array_path is None:
       # Not an array path, return original diff
       return [diff]
@@ -1153,19 +1240,23 @@ class APISpecTool:
       differences.extend(
         self._process_array_item_addition(diff, mappings, old_array, new_array)
       )
+
     elif diff['type'] == 'remove_array_item':
       differences.extend(
         self._process_array_item_removal(diff, mappings, old_array, new_array)
       )
+
     elif diff['type'] == 'set_value':
       differences.extend(
         self._process_array_value_change(diff, mappings, old_array, new_array)
       )
+
     else:
       differences.append(diff)
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _extract_array_path_and_index(self: "APISpecTool", path: str) -> Tuple[str, int]:
     """Extract array path and index from a full path.
 
@@ -1186,6 +1277,7 @@ class APISpecTool:
 
     return None, -1
 
+  # ---------------------------------------------------------------------------
   def _process_array_item_addition(
     self: "APISpecTool", diff: Dict[str, Any], mappings: Dict[int, int],
     old_array: List[Any], new_array: List[Any]
@@ -1211,6 +1303,7 @@ class APISpecTool:
 
     for new_idx, item in enumerate(new_array):
       item_hash = self.create_content_hash(item)
+
       if item_hash in added_hashes:
         # This is a new item
         array_path = diff['path'].rsplit('|', 1)[0]  # Remove the index part
@@ -1227,6 +1320,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_array_item_removal(
     self: "APISpecTool", diff: Dict[str, Any], mappings: Dict[int, int],
     old_array: List[Any], new_array: List[Any]
@@ -1267,6 +1361,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_array_value_change(
     self: "APISpecTool", diff: Dict[str, Any], mappings: Dict[int, int],
     old_array: List[Any], new_array: List[Any]
@@ -1316,6 +1411,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_dictionary_additions(self: "APISpecTool", diff: Any, obj2: Any,
                                     path: str) -> List[Dict[str, Any]]:
     """Process dictionary item additions."""
@@ -1333,6 +1429,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_dictionary_removals(self: "APISpecTool", diff: Any,
                                    path: str) -> List[Dict[str, Any]]:
     """Process dictionary item removals."""
@@ -1348,6 +1445,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_value_changes(self: "APISpecTool", diff: Any,
                              path: str) -> List[Dict[str, Any]]:
     """Process value changes."""
@@ -1366,6 +1464,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_type_changes(self: "APISpecTool", diff: Any,
                             path: str) -> List[Dict[str, Any]]:
     """Process type changes."""
@@ -1386,6 +1485,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_iterable_additions(self: "APISpecTool", diff: Any,
                                   path: str) -> List[Dict[str, Any]]:
     """Process iterable item additions.
@@ -1422,6 +1522,7 @@ class APISpecTool:
 
     return differences
 
+  # ---------------------------------------------------------------------------
   def _process_iterable_removals(self: "APISpecTool", diff: Any,
                                  path: str) -> List[Dict[str, Any]]:
     """Process iterable item removals.
@@ -1477,6 +1578,7 @@ class APISpecTool:
       for part in path_parts:
         if isinstance(current, dict) and part in current:
           current = current[part]
+
         else:
           return None
 
@@ -1509,6 +1611,7 @@ class APISpecTool:
       pipe_path = pipe_path.replace("][", "|")
       # Remove any remaining brackets and quotes
       pipe_path = pipe_path.replace("[", "").replace("]", "").replace("'", "")
+
     else:
       # Fallback for other formats
       pipe_path = key_path.replace("['", "|").replace("']", "").replace("root", "")
@@ -1535,6 +1638,7 @@ class APISpecTool:
     try:
       with open(spec_fixes_file, 'r') as f:
         spec_fixes = json.load(f)
+
       self._debug(f"Loaded spec fixes with keys: {list(spec_fixes.keys())}")
 
       existing_paths = set()
@@ -1543,6 +1647,7 @@ class APISpecTool:
       if "operations" in spec_fixes:
         operations = spec_fixes["operations"]
         self._debug(f"Found {len(operations)} operations in spec fixes")
+
         for fix in operations:
           if 'path' in fix:
             existing_paths.add(fix['path'])
@@ -1554,6 +1659,7 @@ class APISpecTool:
     except FileNotFoundError:
       print(f"Warning: {spec_fixes_file} not found. Will create new file.")
       return set()
+
     except json.JSONDecodeError as e:
       print(f"Error parsing {spec_fixes_file}: {e}")
       return set()
@@ -1581,6 +1687,7 @@ class APISpecTool:
             and optional value/old_value fields.
     """
     self._debug(f"Creating fix entry: {operation_type} for path '{path}'")
+
     # Generate description if not provided
     if description is None:
       if operation_type == 'add_if_missing':
@@ -1589,17 +1696,23 @@ class APISpecTool:
             schema_name = path.split('|')[2]
             prop_name = path.split('|')[-2] if 'properties' in path else 'schema'
             description = f"Add description to {schema_name} {prop_name} property"
+
           else:
             description = f"Add description to {path.split('|')[-1]}"
+
         elif 'title' in path:
           schema_name = path.split('|')[2]
           description = f"Add title to {schema_name} schema"
+
         else:
           description = f"Add missing value at {path}"
+
       elif operation_type == 'delete_value':
         description = f"Remove value at {path}"
+
       elif operation_type == 'set_value':
         description = f"Update value at {path}"
+
       else:
         description = f"{operation_type} at {path}"
 
@@ -1674,14 +1787,18 @@ class APISpecTool:
       if part.isdigit() and isinstance(current, list):
         # Array index
         index = int(part)
+
         if 0 <= index < len(current):
           current = current[index]
+
         else:
           return None
+
       else:
         # Dictionary key
         if isinstance(current, dict) and part in current:
           current = current[part]
+
         else:
           return None
 
@@ -1707,25 +1824,33 @@ class APISpecTool:
       if part.isdigit() and isinstance(current, list):
         # Convert to integer and access array element
         index = int(part)
+
         if 0 <= index < len(current):
           current = current[index]
+
         else:
           raise IndexError(f"Array index {index} out of range")
+
       else:
         # Regular dictionary key
         if part not in current:
           current[part] = {}
+
         current = current[part]
 
     # Set the final value
     final_key = parts[-1]
+
     if final_key.isdigit() and isinstance(current, list):
       # Final part is an array index
       index = int(final_key)
+
       if 0 <= index < len(current):
         current[index] = value
+
       else:
         raise IndexError(f"Array index {index} out of range")
+
     else:
       # Final part is a dictionary key
       current[final_key] = value
@@ -1835,6 +1960,7 @@ class APISpecTool:
              for skip_indicator in ['skipped', 'already exists', 'not found', 'unchanged',
                                     'no changes', 'already in correct position']):
         skipped_changes.append(change_msg)
+
       else:
         successful_changes.append(change_msg)
 
@@ -1849,10 +1975,13 @@ class APISpecTool:
     """
     if "operations" in fixes:
       operations = fixes["operations"]
+
       if isinstance(operations, list):
         return operations
+
       else:
         return []
+
     else:
       return []
 
@@ -1868,23 +1997,32 @@ class APISpecTool:
     # Regular operations
     if operation_type == "rename_key":
       return self._apply_rename_key(spec, op, description)
+
     elif operation_type == "set_value":
       return self._apply_set_value(spec, op, path, description)
+
     elif operation_type == "add_if_missing":
       return self._apply_add_if_missing(spec, op, path, description)
+
     elif operation_type == "delete_value":
       return self._apply_delete_value(spec, path, description)
+
     elif operation_type == "modify_array_element":
       return self._apply_modify_array_element(spec, op, description)
+
     elif operation_type == "add_array_item":
       return self._apply_add_array_item(spec, op, path, description)
+
     elif operation_type == "remove_array_item":
       return self._apply_remove_array_item(spec, op, path, description)
+
     elif operation_type == "move_array_item":
       return self._apply_move_array_item(spec, op, path, description)
+
     else:
       return f"Unknown operation {operation_type!r}: {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_rename_key(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str
   ) -> str:
@@ -1892,9 +2030,11 @@ class APISpecTool:
     success = self.rename_key_at_path(spec, op["path"], op["old_key"], op["new_key"])
     if success:
       return f"Renamed key: {description}"
+
     else:
       return f"Key not found (skipped): {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_set_value(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
     description: str
@@ -1902,15 +2042,19 @@ class APISpecTool:
     """Apply set_value operation."""
     if self.path_exists(spec, path):
       current_value = self.get_value_at_spec_path(spec, path)
+
       if current_value != op["value"]:
         self.set_value_at_path(spec, path, op["value"])
         return f"Updated value: {description}"
+
       else:
         return f"Value unchanged (already correct): {description}"
+
     else:
       self.set_value_at_path(spec, path, op["value"])
       return f"Added new value: {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_add_if_missing(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
     description: str
@@ -1919,9 +2063,11 @@ class APISpecTool:
     if not self.path_exists(spec, path):
       self.set_value_at_path(spec, path, op["value"])
       return f"Added missing: {description}"
+
     else:
       return f"Already exists (skipped): {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_delete_value(
     self: "APISpecTool", spec: Dict[str, Any], path: str, description: str
   ) -> str:
@@ -1941,9 +2087,11 @@ class APISpecTool:
     if isinstance(parent, dict) and key_to_remove in parent:
       del parent[key_to_remove]
       return f"Deleted value: {description}"
+
     else:
       return f"Key not found for deletion (skipped): {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_modify_array_element(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str
   ) -> str:
@@ -1954,9 +2102,11 @@ class APISpecTool:
 
     if success:
       return f"Modified array element: {description}"
+
     else:
       return f"Array element not found (skipped): {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_add_array_item(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
     description: str
@@ -1966,9 +2116,11 @@ class APISpecTool:
     if isinstance(array, list):
       array.append(op["value"])
       return f"Added array item: {description}"
+
     else:
       return f"Path is not an array (skipped): {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_remove_array_item(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
     description: str
@@ -1978,15 +2130,18 @@ class APISpecTool:
     if isinstance(array, list) and op["value"] in array:
       array.remove(op["value"])
       return f"Removed array item: {description}"
+
     else:
       return f"Array item not found (skipped): {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_move_array_item(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
     description: str
   ) -> str:
     """Apply move_array_item operation."""
     array = self.get_value_at_spec_path(spec, path)
+
     if not isinstance(array, list):
       return f"Path is not an array (skipped): {description}"
 
@@ -1995,6 +2150,7 @@ class APISpecTool:
     # This operation is mainly for tracking/documentation purposes
     return f"Array item already in correct position (skipped): {description}"
 
+  # ---------------------------------------------------------------------------
   def _apply_array_aware_operation(
     self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
     description: str
@@ -2018,10 +2174,12 @@ class APISpecTool:
 
     # Extract array path from the operation path
     array_path, array_index = self._extract_array_path_and_index(path)
+
     if not array_path:
       return f"Array path not found (skipped): {description}"
 
     array = self.get_value_at_spec_path(spec, array_path)
+
     if not isinstance(array, list):
       return f"Path is not an array (skipped): {description}"
 
@@ -2039,6 +2197,7 @@ class APISpecTool:
         if self.create_content_hash(item) == content_hash:
           array.pop(i)
           return f"Removed array item: {description}"
+
       return f"Array item not found (skipped): {description}"
 
     elif operation_type == 'set_value':
@@ -2047,6 +2206,7 @@ class APISpecTool:
         if self.create_content_hash(item) == content_hash:
           array[i] = op['value']
           return f"Updated array item: {description}"
+
       return f"Array item not found (skipped): {description}"
 
     elif operation_type == 'move_array_item':
@@ -2055,6 +2215,7 @@ class APISpecTool:
       for item in array:
         if self.create_content_hash(item) == content_hash:
           return f"Array item already in correct position (skipped): {description}"
+
       return f"Array item not found (skipped): {description}"
 
     else:
@@ -2090,35 +2251,50 @@ def main() -> None:
   try:
     if args.command == 'analyze':
       handle_analyze_command(tool, args)
+
     elif args.command == 'extract':
       handle_extract_command(tool, args)
+
     elif args.command == 'update':
       handle_update_command(tool, args)
+
     elif args.command == 'fix':
       handle_fix_command(tool, args)
 
   except FileNotFoundError as e:
     tool._debug(f"FileNotFoundError caught: {e}")
+
     if not getattr(args, 'quiet', False):
       print(f"Error: File not found: {e}", file=sys.stderr)
+
     sys.exit(1)
+
   except json.JSONDecodeError as e:
     tool._debug(f"JSONDecodeError caught: {e}")
+
     if not getattr(args, 'quiet', False):
       print(f"Error: Invalid JSON: {e}", file=sys.stderr)
+
     sys.exit(2)
+
   except KeyError as e:
     tool._debug(f"KeyError caught: {e}")
+
     if not getattr(args, 'quiet', False):
       print(f"Error: Missing required field in API spec: {e}", file=sys.stderr)
+
     sys.exit(2)
+
   except Exception as e:
     tool._debug(f"Exception caught: {type(e).__name__}: {e}")
+
     if not getattr(args, 'quiet', False):
       print(f"Error: {e}", file=sys.stderr)
+
     sys.exit(3)
 
 
+# -----------------------------------------------------------------------------
 def create_argument_parser() -> argparse.ArgumentParser:
   """Create and configure the argument parser.
 
@@ -2245,6 +2421,7 @@ def create_argument_parser() -> argparse.ArgumentParser:
   return parser
 
 
+# -----------------------------------------------------------------------------
 def handle_analyze_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   """Handle the analyze command.
 
@@ -2259,9 +2436,11 @@ def handle_analyze_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   if not args.quiet:
     tool._debug("Printing detailed analysis (verbose mode)")
     tool.print_analysis(analysis)
+
   else:
     # In quiet mode, just print the summary
     tool._debug("Printing summary only (quiet mode)")
+
     # Count endpoints by using the extract_routes function
     routes = tool.extract_routes(args.swagger_file)
     endpoint_count = len(routes)
@@ -2269,6 +2448,7 @@ def handle_analyze_command(tool: APISpecTool, args: argparse.Namespace) -> None:
     print(f"API Analysis Complete: {endpoint_count} endpoints found")
 
 
+# -----------------------------------------------------------------------------
 def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   """Handle the extract command.
 
@@ -2278,6 +2458,7 @@ def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   """
   tool._debug(f"Starting extract command for file: {args.swagger_file}")
   tool._debug(f"Output format: {args.format}")
+
   if args.output:
     tool._debug(f"Output file: {args.output}")
 
@@ -2287,12 +2468,15 @@ def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   if args.format == 'markdown':
     tool._debug("Formatting as markdown")
     output = tool.format_markdown(routes)
+
   elif args.format == 'text':
     tool._debug("Formatting as text")
     output = tool.format_text(routes)
+
   elif args.format == 'json':
     tool._debug("Formatting as JSON")
     output = tool.format_json(routes)
+
   else:
     tool._debug(f"Unknown format: {args.format}")
     print(f"Error: Unknown format {args.format}", file=sys.stderr)
@@ -2305,10 +2489,12 @@ def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
 
     if not args.quiet:
       print(f"Routes extracted and saved to: {args.output}")
+
   else:
     print(output)
 
 
+# -----------------------------------------------------------------------------
 def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   """Handle the update command.
 
@@ -2332,13 +2518,16 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
 
   # Get existing spec-fix paths
   existing_paths = tool.get_existing_spec_fix_paths(args.output_file)
+
   if not args.quiet:
     print(f"Found {len(existing_paths)} existing paths in spec-fixes")
 
   # Find all differences using DeepDiff with array tracking
   if not args.quiet:
     print("Analyzing differences...")
+
   all_differences = tool.find_differences_with_array_tracking(original, fixed)
+
   if not args.quiet:
     print(f"Found {len(all_differences)} total differences")
 
@@ -2348,16 +2537,19 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   if not new_fixes:
     if not args.quiet:
       print("No new changes to add to spec-fixes.json")
+
     return
 
   if not args.quiet:
     print(f"\nFound {len(new_fixes)} new changes to add:")
+
     for fix in new_fixes:
       print(f"  - {fix['path']}: {fix['description']}")
 
   if args.dry_run:
     if not args.quiet:
       print("\nDry run complete. No changes made.")
+
     return
 
   # Load existing spec-fixes or create new structure
@@ -2378,11 +2570,13 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
     print(f"\nSuccessfully updated {args.output_file} with {len(new_fixes)} new fixes")
 
 
+# -----------------------------------------------------------------------------
 def _filter_new_fixes(
   tool: APISpecTool, all_differences: List[Dict[str, Any]], existing_paths: Set[str]
 ) -> List[Dict[str, Any]]:
   """Filter out differences that are already covered."""
   new_fixes = []
+
   for diff in all_differences:
     spec_path = diff['path']
 
@@ -2405,6 +2599,7 @@ def _filter_new_fixes(
           spec_path, value, operation_type, old_value, description or "", content_hash
         )
       )
+
     else:
       new_fixes.append(
         tool.create_fix_entry(
@@ -2415,11 +2610,13 @@ def _filter_new_fixes(
   return new_fixes
 
 
+# -----------------------------------------------------------------------------
 def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
   """Load existing spec-fixes or create new structure."""
   try:
     with open(args.output_file, 'r') as f:
       return json.load(f)  # type: ignore[no-any-return]
+
   except FileNotFoundError:
     return {
       "version":
@@ -2444,6 +2641,7 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
     }
 
 
+# -----------------------------------------------------------------------------
 def _add_new_fixes(
   spec_fixes: Dict[str, Any], new_fixes: List[Dict[str, Any]], args: argparse.Namespace
 ) -> None:
@@ -2458,12 +2656,14 @@ def _add_new_fixes(
   spec_fixes["operations"].extend(new_fixes)
 
 
+# -----------------------------------------------------------------------------
 def _sort_operations_by_path(spec_fixes: Dict[str, Any]) -> None:
   """Sort operations by path for consistent output."""
   if "operations" in spec_fixes and isinstance(spec_fixes["operations"], list):
     spec_fixes["operations"].sort(key=lambda op: op.get("path", ""))
 
 
+# -----------------------------------------------------------------------------
 def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   """Handle the fix command.
 
@@ -2489,6 +2689,7 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   # Apply fixes to a copy of the original spec
   if not args.quiet:
     print("🔧 Applying OpenAPI spec fixes...")
+
   fixed_spec_data = original_spec.copy()
   successful_changes, skipped_changes = tool.apply_path_operations(
     fixed_spec_data, fixes_config
@@ -2506,8 +2707,10 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   if not args.quiet:
     if successful_changes:
       print(f"\n✅ Applied {len(successful_changes)} fixes:")
+
       for change in successful_changes:
         print(f"   • {change}")
+
     else:
       print("\n⚠️  No fixes were applied")
 
@@ -2516,11 +2719,13 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
       print(
         f"\n⏭️  Skipped {len(skipped_changes)} operations (already exist/no changes needed):"
       )
+
       for change in skipped_changes:
         print(f"   • {change}")
 
     print(f"\n🎉 Fixed specification written to: {args.fixed_file}")
 
 
+# -----------------------------------------------------------------------------
 if __name__ == '__main__':
   main()

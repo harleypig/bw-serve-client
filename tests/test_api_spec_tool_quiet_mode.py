@@ -72,7 +72,7 @@ class TestQuietModeFunctionality:
       temp_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', '-q', temp_file
@@ -104,7 +104,7 @@ class TestQuietModeFunctionality:
       temp_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
@@ -133,7 +133,7 @@ class TestQuietModeFunctionality:
       output_path = output_file.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'extract', '-q', temp_file, '-o', output_path
@@ -165,7 +165,7 @@ class TestQuietModeFunctionality:
       output_path = output_file.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'extract', temp_file, '-o', output_path
@@ -199,7 +199,7 @@ class TestQuietModeFunctionality:
       spec_fixes_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts',
                      'api-spec-tool.py'), 'update', '-q', '--original-file', original_file,
@@ -242,7 +242,7 @@ class TestQuietModeFunctionality:
       spec_fixes_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts',
                      'api-spec-tool.py'), 'update', '--original-file', original_file,
@@ -284,7 +284,7 @@ class TestQuietModeFunctionality:
       spec_fixes_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts',
                      'api-spec-tool.py'), 'fix', '-q', '--original-file', original_file,
@@ -326,7 +326,7 @@ class TestQuietModeFunctionality:
       spec_fixes_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts',
                      'api-spec-tool.py'), 'fix', '--original-file', original_file,
@@ -371,7 +371,7 @@ class TestExitCodes:
       temp_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
@@ -386,7 +386,7 @@ class TestExitCodes:
 
   def test_general_error_exit_code_file_not_found(self: "TestExitCodes") -> None:
     """Test that file not found errors return exit code 1."""
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', 'nonexistent.json'
@@ -398,7 +398,7 @@ class TestExitCodes:
 
   def test_general_error_exit_code_quiet_mode(self: "TestExitCodes") -> None:
     """Test that file not found errors return exit code 1 in quiet mode."""
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', '-q', 'nonexistent.json'
@@ -418,7 +418,7 @@ class TestExitCodes:
       temp_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
@@ -438,7 +438,7 @@ class TestExitCodes:
       temp_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', '-q', temp_file
@@ -461,7 +461,7 @@ class TestExitCodes:
       temp_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', temp_file
@@ -476,7 +476,7 @@ class TestExitCodes:
 
   def test_no_command_exit_code(self: "TestExitCodes") -> None:
     """Test that no command provided returns exit code 1."""
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
     ],
@@ -487,7 +487,7 @@ class TestExitCodes:
 
   def test_invalid_command_exit_code(self: "TestExitCodes") -> None:
     """Test that invalid command returns exit code 2."""
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'invalid_command'
@@ -499,7 +499,7 @@ class TestExitCodes:
 
   def test_help_command_exit_code(self: "TestExitCodes") -> None:
     """Test that help command returns exit code 0."""
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
     ],
@@ -510,7 +510,7 @@ class TestExitCodes:
 
   def test_subcommand_help_exit_code(self: "TestExitCodes") -> None:
     """Test that subcommand help returns exit code 0."""
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', '--help'
@@ -528,9 +528,7 @@ class TestQuietModeErrorHandling:
     self: "TestQuietModeErrorHandling"
   ) -> None:
     """Test that quiet mode suppresses all error messages."""
-    # Test file not found error
-    # act
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', '-q', 'nonexistent.json'
@@ -551,7 +549,7 @@ class TestQuietModeErrorHandling:
       temp_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'analyze', '-q', temp_file
@@ -568,7 +566,7 @@ class TestQuietModeErrorHandling:
 
   def test_verbose_mode_shows_error_messages(self: "TestQuietModeErrorHandling") -> None:
     """Test that verbose mode shows error messages."""
-    result = subprocess.run([
+    result = subprocess.run([  # act
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
       'analyze', 'nonexistent.json'
@@ -610,7 +608,7 @@ class TestQuietModeErrorHandling:
       output_path = output_file.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
         'extract', '-q', temp_file, '-o', output_path
@@ -696,7 +694,7 @@ class TestQuietModeIntegration:
 
     try:
       # Step 1: Update command in quiet mode
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts',
                      'api-spec-tool.py'), 'update', '-q', '--original-file', original_file,
@@ -709,7 +707,7 @@ class TestQuietModeIntegration:
       assert result.stdout == ""  # Should be completely quiet
 
       # Step 2: Fix command in quiet mode
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts',
                      'api-spec-tool.py'), 'fix', '-q', '--original-file', original_file,
@@ -787,7 +785,7 @@ class TestQuietModeIntegration:
       spec_fixes_file = f.name
 
     try:
-      result = subprocess.run([
+      result = subprocess.run([  # act
         sys.executable,
         os.path.join(os.path.dirname(__file__), '..', 'scripts',
                      'api-spec-tool.py'), 'update', '-q', '--dry-run', '--original-file',

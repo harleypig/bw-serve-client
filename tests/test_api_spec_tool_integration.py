@@ -389,9 +389,7 @@ class TestEndToEndWorkflow:
       }
     }
 
-    # Test that differences are found including array index changes
-    # act
-    differences = self.tool.find_differences(original_spec, fixed_spec)
+    differences = self.tool.find_differences(original_spec, fixed_spec)  # act
 
     # Should find the array index change
     array_index_changes = [
@@ -564,8 +562,8 @@ class TestEndToEndWorkflow:
 
     # Step 3: Apply fixes (simulating fix command)
     test_spec = original_spec.copy()
-    # act
-    successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, fixes)
+
+    successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, fixes)  # act
 
     # Step 4: Verify the result
     assert len(successful_changes) > 0
@@ -574,9 +572,11 @@ class TestEndToEndWorkflow:
     # Verify the change was applied correctly
     assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
     assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"][
-      "type"] == "string"  # Unchanged
+        "type"
+    ] == "string"  # Unchanged
     assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"][
-      "type"] == "string"  # Unchanged
+        "type"
+    ] == "string"  # Unchanged
 
 
 if __name__ == '__main__':

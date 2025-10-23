@@ -44,7 +44,7 @@ library for Bitwarden Vault Management API.
 - [ ] **Document key replacement limitation**
   - **Known Issue**: When a key in a dictionary is replaced in the fixed spec, the entire value is treated as new during `api-spec-tool update`
   - **Impact**: Even if the content of the value hasn't changed, it will be detected as a difference
-  - **Example**: Path `"/device-approval/{organizationId}/approve/{request-id}}"` becomes `"/device-approval/{organizationId}/approve/{request-id}"` - entire POST operation definition is duplicated
+  - **Example**: Path `"/device-approval/{organizationId}/approve/{request-id}}"` becomes `"/device-approval/{organizationId}/approve/{request-id}"` - the entire key **and** value will be deleted and recreated, showing up in spec-fixes.json as two separate operations: `delete_value` (old key) and `add_if_missing` (new key with duplicated value)
   - **Root Cause**: DeepDiff with `ignore_order=True` doesn't recognize key renames, treats them as complete removal + addition
   - **Current Workaround**: No practical solution exists - this is a fundamental limitation of the current approach
   - **Documentation Needed**: Add to developer docs (README.md or docs/api-spec-tool.md) explaining this limitation and its impact on spec-fixes.json size

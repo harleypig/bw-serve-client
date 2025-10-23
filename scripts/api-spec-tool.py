@@ -54,7 +54,7 @@ import json
 import os
 from pathlib import Path
 import sys
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from deepdiff import DeepDiff
 
@@ -63,6 +63,11 @@ RouteInfo = Dict[str, Any]
 RouteList = List[RouteInfo]
 GroupedRoutes = Dict[str, RouteList]
 OutputData = Dict[str, Dict[str, List[str]]]
+
+
+class APISpecToolError(Exception):
+  """Base exception for APISpecTool errors."""
+  pass
 
 
 class APISpecTool:
@@ -104,6 +109,9 @@ class APISpecTool:
 
     Raises:
         TypeError: When the JSON file does not contain a dictionary.
+        FileNotFoundError: When the specified file does not exist.
+        JSONDecodeError: When the file contains invalid JSON.
+        Exception: When an unexpected error occurs while reading the file.
     """
     self._debug(f"Loading {description}: {file_path}")
     try:
@@ -119,17 +127,17 @@ class APISpecTool:
       self._debug(f"JSON file validated as dictionary with {len(data)} top-level keys")
       return data
 
-    except FileNotFoundError:
+    except FileNotFoundError as e:
       self._debug(f"File not found: {file_path}")
-      raise FileNotFoundError(f"{description} not found: {file_path}")
+      raise FileNotFoundError(f"{description} not found: {file_path}") from e
 
     except json.JSONDecodeError as e:
       self._debug(f"JSON decode error at position {e.pos}: {e}")
-      raise json.JSONDecodeError(f"Invalid JSON in {description}: {e}", e.doc, e.pos)
+      raise json.JSONDecodeError(f"Invalid JSON in {description}: {e}", e.doc, e.pos) from e
 
     except Exception as e:
       self._debug(f"Unexpected error loading {description}: {type(e).__name__}: {e}")
-      raise Exception(f"Error reading {description}: {e}")
+      raise APISpecToolError(f"Error reading {description}: {e}") from e
 
   # ---------------------------------------------------------------------------
   def analyze_api_structure(self: "APISpecTool", swagger_file: str) -> Dict[str, Any]:
@@ -795,7 +803,7 @@ class APISpecTool:
     """
     # Convert to JSON string with sorted keys for consistent hashing
     json_str = json.dumps(obj, sort_keys=True, separators=(',', ':'))
-    return hashlib.md5(json_str.encode('utf-8')).hexdigest()
+    return hashlib.sha256(json_str.encode('utf-8')).hexdigest()
 
   # ---------------------------------------------------------------------------
   def find_array_element_mappings(
@@ -822,11 +830,7 @@ class APISpecTool:
     mapping = {}
 
     for old_idx, old_hash in old_hashes.items():
-      if old_hash in new_hash_to_index:
-        mapping[old_idx] = new_hash_to_index[old_hash]
-
-      else:
-        mapping[old_idx] = -1  # Element was removed
+      mapping[old_idx] = new_hash_to_index.get(old_hash, -1)
 
     return mapping
 
@@ -1107,11 +1111,9 @@ class APISpecTool:
     same_values = 0
     total_values = 0
 
-    for key in common_keys:
+    for total_values, key in enumerate(common_keys, 1):
       if old_item[key] == new_item[key]:
         same_values += 1
-
-      total_values += 1
 
     # If more than 70% of values are the same, treat as field modification
     return total_values > 0 and (same_values / total_values) > 0.7
@@ -1130,7 +1132,7 @@ class APISpecTool:
     Returns:
         List[Dict[str, Any]]: List of field-level differences.
     """
-    differences = []
+    differences: List[Dict[str, Any]] = []
 
     if not isinstance(old_item, dict) or not isinstance(new_item, dict):
       return differences
@@ -1202,7 +1204,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_array_differences(
-    self: "APISpecTool", obj1: Any, obj2: Any, diff: Dict[str, Any], base_path: str
+    self: "APISpecTool", obj1: Any, obj2: Any, diff: Dict[str, Any], _base_path: str
   ) -> List[Dict[str, Any]]:
     """Process differences that involve arrays with position tracking.
 
@@ -1215,7 +1217,7 @@ class APISpecTool:
     Returns:
         List[Dict[str, Any]]: List of processed difference dictionaries.
     """
-    differences = []
+    differences: List[Dict[str, Any]] = []
     path = diff['path']
 
     # Extract array path and index
@@ -1257,7 +1259,8 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def _extract_array_path_and_index(self: "APISpecTool", path: str) -> Tuple[str, int]:
+  def _extract_array_path_and_index(self: "APISpecTool",
+                                    path: str) -> Tuple[Optional[str], int]:
     """Extract array path and index from a full path.
 
     Arguments:
@@ -1279,7 +1282,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_array_item_addition(
-    self: "APISpecTool", diff: Dict[str, Any], mappings: Dict[int, int],
+    self: "APISpecTool", diff: Dict[str, Any], _mappings: Dict[int, int],
     old_array: List[Any], new_array: List[Any]
   ) -> List[Dict[str, Any]]:
     """Process array item addition with position tracking.
@@ -1322,7 +1325,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_array_item_removal(
-    self: "APISpecTool", diff: Dict[str, Any], mappings: Dict[int, int],
+    self: "APISpecTool", diff: Dict[str, Any], _mappings: Dict[int, int],
     old_array: List[Any], new_array: List[Any]
   ) -> List[Dict[str, Any]]:
     """Process array item removal with position tracking.
@@ -1781,7 +1784,7 @@ class APISpecTool:
         Any: The value at the specified path, or None if the path doesn't exist.
     """
     parts = path.split('|')
-    current = spec
+    current: Any = spec
 
     for part in parts:
       if part.isdigit() and isinstance(current, list):
@@ -1814,9 +1817,12 @@ class APISpecTool:
         spec: The specification dictionary to modify.
         path: Pipe-separated path string where to set the value.
         value: The value to set at the specified path.
+
+    Raises:
+        IndexError: When an array index is out of range.
     """
     parts = path.split('|')
-    current = spec
+    current: Any = spec
 
     # Navigate to the parent of the target
     for part in parts[:-1]:
@@ -2136,7 +2142,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _apply_move_array_item(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
+    self: "APISpecTool", spec: Dict[str, Any], _op: Dict[str, Any], path: str,
     description: str
   ) -> str:
     """Apply move_array_item operation."""
@@ -2593,7 +2599,6 @@ def _filter_new_fixes(
     # Handle array indices with content-based tracking
     if diff.get('array_tracking', False):
       content_hash = diff.get('content_hash')
-      old_content_hash = diff.get('old_content_hash')
       new_fixes.append(
         tool.create_array_aware_fix_entry(
           spec_path, value, operation_type, old_value, description or "", content_hash
@@ -2643,7 +2648,7 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
 
 # -----------------------------------------------------------------------------
 def _add_new_fixes(
-  spec_fixes: Dict[str, Any], new_fixes: List[Dict[str, Any]], args: argparse.Namespace
+  spec_fixes: Dict[str, Any], new_fixes: List[Dict[str, Any]], _args: argparse.Namespace
 ) -> None:
   """Add new fixes to the spec-fixes structure.
 

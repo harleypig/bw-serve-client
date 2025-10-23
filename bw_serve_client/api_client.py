@@ -234,9 +234,7 @@ class ApiClient:
       self.logger.exception("Request failed")
       raise BitwardenAPIError(f"Request failed: {e}") from e
 
-  def _serialize_data(
-    self: "ApiClient", data: Any, content_type: str = "application/json"
-  ) -> Any:
+  def _serialize_data(self: "ApiClient", data: Any, content_type: str = "application/json") -> Any:
     """Serialize data for API requests.
 
     Args:
@@ -331,9 +329,7 @@ class ApiClient:
   # ---------------------------------------------------------------------------
   # Public methods
 
-  def _make_request_and_deserialize(
-    self: "ApiClient", method: str, endpoint: str, **kwargs: Any
-  ) -> Any:
+  def _make_request_and_deserialize(self: "ApiClient", method: str, endpoint: str, **kwargs: Any) -> Any:
     r"""Make a request and deserialize the response.
 
     Args:
@@ -359,12 +355,7 @@ class ApiClient:
     """
     return self._make_request_and_deserialize('GET', endpoint, params=params)
 
-  def post(
-    self: "ApiClient",
-    endpoint: str,
-    data: RequestData = None,
-    files: Optional[Dict[str, Any]] = None
-  ) -> Any:
+  def post(self: "ApiClient", endpoint: str, data: RequestData = None, files: Optional[Dict[str, Any]] = None) -> Any:
     """Make a POST request.
 
     Args:

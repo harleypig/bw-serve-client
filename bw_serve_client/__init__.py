@@ -13,9 +13,6 @@ from .api_client import ValidationError
 # from models import *
 
 __version__ = "0.1.1"
-__all__ = [
-  "ApiClient", "BitwardenAPIError", "AuthenticationError", "ValidationError",
-  "NotFoundError", "ServerError"
-]
+__all__ = ["ApiClient", "BitwardenAPIError", "AuthenticationError", "ValidationError", "NotFoundError", "ServerError"]
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

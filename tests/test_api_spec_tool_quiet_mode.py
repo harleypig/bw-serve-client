@@ -14,8 +14,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
 spec = importlib.util.spec_from_file_location(
-  "api_spect_tool",
-  os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
 )
 if spec is None or spec.loader is None:
   raise ImportError("Could not load api_spect_tool module")
@@ -85,9 +84,7 @@ class TestQuietModeFunctionality:
 
       # Should only print the concise summary, not verbose output
       assert "API Analysis Complete: 1 endpoints found" in result.stdout
-      assert "API Analysis Complete" not in result.stdout or result.stdout.count(
-        "API Analysis Complete"
-      ) == 1
+      assert "API Analysis Complete" not in result.stdout or result.stdout.count("API Analysis Complete") == 1
 
       # Should not contain verbose analysis details
       assert "API Info:" not in result.stdout
@@ -357,14 +354,7 @@ class TestExitCodes:
 
   def test_success_exit_code(self: "TestExitCodes") -> None:
     """Test that successful operations return exit code 0."""
-    sample_data = {
-      "openapi": "3.0.0",
-      "info": {
-        "title": "Test API",
-        "version": "1.0.0"
-      },
-      "paths": {}
-    }
+    sample_data = {"openapi": "3.0.0", "info": {"title": "Test API", "version": "1.0.0"}, "paths": {}}
 
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(sample_data, f)
@@ -476,47 +466,52 @@ class TestExitCodes:
 
   def test_no_command_exit_code(self: "TestExitCodes") -> None:
     """Test that no command provided returns exit code 1."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable, os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 1
 
   def test_invalid_command_exit_code(self: "TestExitCodes") -> None:
     """Test that invalid command returns exit code 2."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-      'invalid_command'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'invalid_command'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 2
 
   def test_help_command_exit_code(self: "TestExitCodes") -> None:
     """Test that help command returns exit code 0."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 0
 
   def test_subcommand_help_exit_code(self: "TestExitCodes") -> None:
     """Test that subcommand help returns exit code 0."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-      'analyze', '--help'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'analyze', '--help'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 0
 
@@ -524,9 +519,7 @@ class TestExitCodes:
 class TestQuietModeErrorHandling:
   """Test cases for error handling in quiet mode."""
 
-  def test_quiet_mode_suppresses_all_error_messages(
-    self: "TestQuietModeErrorHandling"
-  ) -> None:
+  def test_quiet_mode_suppresses_all_error_messages(self: "TestQuietModeErrorHandling") -> None:
     """Test that quiet mode suppresses all error messages."""
     result = subprocess.run([  # act
       sys.executable,
@@ -540,9 +533,7 @@ class TestQuietModeErrorHandling:
     assert result.stdout == ""
     assert result.stderr == ""
 
-  def test_quiet_mode_suppresses_json_error_messages(
-    self: "TestQuietModeErrorHandling"
-  ) -> None:
+  def test_quiet_mode_suppresses_json_error_messages(self: "TestQuietModeErrorHandling") -> None:
     """Test that quiet mode suppresses JSON error messages."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       f.write("invalid json")
@@ -577,9 +568,7 @@ class TestQuietModeErrorHandling:
     assert result.returncode == 1
     assert "Error: File not found:" in result.stderr
 
-  def test_quiet_mode_still_creates_output_files(
-    self: "TestQuietModeErrorHandling"
-  ) -> None:
+  def test_quiet_mode_still_creates_output_files(self: "TestQuietModeErrorHandling") -> None:
     """Test that quiet mode still creates output files when successful."""
     sample_data = {
       "openapi": "3.0.0",

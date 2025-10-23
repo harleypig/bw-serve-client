@@ -34,9 +34,7 @@ class TestApiClient:
     # Arrange
     logger = Mock()
 
-    client = ApiClient(
-      protocol="http", domain="test", port=8080, timeout=60, logger=logger
-    )  # act
+    client = ApiClient(protocol="http", domain="test", port=8080, timeout=60, logger=logger)  # act
 
     # Assert
     assert client.base_url == "http://test:8080"
@@ -65,9 +63,7 @@ class TestApiClient:
     """Test ApiClient initialization with individual parameters."""
     # Arrange
 
-    client = ApiClient(
-      protocol="https", domain="api.example.com", port=443, path="/v1"
-    )  # act
+    client = ApiClient(protocol="https", domain="api.example.com", port=443, path="/v1")  # act
 
     # Assert
     assert client.base_url == "https://api.example.com:443/v1"
@@ -201,10 +197,7 @@ class TestApiClient:
   def test_get_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test GET request method."""
     mock_session = Mock()
-    mock_session.headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    }
+    mock_session.headers = {"Content-Type": "application/json", "Accept": "application/json"}
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.headers = {"content-type": "application/json"}
@@ -236,10 +229,7 @@ class TestApiClient:
   def test_post_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test POST request method."""
     mock_session = Mock()
-    mock_session.headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    }
+    mock_session.headers = {"Content-Type": "application/json", "Accept": "application/json"}
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.headers = {"content-type": "application/json"}
@@ -273,10 +263,7 @@ class TestApiClient:
   def test_post_request_with_files(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test POST request method with file upload."""
     mock_session = Mock()
-    mock_session.headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    }
+    mock_session.headers = {"Content-Type": "application/json", "Accept": "application/json"}
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.headers = {"content-type": "application/json"}
@@ -550,16 +537,10 @@ class TestApiClient:
       client._handle_error(response)
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_make_request_with_headers(
-    self: "TestApiClient", mock_session_class: Mock
-  ) -> None:
+  def test_make_request_with_headers(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test _make_request with custom headers."""
     mock_session = Mock()
-    mock_session.headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "User-Agent": "bw-serve-client/1.0.0"
-    }
+    mock_session.headers = {"Content-Type": "application/json", "Accept": "application/json", "User-Agent": "bw-serve-client/1.0.0"}
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.headers = {"content-type": "application/json"}
@@ -588,9 +569,7 @@ class TestApiClient:
     """Test _make_request with RequestException."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
-    mock_session.request.side_effect = requests.exceptions.RequestException(
-      "Connection failed"
-    )
+    mock_session.request.side_effect = requests.exceptions.RequestException("Connection failed")
     mock_session_class.return_value = mock_session
     client = ApiClient()
     client.session = mock_session
@@ -602,10 +581,7 @@ class TestApiClient:
   def test_put_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test PUT request method."""
     mock_session = Mock()
-    mock_session.headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    }
+    mock_session.headers = {"Content-Type": "application/json", "Accept": "application/json"}
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.headers = {"content-type": "application/json"}
@@ -638,10 +614,7 @@ class TestApiClient:
   def test_delete_request(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test DELETE request method."""
     mock_session = Mock()
-    mock_session.headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    }
+    mock_session.headers = {"Content-Type": "application/json", "Accept": "application/json"}
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.headers = {"content-type": "application/json"}
@@ -670,9 +643,7 @@ class TestApiClient:
     assert result == {"deleted": True}
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_serialization_integration_post(
-    self: "TestApiClient", mock_session_class: Mock
-  ) -> None:
+  def test_serialization_integration_post(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test serialization integration with POST request."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -710,9 +681,7 @@ class TestApiClient:
     assert result == {"created": True}
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_deserialization_integration_get(
-    self: "TestApiClient", mock_session_class: Mock
-  ) -> None:
+  def test_deserialization_integration_get(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test deserialization integration with GET request."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -760,9 +729,7 @@ class TestApiClient:
     assert result["pagination"]["total"] == 2
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_serialization_string_data_post(
-    self: "TestApiClient", mock_session_class: Mock
-  ) -> None:
+  def test_serialization_string_data_post(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test serialization with string data in POST request."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -788,9 +755,7 @@ class TestApiClient:
     assert result == {"processed": True}
 
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_deserialization_error_fallback(
-    self: "TestApiClient", mock_session_class: Mock
-  ) -> None:
+  def test_deserialization_error_fallback(self: "TestApiClient", mock_session_class: Mock) -> None:
     """Test deserialization error fallback to text."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -811,9 +776,7 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_serialize_data_called_in_post(
-    self: "TestApiClient", mock_session_class: Mock, mock_serialize: Mock
-  ) -> None:
+  def test_serialize_data_called_in_post(self: "TestApiClient", mock_session_class: Mock, mock_serialize: Mock) -> None:
     """Test that _serialize_data is called during POST requests."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -837,9 +800,7 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_serialize_data_called_in_put(
-    self: "TestApiClient", mock_session_class: Mock, mock_serialize: Mock
-  ) -> None:
+  def test_serialize_data_called_in_put(self: "TestApiClient", mock_session_class: Mock, mock_serialize: Mock) -> None:
     """Test that _serialize_data is called during PUT requests."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "application/json"}
@@ -863,9 +824,7 @@ class TestApiClient:
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
   @patch('bw_serve_client.api_client.requests.Session')
-  def test_serialize_data_with_custom_content_type(
-    self: "TestApiClient", mock_session_class: Mock, mock_serialize: Mock
-  ) -> None:
+  def test_serialize_data_with_custom_content_type(self: "TestApiClient", mock_session_class: Mock, mock_serialize: Mock) -> None:
     """Test that _serialize_data is called with custom content type."""
     mock_session = Mock()
     mock_session.headers = {"Content-Type": "text/plain"}
@@ -882,9 +841,7 @@ class TestApiClient:
     client.session = mock_session
     data = {"name": "test"}
 
-    client._make_request(
-      "POST", "/test", data=data, headers={"Content-Type": "text/plain"}
-    )  # act
+    client._make_request("POST", "/test", data=data, headers={"Content-Type": "text/plain"})  # act
 
     # Verify _serialize_data was called with custom content type
     mock_serialize.assert_called_once_with(data, "text/plain")

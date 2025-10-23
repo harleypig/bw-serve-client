@@ -96,9 +96,7 @@ class APISpecTool:
       print(f"[DEBUG] {message}", file=sys.stderr)
 
   # ---------------------------------------------------------------------------
-  def load_json_file(self: "APISpecTool",
-                     file_path: str,
-                     description: str = "JSON file") -> Dict[str, Any]:
+  def load_json_file(self: "APISpecTool", file_path: str, description: str = "JSON file") -> Dict[str, Any]:
     """Load and parse a JSON file with error handling.
 
     Arguments:
@@ -184,9 +182,7 @@ class APISpecTool:
     return analysis
 
   # ---------------------------------------------------------------------------
-  def _extract_api_info(
-    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
-  ) -> None:
+  def _extract_api_info(self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
     """Extract API information from the spec."""
     self._debug("Extracting API info from spec")
 
@@ -207,9 +203,7 @@ class APISpecTool:
       self._debug("No 'info' section found in spec")
 
   # ---------------------------------------------------------------------------
-  def _extract_authentication_info(
-    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
-  ) -> None:
+  def _extract_authentication_info(self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
     """Extract authentication information from the spec."""
     self._debug("Extracting authentication info from spec")
 
@@ -229,28 +223,19 @@ class APISpecTool:
       self._debug("No security schemes found in components")
 
   # ---------------------------------------------------------------------------
-  def _extract_server_info(
-    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
-  ) -> None:
+  def _extract_server_info(self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
     """Extract server information from the spec."""
     self._debug("Extracting server info from spec")
 
     if 'servers' in data:
       # Convert servers list to a more readable format
       servers = data['servers']
-      self._debug(
-        f"Found servers section with {len(servers) if isinstance(servers, list) else 'non-list'} entries"
-      )
+      self._debug(f"Found servers section with {len(servers) if isinstance(servers, list) else 'non-list'} entries")
 
       if isinstance(servers, list) and len(servers) > 0:
-        primary_url = servers[0].get('url', '') if isinstance(servers[0],
-                                                              dict) else str(servers[0])
+        primary_url = servers[0].get('url', '') if isinstance(servers[0], dict) else str(servers[0])
         self._debug(f"Primary server URL: {primary_url}")
-        analysis['server_info'] = {
-          'servers': servers,
-          'primary_url': primary_url,
-          'count': len(servers)
-        }
+        analysis['server_info'] = {'servers': servers, 'primary_url': primary_url, 'count': len(servers)}
 
       else:
         self._debug("Servers list is empty or not a list")
@@ -269,8 +254,8 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _analyze_paths(
-    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any],
-    error_codes: Set[str], tags: Set[str], response_patterns: Dict[str, Set[str]]
+    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
+    response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Analyze API paths and extract patterns."""
     self._debug("Analyzing API paths")
@@ -289,18 +274,15 @@ class APISpecTool:
       for method, details in methods.items():
         if method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
           self._debug(f"  Processing {method.upper()} method")
-          self._process_endpoint(
-            path, method, details, analysis, error_codes, tags, response_patterns
-          )
+          self._process_endpoint(path, method, details, analysis, error_codes, tags, response_patterns)
           endpoint_count += 1
 
     self._debug(f"Processed {endpoint_count} endpoints total")
 
   # ---------------------------------------------------------------------------
   def _process_endpoint(
-    self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
-    analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
-    response_patterns: Dict[str, Set[str]]
+    self: "APISpecTool", path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any], error_codes: Set[str],
+    tags: Set[str], response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Process a single endpoint and extract its information."""
     self._debug(f"    Processing endpoint: {method.upper()} {path}")
@@ -316,14 +298,10 @@ class APISpecTool:
     self._extract_request_body_patterns(path, method, details, analysis)
 
     # Extract response patterns
-    self._extract_response_patterns(
-      path, method, details, analysis, error_codes, response_patterns
-    )
+    self._extract_response_patterns(path, method, details, analysis, error_codes, response_patterns)
 
   # ---------------------------------------------------------------------------
-  def _extract_parameters(
-    self: "APISpecTool", details: Dict[str, Any], analysis: Dict[str, Any]
-  ) -> None:
+  def _extract_parameters(self: "APISpecTool", details: Dict[str, Any], analysis: Dict[str, Any]) -> None:
     """Extract parameter information from endpoint details."""
     if 'parameters' not in details:
       return
@@ -345,8 +323,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _extract_request_body_patterns(
-    self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
-    analysis: Dict[str, Any]
+    self: "APISpecTool", path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any]
   ) -> None:
     """Extract request body patterns from endpoint details."""
     if 'requestBody' not in details:
@@ -363,8 +340,8 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _extract_response_patterns(
-    self: "APISpecTool", path: str, method: str, details: Dict[str, Any],
-    analysis: Dict[str, Any], error_codes: Set[str], response_patterns: Dict[str, Set[str]]
+    self: "APISpecTool", path: str, method: str, details: Dict[str, Any], analysis: Dict[str, Any], error_codes: Set[str],
+    response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Extract response patterns from endpoint details."""
     if 'responses' not in details:
@@ -385,15 +362,10 @@ class APISpecTool:
         for content_type, content_info in response['content'].items():
           if 'example' in content_info:
             example_key = f"{method.upper()} {path} {status_code}"
-            analysis['examples'][example_key] = {
-              'content_type': content_type,
-              'example': content_info['example']
-            }
+            analysis['examples'][example_key] = {'content_type': content_type, 'example': content_info['example']}
 
   # ---------------------------------------------------------------------------
-  def _analyze_schemas(
-    self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]
-  ) -> None:
+  def _analyze_schemas(self: "APISpecTool", data: Dict[str, Any], analysis: Dict[str, Any]) -> None:
     """Analyze data schemas from the spec."""
     self._debug("Analyzing data schemas")
 
@@ -416,8 +388,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _finalize_analysis(
-    self: "APISpecTool", analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str],
-    response_patterns: Dict[str, Set[str]]
+    self: "APISpecTool", analysis: Dict[str, Any], error_codes: Set[str], tags: Set[str], response_patterns: Dict[str, Set[str]]
   ) -> None:
     """Finalize analysis by converting sets to lists for JSON serialization.
 
@@ -534,10 +505,8 @@ class APISpecTool:
       print(f"  {param_type.upper()} parameters:")
 
       for param in params[:5]:  # Show first 5 examples
-        print(
-          f"    - {param['name']} ({param['type']}) - "
-          f"{param['description'][:50]}..."
-        )
+        print(f"    - {param['name']} ({param['type']}) - "
+              f"{param['description'][:50]}...")
 
       if len(params) > 5:
         print(f"    ... and {len(params) - 5} more")
@@ -807,9 +776,7 @@ class APISpecTool:
     return hashlib.sha256(json_str.encode('utf-8')).hexdigest()
 
   # ---------------------------------------------------------------------------
-  def find_array_element_mappings(
-    self: "APISpecTool", old_array: List[Any], new_array: List[Any]
-  ) -> Dict[int, int]:
+  def find_array_element_mappings(self: "APISpecTool", old_array: List[Any], new_array: List[Any]) -> Dict[int, int]:
     """Find mappings between old and new array elements based on content hash.
 
     Arguments:
@@ -836,10 +803,7 @@ class APISpecTool:
     return mapping
 
   # ---------------------------------------------------------------------------
-  def find_differences(self: "APISpecTool",
-                       obj1: Any,
-                       obj2: Any,
-                       path: str = '') -> List[Dict[str, Any]]:
+  def find_differences(self: "APISpecTool", obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any]]:
     """Find all differences between two JSON objects using DeepDiff.
 
     Arguments:
@@ -867,9 +831,7 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def find_differences_with_array_tracking(
-    self: "APISpecTool", obj1: Any, obj2: Any, path: str = ''
-  ) -> List[Dict[str, Any]]:
+  def find_differences_with_array_tracking(self: "APISpecTool", obj1: Any, obj2: Any, path: str = '') -> List[Dict[str, Any]]:
     """Find differences with intelligent array element tracking.
 
     This method extends the basic difference finding to handle array position
@@ -898,7 +860,7 @@ class APISpecTool:
     for diff in all_differences:
       if self._is_array_path(diff['path']):
         # Handle array-specific differences
-        array_diffs = self._process_array_differences(obj1, obj2, diff, path)
+        array_diffs = self._process_array_differences(obj1, obj2, diff)
         differences.extend(array_diffs)
 
       else:
@@ -907,8 +869,7 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def _find_array_differences(self: "APISpecTool", obj1: Any, obj2: Any,
-                              path: str) -> List[Dict[str, Any]]:
+  def _find_array_differences(self: "APISpecTool", obj1: Any, obj2: Any, path: str) -> List[Dict[str, Any]]:
     """Find differences specifically in arrays by comparing them element by element.
 
     Arguments:
@@ -926,24 +887,18 @@ class APISpecTool:
         if key in obj1 and key in obj2:
           if isinstance(obj1[key], list) and isinstance(obj2[key], list):
             # Both are arrays - compare them
-            array_diffs = self._compare_arrays(
-              obj1[key], obj2[key], f"{path}|{key}" if path else key
-            )
+            array_diffs = self._compare_arrays(obj1[key], obj2[key], f"{path}|{key}" if path else key)
             differences.extend(array_diffs)
 
           else:
             # Recurse into nested objects
-            nested_diffs = self._find_array_differences(
-              obj1[key], obj2[key], f"{path}|{key}" if path else key
-            )
+            nested_diffs = self._find_array_differences(obj1[key], obj2[key], f"{path}|{key}" if path else key)
             differences.extend(nested_diffs)
 
     return differences
 
   # ---------------------------------------------------------------------------
-  def _compare_arrays(
-    self: "APISpecTool", old_array: List[Any], new_array: List[Any], array_path: str
-  ) -> List[Dict[str, Any]]:
+  def _compare_arrays(self: "APISpecTool", old_array: List[Any], new_array: List[Any], array_path: str) -> List[Dict[str, Any]]:
     """Compare two arrays and find differences with position tracking.
 
     Arguments:
@@ -967,26 +922,19 @@ class APISpecTool:
     removed_hashes = old_hashes - new_hashes
 
     # Process added items
-    differences.extend(
-      self._process_added_items(old_array, new_array, added_hashes, array_path)
-    )
+    differences.extend(self._process_added_items(old_array, new_array, added_hashes, array_path))
 
     # Process removed items
-    differences.extend(
-      self._process_removed_items(old_array, new_array, removed_hashes, array_path)
-    )
+    differences.extend(self._process_removed_items(old_array, new_array, removed_hashes, array_path))
 
     # Process moved/changed items
-    differences.extend(
-      self._process_changed_items(old_array, new_array, mappings, array_path)
-    )
+    differences.extend(self._process_changed_items(old_array, new_array, mappings, array_path))
 
     return differences
 
   # ---------------------------------------------------------------------------
   def _process_added_items(
-    self: "APISpecTool", old_array: List[Any], new_array: List[Any], added_hashes: Set[str],
-    array_path: str
+    self: "APISpecTool", old_array: List[Any], new_array: List[Any], added_hashes: Set[str], array_path: str
   ) -> List[Dict[str, Any]]:
     """Process added items in array comparison."""
     differences = []
@@ -1001,9 +949,7 @@ class APISpecTool:
         for _old_idx, old_item in enumerate(old_array):
           if self._is_field_modification(old_item, item):
             # This is a field modification, not an addition
-            field_diffs = self._find_field_differences(
-              old_item, item, f"{array_path}|{new_idx}"
-            )
+            field_diffs = self._find_field_differences(old_item, item, f"{array_path}|{new_idx}")
             differences.extend(field_diffs)
             is_field_mod = True
             break
@@ -1022,8 +968,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_removed_items(
-    self: "APISpecTool", old_array: List[Any], new_array: List[Any],
-    removed_hashes: Set[str], array_path: str
+    self: "APISpecTool", old_array: List[Any], new_array: List[Any], removed_hashes: Set[str], array_path: str
   ) -> List[Dict[str, Any]]:
     """Process removed items in array comparison."""
     differences = []
@@ -1044,26 +989,19 @@ class APISpecTool:
 
         if not is_field_mod:
           differences.append({
-            'path':
-              f"{array_path}|{old_idx}",
-            'type':
-              'remove_array_item',
-            'value':
-              item,
-            'description':
-              f"Remove array item from position {old_idx}: {str(item)[:50]}...",
-            'content_hash':
-              item_hash,
-            'array_tracking':
-              True
+            'path': f"{array_path}|{old_idx}",
+            'type': 'remove_array_item',
+            'value': item,
+            'description': f"Remove array item from position {old_idx}: {str(item)[:50]}...",
+            'content_hash': item_hash,
+            'array_tracking': True
           })
 
     return differences
 
   # ---------------------------------------------------------------------------
   def _process_changed_items(
-    self: "APISpecTool", old_array: List[Any], new_array: List[Any],
-    mappings: Dict[int, int], array_path: str
+    self: "APISpecTool", old_array: List[Any], new_array: List[Any], mappings: Dict[int, int], array_path: str
   ) -> List[Dict[str, Any]]:
     """Process changed/moved items in array comparison."""
     differences = []
@@ -1077,51 +1015,33 @@ class APISpecTool:
           # Item content changed - check if it's a field modification or complete replacement
           if self._is_field_modification(old_item, new_item):
             # Generate field-level differences instead of replacing the entire item
-            field_diffs = self._find_field_differences(
-              old_item, new_item, f"{array_path}|{new_idx}"
-            )
+            field_diffs = self._find_field_differences(old_item, new_item, f"{array_path}|{new_idx}")
             differences.extend(field_diffs)
 
           else:
             # Complete item replacement
             differences.append({
-              'path':
-                f"{array_path}|{new_idx}",
-              'type':
-                'set_value',
-              'value':
-                new_item,
-              'old_value':
-                old_item,
-              'description':
-                f"Update array item at position {new_idx}: {str(new_item)[:50]}...",
-              'content_hash':
-                self.create_content_hash(new_item),
-              'old_content_hash':
-                self.create_content_hash(old_item),
-              'array_tracking':
-                True
+              'path': f"{array_path}|{new_idx}",
+              'type': 'set_value',
+              'value': new_item,
+              'old_value': old_item,
+              'description': f"Update array item at position {new_idx}: {str(new_item)[:50]}...",
+              'content_hash': self.create_content_hash(new_item),
+              'old_content_hash': self.create_content_hash(old_item),
+              'array_tracking': True
             })
 
         elif old_idx != new_idx:
           # Item moved but content unchanged - we might want to track this
           differences.append({
-            'path':
-              f"{array_path}|{new_idx}",
-            'type':
-              'move_array_item',
-            'value':
-              new_item,
-            'old_position':
-              old_idx,
-            'new_position':
-              new_idx,
-            'description':
-              f"Array item moved from position {old_idx} to {new_idx}: {str(new_item)[:50]}...",
-            'content_hash':
-              self.create_content_hash(new_item),
-            'array_tracking':
-              True
+            'path': f"{array_path}|{new_idx}",
+            'type': 'move_array_item',
+            'value': new_item,
+            'old_position': old_idx,
+            'new_position': new_idx,
+            'description': f"Array item moved from position {old_idx} to {new_idx}: {str(new_item)[:50]}...",
+            'content_hash': self.create_content_hash(new_item),
+            'array_tracking': True
           })
 
     return differences
@@ -1162,9 +1082,7 @@ class APISpecTool:
     return total_values > 0 and (same_values / total_values) > 0.7
 
   # ---------------------------------------------------------------------------
-  def _find_field_differences(
-    self: "APISpecTool", old_item: Any, new_item: Any, base_path: str
-  ) -> List[Dict[str, Any]]:
+  def _find_field_differences(self: "APISpecTool", old_item: Any, new_item: Any, base_path: str) -> List[Dict[str, Any]]:
     """Find field-level differences within an object.
 
     Arguments:
@@ -1246,9 +1164,7 @@ class APISpecTool:
     return len(parts) > 0 and parts[-1].isdigit()
 
   # ---------------------------------------------------------------------------
-  def _process_array_differences(
-    self: "APISpecTool", obj1: Any, obj2: Any, diff: Dict[str, Any]
-  ) -> List[Dict[str, Any]]:
+  def _process_array_differences(self: "APISpecTool", obj1: Any, obj2: Any, diff: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Process differences that involve arrays with position tracking.
 
     Arguments:
@@ -1281,19 +1197,13 @@ class APISpecTool:
 
     # Process based on operation type
     if diff['type'] == 'add_array_item':
-      differences.extend(
-        self._process_array_item_addition(diff, mappings, old_array, new_array)
-      )
+      differences.extend(self._process_array_item_addition(diff, old_array, new_array))
 
     elif diff['type'] == 'remove_array_item':
-      differences.extend(
-        self._process_array_item_removal(diff, mappings, old_array, new_array)
-      )
+      differences.extend(self._process_array_item_removal(diff, old_array, new_array))
 
     elif diff['type'] == 'set_value':
-      differences.extend(
-        self._process_array_value_change(diff, mappings, old_array, new_array)
-      )
+      differences.extend(self._process_array_value_change(diff, mappings, old_array, new_array))
 
     else:
       differences.append(diff)
@@ -1301,8 +1211,7 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def _extract_array_path_and_index(self: "APISpecTool",
-                                    path: str) -> Tuple[Optional[str], int]:
+  def _extract_array_path_and_index(self: "APISpecTool", path: str) -> Tuple[Optional[str], int]:
     """Extract array path and index from a full path.
 
     Arguments:
@@ -1323,9 +1232,8 @@ class APISpecTool:
     return None, -1
 
   # ---------------------------------------------------------------------------
-  def _process_array_item_addition(
-    self: "APISpecTool", diff: Dict[str, Any], old_array: List[Any], new_array: List[Any]
-  ) -> List[Dict[str, Any]]:
+  def _process_array_item_addition(self: "APISpecTool", diff: Dict[str, Any], old_array: List[Any],
+                                   new_array: List[Any]) -> List[Dict[str, Any]]:
     """Process array item addition with position tracking.
 
     Arguments:
@@ -1364,9 +1272,8 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def _process_array_item_removal(
-    self: "APISpecTool", diff: Dict[str, Any], old_array: List[Any], new_array: List[Any]
-  ) -> List[Dict[str, Any]]:
+  def _process_array_item_removal(self: "APISpecTool", diff: Dict[str, Any], old_array: List[Any],
+                                  new_array: List[Any]) -> List[Dict[str, Any]]:
     """Process array item removal with position tracking.
 
     Arguments:
@@ -1404,8 +1311,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _process_array_value_change(
-    self: "APISpecTool", diff: Dict[str, Any], mappings: Dict[int, int],
-    old_array: List[Any], new_array: List[Any]
+    self: "APISpecTool", diff: Dict[str, Any], mappings: Dict[int, int], old_array: List[Any], new_array: List[Any]
   ) -> List[Dict[str, Any]]:
     """Process array value changes with position tracking.
 
@@ -1432,29 +1338,20 @@ class APISpecTool:
           new_path = f"{array_path}|{new_idx}"
 
           differences.append({
-            'path':
-              new_path,
-            'type':
-              'set_value',
-            'value':
-              new_item,
-            'old_value':
-              old_item,
-            'description':
-              f"Update array item at position {new_idx}: {str(new_item)[:50]}...",
-            'content_hash':
-              self.create_content_hash(new_item),
-            'old_content_hash':
-              self.create_content_hash(old_item),
-            'array_tracking':
-              True
+            'path': new_path,
+            'type': 'set_value',
+            'value': new_item,
+            'old_value': old_item,
+            'description': f"Update array item at position {new_idx}: {str(new_item)[:50]}...",
+            'content_hash': self.create_content_hash(new_item),
+            'old_content_hash': self.create_content_hash(old_item),
+            'array_tracking': True
           })
 
     return differences
 
   # ---------------------------------------------------------------------------
-  def _process_dictionary_additions(self: "APISpecTool", diff: Any, obj2: Any,
-                                    path: str) -> List[Dict[str, Any]]:
+  def _process_dictionary_additions(self: "APISpecTool", diff: Any, obj2: Any, path: str) -> List[Dict[str, Any]]:
     """Process dictionary item additions."""
     differences = []
     if 'dictionary_item_added' in diff:
@@ -1471,24 +1368,18 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def _process_dictionary_removals(self: "APISpecTool", diff: Any,
-                                   path: str) -> List[Dict[str, Any]]:
+  def _process_dictionary_removals(self: "APISpecTool", diff: Any, path: str) -> List[Dict[str, Any]]:
     """Process dictionary item removals."""
     differences = []
     if 'dictionary_item_removed' in diff:
       for key_path in diff['dictionary_item_removed']:
         pipe_path = self.convert_deepdiff_path_to_pipes(key_path, path)
-        differences.append({
-          'path': pipe_path,
-          'type': 'delete_value',
-          'description': f"Remove value at {pipe_path}"
-        })
+        differences.append({'path': pipe_path, 'type': 'delete_value', 'description': f"Remove value at {pipe_path}"})
 
     return differences
 
   # ---------------------------------------------------------------------------
-  def _process_value_changes(self: "APISpecTool", diff: Any,
-                             path: str) -> List[Dict[str, Any]]:
+  def _process_value_changes(self: "APISpecTool", diff: Any, path: str) -> List[Dict[str, Any]]:
     """Process value changes."""
     differences = []
     if 'values_changed' in diff:
@@ -1506,8 +1397,7 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def _process_type_changes(self: "APISpecTool", diff: Any,
-                            path: str) -> List[Dict[str, Any]]:
+  def _process_type_changes(self: "APISpecTool", diff: Any, path: str) -> List[Dict[str, Any]]:
     """Process type changes."""
     differences = []
     if 'type_changes' in diff:
@@ -1527,8 +1417,7 @@ class APISpecTool:
     return differences
 
   # ---------------------------------------------------------------------------
-  def _process_iterable_additions(self: "APISpecTool", diff: Any,
-                                  path: str) -> List[Dict[str, Any]]:
+  def _process_iterable_additions(self: "APISpecTool", diff: Any, path: str) -> List[Dict[str, Any]]:
     """Process iterable item additions.
 
     Arguments:
@@ -1554,18 +1443,12 @@ class APISpecTool:
           item_desc = str(item)[:50] + "..." if len(str(item)) > 50 else str(item)
           description = f"Add array item to {pipe_path}: {item_desc}"
 
-          differences.append({
-            'path': pipe_path,
-            'type': 'add_array_item',
-            'value': item,
-            'description': description
-          })
+          differences.append({'path': pipe_path, 'type': 'add_array_item', 'value': item, 'description': description})
 
     return differences
 
   # ---------------------------------------------------------------------------
-  def _process_iterable_removals(self: "APISpecTool", diff: Any,
-                                 path: str) -> List[Dict[str, Any]]:
+  def _process_iterable_removals(self: "APISpecTool", diff: Any, path: str) -> List[Dict[str, Any]]:
     """Process iterable item removals.
 
     Arguments:
@@ -1591,12 +1474,7 @@ class APISpecTool:
           item_desc = str(item)[:50] + "..." if len(str(item)) > 50 else str(item)
           description = f"Remove array item from {pipe_path}: {item_desc}"
 
-          differences.append({
-            'path': pipe_path,
-            'type': 'remove_array_item',
-            'value': item,
-            'description': description
-          })
+          differences.append({'path': pipe_path, 'type': 'remove_array_item', 'value': item, 'description': description})
 
     return differences
 
@@ -1628,9 +1506,7 @@ class APISpecTool:
     return None
 
   # ---------------------------------------------------------------------------
-  def convert_deepdiff_path_to_pipes(
-    self: "APISpecTool", key_path: str, base_path: str = ''
-  ) -> str:
+  def convert_deepdiff_path_to_pipes(self: "APISpecTool", key_path: str, base_path: str = '') -> str:
     """Convert DeepDiff path format to pipe-separated format.
 
     Arguments:
@@ -1846,9 +1722,7 @@ class APISpecTool:
     return current
 
   # ---------------------------------------------------------------------------
-  def set_value_at_path(
-    self: "APISpecTool", spec: Dict[str, Any], path: str, value: Any
-  ) -> None:
+  def set_value_at_path(self: "APISpecTool", spec: Dict[str, Any], path: str, value: Any) -> None:
     """Set value at a pipe-separated path in the spec.
 
     Arguments:
@@ -1913,9 +1787,7 @@ class APISpecTool:
     return self.get_value_at_spec_path(spec, path) is not None
 
   # ---------------------------------------------------------------------------
-  def rename_key_at_path(
-    self: "APISpecTool", spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str
-  ) -> bool:
+  def rename_key_at_path(self: "APISpecTool", spec: Dict[str, Any], parent_path: str, old_key: str, new_key: str) -> bool:
     """Rename a key at the specified parent path.
 
     Arguments:
@@ -1937,8 +1809,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def modify_array_element(
-    self: "APISpecTool", spec: Dict[str, Any], array_path: str,
-    match_criteria: Dict[str, Any], modifications: Dict[str, Any]
+    self: "APISpecTool", spec: Dict[str, Any], array_path: str, match_criteria: Dict[str, Any], modifications: Dict[str, Any]
   ) -> bool:
     """Modify a specific element in an array by matching criteria.
 
@@ -1972,9 +1843,7 @@ class APISpecTool:
     return False
 
   # -------------------------------------------------------------------------
-  def apply_path_operations(
-    self: "APISpecTool", spec: Dict[str, Any], fixes: Dict[str, Any]
-  ) -> tuple[List[str], List[str]]:
+  def apply_path_operations(self: "APISpecTool", spec: Dict[str, Any], fixes: Dict[str, Any]) -> tuple[List[str], List[str]]:
     """Apply path-based operations to the spec.
 
     Arguments:
@@ -2000,9 +1869,10 @@ class APISpecTool:
       change_msg = self._apply_single_operation(spec, operation_type, op, path, description)
 
       # Categorize messages based on their content
-      if any(skip_indicator in change_msg.lower()
-             for skip_indicator in ['skipped', 'already exists', 'not found', 'unchanged',
-                                    'no changes', 'already in correct position']):
+      if any(
+          skip_indicator in change_msg.lower()
+          for skip_indicator in ['skipped', 'already exists', 'not found', 'unchanged', 'no changes', 'already in correct position']
+      ):
         skipped_changes.append(change_msg)
 
       else:
@@ -2011,8 +1881,7 @@ class APISpecTool:
     return successful_changes, skipped_changes
 
   # ---------------------------------------------------------------------------
-  def _get_operations_from_fixes(self: "APISpecTool",
-                                 fixes: Dict[str, Any]) -> List[Dict[str, Any]]:
+  def _get_operations_from_fixes(self: "APISpecTool", fixes: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Extract operations from fixes configuration.
 
     Returns:
@@ -2032,8 +1901,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _apply_single_operation(
-    self: "APISpecTool", spec: Dict[str, Any], operation_type: str, op: Dict[str, Any],
-    path: str, description: str
+    self: "APISpecTool", spec: Dict[str, Any], operation_type: str, op: Dict[str, Any], path: str, description: str
   ) -> str:
     """Apply a single operation and return a status message."""
     # Check if this is an array-aware operation
@@ -2063,15 +1931,13 @@ class APISpecTool:
       return self._apply_remove_array_item(spec, op, path, description)
 
     elif operation_type == "move_array_item":
-      return self._apply_move_array_item(spec, op, path, description)
+      return self._apply_move_array_item(spec, path, description)
 
     else:
       return f"Unknown operation {operation_type!r}: {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_rename_key(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str
-  ) -> str:
+  def _apply_rename_key(self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str) -> str:
     """Apply rename_key operation."""
     success = self.rename_key_at_path(spec, op["path"], op["old_key"], op["new_key"])
     if success:
@@ -2081,10 +1947,7 @@ class APISpecTool:
       return f"Key not found (skipped): {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_set_value(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
-    description: str
-  ) -> str:
+  def _apply_set_value(self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str) -> str:
     """Apply set_value operation."""
     if self.path_exists(spec, path):
       current_value = self.get_value_at_spec_path(spec, path)
@@ -2101,10 +1964,7 @@ class APISpecTool:
       return f"Added new value: {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_add_if_missing(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
-    description: str
-  ) -> str:
+  def _apply_add_if_missing(self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str) -> str:
     """Apply add_if_missing operation."""
     if not self.path_exists(spec, path):
       self.set_value_at_path(spec, path, op["value"])
@@ -2114,9 +1974,7 @@ class APISpecTool:
       return f"Already exists (skipped): {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_delete_value(
-    self: "APISpecTool", spec: Dict[str, Any], path: str, description: str
-  ) -> str:
+  def _apply_delete_value(self: "APISpecTool", spec: Dict[str, Any], path: str, description: str) -> str:
     """Apply delete_value operation."""
     if not self.path_exists(spec, path):
       return f"Value not found for deletion (skipped): {description}"
@@ -2138,9 +1996,7 @@ class APISpecTool:
       return f"Key not found for deletion (skipped): {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_modify_array_element(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str
-  ) -> str:
+  def _apply_modify_array_element(self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], description: str) -> str:
     """Apply modify_array_element operation."""
     match_criteria = op.get("match_criteria", {})
     modifications = op.get("modifications", {})
@@ -2153,10 +2009,7 @@ class APISpecTool:
       return f"Array element not found (skipped): {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_add_array_item(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
-    description: str
-  ) -> str:
+  def _apply_add_array_item(self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str) -> str:
     """Apply add_array_item operation."""
     array = self.get_value_at_spec_path(spec, path)
     if isinstance(array, list):
@@ -2167,10 +2020,7 @@ class APISpecTool:
       return f"Path is not an array (skipped): {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_remove_array_item(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
-    description: str
-  ) -> str:
+  def _apply_remove_array_item(self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str) -> str:
     """Apply remove_array_item operation."""
     array = self.get_value_at_spec_path(spec, path)
     if isinstance(array, list) and op["value"] in array:
@@ -2181,9 +2031,7 @@ class APISpecTool:
       return f"Array item not found (skipped): {description}"
 
   # ---------------------------------------------------------------------------
-  def _apply_move_array_item(
-    self: "APISpecTool", spec: Dict[str, Any], path: str, description: str
-  ) -> str:
+  def _apply_move_array_item(self: "APISpecTool", spec: Dict[str, Any], path: str, description: str) -> str:
     """Apply move_array_item operation."""
     array = self.get_value_at_spec_path(spec, path)
 
@@ -2197,8 +2045,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _apply_array_aware_operation(
-    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str,
-    description: str
+    self: "APISpecTool", spec: Dict[str, Any], op: Dict[str, Any], path: str, description: str
   ) -> str:
     """Apply array-aware operations using content hashing.
 
@@ -2213,9 +2060,7 @@ class APISpecTool:
     """
     if not op.get('array_tracking', False):
       # Fall back to regular operation
-      return self._apply_single_operation(
-        spec, op.get('type', 'set_value'), op, path, description
-      )
+      return self._apply_single_operation(spec, op.get('type', 'set_value'), op, path, description)
 
     # Extract array path from the operation path
     array_path, array_index = self._extract_array_path_and_index(path)
@@ -2232,33 +2077,55 @@ class APISpecTool:
     operation_type = op.get('type', 'set_value')
 
     # Route to specific operation handlers
+    return self._route_array_operation(array, op, content_hash, operation_type, description)
+
+  def _route_array_operation(
+    self: "APISpecTool", array: List[Any], op: Dict[str, Any], content_hash: Any, operation_type: str, description: str
+  ) -> str:
+    """Route array operations to appropriate handlers.
+
+    Arguments:
+        array: The array to operate on.
+        op: The operation dictionary.
+        content_hash: Content hash for the operation.
+        operation_type: Type of operation to perform.
+        description: Description of the operation.
+
+    Returns:
+        str: Status message for the operation.
+    """
     if operation_type == 'add_array_item':
       return self._handle_add_array_item(array, op, description)
 
     elif operation_type == 'remove_array_item':
+      if content_hash is None:
+        return f"Missing content_hash for remove_array_item operation: {description}"
+
       return self._handle_remove_array_item(array, content_hash, description)
 
     elif operation_type == 'set_value':
+      if content_hash is None:
+        return f"Missing content_hash for set_value operation: {description}"
+
       return self._handle_set_array_value(array, op, content_hash, description)
 
     elif operation_type == 'move_array_item':
+      if content_hash is None:
+        return f"Missing content_hash for move_array_item operation: {description}"
+
       return self._handle_move_array_item(array, content_hash, description)
 
     else:
       return f"Unknown array operation {operation_type}: {description}"
 
   # ---------------------------------------------------------------------------
-  def _handle_add_array_item(
-    self: "APISpecTool", array: List[Any], op: Dict[str, Any], description: str
-  ) -> str:
+  def _handle_add_array_item(self: "APISpecTool", array: List[Any], op: Dict[str, Any], description: str) -> str:
     """Handle adding an array item."""
     array.append(op['value'])
     return f"Added array item: {description}"
 
   # ---------------------------------------------------------------------------
-  def _handle_remove_array_item(
-    self: "APISpecTool", array: List[Any], content_hash: str, description: str
-  ) -> str:
+  def _handle_remove_array_item(self: "APISpecTool", array: List[Any], content_hash: str, description: str) -> str:
     """Handle removing an array item by content hash."""
     for i, item in enumerate(array):
       if self.create_content_hash(item) == content_hash:
@@ -2269,8 +2136,7 @@ class APISpecTool:
 
   # ---------------------------------------------------------------------------
   def _handle_set_array_value(
-    self: "APISpecTool", array: List[Any], op: Dict[str, Any], content_hash: str,
-    description: str
+    self: "APISpecTool", array: List[Any], op: Dict[str, Any], content_hash: str, description: str
   ) -> str:
     """Handle setting an array value by content hash."""
     for i, item in enumerate(array):
@@ -2281,9 +2147,7 @@ class APISpecTool:
     return f"Array item not found (skipped): {description}"
 
   # ---------------------------------------------------------------------------
-  def _handle_move_array_item(
-    self: "APISpecTool", array: List[Any], content_hash: str, description: str
-  ) -> str:
+  def _handle_move_array_item(self: "APISpecTool", array: List[Any], content_hash: str, description: str) -> str:
     """Handle moving an array item (verify it exists)."""
     for item in array:
       if self.create_content_hash(item) == content_hash:
@@ -2310,9 +2174,7 @@ def main() -> None:
     sys.exit(1)
 
   # Initialize tool with debug and quiet flags
-  tool = APISpecTool(
-    quiet=getattr(args, 'quiet', False), debug=getattr(args, 'debug', False)
-  )
+  tool = APISpecTool(quiet=getattr(args, 'quiet', False), debug=getattr(args, 'debug', False))
 
   if tool.debug:
     tool._debug(f"Starting api-spec-tool with command: {args.command}")
@@ -2351,9 +2213,7 @@ def _execute_command(tool: APISpecTool, args: argparse.Namespace) -> None:
 
 
 # -----------------------------------------------------------------------------
-def _handle_file_not_found_error(
-  tool: APISpecTool, args: argparse.Namespace, e: FileNotFoundError
-) -> None:
+def _handle_file_not_found_error(tool: APISpecTool, args: argparse.Namespace, e: FileNotFoundError) -> None:
   """Handle FileNotFoundError."""
   tool._debug(f"FileNotFoundError caught: {e}")
 
@@ -2364,9 +2224,7 @@ def _handle_file_not_found_error(
 
 
 # -----------------------------------------------------------------------------
-def _handle_json_decode_error(
-  tool: APISpecTool, args: argparse.Namespace, e: json.JSONDecodeError
-) -> None:
+def _handle_json_decode_error(tool: APISpecTool, args: argparse.Namespace, e: json.JSONDecodeError) -> None:
   """Handle JSONDecodeError."""
   tool._debug(f"JSONDecodeError caught: {e}")
 
@@ -2388,9 +2246,7 @@ def _handle_key_error(tool: APISpecTool, args: argparse.Namespace, e: KeyError) 
 
 
 # -----------------------------------------------------------------------------
-def _handle_general_error(
-  tool: APISpecTool, args: argparse.Namespace, e: Exception
-) -> None:
+def _handle_general_error(tool: APISpecTool, args: argparse.Namespace, e: Exception) -> None:
   """Handle general exceptions."""
   tool._debug(f"Exception caught: {type(e).__name__}: {e}")
 
@@ -2414,115 +2270,50 @@ def create_argument_parser() -> argparse.ArgumentParser:
   )
 
   # Global options
-  parser.add_argument(
-    '-q',
-    '--quiet',
-    action='store_true',
-    help='Suppress verbose output, only show errors and exit codes'
-  )
-  parser.add_argument(
-    '-d', '--debug', action='store_true', help='Enable debug output with detailed logging'
-  )
+  parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
+  parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 
   subparsers = parser.add_subparsers(dest='command', help='Available subcommands')
 
   # Analyze subcommand
   analyze_parser = subparsers.add_parser('analyze', help='Analyze API structure')
   analyze_parser.add_argument('swagger_file', help='Path to the swagger JSON file')
-  analyze_parser.add_argument(
-    '-q',
-    '--quiet',
-    action='store_true',
-    help='Suppress verbose output, only show errors and exit codes'
-  )
-  analyze_parser.add_argument(
-    '-d', '--debug', action='store_true', help='Enable debug output with detailed logging'
-  )
+  analyze_parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
+  analyze_parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 
   # Extract subcommand
   extract_parser = subparsers.add_parser('extract', help='Extract and format API routes')
   extract_parser.add_argument('swagger_file', help='Path to the swagger JSON file')
   extract_parser.add_argument(
-    '--format',
-    '-f',
-    choices=['markdown', 'text', 'json'],
-    default='text',
-    help='Output format (default: text)'
+    '--format', '-f', choices=['markdown', 'text', 'json'], default='text', help='Output format (default: text)'
   )
   extract_parser.add_argument('--output', '-o', help='Output file (default: stdout)')
-  extract_parser.add_argument(
-    '-q',
-    '--quiet',
-    action='store_true',
-    help='Suppress verbose output, only show errors and exit codes'
-  )
-  extract_parser.add_argument(
-    '-d', '--debug', action='store_true', help='Enable debug output with detailed logging'
-  )
+  extract_parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
+  extract_parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 
   # Update subcommand
-  update_parser = subparsers.add_parser(
-    'update', help='Update spec-fixes.json with new changes'
-  )
+  update_parser = subparsers.add_parser('update', help='Update spec-fixes.json with new changes')
+  update_parser.add_argument('--dry-run', action='store_true', help='Show what would be added without making changes')
   update_parser.add_argument(
-    '--dry-run',
-    action='store_true',
-    help='Show what would be added without making changes'
+    '--output-file', default='scripts/spec-fixes.json', help='Output file path (default: scripts/spec-fixes.json)'
   )
-  update_parser.add_argument(
-    '--output-file',
-    default='scripts/spec-fixes.json',
-    help='Output file path (default: scripts/spec-fixes.json)'
-  )
-  update_parser.add_argument(
-    '--original-file',
-    default='scripts/vault-management-api-original.json',
-    help='Original API spec file'
-  )
-  update_parser.add_argument(
-    '--fixed-file',
-    default='scripts/vault-management-api-fixed.json',
-    help='Fixed API spec file'
-  )
-  update_parser.add_argument(
-    '-q',
-    '--quiet',
-    action='store_true',
-    help='Suppress verbose output, only show errors and exit codes'
-  )
-  update_parser.add_argument(
-    '-d', '--debug', action='store_true', help='Enable debug output with detailed logging'
-  )
+  update_parser.add_argument('--original-file', default='scripts/vault-management-api-original.json', help='Original API spec file')
+  update_parser.add_argument('--fixed-file', default='scripts/vault-management-api-fixed.json', help='Fixed API spec file')
+  update_parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
+  update_parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 
   # Fix subcommand
   fix_parser = subparsers.add_parser('fix', help='Apply fixes to the OpenAPI specification')
-  fix_parser.add_argument(
-    '--original-file',
-    default='scripts/vault-management-api-original.json',
-    help='Original API spec file'
-  )
-  fix_parser.add_argument(
-    '--fixed-file',
-    default='scripts/vault-management-api-fixed.json',
-    help='Fixed API spec file'
-  )
-  fix_parser.add_argument(
-    '--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file'
-  )
+  fix_parser.add_argument('--original-file', default='scripts/vault-management-api-original.json', help='Original API spec file')
+  fix_parser.add_argument('--fixed-file', default='scripts/vault-management-api-fixed.json', help='Fixed API spec file')
+  fix_parser.add_argument('--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file')
   fix_parser.add_argument(
     '--output-file',
     default='scripts/vault-management-api-fixed.json',
     help='Output file path (default: scripts/vault-management-api-fixed.json)'
   )
-  fix_parser.add_argument(
-    '-q',
-    '--quiet',
-    action='store_true',
-    help='Suppress verbose output, only show errors and exit codes'
-  )
-  fix_parser.add_argument(
-    '-d', '--debug', action='store_true', help='Enable debug output with detailed logging'
-  )
+  fix_parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
+  fix_parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 
   return parser
 
@@ -2589,8 +2380,7 @@ def handle_extract_command(tool: APISpecTool, args: argparse.Namespace) -> None:
     sys.exit(1)
 
   if args.output:
-    with os.fdopen(os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w',
-                   encoding='utf-8') as f:
+    with os.fdopen(os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w', encoding='utf-8') as f:
       f.write(output)
 
     if not args.quiet:
@@ -2634,8 +2424,7 @@ def handle_update_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   _apply_updates(args, new_fixes)
 
 
-def _load_spec_files(tool: APISpecTool,
-                     args: argparse.Namespace) -> tuple[Dict[str, Any], Dict[str, Any]]:
+def _load_spec_files(tool: APISpecTool, args: argparse.Namespace) -> tuple[Dict[str, Any], Dict[str, Any]]:
   """Load the original and fixed spec files."""
   original = tool.load_json_file(args.original_file, "original spec file")
   fixed = tool.load_json_file(args.fixed_file, "fixed spec file")
@@ -2657,10 +2446,8 @@ def _get_existing_paths(tool: APISpecTool, args: argparse.Namespace) -> Set[str]
   return existing_paths
 
 
-def _find_differences(
-  tool: APISpecTool, original: Dict[str, Any], fixed: Dict[str, Any],
-  args: argparse.Namespace
-) -> List[Dict[str, Any]]:
+def _find_differences(tool: APISpecTool, original: Dict[str, Any], fixed: Dict[str, Any],
+                      args: argparse.Namespace) -> List[Dict[str, Any]]:
   """Find differences between original and fixed specs."""
   if not args.quiet:
     print("Analyzing differences...")
@@ -2706,8 +2493,7 @@ def _apply_updates(args: argparse.Namespace, new_fixes: List[Dict[str, Any]]) ->
   _sort_operations_by_path(spec_fixes)
 
   # Write updated spec-fixes
-  with os.fdopen(os.open(args.output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
-                 'w') as f:
+  with os.fdopen(os.open(args.output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w') as f:
     json.dump(spec_fixes, f, indent=2)
 
   if not args.quiet:
@@ -2715,9 +2501,7 @@ def _apply_updates(args: argparse.Namespace, new_fixes: List[Dict[str, Any]]) ->
 
 
 # -----------------------------------------------------------------------------
-def _filter_new_fixes(
-  tool: APISpecTool, all_differences: List[Dict[str, Any]], existing_paths: Set[str]
-) -> List[Dict[str, Any]]:
+def _filter_new_fixes(tool: APISpecTool, all_differences: List[Dict[str, Any]], existing_paths: Set[str]) -> List[Dict[str, Any]]:
   """Filter out differences that are already covered."""
   new_fixes = []
 
@@ -2738,17 +2522,11 @@ def _filter_new_fixes(
     if diff.get('array_tracking', False):
       content_hash = diff.get('content_hash')
       new_fixes.append(
-        tool.create_array_aware_fix_entry(
-          spec_path, value, operation_type, old_value, description or "", content_hash
-        )
+        tool.create_array_aware_fix_entry(spec_path, value, operation_type, old_value, description or "", content_hash)
       )
 
     else:
-      new_fixes.append(
-        tool.create_fix_entry(
-          spec_path, value, operation_type, old_value, description or ""
-        )
-      )
+      new_fixes.append(tool.create_fix_entry(spec_path, value, operation_type, old_value, description or ""))
 
   return new_fixes
 
@@ -2767,18 +2545,11 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
       "description":
         "Machine-focused OpenAPI specification fixes with array position tracking and improved operation categorization generated by DeepDiff analysis",
       "metadata": {
-        "generated_by":
-          "api_spec_tool.py",
-        "generated_at":
-          "2024-01-01T00:00:00Z",
-        "original_spec":
-          args.original_file,
-        "fixed_spec":
-          args.fixed_file,
-        "features": [
-          "array_position_tracking", "content_based_hashing", "element_mapping",
-          "skip_operation_categorization"
-        ]
+        "generated_by": "api_spec_tool.py",
+        "generated_at": "2024-01-01T00:00:00Z",
+        "original_spec": args.original_file,
+        "fixed_spec": args.fixed_file,
+        "features": ["array_position_tracking", "content_based_hashing", "element_mapping", "skip_operation_categorization"]
       },
       "operations": []
     }
@@ -2831,16 +2602,13 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
     print("🔧 Applying OpenAPI spec fixes...")
 
   fixed_spec_data = original_spec.copy()
-  successful_changes, skipped_changes = tool.apply_path_operations(
-    fixed_spec_data, fixes_config
-  )
+  successful_changes, skipped_changes = tool.apply_path_operations(fixed_spec_data, fixes_config)
 
   # Write fixed specification
   if not args.quiet:
     print(f"💾 Writing fixed spec: {args.fixed_file}")
 
-  with os.fdopen(os.open(args.fixed_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644),
-                 'w') as f:
+  with os.fdopen(os.open(args.fixed_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o644), 'w') as f:
     json.dump(fixed_spec_data, f, indent=2)
 
   # Print summary - successful changes first
@@ -2856,9 +2624,7 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
 
     # Print skipped changes last for easier cleanup
     if skipped_changes:
-      print(
-        f"\n⏭️  Skipped {len(skipped_changes)} operations (already exist/no changes needed):"
-      )
+      print(f"\n⏭️  Skipped {len(skipped_changes)} operations (already exist/no changes needed):")
 
       for change in skipped_changes:
         print(f"   • {change}")

@@ -98,12 +98,8 @@ class UrisSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  match: Annotated[
-    Match | None,
-    Field(
-      description=
-      'URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)'
-    )]
+  match: Annotated[Match | None,
+                   Field(description='URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)')]
   uri: Annotated[str | None, Field(description='The URI/URL value')]
 
 
@@ -124,10 +120,7 @@ class FieldSchema(BaseModel):
   name: Annotated[str | None, Field(description='Name of the custom field')]
   value: Annotated[str | None, Field(description='Value of the custom field')]
   type: Annotated[FieldTypeEnum | None,
-                  Field(
-                    description='Field type (0=text, 1=hidden, 2=boolean, 3=linked)',
-                    title='FieldTypeEnum'
-                  )]
+                  Field(description='Field type (0=text, 1=hidden, 2=boolean, 3=linked)', title='FieldTypeEnum')]
 
 
 class FolderSchema(BaseModel):
@@ -183,11 +176,7 @@ class TemplateSchema(BaseModel):
   last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
   user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
   user_id: Annotated[UUID | None, Field(alias='userID')]
-  status: Annotated[
-    StatusEnum | None,
-    Field(
-      description='Vault status (locked, unlocked, or unauthenticated)', title='StatusEnum'
-    )]
+  status: Annotated[StatusEnum | None, Field(description='Vault status (locked, unlocked, or unauthenticated)', title='StatusEnum')]
 
 
 class StatusDataSchema(BaseModel):
@@ -199,10 +188,7 @@ class StatusDataSchema(BaseModel):
   object: Literal['template'] | None
   template: Annotated[
     TemplateSchema | None,
-    Field(
-      description='Vault template schema containing server URL, sync info, and user details',
-      title='TemplateSchema'
-    )]
+    Field(description='Vault template schema containing server URL, sync info, and user details', title='TemplateSchema')]
 
 
 class StatusSchema(BaseModel):
@@ -213,10 +199,7 @@ class StatusSchema(BaseModel):
   )
   success: bool | None
   data: Annotated[StatusDataSchema | None,
-                  Field(
-                    description='Status response data containing template information',
-                    title='StatusDataSchema'
-                  )]
+                  Field(description='Status response data containing template information', title='StatusDataSchema')]
 
 
 class LockUnlockDataSchema(BaseModel):
@@ -238,13 +221,11 @@ class LockUnlockSuccessSchema(BaseModel):
     populate_by_name=True,
   )
   success: bool | None
-  data: Annotated[
-    LockUnlockDataSchema | None,
-    Field(
-      description=
-      'Data schema for lock/unlock response containing status message and display options',
-      title='LockUnlockDataSchema'
-    )]
+  data: Annotated[LockUnlockDataSchema | None,
+                  Field(
+                    description='Data schema for lock/unlock response containing status message and display options',
+                    title='LockUnlockDataSchema'
+                  )]
 
 
 class DeviceApprovalPropertiesSchema(BaseModel):
@@ -437,12 +418,10 @@ class ItemLoginSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  uris: Annotated[UrisSchema | None,
-                  Field(description='Array of URIs associated with this login')]
+  uris: Annotated[UrisSchema | None, Field(description='Array of URIs associated with this login')]
   username: Annotated[str | None, Field(description='Username for the login')]
   password: Annotated[str | None, Field(description='Password for the login')]
-  totp: Annotated[str | None,
-                  Field(description='TOTP secret for two-factor authentication')]
+  totp: Annotated[str | None, Field(description='TOTP secret for two-factor authentication')]
 
 
 class SendTemplateSchema(BaseModel):
@@ -453,8 +432,7 @@ class SendTemplateSchema(BaseModel):
   )
   name: Annotated[str | None, Field(description='Name of the Send')]
   notes: Annotated[str | None, Field(description='Notes for the Send')]
-  type: Annotated[SendTypeEnum | None,
-                  Field(description='Type of Send (0=text, 1=file)', title='SendTypeEnum')]
+  type: Annotated[SendTypeEnum | None, Field(description='Type of Send (0=text, 1=file)', title='SendTypeEnum')]
   text: SendTextSchema | None
   file: str | None
   max_access_count: Annotated[int | None, Field(alias='maxAccessCount')]
@@ -481,10 +459,7 @@ class DeviceApprovalListSchema(RootModel[Sequence[DeviceApprovalPropertiesSchema
   """Device approval list schema for organization management."""
   model_config = ConfigDict(populate_by_name=True,)
   root: Annotated[Sequence[DeviceApprovalPropertiesSchema],
-                  Field(
-                    description='Device approval list schema for organization management',
-                    title='DeviceApprovalListSchema'
-                  )]
+                  Field(description='Device approval list schema for organization management', title='DeviceApprovalListSchema')]
 
 
 class ItemTemplateSchema(BaseModel):
@@ -493,37 +468,18 @@ class ItemTemplateSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  organization_id: Annotated[
-    UUID | None,
-    Field(
-      alias='organizationId',
-      description='Organization ID if item belongs to an organization'
-    )]
-  collection_ids: Annotated[
-    Sequence[UUID] | None,
-    Field(
-      alias='collectionIds', description='Array of collection IDs for organization items'
-    )]
-  folder_id: Annotated[
-    UUID | None,
-    Field(alias='folderId', description='Folder ID for organizing the item')]
-  type: Annotated[
-    Type | None,
-    Field(description='Type of vault item (1=login, 2=note, 3=card, 4=identity)')]
+  organization_id: Annotated[UUID | None,
+                             Field(alias='organizationId', description='Organization ID if item belongs to an organization')]
+  collection_ids: Annotated[Sequence[UUID] | None,
+                            Field(alias='collectionIds', description='Array of collection IDs for organization items')]
+  folder_id: Annotated[UUID | None, Field(alias='folderId', description='Folder ID for organizing the item')]
+  type: Annotated[Type | None, Field(description='Type of vault item (1=login, 2=note, 3=card, 4=identity)')]
   name: Annotated[str | None, Field(description='Display name of the vault item')]
-  notes: Annotated[str | None,
-                   Field(description='Free-form notes associated with the item')]
-  favorite: Annotated[bool | None,
-                      Field(description='Whether the item is marked as a favorite')]
-  fields: Annotated[Sequence[FieldSchema] | None,
-                    Field(description='Array of custom fields')]
-  login: Annotated[
-    ItemLoginSchema | None,
-    Field(description='Login-specific data (username, password, URIs, TOTP)')]
-  secure_note: Annotated[ItemSecureNoteSchema | None,
-                         Field(alias='secureNote', description='Secure note data')]
+  notes: Annotated[str | None, Field(description='Free-form notes associated with the item')]
+  favorite: Annotated[bool | None, Field(description='Whether the item is marked as a favorite')]
+  fields: Annotated[Sequence[FieldSchema] | None, Field(description='Array of custom fields')]
+  login: Annotated[ItemLoginSchema | None, Field(description='Login-specific data (username, password, URIs, TOTP)')]
+  secure_note: Annotated[ItemSecureNoteSchema | None, Field(alias='secureNote', description='Secure note data')]
   card: Annotated[ItemCardSchema | None, Field(description='Credit card data')]
   identity: Annotated[ItemIdentitySchema | None, Field(description='Identity data')]
-  reprompt: Annotated[
-    Reprompt | None,
-    Field(description='Master password re-prompt requirement (0=none, 1=required)')]
+  reprompt: Annotated[Reprompt | None, Field(description='Master password re-prompt requirement (0=none, 1=required)')]

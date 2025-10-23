@@ -153,7 +153,7 @@ warn_unused_ignores = true
 
 [tool.pydocstringformatter]
 style = ["pep257","numpydoc"]
-max-line-length = 92
+max-line-length = 132
 summary-quotes-same-line = true
 linewrap-full-docstring = true
 
@@ -165,7 +165,7 @@ typeCheckingMode = "basic"
 
 [tool.flake8]
 # Match yapf configuration
-max-line-length = 92
+max-line-length = 132
 
 # Enable bugbear rules (B-series)
 # Enable docstrings (DOC-series)
@@ -194,7 +194,7 @@ extend-ignore = [
   "TRY301", # Abstracting raise to inner function often adds unnecessary complexity
 
   # Basic formatting rules - disabled due to conflict with yapf formatting
-  "B950", # line too long (over 92 characters) - yapf handles this
+  "B950", # line too long (over 132
   "E116", # unexpected indentation (comment)
   "E117", # over-indented (comment)
 
@@ -245,7 +245,7 @@ experimental = false
 
 [tool.isort]
 profile = "google"
-line_length = 92
+line_length = 132
 indent = "  "
 
 [tool.pydocstyle]
@@ -259,7 +259,7 @@ based_on_style = "google"
 
 # Basic formatting
 indent_width = 2
-column_limit = 92
+column_limit = 132
 continuation_indent_width = 2
 
 # Whitespace and docstring settings

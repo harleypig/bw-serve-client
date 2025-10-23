@@ -13,8 +13,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
 spec = importlib.util.spec_from_file_location(
-  "api_spect_tool",
-  os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
 )
 if spec is None or spec.loader is None:
   raise ImportError("Could not load api_spect_tool module")
@@ -137,12 +136,7 @@ class TestAPISpecToolBasic:
 
   def test_format_markdown(self: "TestAPISpecToolBasic") -> None:
     """Test markdown formatting."""
-    routes = [{
-      'path': '/users',
-      'method': 'GET',
-      'summary': 'Get users',
-      'tags': ['users']
-    }]
+    routes = [{'path': '/users', 'method': 'GET', 'summary': 'Get users', 'tags': ['users']}]
 
     result = self.tool.format_markdown(routes)  # act
 
@@ -151,12 +145,7 @@ class TestAPISpecToolBasic:
 
   def test_format_text(self: "TestAPISpecToolBasic") -> None:
     """Test text formatting."""
-    routes = [{
-      'path': '/users',
-      'method': 'GET',
-      'summary': 'Get users',
-      'tags': ['users']
-    }]
+    routes = [{'path': '/users', 'method': 'GET', 'summary': 'Get users', 'tags': ['users']}]
 
     result = self.tool.format_text(routes)  # act
 
@@ -165,12 +154,7 @@ class TestAPISpecToolBasic:
 
   def test_format_json(self: "TestAPISpecToolBasic") -> None:
     """Test JSON formatting."""
-    routes = [{
-      'path': '/users',
-      'method': 'GET',
-      'summary': 'Get users',
-      'tags': ['users']
-    }]
+    routes = [{'path': '/users', 'method': 'GET', 'summary': 'Get users', 'tags': ['users']}]
 
     result = self.tool.format_json(routes)  # act
 
@@ -257,9 +241,7 @@ class TestAPISpecToolBasic:
       }
     }
 
-    self.tool.set_value_at_path(
-      spec, "paths|/test|get|parameters|1|schema|format", "uri"
-    )  # act
+    self.tool.set_value_at_path(spec, "paths|/test|get|parameters|1|schema|format", "uri")  # act
 
     assert spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
 
@@ -291,9 +273,7 @@ class TestAPISpecToolBasic:
       }
     }
 
-    result = self.tool.get_value_at_spec_path(
-      spec, "paths|/test|get|parameters|1|schema|format"
-    )  # act
+    result = self.tool.get_value_at_spec_path(spec, "paths|/test|get|parameters|1|schema|format")  # act
 
     assert result == "uri"
 
@@ -323,35 +303,22 @@ class TestAPISpecToolBasic:
     # act
     assert self.tool.path_exists(spec, "paths|/test|get|parameters|1|schema|format")
     assert not self.tool.path_exists(spec, "paths|/test|get|parameters|2|schema|format")
-    assert not self.tool.path_exists(
-      spec, "paths|/test|get|parameters|1|schema|nonexistent"
-    )
+    assert not self.tool.path_exists(spec, "paths|/test|get|parameters|1|schema|nonexistent")
 
   def test_apply_path_operations_set_value(self: "TestAPISpecToolBasic") -> None:
     """Test applying set_value operations."""
     spec = {"test": {"nested": {"value": "old"}}}
-    fixes = {
-      "operations": [{
-        "type": "set_value",
-        "path": "test|nested|value",
-        "value": "new",
-        "description": "Update value"
-      }]
-    }
+    fixes = {"operations": [{"type": "set_value", "path": "test|nested|value", "value": "new", "description": "Update value"}]}
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(successful_changes) > 0
     assert "Updated value" in successful_changes[0]
     assert spec["test"]["nested"]["value"] == "new"
 
-  def test_apply_path_operations_set_value_with_array_index(
-    self: "TestAPISpecToolBasic"
-  ) -> None:
+  def test_apply_path_operations_set_value_with_array_index(self: "TestAPISpecToolBasic") -> None:
     """Test applying set_value operations with array indices."""
-    spec = {
+    spec: Dict[str, Any] = {
       "paths": {
         "/test": {
           "get": {
@@ -385,9 +352,7 @@ class TestAPISpecToolBasic:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(successful_changes) > 0
     assert "Updated value" in successful_changes[0]
@@ -396,18 +361,9 @@ class TestAPISpecToolBasic:
   def test_apply_path_operations_add_if_missing(self: "TestAPISpecToolBasic") -> None:
     """Test applying add_if_missing operations."""
     spec = {"test": {"existing": "value"}}
-    fixes = {
-      "operations": [{
-        "type": "add_if_missing",
-        "path": "test|new_key",
-        "value": "new_value",
-        "description": "Add new key"
-      }]
-    }
+    fixes = {"operations": [{"type": "add_if_missing", "path": "test|new_key", "value": "new_value", "description": "Add new key"}]}
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(successful_changes) > 0
     assert "Added missing" in successful_changes[0]
@@ -416,17 +372,9 @@ class TestAPISpecToolBasic:
   def test_apply_path_operations_delete_value(self: "TestAPISpecToolBasic") -> None:
     """Test applying delete_value operations."""
     spec = {"test": {"to_delete": "value", "keep": "value"}}
-    fixes = {
-      "operations": [{
-        "type": "delete_value",
-        "path": "test|to_delete",
-        "description": "Delete key"
-      }]
-    }
+    fixes = {"operations": [{"type": "delete_value", "path": "test|to_delete", "description": "Delete key"}]}
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(successful_changes) > 0
     assert "Deleted value" in successful_changes[0]
@@ -438,8 +386,7 @@ class TestAPISpecToolBasic:
   ) -> None:
     """Test getting existing spec fix paths from v2 format."""
     v2_fixes = {
-      "version":
-        "2.0",
+      "version": "2.0",
       "operations": [{
         "path": "test|path1",
         "type": "set_value"
@@ -489,17 +436,7 @@ class TestAPISpecToolBasic:
 
   def test_modify_array_element(self: "TestAPISpecToolBasic") -> None:
     """Test modifying array elements."""
-    spec = {
-      "test": {
-        "items": [{
-          "name": "item1",
-          "value": "old"
-        }, {
-          "name": "item2",
-          "value": "keep"
-        }]
-      }
-    }
+    spec = {"test": {"items": [{"name": "item1", "value": "old"}, {"name": "item2", "value": "keep"}]}}
     match_criteria = {"name": "item1"}
     modifications = {"value": "new"}
 
@@ -579,8 +516,7 @@ class TestAPISpecToolBasic:
     fixes = {
       "operations": [
         self.tool.create_fix_entry(
-          diff['path'], diff.get('value'), diff['type'], diff.get('old_value'),
-          diff.get('description', '')
+          diff['path'], diff.get('value'), diff['type'], diff.get('old_value'), diff.get('description', '')
         ) for diff in differences
       ]
     }

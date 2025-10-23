@@ -14,8 +14,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
 spec = importlib.util.spec_from_file_location(
-  "api_spect_tool",
-  os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
 )
 if spec is None or spec.loader is None:
   raise ImportError("Could not load api_spect_tool module")
@@ -31,12 +30,14 @@ class TestCommandLineInterface:
 
   def test_help_command(self: "TestCommandLineInterface") -> None:
     """Test that the help command works."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 0
     assert "analyze" in result.stdout
@@ -46,26 +47,28 @@ class TestCommandLineInterface:
 
   def test_analyze_help(self: "TestCommandLineInterface") -> None:
     """Test analyze subcommand help."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-      'analyze', '--help'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'analyze', '--help'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 0
     assert "swagger_file" in result.stdout
 
   def test_extract_help(self: "TestCommandLineInterface") -> None:
     """Test extract subcommand help."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-      'extract', '--help'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'extract', '--help'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 0
     assert "format" in result.stdout
@@ -73,26 +76,28 @@ class TestCommandLineInterface:
 
   def test_update_help(self: "TestCommandLineInterface") -> None:
     """Test update subcommand help."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),
-      'update', '--help'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'update', '--help'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 0
     assert "dry-run" in result.stdout
 
   def test_fix_help(self: "TestCommandLineInterface") -> None:
     """Test fix subcommand help."""
-    result = subprocess.run([  # act
-      sys.executable,
-      os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'fix',
-      '--help'
-    ],
-                            capture_output=True,
-                            text=True)
+    result = subprocess.run(
+      [  # act
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'fix', '--help'
+      ],
+      capture_output=True,
+      text=True
+    )
 
     assert result.returncode == 0
     assert "original-file" in result.stdout
@@ -170,8 +175,7 @@ class TestEndToEndWorkflow:
     fixes = {
       "operations": [
         self.tool.create_fix_entry(
-          diff['path'], diff.get('value'), diff['type'], diff.get('old_value'),
-          diff.get('description', '')
+          diff['path'], diff.get('value'), diff['type'], diff.get('old_value'), diff.get('description', '')
         ) for diff in differences
       ]
     }
@@ -220,9 +224,7 @@ class TestEndToEndWorkflow:
 
       # Test applying fixes
       test_spec: Dict[str, Any] = self.original_spec.copy()
-      successful_changes, skipped_changes = self.tool.apply_path_operations(
-        test_spec, v2_fixes
-      )
+      successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, v2_fixes)
       assert len(successful_changes) > 0
       assert "content" in test_spec["paths"]["/test"]["get"]["responses"]["200"]
     finally:
@@ -268,14 +270,7 @@ class TestEndToEndWorkflow:
       os.unlink(temp_file)
 
     # Test with minimal valid spec
-    minimal_spec = {
-      "openapi": "3.0.0",
-      "info": {
-        "title": "Minimal",
-        "version": "1.0.0"
-      },
-      "paths": {}
-    }
+    minimal_spec = {"openapi": "3.0.0", "info": {"title": "Minimal", "version": "1.0.0"}, "paths": {}}
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
       json.dump(minimal_spec, f)
       temp_file = f.name
@@ -287,17 +282,7 @@ class TestEndToEndWorkflow:
 
   def test_array_operations(self: "TestEndToEndWorkflow") -> None:
     """Test array modification operations."""
-    spec = {
-      "test": {
-        "items": [{
-          "name": "item1",
-          "value": "old"
-        }, {
-          "name": "item2",
-          "value": "keep"
-        }]
-      }
-    }
+    spec = {"test": {"items": [{"name": "item1", "value": "old"}, {"name": "item2", "value": "keep"}]}}
     fixes = {
       "operations": [{
         "type": "modify_array_element",
@@ -312,9 +297,7 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
     assert len(successful_changes) > 0  # noqa: AAA04
     assert spec["test"]["items"][0]["value"] == "new"
     assert spec["test"]["items"][1]["value"] == "keep"
@@ -392,9 +375,7 @@ class TestEndToEndWorkflow:
     differences = self.tool.find_differences(original_spec, fixed_spec)  # act
 
     # Should find the array index change
-    array_index_changes = [
-      diff for diff in differences if 'parameters|1|schema|format' in diff['path']
-    ]
+    array_index_changes = [diff for diff in differences if 'parameters|1|schema|format' in diff['path']]
     assert len(array_index_changes) > 0
 
     # The change should be detected as a set_value operation
@@ -405,7 +386,7 @@ class TestEndToEndWorkflow:
 
   def test_array_index_fix_application(self: "TestEndToEndWorkflow") -> None:
     """Test that array index fixes are properly applied."""
-    spec = {
+    spec: Dict[str, Any] = {
       "paths": {
         "/test": {
           "get": {
@@ -440,9 +421,7 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
 
     assert len(successful_changes) > 0
     assert "Updated value" in successful_changes[0]
@@ -461,17 +440,13 @@ class TestEndToEndWorkflow:
       }]
     }
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(spec, fixes)  # act
     assert len(successful_changes) > 0  # noqa: AAA04
     assert "new_key" in spec["test"]
     assert "old_key" not in spec["test"]
     assert spec["test"]["new_key"] == "value"
 
-  def test_complete_array_index_workflow(
-    self: "TestEndToEndWorkflow"
-  ) -> None:  # noqa: AAA01
+  def test_complete_array_index_workflow(self: "TestEndToEndWorkflow") -> None:  # noqa: AAA01
     """Test complete workflow with array index changes."""
     # Create original spec with array elements
     original_spec = {
@@ -545,17 +520,14 @@ class TestEndToEndWorkflow:
     differences = self.tool.find_differences(original_spec, fixed_spec)
 
     # Should find the array index change
-    array_index_changes = [
-      diff for diff in differences if 'parameters|1|schema|format' in diff['path']
-    ]
+    array_index_changes = [diff for diff in differences if 'parameters|1|schema|format' in diff['path']]
     assert len(array_index_changes) > 0
 
     # Step 2: Create fix entries (simulating update command)
     fixes = {
       "operations": [
         self.tool.create_fix_entry(
-          diff['path'], diff.get('value'), diff['type'], diff.get('old_value'),
-          diff.get('description', '')
+          diff['path'], diff.get('value'), diff['type'], diff.get('old_value'), diff.get('description', '')
         ) for diff in differences
       ]
     }
@@ -563,18 +535,16 @@ class TestEndToEndWorkflow:
     # Step 3: Apply fixes (simulating fix command)
     test_spec = original_spec.copy()
 
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      test_spec, fixes
-    )  # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, fixes)  # act
 
     # Step 4: Verify the result
     assert len(successful_changes) > 0
-    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
+    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"  # type: ignore[index]
 
     # Verify the change was applied correctly
-    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"]["type"] == "string"
-    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
-    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"]["type"] == "string"
+    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"]["type"] == "string"  # type: ignore[index]
+    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"  # type: ignore[index]
+    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"]["type"] == "string"  # type: ignore[index]
 
 
 if __name__ == '__main__':

@@ -13,9 +13,9 @@ library for Bitwarden Vault Management API.
   - Test memory usage and performance impact
 
 - [ ] **Implement proper `__all__` exports**
+  - Configure code generation to automatically include `__all__` in generated modules or customize code generation templates
   - Add `flake8-dunder-all` to check for missing `__all__` declarations
   - Add `flake8-all-not-strings` to ensure all `__all__` entries are strings
-  - Configure code generation to automatically include `__all__` in generated modules
   - Ensure all public API classes and functions are properly exported
 
 - [ ] **Enhance flake8 plugin ecosystem**
@@ -44,7 +44,7 @@ library for Bitwarden Vault Management API.
 - [ ] **Fix key replacement detection in dictionary values**
   - **Problem**: When a key in a dictionary is replaced in the fixed spec, the entire value is treated as new during `api-spec-tool update`
   - **Impact**: Even if the content of the value hasn't changed, it will be detected as a difference
-  - **Example**: If `"format": "url"` becomes `"format": "uri"` in a parameter object, the entire parameter object is treated as new
+  - **Example**: If the path that has `"{request_id}}"` becomes `"{requestId}"` in a path object, the entire path object is treated as new
   - **Location**: This affects the `_compare_arrays` and difference detection logic in `scripts/api-spec-tool.py`
   - **Current behavior**: DeepDiff with `ignore_order=True` doesn't handle key renames properly
 

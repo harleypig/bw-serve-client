@@ -42,12 +42,30 @@ library for Bitwarden Vault Management API.
 ## API Spec Tool Improvements
 
 - [ ] **Document key replacement limitation**
-  - **Known Issue**: When a key in a dictionary is replaced in the fixed spec, the entire value is treated as new during `api-spec-tool update`
-  - **Impact**: Even if the content of the value hasn't changed, it will be detected as a difference
-  - **Example**: Path `"/device-approval/{organizationId}/approve/{request-id}}"` becomes `"/device-approval/{organizationId}/approve/{request-id}"` - the entire key **and** value will be deleted and recreated, showing up in spec-fixes.json as two separate operations: `delete_value` (old key) and `add_if_missing` (new key with duplicated value)
-  - **Root Cause**: DeepDiff with `ignore_order=True` doesn't recognize key renames, treats them as complete removal + addition
-  - **Current Workaround**: No practical solution exists - this is a fundamental limitation of the current approach
-  - **Documentation Needed**: Add to developer docs (README.md or docs/api-spec-tool.md) explaining this limitation and its impact on spec-fixes.json size
+  - **Known Issue**: When a key in a dictionary is replaced in the fixed spec,
+      the entire value is treated as new during `api-spec-tool update`
+  - **Impact**: Even if the content of the value hasn't changed, it will be
+      detected as a difference
+  - **Example**: Path
+      `"/device-approval/{organizationId}/approve/{request-id}}"` becomes
+      `"/device-approval/{organizationId}/approve/{request-id}"` - the entire
+      key **and** value will be deleted and recreated, showing up in
+      spec-fixes.json as two separate operations: `delete_value` (old key) and
+      `add_if_missing` (new key with duplicated value)
+  - **Root Cause**: DeepDiff with `ignore_order=True` doesn't recognize key
+      renames, treats them as complete removal + addition
+  - **Current Workaround**: No practical solution exists - this is
+      a fundamental limitation of the current approach
+  - **Documentation Needed**: Add to developer docs (README.md or
+      docs/api-spec-tool.md) explaining this limitation and its impact on
+      spec-fixes.json size
+
+- [ ] **Document DeepDiff ignore_order=True design decision**
+  - **Purpose**: Explain why `ignore_order=True` is used in DeepDiff comparison
+  - **Benefit**: Prevents false positives for array reordering (e.g., tags, parameters)
+  - **Trade-off**: Creates key replacement limitation but avoids hundreds of unnecessary array reorder operations
+  - **Context**: Most OpenAPI array order changes are cosmetic and don't affect semantic meaning
+  - **Documentation Needed**: Add to developer docs explaining the design rationale and its implications
 
 - [ ] **Enhance array difference detection**
   - Improve field-level modification detection within array elements

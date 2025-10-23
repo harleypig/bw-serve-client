@@ -320,7 +320,8 @@ class TestAPISpecToolBasic:
       }
     }
 
-    assert self.tool.path_exists(spec, "paths|/test|get|parameters|1|schema|format")  # act
+    # act
+    assert self.tool.path_exists(spec, "paths|/test|get|parameters|1|schema|format")
     assert not self.tool.path_exists(spec, "paths|/test|get|parameters|2|schema|format")
     assert not self.tool.path_exists(
       spec, "paths|/test|get|parameters|1|schema|nonexistent"

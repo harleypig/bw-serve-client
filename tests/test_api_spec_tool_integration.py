@@ -248,7 +248,7 @@ class TestEndToEndWorkflow:
       json.dump(["not", "a", "dict"], f)
       temp_file = f.name
     try:
-      with pytest.raises(Exception):
+      with pytest.raises(TypeError):
         self.tool.load_json_file(temp_file, "test file")
     finally:
       os.unlink(temp_file)
@@ -390,7 +390,8 @@ class TestEndToEndWorkflow:
     }
 
     # Test that differences are found including array index changes
-    differences = self.tool.find_differences(original_spec, fixed_spec)  # act
+    # act
+    differences = self.tool.find_differences(original_spec, fixed_spec)
 
     # Should find the array index change
     array_index_changes = [
@@ -431,7 +432,6 @@ class TestEndToEndWorkflow:
         }
       }
     }
-
     fixes = {
       "operations": [{
         "type": "set_value",
@@ -544,7 +544,7 @@ class TestEndToEndWorkflow:
     }
 
     # Step 1: Find differences (simulating update command)
-    differences = self.tool.find_differences(original_spec, fixed_spec)  # act
+    differences = self.tool.find_differences(original_spec, fixed_spec)
 
     # Should find the array index change
     array_index_changes = [
@@ -564,9 +564,8 @@ class TestEndToEndWorkflow:
 
     # Step 3: Apply fixes (simulating fix command)
     test_spec = original_spec.copy()
-    successful_changes, skipped_changes = self.tool.apply_path_operations(
-      test_spec, fixes
-    )  # act
+    # act
+    successful_changes, skipped_changes = self.tool.apply_path_operations(test_spec, fixes)
 
     # Step 4: Verify the result
     assert len(successful_changes) > 0

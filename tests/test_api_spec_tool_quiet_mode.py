@@ -257,9 +257,11 @@ class TestQuietModeFunctionality:
       # Should print verbose messages in verbose mode
       assert "Loaded original file:" in result.stdout
       assert "Loaded fixed file:" in result.stdout
-      assert "Found" in result.stdout and "existing paths" in result.stdout
+      assert "Found" in result.stdout
+      assert "existing paths" in result.stdout
       assert "Analyzing differences..." in result.stdout
-      assert "Found" in result.stdout and "total differences" in result.stdout
+      assert "Found" in result.stdout
+      assert "total differences" in result.stdout
 
     finally:
       os.unlink(original_file)
@@ -527,6 +529,7 @@ class TestQuietModeErrorHandling:
   ) -> None:
     """Test that quiet mode suppresses all error messages."""
     # Test file not found error
+    # act
     result = subprocess.run([
       sys.executable,
       os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'),

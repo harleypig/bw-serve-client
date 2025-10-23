@@ -3,20 +3,74 @@
 This document outlines the tasks needed to complete the bw-serve-client Python
 library for Bitwarden Vault Management API.
 
-AGENT: Add these tasks to the appropriate location, with clarification on what
-needs to be done.
+## High Priority - Code Generation & Quality Tools
 
-- Do I need to make the generated code use slots? With pydantic v2, it would
-    be in the Config(slots = true) (I think that's the right usage.) Would
-    this mean customizing templates? If using this, use `flake8-slots` for
-    testing.
+- [ ] **Implement Pydantic slots optimization**
+  - Research Pydantic v2 slots configuration: `Config(slots=True)` or `model_config = ConfigDict(slots=True)`
+  - Determine if slots provide meaningful performance benefits for this API client
+  - If beneficial, customize code generation templates to include slots configuration
+  - Add `flake8-slots` for testing and validation
+  - Test memory usage and performance impact
 
-- Same as above for `__all__`. `flake8-dunder-all` checks for this. Also,
-    `flake8-all-not-strings`.
+- [ ] **Implement proper `__all__` exports**
+  - Add `flake8-dunder-all` to check for missing `__all__` declarations
+  - Add `flake8-all-not-strings` to ensure all `__all__` entries are strings
+  - Configure code generation to automatically include `__all__` in generated modules
+  - Ensure all public API classes and functions are properly exported
 
-- Consider adding `flake8-encodings` to checks.
+- [ ] **Enhance flake8 plugin ecosystem**
+  - Add `flake8-encodings` to check for encoding issues
+  - Research automation for `flake8-clean-block` errors (may need custom tooling)
+  - Investigate flake8 plugins for:
+    - [ ] pyright integration (if available)
+    - [ ] pydocstyle integration (flake8-docstrings)
+    - [ ] bandit integration (flake8-bandit)
+    - [ ] mypy integration (flake8-mypy)
+    - [ ] isort integration (flake8-isort)
+    - [ ] markdownlint integration (flake8-markdown)
+    - [ ] yamllint integration (flake8-yaml)
+  - Evaluate existing plugin configurations and optimize
+  - Research additional useful flake8 plugins for Python development
 
-- Look for a way to automate fixing `flake8-clean-block` errors.
+- [ ] **Evaluate ruff as yapf replacement**
+  - Research ruff's formatting capabilities vs yapf
+  - Test ruff performance and feature parity
+  - Evaluate integration with existing flake8 setup
+  - Consider ruff's built-in linting capabilities
+  - Plan migration strategy if beneficial
+
+## API Spec Tool Improvements
+
+- [ ] **Fix key replacement detection in dictionary values**
+  - **Problem**: When a key in a dictionary is replaced in the fixed spec, the entire value is treated as new during `api-spec-tool update`
+  - **Impact**: Even if the content of the value hasn't changed, it will be detected as a difference
+  - **Example**: If `"format": "url"` becomes `"format": "uri"` in a parameter object, the entire parameter object is treated as new
+  - **Location**: This affects the `_compare_arrays` and difference detection logic in `scripts/api-spec-tool.py`
+  - **Current behavior**: DeepDiff with `ignore_order=True` doesn't handle key renames properly
+
+- [ ] **Design solution for key replacement detection**
+  - Research approaches to detect when a dictionary change is just a key rename
+  - Consider content-based comparison that ignores key names for certain patterns
+  - Evaluate if we can detect "semantic equivalence" between old and new values
+  - Design algorithm to distinguish between:
+    - Key renames (same content, different key)
+    - Value changes (same key, different content)  
+    - Complete replacements (different key and content)
+  - Consider configuration options for which keys should be treated as "renameable"
+
+- [ ] **Implement key replacement fix**
+  - Modify difference detection logic to handle key renames
+  - Update `_compare_arrays` method to detect key renames in array elements
+  - Add new operation type: `rename_key` for dictionary key renames
+  - Ensure fix application can handle key renames correctly
+  - Add tests for key rename scenarios
+  - Update spec-fixes.json format if needed (version 3.2+)
+
+- [ ] **Enhance array difference detection**
+  - Improve field-level modification detection within array elements
+  - Add support for nested object changes in arrays
+  - Optimize content-based hashing for better performance
+  - Add configuration for array comparison strategies
 
 ## Document Swagger/OpenAPI Source
 
@@ -81,6 +135,7 @@ needs to be done.
   - Set up pylint reports for code quality metrics
   - Use pylint for detailed refactoring suggestions and best practices
   - Configure pylint to work alongside existing flake8 pre-commit hooks
+  - Is there a plugin for flake8?
 
 ## Documentation
 

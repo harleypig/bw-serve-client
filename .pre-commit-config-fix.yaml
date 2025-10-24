@@ -105,6 +105,7 @@ repos:
           - flake8-isort
           - flake8-logging
           - flake8-picky-parentheses
+          - flake8-pydocstyle
           - flake8-pyprojecttoml
           - flake8-pytest-style
           - flake8-raise
@@ -112,8 +113,8 @@ repos:
           - flake8-rst-docstrings
           - flake8-secure-coding-standard
           - flake8-simplify
-          - flake8_simplify
-          - flake8_typing_imports
+          - flake8-type-checking
+          - flake8-typing_imports
           - flake8-unused-arguments
           - mccabe
           - pycodestyle
@@ -122,18 +123,11 @@ repos:
           - tryceratops
 
   # 8. Type checking (after code structure is fixed)
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
-    hooks:
-      - id: mypy
-        description: Type check Python code with mypy
-        args: ['bw_serve_client', 'tests', 'scripts']
-        pass_filenames: false
-        additional_dependencies:
-          - lxml
-          - pydantic>=2.0.0
-          - types-mock
-          - types-requests
+  #    flake8-type-checking is more up to date
+  #         - lxml
+  #         - pydantic>=2.0.0
+  #         - types-mock
+  #         - types-requests
 
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.406
@@ -141,6 +135,7 @@ repos:
       - id: pyright
         description: Type check Python code with pyright
         additional_dependencies:
+          - deepdiff
           - requests>=2.25.0
           - pydantic>=2.0.0
           - pytest>=7.2.1
@@ -152,7 +147,6 @@ repos:
     hooks:
       - id: pydocstyle
         description: Check Python docstring conventions
-        args: ['--convention=google']
 
   # 10. Security scanning (after code is properly formatted)
   - repo: https://github.com/PyCQA/bandit
@@ -160,7 +154,9 @@ repos:
     hooks:
       - id: bandit
         description: Security linter for Python
-        args: ['-r', '--skip=B101,B601']  # Skip assert and shell=True warnings
+        args:
+          - '--configfile'
+          - 'pyproject.toml'
 
   # 11. Markdown formatting
   - repo: https://github.com/igorshubovych/markdownlint-cli

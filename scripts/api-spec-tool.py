@@ -2536,7 +2536,7 @@ def _load_or_create_spec_fixes(args: argparse.Namespace) -> Dict[str, Any]:
   """Load existing spec-fixes or create new structure."""
   try:
     with open(args.output_file, 'r') as f:
-      return json.load(f)  # type: ignore[no-any-return]
+      return json.load(f)
 
   except FileNotFoundError:
     return {

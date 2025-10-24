@@ -25,8 +25,7 @@ library for Bitwarden Vault Management API.
     - [ ] pyright integration (if available)
     - [ ] pydocstyle integration (flake8-docstrings)
     - [ ] bandit integration (flake8-bandit)
-    - [ ] mypy integration (flake8-mypy)
-    - [ ] isort integration (flake8-isort)
+    - [x] isort integration (flake8-isort)
     - [ ] markdownlint integration (flake8-markdown)
     - [ ] yamllint integration (flake8-yaml)
   - Evaluate existing plugin configurations and optimize
@@ -138,11 +137,11 @@ library for Bitwarden Vault Management API.
   - Ensure compatibility across supported Python versions
   - Add version-specific test configurations if needed
 
-- [ ] **Regular mypy/pydantic auditing**
-  - Set up automated mypy checking in CI/CD pipeline
+- [ ] **Regular type checking/pydantic auditing**
+  - Set up automated type checking in CI/CD pipeline
   - Create process for regular type safety audits
   - Review and update pydantic models as API evolves
-  - Ensure mypy and pydantic integration remains optimal
+  - Ensure type checking and pydantic integration remains optimal
   - Add type checking to pre-commit hooks
 
 - [ ] **Add pylint for comprehensive code analysis**
@@ -178,7 +177,7 @@ library for Bitwarden Vault Management API.
 - [ ] **Code formatting and linting**
   - Run yapf for consistent code formatting
   - Fix all flake8 violations
-  - Resolve mypy type checking issues
+  - Resolve type checking issues
   - Follow PEP 8 and project naming conventions
 
 ## Package Configuration
@@ -284,7 +283,7 @@ library for Bitwarden Vault Management API.
 - [x] API architecture planned
 - [x] Basic project structure in place
 - [x] Pre-commit configuration implemented
-- [x] Code quality tools configured (yapf, flake8, mypy, pydocstyle, bandit, isort)
+- [x] Code quality tools configured (yapf, flake8, pydocstyle, bandit, isort)
 - [x] Route extraction script completed with clean output formatting
 - [x] Development workflow enhanced with comprehensive linting and formatting
 - [ ] Core implementation started

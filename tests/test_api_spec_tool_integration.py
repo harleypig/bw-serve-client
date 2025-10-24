@@ -539,12 +539,12 @@ class TestEndToEndWorkflow:
 
     # Step 4: Verify the result
     assert len(successful_changes) > 0
-    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"  # type: ignore[index]
+    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
 
     # Verify the change was applied correctly
-    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"]["type"] == "string"  # type: ignore[index]
-    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"  # type: ignore[index]
-    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"]["type"] == "string"  # type: ignore[index]
+    assert test_spec["paths"]["/test"]["get"]["parameters"][0]["schema"]["type"] == "string"
+    assert test_spec["paths"]["/test"]["get"]["parameters"][1]["schema"]["format"] == "uri"
+    assert test_spec["paths"]["/test"]["get"]["parameters"][2]["schema"]["type"] == "string"
 
 
 if __name__ == '__main__':

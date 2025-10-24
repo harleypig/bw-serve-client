@@ -96,7 +96,6 @@ pip install -e ".[dev]"
        "ms-python.python",
        "ms-python.pylint",
        "ms-python.flake8",
-       "ms-python.mypy",
        "ms-python.black-formatter",
        "ms-python.isort",
        "ms-toolsai.jupyter"
@@ -112,7 +111,6 @@ pip install -e ".[dev]"
      "python.linting.enabled": true,
      "python.linting.pylintEnabled": true,
      "python.linting.flake8Enabled": true,
-     "python.linting.mypyEnabled": true,
      "python.formatting.provider": "black",
      "python.sortImports.args": ["--profile", "black"],
      "editor.formatOnSave": true,
@@ -135,7 +133,7 @@ pip install -e ".[dev]"
 
 3. **Enable Inspections:**
    - Settings → Editor → Inspections
-   - Enable Python → PEP 8, PyLint, MyPy
+   - Enable Python → PEP 8, PyLint
 
 ### Development Tools
 
@@ -158,9 +156,6 @@ repos:
         entry: poetry run flake8
         language: system
         types: [python]
-      - id: mypy
-        name: mypy
-        entry: poetry run mypy
         language: system
         types: [python]
 ```
@@ -231,7 +226,6 @@ pytest-cov = "^4.1.0"
 pytest-mock = "^3.11.0"
 yapf = "^0.40.0"
 flake8 = "^6.0.0"
-mypy = "^1.5.0"
 pyright = "^1.1.0"
 pydocstyle = "^6.3.0"
 bandit = "^1.7.0"
@@ -253,7 +247,6 @@ pre-commit = "^3.4.0"
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
     "python.linting.flake8Enabled": true,
-    "python.linting.mypyEnabled": true,
     "python.formatting.provider": "black",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
@@ -265,7 +258,6 @@ pre-commit = "^3.4.0"
       "ms-python.python",
       "ms-python.pylint",
       "ms-python.flake8",
-      "ms-python.mypy",
       "ms-python.black-formatter",
       "ms-python.isort"
     ]
@@ -308,7 +300,7 @@ check json...............................................................Passed
 yapf.....................................................................Passed
 isort....................................................................Passed
 flake8...................................................................Passed
-mypy.....................................................................Passed
+type-checking........................................................Passed
 pyright..................................................................Passed
 pydocstyle...............................................................Passed
 bandit...................................................................Passed
@@ -317,7 +309,6 @@ bandit...................................................................Passed
 ### 3. Check Type Safety
 
 ```bash
-poetry run mypy bw_serve_client/
 poetry run pyright bw_serve_client/
 ```
 
@@ -345,7 +336,7 @@ poetry run pytest
 poetry run pre-commit run --all-files
 
 # Run type checking
-poetry run mypy bw_serve_client/
+poetry run pyright bw_serve_client/
 ```
 
 ### 4. Commit Changes

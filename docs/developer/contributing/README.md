@@ -83,7 +83,7 @@ poetry run pytest --cov=bw_serve_client
 poetry run pre-commit run --all-files
 
 # Run type checking
-poetry run mypy bw_serve_client/
+poetry run pyright bw_serve_client/
 poetry run pyright bw_serve_client/
 ```
 
@@ -143,7 +143,7 @@ git commit -m "test(api): add tests for error handling"
 
 - **yapf** - Code formatting
 - **flake8** - Linting
-- **mypy** - Type checking
+- **pyright** - Type checking
 - **pyright** - Advanced type checking
 - **pydocstyle** - Docstring style
 - **bandit** - Security linting

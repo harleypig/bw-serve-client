@@ -53,7 +53,7 @@ Welcome to the developer documentation for `bw-serve-client`! This section conta
 ### Quality Assurance
 
 - **Code Coverage** - Target >90% coverage
-- **Type Checking** - mypy and pyright integration
+- **Type Checking** - pyright integration
 - **Linting** - flake8, pylint, and other tools
 - **Formatting** - yapf and isort
 

@@ -31,7 +31,7 @@ Features
 --------
 
 * **Simple API** - Easy-to-use interface for Bitwarden Vault Management API
-* **Type Safety** - Full type hints and mypy support
+* **Type Safety** - Full type hints and type checking support
 * **Error Handling** - Comprehensive error handling with custom exceptions
 * **Retry Logic** - Built-in retry mechanism for failed requests
 * **Context Manager** - Automatic resource cleanup

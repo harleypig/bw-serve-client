@@ -11,7 +11,7 @@
 #   pre-commit run -c .pre-commit-config-fix.yaml --all-files
 ---
 repos:
-  # General hooks
+  # 1. Basic file fixes (fastest, most fundamental)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -19,6 +19,11 @@ repos:
         description: Remove trailing whitespace
       - id: end-of-file-fixer
         description: Ensure files end with newline
+
+  # 2. Syntax validation (catches fundamental issues early)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
       - id: check-yaml
         description: Check YAML syntax
       - id: check-json
@@ -37,7 +42,7 @@ repos:
       - id: detect-private-key
         description: Detect private keys
 
-  # Python code formatting and linting
+  # 3. Poetry dependency management (affects all Python tools)
   - repo: local
     hooks:
       - id: poetry-check
@@ -54,63 +59,106 @@ repos:
         description: Update poetry.lock file
         pass_filenames: false
         always_run: true
-      - id: poetry-lock-check
-        name: poetry-lock-check
-        entry: poetry check --lock
-        language: system
-        description: Check if poetry.lock is up to date
-        pass_filenames: false
-        always_run: true
-      - id: yapf
-        name: yapf
-        entry: poetry run yapf
-        language: system
-        description: Format Python code with yapf
-        args: ['--in-place', '-vv']
-        types: [python]
-      - id: isort
-        name: isort
-        entry: poetry run isort
-        language: system
-        description: Sort Python imports
-        args: ['--diff', '.']
-        types: [python]
-      - id: flake8
-        name: flake8
-        entry: poetry run flake8
-        language: system
-        description: Lint Python code with flake8
-        types: [python]
-      - id: mypy
-        name: mypy
-        entry: poetry run mypy
-        language: system
-        description: Type check Python code with mypy
-        types: [python]
-      - id: pyright
-        name: pyright
-        entry: poetry run pyright
-        language: system
-        description: Type check Python code with pyright
-        types: [python]
 
-  # Documentation
+  # 4. Python import organization (affects formatting)
+  - repo: https://github.com/pycqa/isort
+    rev: 7.0.0
+    hooks:
+      - id: isort
+        description: Sort Python imports
+
+  # 5. Python code formatting (affects linting)
+  - repo: https://github.com/google/yapf
+    rev: v0.43.0
+    hooks:
+      - id: yapf
+        description: Format Python code with yapf
+        args: ['--in-place']
+
+  # 6. Python docstring formatting (affects docstring linting)
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: v0.7.0
+    hooks:
+      - id: pydocstringformatter
+        description: Format Python docstrings
+        args: ["--write"]
+        additional_dependencies:
+          - tomli
+
+  # 7. Python linting (after formatting fixes)
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+        description: Lint Python code with flake8
+        additional_dependencies:
+          - dlint
+          - flake8-aaa
+          - flake8-annotations
+          - flake8-annotations-complexity
+          - flake8-assertive
+          - flake8-bugbear
+          - flake8-clean-block
+          - flake8-comprehensions
+          - flake8-docstrings
+          - flake8-docstrings-complete
+          - flake8-isort
+          - flake8-logging
+          - flake8-picky-parentheses
+          - flake8-pydocstyle
+          - flake8-pyprojecttoml
+          - flake8-pytest-style
+          - flake8-raise
+          - flake8-return
+          - flake8-rst-docstrings
+          - flake8-secure-coding-standard
+          - flake8-simplify
+          - flake8-type-checking
+          - flake8-typing_imports
+          - flake8-unused-arguments
+          - mccabe
+          - pycodestyle
+          - pydoclint
+          - pyflakes
+          - tryceratops
+
+  # 8. Type checking (after code structure is fixed)
+  #    flake8-type-checking is more up to date
+  #         - lxml
+  #         - pydantic>=2.0.0
+  #         - types-mock
+  #         - types-requests
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.406
+    hooks:
+      - id: pyright
+        description: Type check Python code with pyright
+        additional_dependencies:
+          - deepdiff
+          - requests>=2.25.0
+          - pydantic>=2.0.0
+          - pytest>=7.2.1
+          - urllib3>=1.25.3
+
+  # 9. Documentation checks (after docstring formatting)
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
     hooks:
       - id: pydocstyle
         description: Check Python docstring conventions
-        args: ['--convention=google']
 
-  # Security
+  # 10. Security scanning (after code is properly formatted)
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.6
     hooks:
       - id: bandit
         description: Security linter for Python
-        args: ['-r', '--skip=B101,B601']  # Skip assert and shell=True warnings
+        args:
+          - '--configfile'
+          - 'pyproject.toml'
 
-  # Markdown
+  # 11. Markdown formatting
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.45.0
     hooks:
@@ -118,7 +166,7 @@ repos:
         description: Lint and fix markdown files
         args: ['--fix']
 
-  # YAML
+  # 12. YAML linting (after YAML syntax validation)
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.37.1
     hooks:

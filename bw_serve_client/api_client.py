@@ -13,6 +13,10 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# Type aliases for complex types
+RequestData = Optional[Union[Dict[str, Any], str]]
+QueryParams = Optional[Dict[str, Any]]
+
 
 class BitwardenAPIError(Exception):
   """Base exception for Bitwarden API errors."""
@@ -49,20 +53,39 @@ class ApiClient:
 
   Handles all HTTP requests, response processing, error handling, and
   data serialization/deserialization for the Bitwarden API.
+
+  Args:
+      protocol: Protocol to use (http, https) - default: http
+      domain: Domain or IP address - default: localhost
+      port: Port number - default: 8087
+      path: Base path - default: empty string
+      timeout: Request timeout in seconds
+      max_retries: Maximum number of retry attempts
+      user_agent: Custom User-Agent string (default: 'bw-serve-client/0.1.0')
+      logger: Optional logger instance for logging requests/responses
+
+  Attributes:
+      session: The underlying requests.Session instance for HTTP communication
   """
+
+  session: requests.Session
 
   # ---------------------------------------------------------------------------
   # for use with 'with'
 
-  def __enter__(self):
-    """Context manager entry."""
+  def __enter__(self: "ApiClient") -> "ApiClient":
+    """Context manager entry.
+
+    Returns:
+        ApiClient: The instance itself for context management.
+    """
     return self
 
-  def __exit__(self, _exc_type, _exc_val, _exc_tb):
+  def __exit__(self: "ApiClient", _exc_type: Any, _exc_val: Any, _exc_tb: Any) -> None:
     """Context manager exit."""
     self.close()
 
-  def close(self) -> None:
+  def close(self: "ApiClient") -> None:
     """Close the session and clean up resources."""
     self.session.close()
 
@@ -70,7 +93,7 @@ class ApiClient:
   # Class methods
 
   def __init__(
-    self,
+    self: "ApiClient",
     protocol: str = "http",
     domain: str = "localhost",
     port: int = 8087,
@@ -79,19 +102,7 @@ class ApiClient:
     max_retries: int = 3,
     user_agent: Optional[str] = None,
     logger: Optional[logging.Logger] = None
-  ):
-    """Initialize the API client.
-
-    Args:
-        protocol: Protocol to use (http, https) - default: http
-        domain: Domain or IP address - default: localhost
-        port: Port number - default: 8087
-        path: Base path - default: empty string
-        timeout: Request timeout in seconds
-        max_retries: Maximum number of retry attempts
-        user_agent: Custom User-Agent string (default: 'bw-serve-client/0.1.0')
-        logger: Optional logger instance for logging requests/responses
-    """
+  ) -> None:
     # Build base_url from components
     self.base_url = f"{protocol}://{domain}:{port}{path}".rstrip('/')
 
@@ -120,7 +131,7 @@ class ApiClient:
       'User-Agent': user_agent or f'bw-serve-client/{__version__}'
     })
 
-  def _setup_default_logger(self) -> logging.Logger:
+  def _setup_default_logger(self: "ApiClient") -> logging.Logger:
     """Set up default logger for the API client."""
     logger = logging.getLogger(__name__)
     if not logger.handlers:
@@ -129,14 +140,15 @@ class ApiClient:
       handler.setFormatter(formatter)
       logger.addHandler(handler)
       logger.setLevel(logging.INFO)
+
     return logger
 
   def _make_request(
-    self,
+    self: "ApiClient",
     method: str,
     endpoint: str,
-    data: Optional[Union[Dict[str, Any], str]] = None,
-    params: Optional[Dict[str, Any]] = None,
+    data: RequestData = None,
+    params: QueryParams = None,
     files: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None
   ) -> requests.Response:
@@ -196,7 +208,7 @@ class ApiClient:
 
       # Determine whether to use json or data parameter based on content type
       content_type_str = str(request_headers.get('Content-Type', 'application/json'))
-      use_json = (not files and content_type_str.startswith('application/json'))
+      use_json = not files and content_type_str.startswith('application/json')
 
       response = self.session.request(
         method=method,
@@ -219,12 +231,10 @@ class ApiClient:
       return response
 
     except requests.exceptions.RequestException as e:
-      self.logger.error(f"Request failed: {e}")
+      self.logger.exception("Request failed")
       raise BitwardenAPIError(f"Request failed: {e}") from e
 
-  def _serialize_data(self,
-                      data: Any,
-                      content_type: str = "application/json") -> Union[Dict[str, Any], str]:
+  def _serialize_data(self: "ApiClient", data: Any, content_type: str = "application/json") -> Any:
     """Serialize data for API requests.
 
     Args:
@@ -250,7 +260,7 @@ class ApiClient:
     else:
       return str(data)
 
-  def _deserialize_data(self, response: requests.Response) -> Any:
+  def _deserialize_data(self: "ApiClient", response: requests.Response) -> Any:
     """Deserialize API response data.
 
     Args:
@@ -272,14 +282,18 @@ class ApiClient:
     else:
       return response.text
 
-  def _handle_error(self, response: requests.Response) -> None:
+  def _handle_error(self: "ApiClient", response: requests.Response) -> None:
     """Handle HTTP errors and raise appropriate exceptions.
 
     Args:
         response: Response object to check for errors
 
     Raises:
-        Various BitwardenAPIError subclasses based on status code
+        AuthenticationError: When status code is 401 (Unauthorized).
+        ValidationError: When status code is 400 (Bad Request).
+        NotFoundError: When status code is 404 (Not Found).
+        ServerError: When status code is 500 or higher (Server Error).
+        BitwardenAPIError: For any other error status codes.
     """
     if response.status_code < 400:
       return
@@ -315,13 +329,13 @@ class ApiClient:
   # ---------------------------------------------------------------------------
   # Public methods
 
-  def _make_request_and_deserialize(self, method: str, endpoint: str, **kwargs) -> Any:
-    """Make a request and deserialize the response.
+  def _make_request_and_deserialize(self: "ApiClient", method: str, endpoint: str, **kwargs: Any) -> Any:
+    r"""Make a request and deserialize the response.
 
     Args:
         method: HTTP method
         endpoint: API endpoint
-        **kwargs: Additional arguments for _make_request
+        kwargs: Additional arguments for _make_request
 
     Returns:
         Deserialized response data
@@ -329,7 +343,7 @@ class ApiClient:
     response = self._make_request(method, endpoint, **kwargs)
     return self._deserialize_data(response)
 
-  def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
+  def get(self: "ApiClient", endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
     """Make a GET request.
 
     Args:
@@ -341,12 +355,7 @@ class ApiClient:
     """
     return self._make_request_and_deserialize('GET', endpoint, params=params)
 
-  def post(
-    self,
-    endpoint: str,
-    data: Optional[Union[Dict[str, Any], str]] = None,
-    files: Optional[Dict[str, Any]] = None
-  ) -> Any:
+  def post(self: "ApiClient", endpoint: str, data: RequestData = None, files: Optional[Dict[str, Any]] = None) -> Any:
     """Make a POST request.
 
     Args:
@@ -359,7 +368,7 @@ class ApiClient:
     """
     return self._make_request_and_deserialize('POST', endpoint, data=data, files=files)
 
-  def put(self, endpoint: str, data: Optional[Union[Dict[str, Any], str]] = None) -> Any:
+  def put(self: "ApiClient", endpoint: str, data: RequestData = None) -> Any:
     """Make a PUT request.
 
     Args:
@@ -371,7 +380,7 @@ class ApiClient:
     """
     return self._make_request_and_deserialize('PUT', endpoint, data=data)
 
-  def delete(self, endpoint: str) -> Any:
+  def delete(self: "ApiClient", endpoint: str) -> Any:
     """Make a DELETE request.
 
     Args:

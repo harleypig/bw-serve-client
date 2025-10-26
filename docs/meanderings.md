@@ -170,7 +170,7 @@ Based on the API analysis, organize into these main classes:
 
 - Use Pydantic for all data models
 - Full type hints throughout
-- mypy compliance
+- type checking compliance
 - Runtime validation
 
 ### Error Handling

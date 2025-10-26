@@ -119,6 +119,6 @@ All API classes MUST implement:
 - **Complete type hints**: All public methods must have type annotations
 - **Pydantic models**: Use pydantic for all request/response data structures
 - **Runtime validation**: Validate data before sending to API and after receiving
-- **Static analysis**: Code must pass mypy type checking
+- **Static analysis**: Code must pass type checking
 - **Model definitions**: Create pydantic models for all API data structures
-- **Type safety**: mypy and pydantic integration for comprehensive type checking
+- **Type safety**: pyright and pydantic integration for comprehensive type checking

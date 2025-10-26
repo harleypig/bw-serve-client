@@ -47,21 +47,21 @@ For comprehensive testing guidelines, requirements, and best practices, see
 
 ### Type Safety and Data Validation
 
-This project uses **mypy** for static type checking and **pydantic** for runtime data validation:
+This project uses **pyright** for static type checking and **pydantic** for runtime data validation:
 
 ```bash
 # Run type checking
-poetry run mypy bw_serve_client/
+poetry run pyright bw_serve_client/
 
 # Run with HTML report
-poetry run mypy --html-report .mypy-reports bw_serve_client/
+poetry run pyright --outputjson bw_serve_client/ > pyright-report.json
 ```
 
 **Key principles:**
 
 - All public methods must have complete type annotations
 - Use pydantic models for all API data structures
-- mypy catches type errors before runtime
+- pyright catches type errors before runtime
 - pydantic provides runtime validation and type hints
 
 ### Development Tools

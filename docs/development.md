@@ -41,7 +41,7 @@ poetry run pytest --cov=bw_serve_client
 ```
 
 For comprehensive testing guidelines, requirements, and best practices, see
-[WORKFLOW.md](../WORKFLOW.md).
+[.claude/TESTS.md](../.claude/TESTS.md).
 
 ## Code Quality Checks
 
@@ -68,8 +68,8 @@ poetry run pyright --outputjson bw_serve_client/ > pyright-report.json
 
 For detailed code quality checks and development guidelines, see:
 
-- [AGENTS.md](../AGENTS.md) - Pre-commit configuration and tool usage
-- [WORKFLOW.md](../WORKFLOW.md) - Development process and quality gates
+- [.claude/CONVENTIONS.md](../.claude/CONVENTIONS.md) - Coding conventions and formatter config
+- [.claude/WORKFLOW.md](../.claude/WORKFLOW.md) - Development process and quality gates
 
 ## Development Guidelines
 
@@ -80,7 +80,8 @@ This is a poetry project. Make sure pyproject.toml is updated to match the
 current state of the project.
 
 For comprehensive development standards, testing requirements, and documentation
-guidelines, see [WORKFLOW.md](../WORKFLOW.md).
+guidelines, see [.claude/WORKFLOW.md](../.claude/WORKFLOW.md) and
+[.claude/TESTS.md](../.claude/TESTS.md).
 
 ## Additional Resources
 

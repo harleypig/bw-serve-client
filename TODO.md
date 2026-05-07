@@ -38,6 +38,15 @@ library for Bitwarden Vault Management API.
   - Consider ruff's built-in linting capabilities
   - Plan migration strategy if beneficial
 
+- [ ] **Decide formatter: yapf+isort vs black+isort**
+  - Currently using yapf (column_limit = 132, google style); see
+      `.claude/CONVENTIONS.md`
+  - Run a parallel experiment on a representative module with both
+      formatters and compare diff churn, readability, and pre-commit speed
+  - Confirm or change the repo's choice in `.claude/CONVENTIONS.md`
+  - Global `rules/black.md`, `rules/yapf.md`, `rules/isort.md` already
+      describe both toolchains
+
 ## API Spec Tool Improvements
 
 - [ ] **Document key replacement limitation**
@@ -98,17 +107,20 @@ library for Bitwarden Vault Management API.
 ## Core Library Implementation
 
 - [ ] **Implement error/logging module**
-  - Create flexible error handling system as specified in `docs/api-architecture.md`
-  - Support custom error handlers and loggers
-  - Implement minimal default error handling
-  - Add proper error level and log level configuration
+  - Contract: `.claude/WORKFLOW.md` *Error / Logging Module Contract*
+  - Architecture: `docs/api-architecture.md`
+  - Support injected error handlers and loggers; minimal built-in
+      defaults when neither is provided
+  - Configurable error-level and log-level thresholds
 
 - [ ] **Implement base API client class**
-  - Create foundation class with common functionality
+  - Contract: `.claude/WORKFLOW.md` *API Class Contract*
+  - Foundation class with common functionality (auth, request build,
+      response parse)
   - Handle authentication (bearer token, etc.)
-  - Implement JSON serialization/deserialization
-  - Add request/response validation
-  - Include proper error handling and logging
+  - JSON serialization/deserialization via pydantic models
+  - Request/response validation at the public boundary
+  - Wire in the injected error handler and logger
 
 - [ ] **Implement planned API classes** (see `docs/api-architecture.md`)
   - [ ] VaultItems class
@@ -121,16 +133,17 @@ library for Bitwarden Vault Management API.
 ## Testing Infrastructure
 
 - [ ] **Set up comprehensive testing**
-  - Create test structure following pytest conventions
-  - Implement unit tests for all classes and methods
-  - Add integration tests with mock API responses
-  - Use pytest-mock for external dependency testing
+  - Strategy and required coverage points: `.claude/TESTS.md`
+  - Implement unit tests for all classes and methods (one
+      `tests/test_<module>.py` per source module)
+  - Add integration tests with mock API responses via `pytest-mock`
   - Achieve high code coverage (target: >90%)
 
 - [ ] **Create test data and fixtures**
+  - Add `tests/conftest.py` for shared fixtures and `tests/fixtures/`
+      for recorded API payloads (per `.claude/TESTS.md`)
   - Mock API responses for all endpoints
   - Test data for various scenarios (success, error, edge cases)
-  - Fixtures for common test setup
 
 - [ ] **Add multi-Python version testing support**
   - Set up Tox or GitHub Actions matrix for testing Python 3.9, 3.10, 3.11, 3.12
@@ -138,11 +151,14 @@ library for Bitwarden Vault Management API.
   - Add version-specific test configurations if needed
 
 - [ ] **Regular type checking/pydantic auditing**
-  - Set up automated type checking in CI/CD pipeline
+  - Set up automated type checking in CI (see "Set up GitHub Actions"
+      below) — `pyright` runs locally and in pre-commit; CI gets `mypy`
+      as the second-pass checker
   - Create process for regular type safety audits
   - Review and update pydantic models as API evolves
   - Ensure type checking and pydantic integration remains optimal
-  - Add type checking to pre-commit hooks
+  - [x] Add type checking to pre-commit hooks (pyright is wired in
+      `.pre-commit-config.yaml`)
 
 - [ ] **Add pylint for comprehensive code analysis**
   - Integrate pylint into CI/CD pipeline for thorough code review
@@ -161,7 +177,10 @@ library for Bitwarden Vault Management API.
   - Document authentication and configuration
 
 - [ ] **Create usage examples**
-  - Add examples directory with practical usage scenarios
+  - Create `examples/` directory (does not yet exist) per
+      `.claude/TESTS.md` *Examples Directory*
+  - Each public API surface MUST have a runnable example, kept in sync
+      with the API in the same PR that changes it
   - Include examples for each major class
   - Show error handling patterns
   - Demonstrate authentication setup
@@ -175,10 +194,13 @@ library for Bitwarden Vault Management API.
   - Optimize hook performance and execution order
 
 - [ ] **Code formatting and linting**
-  - Run yapf for consistent code formatting
-  - Fix all flake8 violations
-  - Resolve type checking issues
-  - Follow PEP 8 and project naming conventions
+  - Tooling and conventions live in `.claude/CONVENTIONS.md` (yapf
+      column_limit = 132, comment wrap at 72) and global
+      `rules/python.md` / `rules/code-style.md`
+  - Run `pre-commit run --all-files` to apply the configured
+      formatter / linter / type-checker stack
+  - Resolve any outstanding flake8, pyright, or formatter warnings as
+      part of normal development
 
 ## Package Configuration
 
@@ -189,18 +211,25 @@ library for Bitwarden Vault Management API.
   - Add proper license information
 
 - [ ] **Package structure**
-  - Organize code into logical modules
-  - Ensure proper `__init__.py` files
-  - Add type hints throughout codebase
-  - Implement proper package exports
+  - Layout and naming conventions live in `.claude/CONVENTIONS.md` and
+      global `rules/python.md`
+  - Organize code into logical modules per the architecture in
+      `docs/api-architecture.md`
+  - Ensure `__init__.py` defines the public surface (ties to the
+      `__all__` exports todo above)
 
 ## CI/CD Pipeline
 
-- [ ] **Set up GitHub Actions**
-  - Create workflow for testing on multiple Python versions
-  - Add code quality checks
-  - Implement automated testing
-  - Add coverage reporting
+- [ ] **Set up GitHub Actions for tests and type-checking**
+  - Currently only `docs.yml` runs in CI; no pytest or type-check
+      workflow exists
+  - Create workflow that runs `pytest` on every push and PR
+  - Decide whether to add `mypy` as a second-pass type checker
+      (complements local `pyright`); see `.claude/CONVENTIONS.md` and
+      global `rules/python.md` for the dev/CI split rationale
+  - Add matrix for supported Python versions (tie to the multi-version
+      todo above)
+  - Add coverage reporting (`pytest --cov=bw_serve_client`)
 
 - [ ] **Release automation**
   - Set up automated version bumping
@@ -270,7 +299,8 @@ library for Bitwarden Vault Management API.
 
 ## Notes
 
-- All tasks should follow the guidelines in `AGENTS.md` and `WORKFLOW.md`
+- All tasks should follow the guidelines in `.claude/` (`CLAUDE.md`,
+  `WORKFLOW.md`, `CONVENTIONS.md`, `TESTS.md`)
 - Prioritize error handling and logging implementation early
 - Focus on core API client functionality before advanced features
 - Maintain high code quality standards throughout development
@@ -283,7 +313,11 @@ library for Bitwarden Vault Management API.
 - [x] API architecture planned
 - [x] Basic project structure in place
 - [x] Pre-commit configuration implemented
-- [x] Code quality tools configured (yapf, flake8, pydocstyle, bandit, isort)
+- [x] Code quality tools configured (yapf, flake8, pyright, pydocstyle,
+  bandit, isort)
+- [x] Agent configuration migrated from root `AGENTS.md` / `WORKFLOW.md`
+  to `.claude/` (`CLAUDE.md`, `WORKFLOW.md`, `CONVENTIONS.md`,
+  `TESTS.md`)
 - [x] Route extraction script completed with clean output formatting
 - [x] Development workflow enhanced with comprehensive linting and formatting
 - [ ] Core implementation started

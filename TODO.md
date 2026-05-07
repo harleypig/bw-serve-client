@@ -145,10 +145,19 @@ library for Bitwarden Vault Management API.
   - Mock API responses for all endpoints
   - Test data for various scenarios (success, error, edge cases)
 
-- [ ] **Add multi-Python version testing support**
-  - Set up Tox or GitHub Actions matrix for testing Python 3.9, 3.10, 3.11, 3.12
-  - Ensure compatibility across supported Python versions
-  - Add version-specific test configurations if needed
+- [ ] **Add multi-Python version testing support (tox)**
+  - tox is already in `[tool.poetry.group.dev.dependencies]` but
+      **not yet configured** — no `tox.ini`, no `[tool.tox]` table
+  - Configure per global `rules/tox.md`: pick `tox.ini` or
+      `[tool.tox]` in `pyproject.toml`, define `envlist` covering
+      Python 3.10–3.12 (current `pyproject.toml` requires
+      `python = ">=3.10,<4.0"`)
+  - Install `tox-poetry-installer` so each tox env reads dependency
+      groups from `pyproject.toml` instead of duplicating them
+  - Add a `lint` env (flake8 + pyright) and optionally a `docs` env
+      so CI and local runs share the same entry points
+  - Wire tox into the GitHub Actions matrix (see "Set up GitHub
+      Actions" below) — local `tox` and CI should run the same envs
 
 - [ ] **Regular type checking/pydantic auditing**
   - Set up automated type checking in CI (see "Set up GitHub Actions"

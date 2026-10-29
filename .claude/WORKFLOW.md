@@ -78,3 +78,21 @@ docs) live in `docs/development.md`.
 
 Follow the global `git.md` rules. Use the `git-worktree-workflow` skill
 for issue branches and PR prep.
+
+## Work Tracking
+
+Open work is tracked as GitHub issues, grouped by milestone on the
+`bw-serve-client roadmap` project. There is no `TODO.md`.
+
+### Area labels
+
+One `area:*` label per issue, chosen by where the fix lands:
+
+| Label          | Scope                                                                  |
+|----------------|------------------------------------------------------------------------|
+| `area:detect`  | Upstream change detection: fetchers, snapshots, lock file, change report (`upstream/`) |
+| `area:codegen` | Spec fixes, the patched spec, and generation of models and the route list (`codegen/`, `bw_serve_client/_generated/`) |
+| `area:library` | Hand-written library code in `bw_serve_client/`: client, transport, errors, resource classes |
+| `area:tests`   | Test-suite infrastructure and automated contract and coverage checks (`tests/`) |
+| `area:docs`    | Docs, examples, READMEs, and repo conventions as documents             |
+| `area:ci`      | CI workflows, scheduled jobs, pre-commit, lint/format/type tooling, packaging config |

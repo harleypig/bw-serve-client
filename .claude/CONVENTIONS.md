@@ -31,7 +31,8 @@ conflict with 2-space indent and the yapf/pydocstringformatter ruleset
 
 ## Type Checking
 
-This repo uses `pyright` only — both locally and in pre-commit. `mypy`
-is not currently configured. The global `python.md` recommends `mypy`
-as a CI second pass; when CI test workflows are added to this repo,
-consider whether to enable that mypy pass.
+This repo uses `pyright` only, locally, in pre-commit and in CI. The
+global `python.md` recommends `mypy` as a CI second pass, and this repo
+declines it: pyright understands pydantic models natively, while mypy
+needs the pydantic plugin, and two checkers that disagree on the same
+code would double the suppressions to maintain.

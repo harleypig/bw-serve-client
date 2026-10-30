@@ -262,6 +262,28 @@ split_penalty_after_unary_operator = 10000
 split_penalty_for_added_line_split = 30
 split_penalty_excess_character = 7000
 
+[tool.tox]
+requires = ["tox>=4.21"]
+env_list = ["py310", "py311", "py312", "py313", "py314", "lint"]
+
+# Poetry installs every env from the lockfile into the env tox created
+# (it uses the active VIRTUAL_ENV), so tox installs nothing itself.
+[tool.tox.env_run_base]
+description = "Run the test suite on {base_python}"
+skip_install = true
+allowlist_externals = ["poetry"]
+# dev is here only because scripts/api-spec-tool.py imports deepdiff at
+# module level (#9 - deepdiff at module level); drop it once that lands.
+commands_pre = [["poetry", "install", "--only", "main,dev,test"]]
+commands = [["pytest", { replace = "posargs", extend = true }]]
+
+[tool.tox.env.lint]
+description = "Run the pre-commit check config (flake8, pyright and the rest)"
+base_python = ["python3.12"]
+deps = ["pre-commit"]
+commands_pre = []
+commands = [["pre-commit", "run", "--all-files", "--show-diff-on-failure"]]
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = [

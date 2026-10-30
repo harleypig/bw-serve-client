@@ -37,11 +37,11 @@ Examples:
     python scripts/api_spec_tool.py update --dry-run
 
     # Apply fixes to create a fixed specification
-    python scripts/api_spec_tool.py fix
+    python scripts/api_spec_tool.py fix --fixed-file scripts/vault-management-api-fixed.json
 
     # Quiet mode - suppress verbose output
     python scripts/api_spec_tool.py update --quiet
-    python scripts/api_spec_tool.py fix --quiet
+    python scripts/api_spec_tool.py fix --quiet --fixed-file scripts/vault-management-api-fixed.json
 
     # Debug mode - show detailed logging
     python scripts/api_spec_tool.py analyze --debug scripts/vault-management-api-original.json
@@ -2307,13 +2307,9 @@ def create_argument_parser() -> argparse.ArgumentParser:
   # Fix subcommand
   fix_parser = subparsers.add_parser('fix', help='Apply fixes to the OpenAPI specification')
   fix_parser.add_argument('--original-file', default='scripts/vault-management-api-original.json', help='Original API spec file')
-  fix_parser.add_argument('--fixed-file', default='scripts/vault-management-api-fixed.json', help='Fixed API spec file')
+  # Required so a plain run never overwrites the committed patched spec.
+  fix_parser.add_argument('--fixed-file', required=True, help='Where to write the patched spec')
   fix_parser.add_argument('--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file')
-  fix_parser.add_argument(
-    '--output-file',
-    default='scripts/vault-management-api-fixed.json',
-    help='Output file path (default: scripts/vault-management-api-fixed.json)'
-  )
   fix_parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
   fix_parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 
@@ -2587,7 +2583,7 @@ def handle_fix_command(tool: APISpecTool, args: argparse.Namespace) -> None:
   tool._debug("Starting fix command")
   tool._debug(f"Original file: {args.original_file}")
   tool._debug(f"Fixes file: {args.fixes_file}")
-  tool._debug(f"Output file: {args.output_file}")
+  tool._debug(f"Fixed file: {args.fixed_file}")
   tool._debug(f"Dry run: {getattr(args, 'dry_run', False)}")
 
   # Load files

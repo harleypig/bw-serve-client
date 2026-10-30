@@ -108,6 +108,17 @@ class TestCommandLineInterface:
     assert "original-file" in result.stdout
     assert "fixed-file" in result.stdout
 
+  def test_fix_requires_fixed_file(self: "TestCommandLineInterface") -> None:
+    """A plain fix run refuses rather than overwriting the committed patched spec."""
+    result = subprocess.run(
+      [sys.executable, os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'fix'],
+      capture_output=True,
+      text=True
+    )  # act
+
+    assert result.returncode == 2
+    assert "--fixed-file" in result.stderr
+
   def test_extract_runs_without_deepdiff(self: "TestCommandLineInterface", tmp_path: Path) -> None:
     """Extract needs only the standard library, so it runs with deepdiff blocked."""
     spec_file = tmp_path / "spec.json"

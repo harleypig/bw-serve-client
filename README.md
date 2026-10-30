@@ -14,26 +14,27 @@ necessary session keys to the library.
 
 ## Generated Code
 
-This library is generated from the Bitwarden Vault Management API swagger
-specification. The source swagger file is located at
-`docs/vault-management-api.json`.
+The data models in `bw_serve_client/models.py` are generated, as pydantic 2
+models, from Bitwarden's published OpenAPI spec for the Vault Management API.
+The resource classes that call the API, such as `bw_serve_client/folders.py`,
+are written by hand.
 
-### Utility Scripts
+Bitwarden publishes the spec only inside its [Vault Management API help
+page][vm-api]. There is no standalone JSON file, and the spec's own version
+is always `latest`. A copy of it is committed in `upstream/`, along with the
+local fixes the generator needs and the patched spec they produce.
 
-Development and maintenance utilities are located in the `scripts/` directory:
+Keeping the spec current is manual for now: fetch the spec again, apply the
+fixes, and regenerate the models. Automating detection and regeneration is
+planned on the [project board][project].
 
-- **`scripts/extract_routes.py`** - Extract API routes from the swagger file
-    for documentation
-- See `scripts/README.md` for detailed usage instructions
+| Path | What it holds |
+|------|---------------|
+| `upstream/` | The committed Bitwarden spec, the local fixes, the patched spec, and the spec tool. See `upstream/README.md`. |
+| `codegen/` | Inputs to model generation. See `codegen/README.md`. |
 
-You can also use the provided Makefile for common tasks:
-
-```bash
-make extract-routes      # Extract routes in markdown format
-make extract-routes-text # Extract routes in text format
-make extract-routes-json # Extract routes in JSON format
-make help               # Show all available commands
-```
+[vm-api]: https://bitwarden.com/help/vault-management-api/
+[project]: https://github.com/users/harleypig/projects/3
 
 ## Requirements
 

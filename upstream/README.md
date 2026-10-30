@@ -1,83 +1,35 @@
-# Utility Scripts
+# Upstream
 
-This directory contains utility scripts for the bw-serve-client project. These scripts are not part of the main library but are useful for development, documentation, and maintenance tasks.
+What this repository knows about Bitwarden's Vault Management API, and the
+tool that works on it. None of it is part of the installed library.
 
-## Available Scripts
+| File | What it is |
+|------|------------|
+| `vault-management-api-original.json` | Bitwarden's spec, as committed. It is taken from the [Vault Management API help page][vm-api], which is the only place Bitwarden publishes it. |
+| `spec-fixes.json` | Local fixes the model generator needs, applied to the original spec. |
+| `vault-management-api-fixed.json` | The patched spec: the original with the fixes applied. Model generation reads this file. |
+| `api-spec-tool.py` | The spec tool, described below. |
 
-### Route Extraction Script (`extract_routes.py`)
+## The spec tool
 
-This script extracts API routes from the Bitwarden Vault Management API swagger/OpenAPI specification file and generates formatted output for documentation and comparison purposes.
-
-## Features
-
-- **Multiple output formats**: Markdown, plain text, and JSON
-- **Comprehensive extraction**: Extracts all HTTP methods, paths, summaries, descriptions, and tags
-- **Organized output**: Groups routes by their API tags for better readability
-- **Command-line interface**: Easy to use with various options
-
-## Usage
+Run it from the repository root:
 
 ```bash
-# Basic usage (markdown format to stdout)
-python3 scripts/extract_routes.py docs/vault-management-api.json
-
-# Save to file
-python3 scripts/extract_routes.py -o routes.md docs/vault-management-api.json
-
-# Text format
-python3 scripts/extract_routes.py -f text -o routes.txt docs/vault-management-api.json
-
-# JSON format for programmatic use
-python3 scripts/extract_routes.py -f json -o routes.json docs/vault-management-api.json
+poetry run python upstream/api-spec-tool.py <subcommand> [options]
 ```
 
-## Command Line Options
+| Subcommand | Does |
+|------------|------|
+| `analyze SPEC` | Summarise the spec's structure: paths, operations, tags. |
+| `extract SPEC` | List the routes, as text (the default), Markdown or JSON. `-o FILE` writes to a file. |
+| `update` | Compare the original and patched specs and add any new differences to `spec-fixes.json`. `--dry-run` shows them without writing. |
+| `fix --fixed-file FILE` | Apply `spec-fixes.json` to the original spec and write the result to `FILE`. The path is required, so a plain run never overwrites the committed patched spec. |
 
-- `--format, -f`: Output format (markdown, text, json) - default: markdown
-- `--output, -o`: Output file - default: stdout
-- `--help, -h`: Show help message
+Every subcommand takes `-q` for errors only and `-d` for debug output.
+`poetry run python upstream/api-spec-tool.py <subcommand> --help` lists the
+rest.
 
-## Output Formats
+`analyze` and `extract` need only the standard library. `update` needs
+`deepdiff`, which `poetry install` provides.
 
-### Markdown
-
-- Groups routes by API tags
-- Includes HTTP method badges
-- Shows summaries and descriptions
-- Ready for documentation
-
-### Text
-
-- Simple text format
-- Organized by tags
-- Includes summaries
-- Good for quick reference
-
-### JSON
-
-- Machine-readable format
-- Complete route information
-- Includes parameters and response codes
-- Suitable for programmatic processing
-
-## Examples
-
-```bash
-# Generate markdown documentation
-python3 scripts/extract_routes.py docs/vault-management-api.json > API_ROUTES.md
-
-# Create a simple text reference
-python3 scripts/extract_routes.py -f text -o routes.txt docs/vault-management-api.json
-
-# Extract for programmatic use
-python3 scripts/extract_routes.py -f json -o api_routes.json docs/vault-management-api.json
-```
-
-## Requirements
-
-- Python 3.6+
-- No external dependencies (uses only standard library)
-
-## Integration
-
-This script is designed to be run whenever the swagger file is updated to ensure documentation stays current with the API specification.
+[vm-api]: https://bitwarden.com/help/vault-management-api/

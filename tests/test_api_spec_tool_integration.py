@@ -1,14 +1,19 @@
 """Integration tests for API Specification Tool."""
 
+from __future__ import annotations
+
 import importlib.util
 import json
 import os
 import subprocess
 import sys
 import tempfile
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+  from pathlib import Path
 
 # Import the tool from the scripts directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
@@ -102,6 +107,21 @@ class TestCommandLineInterface:
     assert result.returncode == 0
     assert "original-file" in result.stdout
     assert "fixed-file" in result.stdout
+
+  def test_extract_runs_without_deepdiff(self: "TestCommandLineInterface", tmp_path: Path) -> None:
+    """Extract needs only the standard library, so it runs with deepdiff blocked."""
+    spec_file = tmp_path / "spec.json"
+    spec_file.write_text(json.dumps({"paths": {"/list/object/folders": {"get": {"summary": "List folders", "tags": ["Folders"]}}}}))
+    tool_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+    # A None entry in sys.modules makes any import of deepdiff raise ImportError.
+    blocker = "import runpy, sys; sys.modules['deepdiff'] = None; sys.argv = sys.argv[1:]; runpy.run_path(sys.argv[0], run_name='__main__')"
+
+    result = subprocess.run(
+      [sys.executable, '-c', blocker, tool_path, 'extract', str(spec_file)], capture_output=True, text=True
+    )  # act
+
+    assert result.returncode == 0, result.stderr
+    assert "/list/object/folders" in result.stdout
 
 
 class TestEndToEndWorkflow:

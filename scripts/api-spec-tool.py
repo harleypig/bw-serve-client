@@ -56,8 +56,6 @@ from pathlib import Path
 import sys
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from deepdiff import DeepDiff
-
 # Type aliases for complex types
 RouteInfo = Dict[str, Any]
 RouteList = List[RouteInfo]
@@ -815,6 +813,10 @@ class APISpecTool:
         List[Dict[str, Any]]: List of difference dictionaries containing change
             details and descriptions.
     """
+    # Imported here so the subcommands that never diff (analyze, extract)
+    # run with only the standard library.
+    from deepdiff import DeepDiff
+
     differences = []
 
     # Use DeepDiff to find all differences

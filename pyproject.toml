@@ -58,7 +58,6 @@ urllib3 = ">=1.25.3,<2.1.0"
 bandit = ">=1.7.5,<2.0.0"
 bump2version = ">=1.0.1,<2.0.0"
 datamodel-code-generator = ">=0.35.0,<0.36.0"
-deepdiff = {extras = ["cli"], version = "^8.6.1"}
 dlint = "^0.16.0"
 flake8 = ">=4.0.0"
 flake8-aaa = "^0.17.0"
@@ -101,6 +100,8 @@ yamllint = ">=1.37.1"
 yapf = ">=0.40.2,<1.0.0"
 
 [tool.poetry.group.test.dependencies]
+# The spec tool's diffing tests need it; the tool itself imports it lazily.
+deepdiff = {extras = ["cli"], version = "^8.6.1"}
 pytest = ">=7.2.1"
 pytest-cov = ">=2.8.1"
 pytest-mock = ">=3.12.0,<4.0.0"
@@ -272,9 +273,7 @@ env_list = ["py310", "py311", "py312", "py313", "py314", "lint"]
 description = "Run the test suite on {base_python}"
 skip_install = true
 allowlist_externals = ["poetry"]
-# dev is here only because scripts/api-spec-tool.py imports deepdiff at
-# module level (#9 - deepdiff at module level); drop it once that lands.
-commands_pre = [["poetry", "install", "--only", "main,dev,test"]]
+commands_pre = [["poetry", "install", "--only", "main,test"]]
 commands = [["pytest", { replace = "posargs", extend = true }]]
 
 [tool.tox.env.lint]

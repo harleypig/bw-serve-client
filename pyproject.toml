@@ -43,7 +43,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [{include = "bw_serve_client"}]
-exclude = ["scripts/**"]
+exclude = ["upstream/**", "codegen/**"]
 
 [tool.poetry.dependencies]
 aenum = ">=3.1.11"
@@ -124,7 +124,7 @@ summary-quotes-same-line = true
 linewrap-full-docstring = true
 
 [tool.pyright]
-include = ["bw_serve_client", "scripts", "tests"]
+include = ["bw_serve_client", "upstream", "tests"]
 exclude = ["**/__pycache__"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
@@ -332,7 +332,7 @@ skips = [
 [tool.datamodel-codegen]
 # XXX: custom-formatters to mimic pre-commit fix config
 formatters = ["isort"]
-input = "scripts/vault-management-api-fixed.json"
+input = "upstream/vault-management-api-fixed.json"
 input-file-type = "openapi"
 output = "bw_serve_client/models.py"
 
@@ -371,7 +371,7 @@ use-schema-description = true
 use-title-as-name = true
 
 # Template Customization
-custom-file-header-path = "scripts/generated-header.txt"
+custom-file-header-path = "codegen/generated-header.txt"
 encoding = "utf8"
 use-double-quotes = true
 wrap-string-literal = true

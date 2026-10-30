@@ -15,11 +15,11 @@ import pytest
 if TYPE_CHECKING:
   from pathlib import Path
 
-# Import the tool from the scripts directory
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+# Import the tool from the upstream directory
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'upstream'))
 
 spec = importlib.util.spec_from_file_location(
-  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py')
 )
 if spec is None or spec.loader is None:
   raise ImportError("Could not load api_spect_tool module")
@@ -38,7 +38,7 @@ class TestCommandLineInterface:
     result = subprocess.run(
       [  # act
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), '--help'
+        os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py'), '--help'
       ],
       capture_output=True,
       text=True
@@ -55,7 +55,7 @@ class TestCommandLineInterface:
     result = subprocess.run(
       [  # act
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'analyze', '--help'
+        os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py'), 'analyze', '--help'
       ],
       capture_output=True,
       text=True
@@ -69,7 +69,7 @@ class TestCommandLineInterface:
     result = subprocess.run(
       [  # act
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'extract', '--help'
+        os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py'), 'extract', '--help'
       ],
       capture_output=True,
       text=True
@@ -84,7 +84,7 @@ class TestCommandLineInterface:
     result = subprocess.run(
       [  # act
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'update', '--help'
+        os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py'), 'update', '--help'
       ],
       capture_output=True,
       text=True
@@ -98,7 +98,7 @@ class TestCommandLineInterface:
     result = subprocess.run(
       [  # act
         sys.executable,
-        os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'fix', '--help'
+        os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py'), 'fix', '--help'
       ],
       capture_output=True,
       text=True
@@ -111,7 +111,7 @@ class TestCommandLineInterface:
   def test_fix_requires_fixed_file(self: "TestCommandLineInterface") -> None:
     """A plain fix run refuses rather than overwriting the committed patched spec."""
     result = subprocess.run(
-      [sys.executable, os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py'), 'fix'],
+      [sys.executable, os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py'), 'fix'],
       capture_output=True,
       text=True
     )  # act
@@ -123,7 +123,7 @@ class TestCommandLineInterface:
     """Extract needs only the standard library, so it runs with deepdiff blocked."""
     spec_file = tmp_path / "spec.json"
     spec_file.write_text(json.dumps({"paths": {"/list/object/folders": {"get": {"summary": "List folders", "tags": ["Folders"]}}}}))
-    tool_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+    tool_path = os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py')
     # A None entry in sys.modules makes any import of deepdiff raise ImportError.
     blocker = "import runpy, sys; sys.modules['deepdiff'] = None; sys.argv = sys.argv[1:]; runpy.run_path(sys.argv[0], run_name='__main__')"
 

@@ -7,7 +7,7 @@ Management API OpenAPI specification. It combines functionality from multiple
 scripts into a single tool with subcommands.
 
 Usage:
-    python scripts/api_spec_tool.py <subcommand> [options]
+    python upstream/api-spec-tool.py <subcommand> [options]
 
 Global Options:
     -q, --quiet    Suppress verbose output, only show errors and exit codes
@@ -27,25 +27,25 @@ Exit Codes:
 
 Examples:
     # Analyze the API structure
-    python scripts/api_spec_tool.py analyze scripts/vault-management-api-original.json
+    python upstream/api-spec-tool.py analyze upstream/vault-management-api-original.json
 
     # Extract routes in markdown format
-    python scripts/api_spec_tool.py extract --format markdown \\
-    scripts/vault-management-api-original.json
+    python upstream/api-spec-tool.py extract --format markdown \\
+    upstream/vault-management-api-original.json
 
     # Update spec-fixes with new changes (dry run)
-    python scripts/api_spec_tool.py update --dry-run
+    python upstream/api-spec-tool.py update --dry-run
 
     # Apply fixes to create a fixed specification
-    python scripts/api_spec_tool.py fix --fixed-file scripts/vault-management-api-fixed.json
+    python upstream/api-spec-tool.py fix --fixed-file upstream/vault-management-api-fixed.json
 
     # Quiet mode - suppress verbose output
-    python scripts/api_spec_tool.py update --quiet
-    python scripts/api_spec_tool.py fix --quiet --fixed-file scripts/vault-management-api-fixed.json
+    python upstream/api-spec-tool.py update --quiet
+    python upstream/api-spec-tool.py fix --quiet --fixed-file upstream/vault-management-api-fixed.json
 
     # Debug mode - show detailed logging
-    python scripts/api_spec_tool.py analyze --debug scripts/vault-management-api-original.json
-    python scripts/api_spec_tool.py update --debug --dry-run
+    python upstream/api-spec-tool.py analyze --debug upstream/vault-management-api-original.json
+    python upstream/api-spec-tool.py update --debug --dry-run
 """
 
 import argparse
@@ -2297,19 +2297,21 @@ def create_argument_parser() -> argparse.ArgumentParser:
   update_parser = subparsers.add_parser('update', help='Update spec-fixes.json with new changes')
   update_parser.add_argument('--dry-run', action='store_true', help='Show what would be added without making changes')
   update_parser.add_argument(
-    '--output-file', default='scripts/spec-fixes.json', help='Output file path (default: scripts/spec-fixes.json)'
+    '--output-file', default='upstream/spec-fixes.json', help='Output file path (default: upstream/spec-fixes.json)'
   )
-  update_parser.add_argument('--original-file', default='scripts/vault-management-api-original.json', help='Original API spec file')
-  update_parser.add_argument('--fixed-file', default='scripts/vault-management-api-fixed.json', help='Fixed API spec file')
+  update_parser.add_argument(
+    '--original-file', default='upstream/vault-management-api-original.json', help='Original API spec file'
+  )
+  update_parser.add_argument('--fixed-file', default='upstream/vault-management-api-fixed.json', help='Fixed API spec file')
   update_parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
   update_parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 
   # Fix subcommand
   fix_parser = subparsers.add_parser('fix', help='Apply fixes to the OpenAPI specification')
-  fix_parser.add_argument('--original-file', default='scripts/vault-management-api-original.json', help='Original API spec file')
+  fix_parser.add_argument('--original-file', default='upstream/vault-management-api-original.json', help='Original API spec file')
   # Required so a plain run never overwrites the committed patched spec.
   fix_parser.add_argument('--fixed-file', required=True, help='Where to write the patched spec')
-  fix_parser.add_argument('--fixes-file', default='scripts/spec-fixes.json', help='Fixes configuration file')
+  fix_parser.add_argument('--fixes-file', default='upstream/spec-fixes.json', help='Fixes configuration file')
   fix_parser.add_argument('-q', '--quiet', action='store_true', help='Suppress verbose output, only show errors and exit codes')
   fix_parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output with detailed logging')
 

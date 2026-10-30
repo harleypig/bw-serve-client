@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install Poetry and tox
+        shell: bash
+        run: |
+          pipx install poetry==2.5.1
+          python -m pip install 'tox>=4.21'
+
+      # "py" is tox's env for the interpreter running it, so each matrix
+      # leg runs the suite on its own Python. Coverage prints in the log.
+      - name: Run tests
+        run: python -m tox -e py
+
+  lint:
+    name: Lint and type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # flake8 and pyright hooks run on 3.12; the other hooks use 3.14.
+      - uses: actions/setup-python@v7
+        with:
+          python-version: |
+            3.12
+            3.14
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install Poetry and tox
+        shell: bash
+        run: |
+          pipx install poetry==2.5.1
+          python -m pip install 'tox>=4.21'
+
+      - name: Run pre-commit checks
+        run: python -m tox -e lint

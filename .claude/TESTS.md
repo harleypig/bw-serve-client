@@ -47,8 +47,14 @@ pytest                       # full suite
 pytest tests/test_foo.py     # single file
 pytest -k "auth"             # by keyword
 pytest --cov=bw_serve_client # with coverage
-tox                          # all supported Python versions
+tox                          # every env: py310–py314 and lint
+tox -e py312                 # one Python version
+tox -e lint                  # pre-commit check config
 ```
+
+tox installs each env from the Poetry lockfile, so local runs match CI.
+The test envs need Python 3.10–3.14 on `PATH`, and the lint env needs
+3.12 (`uv python install 3.10 3.11 3.12 3.13` provides them).
 
 ## Examples Directory
 
@@ -60,7 +66,13 @@ changes.
 
 ## CI
 
-Currently only `docs.yml` runs in GitHub Actions. A workflow that runs
-`pytest` (and optionally `mypy`) on every push and pull request is
-planned; until it exists, agents MUST run `pytest` locally before
-pushing.
+`ci.yml` runs on every pull request and every push to `master`:
+
+- **Tests**: `tox -e py` on each of Python 3.10–3.14.
+- **Lint and type check**: `tox -e lint`, which runs the pre-commit check
+  config (flake8, pyright and the rest).
+
+Coverage prints in the test log for reading; there is no threshold.
+`pyright` is the only type checker. A `mypy` second pass is not run.
+
+`docs.yml` builds and deploys the Sphinx docs separately.

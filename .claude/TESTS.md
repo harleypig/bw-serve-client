@@ -12,7 +12,7 @@ the global `python.md`.
 
 Current state:
 
-```
+```text
 tests/
 └── test_<module>.py     # One test file per source module
 ```

@@ -194,6 +194,9 @@ extend-immutable-calls = ["pathlib.Path","Path"]
 # docstrings
 docstring-convention = "pep257"
 
+# rst-docstrings: Sphinx roles used in docstrings
+rst-roles = ["class"]
+
 # logging format
 enable-extra-whitelist = true
 

@@ -82,7 +82,10 @@ for issue branches and PR prep.
 ## Work Tracking
 
 Open work is tracked as GitHub issues, grouped by milestone on the
-`bw-serve-client roadmap` project. There is no `TODO.md`.
+[BW Serve Client Library][project] project, where the work is managed,
+reported on and tracked. There is no `TODO.md`.
+
+[project]: https://github.com/users/harleypig/projects/3
 
 ### Area labels
 

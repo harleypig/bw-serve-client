@@ -15,9 +15,11 @@ import logging
 from typing import Any, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from pydantic import ConfigDict
 
-from .api_client import ApiClient, ValidationError
+from .api_client import ApiClient
+from .api_client import ValidationError
 from .models import FolderSchema
 
 FolderId = Union[UUID, str]
@@ -34,6 +36,7 @@ class Folder(BaseModel):
       id: Server-assigned unique identifier.
       name: Folder name.
       object: API object discriminator; always ``"folder"``.
+      model_config: Accepts field names as well as aliases.
   """
 
   model_config = ConfigDict(populate_by_name=True)
@@ -46,13 +49,14 @@ class Folder(BaseModel):
 class Folders:
   """Folder operations on a Bitwarden vault.
 
+  ``error_handler`` follows the *Error / Logging Module Contract* in
+  ``WORKFLOW.md``. When it is ``None``, errors propagate as exceptions
+  raised by :class:`ApiClient`.
+
   Args:
       client: Shared :class:`ApiClient` for HTTP transport.
       logger: Optional logger; falls back to a module logger.
-      error_handler: Optional injected error handler per the
-          *Error / Logging Module Contract* in ``WORKFLOW.md``. When
-          ``None``, errors propagate as exceptions raised by
-          :class:`ApiClient`.
+      error_handler: Optional injected error handler.
   """
 
   # ---------------------------------------------------------------------------

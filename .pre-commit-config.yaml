@@ -77,21 +77,26 @@ repos:
         args: ['--diff']
 
   # 6. Python docstring formatting checks
-  # XXX: Verify this isn't modifying files.
+  # The upstream hook's entry carries --write, so it is replaced here with
+  # a diff-only run that fails when a docstring would change.
   - repo: https://github.com/DanielNoord/pydocstringformatter
     rev: v0.7.0
     hooks:
       - id: pydocstringformatter
         description: Check Python docstring formatting
+        entry: pydocstringformatter --exit-code
         additional_dependencies:
           - tomli
 
   # 7. Python linting (after formatting checks)
+  # flake8-return uses ast.NameConstant, which Python 3.14 removed, so the
+  # hook runs on 3.12 until the plugin set is re-evaluated.
   - repo: https://github.com/pycqa/flake8
     rev: 7.3.0
     hooks:
       - id: flake8
         description: Lint Python code with flake8
+        language_version: python3.12
         additional_dependencies:
           - dlint
           - flake8-aaa
@@ -133,13 +138,18 @@ repos:
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.406
     hooks:
+      # pyright 1.1.406 cannot parse the t-strings in Python 3.14's stdlib.
       - id: pyright
         description: Type check Python code with pyright
+        language_version: python3.12
         additional_dependencies:
+          # Bundles Node.js, which the pyright wrapper otherwise downloads.
+          - nodejs-wheel-binaries
           - deepdiff
           - requests>=2.25.0
           - pydantic>=2.0.0
           - pytest>=7.2.1
+          - pytest-mock>=3.12.0
           - urllib3>=1.25.3
 
   # # 9. Documentation checks (after docstring formatting checks)

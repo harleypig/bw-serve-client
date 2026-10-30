@@ -117,15 +117,6 @@ class APISpecTool:
       with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-      self._debug(f"Successfully loaded {description}, size: {len(str(data))} characters")
-
-      if not isinstance(data, dict):
-        self._debug(f"JSON file contains {type(data).__name__}, expected dict")
-        raise TypeError(f"Expected JSON object (dict), got {type(data).__name__}")
-
-      self._debug(f"JSON file validated as dictionary with {len(data)} top-level keys")
-      return data
-
     except FileNotFoundError as e:
       self._debug(f"File not found: {file_path}")
       raise FileNotFoundError(f"{description} not found: {file_path}") from e
@@ -137,6 +128,15 @@ class APISpecTool:
     except Exception as e:
       self._debug(f"Unexpected error loading {description}: {type(e).__name__}: {e}")
       raise APISpecToolError(f"Error reading {description}: {e}") from e
+
+    self._debug(f"Successfully loaded {description}, size: {len(str(data))} characters")
+
+    if not isinstance(data, dict):
+      self._debug(f"JSON file contains {type(data).__name__}, expected dict")
+      raise TypeError(f"Expected JSON object (dict), got {type(data).__name__}")
+
+    self._debug(f"JSON file validated as dictionary with {len(data)} top-level keys")
+    return data
 
   # ---------------------------------------------------------------------------
   def analyze_api_structure(self: "APISpecTool", swagger_file: str) -> Dict[str, Any]:

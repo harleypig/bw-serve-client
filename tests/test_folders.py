@@ -241,6 +241,16 @@ class TestFoldersList:
     assert all(isinstance(f, Folder) for f in result)
     assert {f.name for f in result} == {"Personal", "Personal Notes"}
 
+  def test_list_accepts_no_folder_entry(self: TestFoldersList, make_client: MakeClient) -> None:
+    """The "No Folder" entry, whose id is null, parses beside the real folders."""
+    body = _folders("Personal")
+    body["data"]["data"].append({"object": "folder", "id": None, "name": "No Folder"})  # type: ignore[index]
+    folders = Folders(make_client(json_body=body))
+
+    result = folders.list()  # act
+
+    assert [(f.name, f.id is None) for f in result] == [("Personal", False), ("No Folder", True)]
+
   def test_list_with_empty_search_omits_query_param(
     self: TestFoldersList, make_client: MakeClient, sent: list[httpx.Request]
   ) -> None:

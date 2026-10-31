@@ -7,7 +7,6 @@ with the Bitwarden Vault Management API via the 'bw serve' command.
 import json
 import logging
 from typing import Any, Dict, Optional, Union
-from urllib.parse import urljoin
 
 import httpx
 
@@ -16,12 +15,26 @@ from .errors import DefaultErrorHandler
 from .errors import ErrorHandler
 from .errors import ExternalServiceError
 from .errors import InternalError
+from .errors import ValidationError
 
 # Type aliases for complex types
 RequestData = Optional[Union[Dict[str, Any], str]]
 QueryParams = Optional[Dict[str, Any]]
 
 UNIX_SCHEME = "unix://"
+
+
+# -----------------------------------------------------------------------------
+def _media_type(content_type: str) -> str:
+  """Reduce a Content-Type header value to its media type.
+
+  Args:
+      content_type: A header value such as ``application/json; charset=utf-8``.
+
+  Returns:
+      The media type, lower case, without parameters.
+  """
+  return content_type.split(';', 1)[0].strip().lower()
 
 
 class ApiClient:
@@ -157,9 +170,12 @@ class ApiClient:
     """Make an HTTP request to the API.
 
     A failure goes to ``error_handler``, or to the client's handler when
-    that is ``None``: an unsupported method as an ``InternalError``, a
-    transport failure as an ``ExternalServiceError``, and an error status
-    as the category ``category_for_status()`` picks.
+    that is ``None``: an unsupported method as an ``InternalError``, a URL
+    httpx cannot build as a ``ValidationError``, a transport failure as an
+    ``ExternalServiceError``, and an error status as the category
+    ``category_for_status()`` picks.
+
+    Query parameters whose value is ``None`` are left out.
 
     Args:
         method: HTTP method: GET, POST, PUT or DELETE, in any case.
@@ -187,7 +203,11 @@ class ApiClient:
     # Use uppercase method for the actual request
     method = method_upper
 
-    url = urljoin(self.base_url, endpoint.lstrip('/'))
+    # Not urljoin: base_url has no trailing slash, so urljoin would drop
+    # its last path segment.
+    url = f"{self.base_url}/{endpoint.lstrip('/')}"
+
+    params = {key: value for key, value in (params or {}).items() if value is not None} or None
 
     # Log request
     self.logger.debug(f"Making {method} request to {url}")
@@ -201,7 +221,7 @@ class ApiClient:
       self.logger.debug(f"Request fields: {sorted(data)}")
 
     content_type = httpx.Headers(headers).get('Content-Type', 'application/json')
-    use_json = not files and content_type.startswith('application/json')
+    use_json = not files and _media_type(content_type) == 'application/json'
 
     # httpx takes a JSON body, raw text and form fields as three separate
     # arguments.
@@ -221,6 +241,9 @@ class ApiClient:
 
     response = self._send(method, url, files=files, params=params, headers=headers, **body)
 
+    if isinstance(response, httpx.InvalidURL):
+      return handler.handle(ValidationError, f"Invalid URL: {response}", cause=response)
+
     if isinstance(response, httpx.RequestError):
       return handler.handle(ExternalServiceError, f"Request failed: {response}", cause=response)
 
@@ -233,13 +256,14 @@ class ApiClient:
 
     return response
 
-  def _send(self: "ApiClient", method: str, url: str, **kwargs: Any) -> Union[httpx.Response, httpx.RequestError]:
-    """Send one request, returning a transport failure rather than raising it.
+  def _send(self: "ApiClient", method: str, url: str, **kwargs: Any) -> Union[httpx.Response, httpx.RequestError, httpx.InvalidURL]:
+    """Send one request, returning a failure rather than raising it.
 
-    The failure comes back as a copy of httpx's error without its request,
-    which holds the body -- the master password, on ``/unlock``. Returning
-    it, rather than handling it in the ``except`` block, keeps the original
-    from becoming the ``__context__`` of whatever the error handler raises.
+    A transport failure, or a URL httpx cannot build, comes back as a copy
+    of httpx's error without its request, which holds the body -- the
+    master password, on ``/unlock``. Returning it, rather than handling it
+    in the ``except`` block, keeps the original from becoming the
+    ``__context__`` of whatever the error handler raises.
 
     Args:
         method: HTTP method, upper case.
@@ -247,12 +271,12 @@ class ApiClient:
         kwargs: Further arguments for ``httpx.Client.request``.
 
     Returns:
-        The response, or the transport failure.
+        The response, or the failure.
     """
     try:
       return self.session.request(method=method, url=url, **kwargs)
 
-    except httpx.RequestError as e:
+    except (httpx.RequestError, httpx.InvalidURL) as e:
       failure = type(e)(str(e))
       failure.__cause__ = e.__cause__
       return failure
@@ -267,7 +291,9 @@ class ApiClient:
     Returns:
         Serialized data
     """
-    if content_type == "application/json":
+    media_type = _media_type(content_type)
+
+    if media_type == "application/json":
       if isinstance(data, str):
         try:
           return json.loads(data)
@@ -277,7 +303,7 @@ class ApiClient:
 
       return data
 
-    elif content_type == "multipart/form-data":
+    elif media_type == "multipart/form-data":
       return data
 
     else:
@@ -305,17 +331,16 @@ class ApiClient:
     else:
       return response.text
 
-  def _handle_error(self: "ApiClient", response: httpx.Response, error_handler: Optional[ErrorHandler] = None) -> Any:
+  def _handle_error(self: "ApiClient", response: httpx.Response, handler: ErrorHandler) -> Any:
     """Pass an error response to the error handler.
 
     Args:
         response: A response whose status is 400 or above.
-        error_handler: Handler to use instead of the client's.
+        handler: The handler the failure goes to.
 
     Returns:
         Whatever the handler returns, when it does not raise.
     """
-    handler = error_handler if error_handler is not None else self.error_handler
     error_message = f"API request failed with status {response.status_code}"
 
     try:
@@ -324,7 +349,7 @@ class ApiClient:
       if isinstance(error_data, dict) and isinstance(error_data.get('message'), str):
         error_message = error_data['message']
 
-    except (json.JSONDecodeError, KeyError):
+    except (json.JSONDecodeError, UnicodeDecodeError, KeyError):
       error_message = response.text or error_message
 
     category = category_for_status(response.status_code, error_message)

@@ -35,6 +35,7 @@ or no user is logged in
 404                             ``ValidationError``
 5xx                             ``ExternalServiceError``
 connection failure, timeout     ``ExternalServiceError``
+a URL httpx cannot build        ``ValidationError``
 2xx body that does not parse    ``ExternalServiceError``
 a bug in this library           ``InternalError``
 ==============================  ==========================

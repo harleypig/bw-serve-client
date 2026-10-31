@@ -36,7 +36,7 @@ class Folder(BaseModel):
   the generator does not produce a schema for, so it is modelled here.
 
   Attributes:
-      id: Server-assigned unique identifier.
+      id: Server-assigned unique identifier; ``None`` for "No Folder".
       name: Folder name.
       object: API object discriminator; always ``"folder"``.
       model_config: Accepts field names as well as aliases.
@@ -44,7 +44,8 @@ class Folder(BaseModel):
 
   model_config = ConfigDict(populate_by_name=True)
 
-  id: UUID
+  # bw lists "No Folder" with a null id; it must not fail the whole list.
+  id: Optional[UUID]
   name: str
   object: str = "folder"
 

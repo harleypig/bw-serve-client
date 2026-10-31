@@ -165,7 +165,7 @@ class TestApiClient:
     response.json.return_value = {"message": "Unauthorized"}
 
     with pytest.raises(UserError, match="Unauthorized"):  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
   def test_handle_error_400(self: "TestApiClient") -> None:
     """Test error handling for 400 Bad Request."""
@@ -175,7 +175,7 @@ class TestApiClient:
     response.json.return_value = {"message": "Bad Request"}
 
     with pytest.raises(ValidationError, match="Bad Request"):  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
   def test_handle_error_404(self: "TestApiClient") -> None:
     """Test error handling for 404 Not Found."""
@@ -185,7 +185,7 @@ class TestApiClient:
     response.json.return_value = {"message": "Not Found"}
 
     with pytest.raises(ValidationError, match="Not Found") as exc_info:  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
     assert exc_info.value.status_code == 404
 
@@ -197,7 +197,7 @@ class TestApiClient:
     response.json.return_value = {"message": "Server Error"}
 
     with pytest.raises(ExternalServiceError, match="Server Error"):  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
   def test_get_request(self: "TestApiClient") -> None:
     """Test GET request method."""
@@ -445,7 +445,7 @@ class TestApiClient:
     response.text = "Bad Request"
 
     with pytest.raises(ValidationError, match="Bad Request"):  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
   def test_handle_error_no_message_key(self: "TestApiClient") -> None:
     """Test error handling with no 'message' key in error data."""
@@ -456,7 +456,7 @@ class TestApiClient:
     response.text = "Bad Request"
 
     with pytest.raises(ValidationError, match="API request failed with status 400"):  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
   def test_handle_error_key_error(self: "TestApiClient") -> None:
     """Test error handling with KeyError in error data processing."""
@@ -468,7 +468,7 @@ class TestApiClient:
     response.text = "Bad Request"
 
     with pytest.raises(ValidationError, match="Bad Request"):  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
   def test_handle_error_other_status_code(self: "TestApiClient") -> None:
     """Test error handling for other status codes."""
@@ -478,7 +478,7 @@ class TestApiClient:
     response.json.return_value = {"message": "I'm a teapot"}
 
     with pytest.raises(ValidationError, match="I'm a teapot"):  # act
-      client._handle_error(response)
+      client._handle_error(response, client.error_handler)
 
   def test_make_request_with_headers(self: "TestApiClient") -> None:
     """Test _make_request with custom headers."""
@@ -685,6 +685,24 @@ class TestApiClient:
     assert request.method == "GET"
     assert str(request.url) == "http://localhost:8087/test"
 
+  def test_none_query_params_are_omitted(self: "TestApiClient") -> None:
+    """A query parameter whose value is None is left out, not sent empty."""
+    client, seen = _recording_client(json_body={})
+
+    client.get("/list/object/items", params={"search": None, "folderid": "abc"})  # act
+
+    [request] = seen
+    assert request.url.query == b"folderid=abc"
+
+  def test_json_content_type_with_parameters_sends_json(self: "TestApiClient") -> None:
+    """A JSON content type with a charset still sends the data as a JSON body."""
+    client, seen = _recording_client(json_body={})
+
+    client._make_request("POST", "/test", data={"name": "x"}, headers={"Content-Type": "application/json; charset=utf-8"})  # act
+
+    [request] = seen
+    assert json.loads(request.content) == {"name": "x"}
+
 
 class TestApiClientConnection:
   """How the client reaches bw serve: URL, Unix socket, or a transport."""
@@ -698,6 +716,16 @@ class TestApiClientConnection:
     [request] = seen
     assert client.base_url == "https://vault.example:9000"
     assert str(request.url) == "https://vault.example:9000/status"
+
+  @pytest.mark.parametrize("kwargs", [{"path": "/api"}, {"base_url": "http://vault.example:9000/api/"}], ids=["path", "base_url"])
+  def test_base_path_is_kept(self: "TestApiClientConnection", kwargs: dict[str, Any]) -> None:
+    """The base URL's path prefixes every endpoint."""
+    client, seen = _recording_client(json_body={}, **kwargs)
+
+    client.get("/object/folder")  # act
+
+    [request] = seen
+    assert request.url.path == "/api/object/folder"
 
   def test_default_transport_retries_connections(self: "TestApiClientConnection", mocker: MockerFixture) -> None:
     """The default transport retries failed connections max_retries times."""
@@ -718,9 +746,9 @@ class TestApiClientConnection:
 
   # Port 80 is the case the explicit Host header exists for: httpx alone
   # drops a default port from the Host it derives from the URL.
-  @pytest.mark.parametrize("port", [8087, 80])
-  def test_socket_round_trip(self: "TestApiClientConnection", port: int, monkeypatch: pytest.MonkeyPatch) -> None:
-    """A request over a real Unix socket reaches the server with Host: localhost:<port>."""
+  @pytest.mark.parametrize(("port", "path"), [(8087, ""), (80, ""), (8087, "/api")])
+  def test_socket_round_trip(self: "TestApiClientConnection", port: int, path: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A request over a real Unix socket reaches the server with Host: localhost:<port>, under the base path."""
     # A relative socket path keeps under the AF_UNIX path limit (~108
     # bytes) however long TMPDIR is.
     with tempfile.TemporaryDirectory() as tmp:
@@ -730,7 +758,7 @@ class TestApiClientConnection:
       thread.start()
 
       try:
-        with ApiClient(base_url="unix://bw.sock", port=port) as client:
+        with ApiClient(base_url="unix://bw.sock", port=port, path=path) as client:
           result = client.get("/status")  # act
 
       finally:
@@ -739,7 +767,7 @@ class TestApiClientConnection:
         thread.join()
         monkeypatch.undo()
 
-    assert result == {"host": f"localhost:{port}", "path": "/status"}
+    assert result == {"host": f"localhost:{port}", "path": f"{path}/status"}
 
   def test_socket_url_without_path_raises(self: "TestApiClientConnection") -> None:
     """Unix:// with no socket path is rejected."""
@@ -809,6 +837,42 @@ class TestApiClientErrorHandling:
     assert status_code is None
     assert isinstance(cause, httpx.ConnectError)
 
+  def test_invalid_url_goes_to_handler(self: "TestApiClientErrorHandling", returning_handler: ReturningHandler) -> None:
+    """A URL httpx cannot build is a ValidationError for the handler, not a raw httpx error."""
+    handler = returning_handler
+    client, seen = _recording_client(json_body={}, error_handler=handler)
+
+    result = client.post("/object/folder\x00", data={"password": "hunter2"})  # act
+
+    assert result is handler.result
+    assert seen == []
+    [(category, message, status_code, cause)] = handler.calls
+    assert category is ValidationError
+    assert message.startswith("Invalid URL:")
+    assert "hunter2" not in message
+    assert status_code is None
+    assert isinstance(cause, httpx.InvalidURL)
+
+  def test_invalid_url_raises_without_context(self: "TestApiClientErrorHandling") -> None:
+    """The default handler raises it with httpx's error as cause and no context."""
+    client, _ = _recording_client(json_body={})
+
+    with pytest.raises(ValidationError, match="Invalid URL") as exc_info:  # act
+      client.get("/status\x00")
+
+    assert isinstance(exc_info.value.__cause__, httpx.InvalidURL)
+    assert exc_info.value.__context__ is None
+
+  def test_undecodable_error_body_goes_to_handler(self: "TestApiClientErrorHandling") -> None:
+    """An error body that is not valid UTF-8 still raises the status's domain error."""
+    client = ApiClient(transport=httpx.MockTransport(_undecodable))
+
+    with pytest.raises(ExternalServiceError) as exc_info:  # act
+      client.get("/status")
+
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.__context__ is None
+
   def test_per_request_handler_overrides_client_handler(
     self: "TestApiClientErrorHandling", returning_handler: ReturningHandler
   ) -> None:
@@ -833,6 +897,15 @@ def _ok(request: httpx.Request) -> httpx.Response:  # noqa: U100 - MockTransport
       An empty JSON 200 response.
   """
   return httpx.Response(200, json={})
+
+
+def _undecodable(request: httpx.Request) -> httpx.Response:  # noqa: U100 - MockTransport passes it; no use for it here.
+  """Answer any request with a 500 whose JSON body is not valid UTF-8.
+
+  Returns:
+      The error response.
+  """
+  return httpx.Response(500, content=b"\x80 bad", headers={"Content-Type": "application/json"})
 
 
 def _refuse(request: httpx.Request) -> httpx.Response:

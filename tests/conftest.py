@@ -22,13 +22,21 @@ class MakeClient(Protocol):
 
   # A Protocol stub never reads its parameters, so U100 is suppressed on
   # each.
-  def __call__(  # noqa: D102 - the class docstring is the documentation.
+  def __call__(
     self: MakeClient,
     status: int = 200,  # noqa: U100
     json_body: Any = None,  # noqa: U100
     text_body: Optional[str] = None,  # noqa: U100
     **kwargs: Any,  # noqa: U100
   ) -> ApiClient:
+    """Build an ApiClient whose transport answers every request alike.
+
+    Args:
+        status: HTTP status of every response.
+        json_body: JSON body of every response.
+        text_body: Plain-text body, used when ``json_body`` is None.
+        kwargs: Passed on to :class:`ApiClient`.
+    """
     ...
 
 

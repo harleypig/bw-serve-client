@@ -20,7 +20,7 @@ inline in `pyproject.toml` under `[tool.yapf]`:
 - `dedent_closing_brackets = true`
 
 `column_limit = 132` applies to **code lines only**. Comments still wrap
-at 72 columns per the global `code-style.md`; widen a comment past 72
+at 78 columns per the global `code-style.md`; widen a comment past 78
 only when absolutely needed (e.g., an unbreakable URL or a long literal
 that would mislead if split).
 

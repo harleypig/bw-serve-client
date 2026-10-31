@@ -21,7 +21,7 @@ raising, never by `sys.exit`.
 | `tests/`             | pytest test suite                        |
 | `docs/`              | Sphinx docs and architecture notes       |
 | `upstream/`          | Detection: the raw snapshots, the lock file, the local fixes, the patched spec, and the detection and spec tools |
-| `codegen/`           | Generation inputs: the patched spec becomes `bw_serve_client/models.py` |
+| `codegen/`           | Generation: the patched spec becomes `bw_serve_client/_generated/` (models and the route list) |
 | `pipeline.py`        | The update pipeline: detect, build, check, update; exits 0 / 1 / 2 |
 | `pyproject.toml`     | Poetry config; tool config inline        |
 | `.pre-commit-config.yaml` / `-fix.yaml` | Check / auto-fix configs |

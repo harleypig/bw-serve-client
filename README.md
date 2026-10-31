@@ -14,10 +14,12 @@ necessary session keys to the library.
 
 ## Generated Code
 
-The data models in `bw_serve_client/models.py` are generated, as pydantic 2
-models, from Bitwarden's published OpenAPI spec for the Vault Management API.
-The resource classes that call the API, such as `bw_serve_client/folders.py`,
-are written by hand.
+The data models and the route list in `bw_serve_client/_generated/` are
+generated from Bitwarden's published OpenAPI spec for the Vault Management
+API. The models are pydantic 2 models, and the package exports them, so
+callers write `from bw_serve_client import FolderSchema`. The resource
+classes that call the API, such as `bw_serve_client/folders.py`, are written
+by hand.
 
 Bitwarden publishes the spec only inside its [Vault Management API help
 page][vm-api]. There is no standalone JSON file, and the spec's own version
@@ -25,9 +27,9 @@ is always `latest`. A copy of it is committed in `upstream/`, along with the
 local fixes the generator needs and the patched spec they produce.
 
 `pipeline.py` keeps it current in three stages: `detect` reports whether
-Bitwarden changed anything, `build` patches the spec and regenerates the
-models, and `check` runs the tests. `update` runs all three. Running them on
-a schedule is planned on the [project board][project].
+Bitwarden changed anything, `build` patches the spec and regenerates
+`bw_serve_client/_generated/`, and `check` runs the tests. `update` runs all
+three. Running them on a schedule is planned on the [project board][project].
 
 ```bash
 poetry run python pipeline.py update   # or detect, build, check

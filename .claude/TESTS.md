@@ -71,6 +71,9 @@ changes.
 - **Tests**: `tox -e py` on each of Python 3.10–3.14.
 - **Lint and type check**: `tox -e lint`, which runs the pre-commit check
   config (flake8, pyright and the rest).
+- **Generated code is current**: `python pipeline.py build` must regenerate
+  nothing and leave the tree clean, so `bw_serve_client/_generated/` never
+  drifts from the patched spec and the generator.
 
 Coverage prints in the test log for reading; there is no threshold.
 `pyright` is the only type checker. A `mypy` second pass is not run.

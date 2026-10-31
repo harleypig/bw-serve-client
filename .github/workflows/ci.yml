@@ -65,3 +65,38 @@ jobs:
 
       - name: Run pre-commit checks
         run: python -m tox -e lint
+
+  generated:
+    name: Generated code is current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-fix-${{ runner.os }}-${{ hashFiles('.pre-commit-config-fix.yaml') }}
+
+      - name: Install Poetry and pre-commit
+        shell: bash
+        run: |
+          pipx install poetry==2.5.1
+          pipx install pre-commit
+
+      # The generator is a dev dependency; build also runs the formatter
+      # hooks from the pre-commit fix config.
+      - name: Install dependencies
+        run: poetry install --only main,dev
+
+      # build exits 0 only when every file it writes is unchanged; the status
+      # check also catches a generated file that is new or left untracked.
+      - name: Rebuild and compare
+        shell: bash
+        run: |
+          poetry run python pipeline.py build
+          git status --porcelain
+          test -z "$(git status --porcelain)"

@@ -46,7 +46,7 @@ exclude = ["upstream/**", "codegen/**"]
 [tool.poetry.group.dev.dependencies]
 bandit = ">=1.7.5,<2.0.0"
 bump2version = ">=1.0.1,<2.0.0"
-datamodel-code-generator = ">=0.35.0,<0.36.0"
+datamodel-code-generator = { version = ">=0.87.0,<0.88.0", extras = ["isort"] }
 dlint = "^0.16.0"
 flake8 = ">=4.0.0"
 flake8-aaa = "^0.17.0"
@@ -110,9 +110,9 @@ summary-quotes-same-line = true
 linewrap-full-docstring = true
 
 [tool.pyright]
-include = ["bw_serve_client", "upstream", "tests"]
-# tests/test_detect.py imports upstream/detect.py by putting upstream/ on the path.
-extraPaths = ["upstream"]
+include = ["bw_serve_client", "upstream", "codegen", "tests"]
+# Tests import upstream/ and codegen/ modules by putting them on the path.
+extraPaths = ["upstream", "codegen"]
 exclude = ["**/__pycache__"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
@@ -168,7 +168,7 @@ per-file-ignores = [
   # Ignore TYP001 in generated models (type checking imports not properly guarded)
   # Ignore D101 in generated models (parameter classes don't get docstrings from datamodel-codegen)
   # Ignore D204 and DCO060 in generated models (docstring formatting issues from datamodel-codegen)
-  "bw_serve_client/models.py:D101,TYP001,D101,D204,DCO060,PAR101",
+  "bw_serve_client/_generated/models.py:D101,TYP001,D101,D204,DCO060,PAR101",
 ]
 
 # dlint
@@ -322,7 +322,7 @@ skips = [
 formatters = ["isort"]
 input = "upstream/vault-management-api-fixed.json"
 input-file-type = "openapi"
-output = "bw_serve_client/models.py"
+output = "bw_serve_client/_generated/models.py"
 
 output-model-type = "pydantic_v2.BaseModel"
 

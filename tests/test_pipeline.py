@@ -99,12 +99,14 @@ class TestBuild:
   @pytest.fixture
   def outputs(self: TestBuild, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> List[Path]:
     """Two stand-in generated files inside a temporary root."""
-    paths = [tmp_path / "fixed.json", tmp_path / "models.py"]
+    paths = [tmp_path / "fixed.json", tmp_path / "_generated" / "models.py"]
+    paths[1].parent.mkdir()
     for path in paths:
       path.write_text("old\n", encoding="utf-8")
 
     monkeypatch.setattr(pipeline, "ROOT", tmp_path)
-    monkeypatch.setattr(pipeline, "BUILD_OUTPUTS", tuple(paths))
+    monkeypatch.setattr(pipeline, "PATCHED_SPEC", paths[0])
+    monkeypatch.setattr(pipeline, "GENERATED", paths[1].parent)
     return paths
 
   @pytest.mark.usefixtures("outputs")
@@ -120,9 +122,17 @@ class TestBuild:
     mocker.patch.object(pipeline, "build_steps", side_effect=lambda: outputs[1].write_text("new\n", encoding="utf-8"))
 
     assert pipeline.build() == 2
-    assert "- `models.py`" in report.read_text(encoding="utf-8")
+    assert "- `_generated/models.py`" in report.read_text(encoding="utf-8")
 
   @pytest.mark.usefixtures("outputs")
+  def test_new_generated_module_is_a_change(self: TestBuild, report: Path, outputs: List[Path], mocker: MockerFixture) -> None:
+    """A module the generator adds counts, though nothing lists it."""
+    added = outputs[1].parent / "extra.py"
+    mocker.patch.object(pipeline, "build_steps", side_effect=lambda: added.write_text("new\n", encoding="utf-8"))
+
+    assert pipeline.build() == 2
+    assert "- `_generated/extra.py`" in report.read_text(encoding="utf-8")
+
   def test_failed_step_is_an_error(self: TestBuild, report: Path, mocker: MockerFixture) -> None:
     """A failing step exits 1 and says which."""
     mocker.patch.object(

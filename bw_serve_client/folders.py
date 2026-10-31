@@ -18,9 +18,9 @@ from uuid import UUID
 from pydantic import BaseModel
 from pydantic import ConfigDict
 
+from ._generated.models import FolderSchema
 from .api_client import ApiClient
 from .api_client import ValidationError
-from .models import FolderSchema
 
 FolderId = Union[UUID, str]
 
@@ -28,7 +28,7 @@ FolderId = Union[UUID, str]
 class Folder(BaseModel):
   """A folder as returned by the Vault Management API.
 
-  ``FolderSchema`` from ``models.py`` describes the request body
+  The generated ``FolderSchema`` describes the request body
   (``{"name": ...}``). The API responds with id + name + object, which
   the generator does not produce a schema for, so it is modelled here.
 

@@ -8,7 +8,8 @@ Stages:
 
 - ``detect``: fetch every upstream source and write the snapshots, the lock
   file and the change report (``upstream/detect.py``).
-- ``build``: patch the spec, regenerate the models, and format the result.
+- ``build``: patch the spec, regenerate ``bw_serve_client/_generated/``, and
+  format the result.
 - ``check``: run the test suite.
 - ``update``: detect, then build, then check. Stops at the first error.
 
@@ -37,8 +38,7 @@ from typing import Callable, Dict, List, Optional
 ROOT = Path(__file__).resolve().parent
 REPORT = ROOT / "upstream" / "change-report.md"
 PATCHED_SPEC = ROOT / "upstream" / "vault-management-api-fixed.json"
-MODELS = ROOT / "bw_serve_client" / "models.py"
-BUILD_OUTPUTS = (PATCHED_SPEC, MODELS)
+GENERATED = ROOT / "bw_serve_client" / "_generated"
 FORMAT_HOOKS = ("trailing-whitespace", "end-of-file-fixer", "isort", "yapf", "pydocstringformatter")
 
 NO_CHANGE, ERROR, CHANGE = 0, 1, 2
@@ -102,6 +102,19 @@ def set_report_section(title: str, lines: List[str], empty: str) -> None:
 
 
 # -----------------------------------------------------------------------------
+def build_outputs() -> "tuple[Path, ...]":
+  """List the files build writes, as they are on disk now.
+
+  The generated package is globbed, so a module the generator adds is
+  formatted and compared without being listed here too.
+
+  Returns:
+      tuple[Path, ...]: The patched spec, then the generated modules.
+  """
+  return (PATCHED_SPEC, *sorted(GENERATED.glob("*.py")))
+
+
+# -----------------------------------------------------------------------------
 def checksums(paths: "tuple[Path, ...]") -> Dict[Path, Optional[str]]:
   """SHA-256 of each file, or None for a file that does not exist.
 
@@ -127,7 +140,7 @@ def detect() -> int:
 
 # -----------------------------------------------------------------------------
 def build_steps() -> None:
-  """Patch the spec, generate the models, and format both.
+  """Patch the spec, generate the package, and format the result.
 
   Raises:
       StageError: When a step fails.
@@ -136,7 +149,7 @@ def build_steps() -> None:
     ("patch the spec", [sys.executable,
                         str(ROOT / "upstream" / "spec_fixes.py"), "apply", "--out",
                         relative(PATCHED_SPEC)]),
-    ("generate the models", [sys.executable, "-m", "datamodel_code_generator"]),
+    ("generate the package", [sys.executable, str(ROOT / "codegen" / "generate.py")]),
   ]
 
   for name, args in steps:
@@ -152,7 +165,7 @@ def build_steps() -> None:
 
   # Only the formatters: the fix config also runs poetry lock on every
   # invocation, which would reach the network and rewrite poetry.lock.
-  files = [*map(relative, BUILD_OUTPUTS)]
+  files = [*map(relative, build_outputs())]
   passes = [[
     run_tool([pre_commit, "run", hook, "--config", ".pre-commit-config-fix.yaml", "--files", *files]) for hook in FORMAT_HOOKS
   ] for _ in range(2)]
@@ -166,12 +179,12 @@ def build_steps() -> None:
 
 # -----------------------------------------------------------------------------
 def build() -> int:
-  """Regenerate the patched spec and the models.
+  """Regenerate the patched spec and the generated package.
 
   Returns:
       int: 0 when nothing changed, 2 when a file was regenerated, 1 on error.
   """
-  before = checksums(BUILD_OUTPUTS)
+  before = checksums(build_outputs())
 
   try:
     build_steps()
@@ -181,8 +194,8 @@ def build() -> int:
     print(f"build: error: {exc}", file=sys.stderr)
     return ERROR
 
-  after = checksums(BUILD_OUTPUTS)
-  changed = [relative(path) for path in BUILD_OUTPUTS if before[path] != after[path]]
+  after = checksums(build_outputs())
+  changed = [relative(path) for path in sorted({*before, *after}) if before.get(path) != after.get(path)]
 
   set_report_section("Regenerated", [f"`{path}`" for path in changed], "Nothing; the generated files were already current.")
   print(f"build: regenerated {', '.join(changed)}" if changed else "build: nothing to regenerate")

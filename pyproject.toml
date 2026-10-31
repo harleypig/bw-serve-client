@@ -10,9 +10,8 @@ readme = "README.md"
 keywords = ["Vault Management API", "vaultwarden", "bitwarden", "api-client", "python"]
 requires-python = ">=3.10,<4.0"
 dependencies = [
+    "httpx (>=0.28.1,<0.29.0)",
     "pydantic[email] (>=2.13.4,<3.0.0)",
-    "requests>=2.25.0,<3.0.0",
-    "urllib3>=1.25.3,<2.1.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -79,11 +78,11 @@ pydoclint = "^0.7.3"
 pydocstringformatter = ">=0.7.0"
 pydocstyle = {extras = ["toml"], version = "^6.3.0"}
 pyright = ">=1.1.406,<2.0.0"
+requests = ">=2.25.0,<3.0.0"
 setuptools = ">=65.0.0"
 setuptools-scm = ">=9.2.1,<10.0.0"
 tox = ">=3.9.0"
 tryceratops = "^2.4.1"
-types-urllib3 = ">=1.26.0"
 yamllint = ">=1.37.1"
 yapf = ">=0.40.2,<1.0.0"
 
@@ -92,6 +91,7 @@ pytest = ">=7.2.1"
 pytest-cov = ">=2.8.1"
 pytest-mock = ">=3.12.0,<4.0.0"
 pytest-randomly = ">=3.12.0"
+requests = ">=2.25.0,<3.0.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = ">=1.5.3,<2.0.0"
@@ -168,7 +168,7 @@ per-file-ignores = [
   # Ignore TYP001 in generated models (type checking imports not properly guarded)
   # Ignore D101 in generated models (parameter classes don't get docstrings from datamodel-codegen)
   # Ignore D204 and DCO060 in generated models (docstring formatting issues from datamodel-codegen)
-  "bw_serve_client/_generated/models.py:D101,TYP001,D101,D204,DCO060,PAR101",
+  "bw_serve_client/_generated/models.py:D101,TYP001,D101,D204,DCO060,PAR101,PAR104",
 ]
 
 # dlint
@@ -338,7 +338,6 @@ use-generic-container-types = true
 # Field customization
 capitalise-enum-members = true
 snake-case-field = true
-strip-default-none = true
 union-mode = "smart"
 use-default = true
 use-default-kwarg = true

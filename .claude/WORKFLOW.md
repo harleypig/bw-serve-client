@@ -50,7 +50,8 @@ Each API class generated from a route MUST:
 - Validate parameters with pydantic before issuing the request.
 - Format outgoing data into the correct content type for the API.
 - Parse responses back into pydantic models.
-- Handle authentication (bearer token or whatever the route requires).
+- Send no authentication: `bw serve` has none on its endpoints, because
+  the session lives in the `bw serve` process.
 - Handle HTTP status codes appropriately and translate failures into
   domain errors.
 - Carry over `summary`, `description`, and `tags` from the API

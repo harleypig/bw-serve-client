@@ -2410,6 +2410,55 @@
         }
       },
       "why": "bw serve accepts `permanent` on item deletes (the CLI's delete command reads it for items only), but the spec does not document it. Decided on #21."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/unlock",
+        "post",
+        "requestBody",
+        "content",
+        "application/json",
+        "schema",
+        "properties",
+        "password",
+        "format"
+      ],
+      "value": "password",
+      "why": "The master password is a secret; `password` format makes its model field a SecretStr, so it never shows in a repr. Decided on #30."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "lockunlock.success",
+        "properties",
+        "data",
+        "properties",
+        "message",
+        "format"
+      ],
+      "value": "password",
+      "why": "On /unlock the message embeds the new session key (`export BW_SESSION=...`); `password` format makes it a SecretStr. On /lock it is null. Decided on #30."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "lockunlock.success",
+        "properties",
+        "data",
+        "properties",
+        "raw"
+      ],
+      "value": {
+        "type": "string",
+        "format": "password"
+      },
+      "why": "bw serve returns the session key as `raw` on /unlock (the spec's own example shows it) but the schema does not declare it; declared as a SecretStr. Decided on #30."
     }
   ]
 }

@@ -60,7 +60,8 @@
               "schema": {
                 "properties": {
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "password"
                   }
                 },
                 "title": "UnlockPostRequestSchema",
@@ -3778,7 +3779,12 @@
                 "type": "string"
               },
               "message": {
-                "type": "string"
+                "type": "string",
+                "format": "password"
+              },
+              "raw": {
+                "type": "string",
+                "format": "password"
               }
             },
             "description": "Data schema for lock/unlock response containing status message and display options",

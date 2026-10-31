@@ -128,3 +128,22 @@ class TestRoutes:
       actual = [(p.name, p.location, p.required) for p in route.parameters]
       expected = [(p["name"], p["in"], bool(p.get("required"))) for p in generate.parameters(SPEC, route.path, operation)]
       assert actual == expected
+
+
+class TestOptionalFields:
+  """A field the spec does not require may be left out."""
+
+  def test_lock_response_without_raw_validates(self: TestOptionalFields) -> None:
+    """/lock's data omits raw, and message is null; both parse as None."""
+    lock = {"noColor": False, "object": "message", "title": "Your vault is locked.", "message": None}
+
+    data = models.LockUnlockDataSchema.model_validate(lock)  # act
+
+    assert data.raw is None
+    assert data.message is None
+    assert models.LockUnlockDataSchema.model_validate({"title": "Your vault is locked."}).message is None
+
+  def test_required_fields_stay_required(self: TestOptionalFields) -> None:
+    """A field the spec requires still fails when missing."""
+    with pytest.raises(pydantic.ValidationError, match="Field required"):
+      models.ObjectItemIdPutParameters.model_validate({})

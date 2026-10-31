@@ -62,7 +62,7 @@ from the route definitions:
 - **Responses**: Handling of different response types, affecting class method
   return types
 - **Tags**: Can group related routes into the same class
-- **Security**: Implementation of authentication methods for secured routes
+- **Security**: Nothing to implement; `bw serve` has no endpoint auth
 - **Schemas**: Definitions of data structures for request and response bodies,
   used to create corresponding Python classes or types
 
@@ -105,7 +105,8 @@ An API class MUST handle:
 - Gracefully return errors when something isn't right
 - Log various levels of information
 - General API errors, such as 500 errors
-- Authentication (proper inclusion of bearer token or whatever)
+- No authentication: `bw serve` has none on its endpoints, because the
+  session lives in the `bw serve` process
 - Formatting of data into JSON (or proper format the API expects)
 - Formatting of JSON (or whatever format the API returns) into data
 - Validate parameters before making requests

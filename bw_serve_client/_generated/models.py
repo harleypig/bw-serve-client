@@ -19,6 +19,7 @@ from pydantic import ConfigDict
 from pydantic import EmailStr
 from pydantic import Field
 from pydantic import RootModel
+from pydantic import SecretStr
 
 
 class ItemTypeSchema(IntEnum):
@@ -41,7 +42,7 @@ class ItemSecureNoteSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  type: Annotated[Literal[0] | None, Field(description='Secure note type (always 0)', title='SecureNoteTypeSchema')]
+  type: Annotated[Literal[0] | None, Field(description='Secure note type (always 0)', title='SecureNoteTypeSchema')] = None
 
 
 class ItemCardSchema(BaseModel):
@@ -50,12 +51,12 @@ class ItemCardSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  cardholder_name: Annotated[str | None, Field(alias='cardholderName')]
-  brand: Literal['visa'] | None
-  number: str | None
-  exp_month: Annotated[str | None, Field(alias='expMonth')]
-  exp_year: Annotated[str | None, Field(alias='expYear')]
-  code: str | None
+  cardholder_name: Annotated[str | None, Field(alias='cardholderName')] = None
+  brand: Literal['visa'] | None = None
+  number: str | None = None
+  exp_month: Annotated[str | None, Field(alias='expMonth')] = None
+  exp_year: Annotated[str | None, Field(alias='expYear')] = None
+  code: str | None = None
 
 
 class ItemIdentitySchema(BaseModel):
@@ -64,24 +65,24 @@ class ItemIdentitySchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  title: str | None
-  first_name: Annotated[str | None, Field(alias='firstName')]
-  middle_name: Annotated[str | None, Field(alias='middleName')]
-  last_name: Annotated[str | None, Field(alias='lastName')]
-  address1: str | None
-  address2: str | None
-  address3: str | None
-  city: str | None
-  state: str | None
-  postal_code: Annotated[str | None, Field(alias='postalCode')]
-  country: str | None
-  company: str | None
-  email: str | None
-  phone: str | None
-  ssn: str | None
-  username: str | None
-  passport_number: Annotated[str | None, Field(alias='passportNumber')]
-  license_number: Annotated[str | None, Field(alias='licenseNumber')]
+  title: str | None = None
+  first_name: Annotated[str | None, Field(alias='firstName')] = None
+  middle_name: Annotated[str | None, Field(alias='middleName')] = None
+  last_name: Annotated[str | None, Field(alias='lastName')] = None
+  address1: str | None = None
+  address2: str | None = None
+  address3: str | None = None
+  city: str | None = None
+  state: str | None = None
+  postal_code: Annotated[str | None, Field(alias='postalCode')] = None
+  country: str | None = None
+  company: str | None = None
+  email: str | None = None
+  phone: str | None = None
+  ssn: str | None = None
+  username: str | None = None
+  passport_number: Annotated[str | None, Field(alias='passportNumber')] = None
+  license_number: Annotated[str | None, Field(alias='licenseNumber')] = None
 
 
 class MatchSchema(IntEnum):
@@ -102,8 +103,9 @@ class UrisSchema(BaseModel):
   )
   match: Annotated[
     MatchSchema | None,
-    Field(description='URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)', title='MatchSchema')]
-  uri: Annotated[str | None, Field(description='The URI/URL value')]
+    Field(description='URI matching behavior (0=domain, 1=host, 2=startsWith, 3=exact, 4=regex, 5=never)', title='MatchSchema')
+  ] = None
+  uri: Annotated[str | None, Field(description='The URI/URL value')] = None
 
 
 class FieldTypeSchema(Enum):
@@ -120,10 +122,10 @@ class FieldSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: Annotated[str | None, Field(description='Name of the custom field', title='FieldNameSchema')]
-  value: Annotated[str | None, Field(description='Value of the custom field', title='FieldValueSchema')]
+  name: Annotated[str | None, Field(description='Name of the custom field', title='FieldNameSchema')] = None
+  value: Annotated[str | None, Field(description='Value of the custom field', title='FieldValueSchema')] = None
   type: Annotated[FieldTypeSchema | None,
-                  Field(description='Field type (0=text, 1=hidden, 2=boolean, 3=linked)', title='FieldTypeSchema')]
+                  Field(description='Field type (0=text, 1=hidden, 2=boolean, 3=linked)', title='FieldTypeSchema')] = None
 
 
 class FolderSchema(BaseModel):
@@ -132,7 +134,7 @@ class FolderSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: Annotated[str | None, Field(description='Name of the folder')]
+  name: Annotated[str | None, Field(description='Name of the folder')] = None
 
 
 class SendTypeSchema(IntEnum):
@@ -147,8 +149,8 @@ class SendTextSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  text: Annotated[str | None, Field(description='Text content of the Send')]
-  hidden: Annotated[bool | None, Field(description='Whether the text is hidden by default')]
+  text: Annotated[str | None, Field(description='Text content of the Send')] = None
+  hidden: Annotated[bool | None, Field(description='Whether the text is hidden by default')] = None
 
 
 class GroupSchema(BaseModel):
@@ -157,9 +159,9 @@ class GroupSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  id: UUID | None
-  read_only: Annotated[bool | None, Field(alias='readOnly')]
-  hide_passwords: Annotated[bool | None, Field(alias='hidePasswords')]
+  id: UUID | None = None
+  read_only: Annotated[bool | None, Field(alias='readOnly')] = None
+  hide_passwords: Annotated[bool | None, Field(alias='hidePasswords')] = None
 
 
 class TemplateStatusSchema(Enum):
@@ -175,12 +177,12 @@ class TemplateSchema(BaseModel):
     extra='ignore',
     populate_by_name=True,
   )
-  server_url: Annotated[AnyUrl | None, Field(alias='serverUrl')]
-  last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
-  user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
-  user_id: Annotated[UUID | None, Field(alias='userId')]
+  server_url: Annotated[AnyUrl | None, Field(alias='serverUrl')] = None
+  last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')] = None
+  user_email: Annotated[EmailStr | None, Field(alias='userEmail')] = None
+  user_id: Annotated[UUID | None, Field(alias='userId')] = None
   status: Annotated[TemplateStatusSchema | None,
-                    Field(description='Vault status (locked, unlocked, or unauthenticated)', title='TemplateStatusSchema')]
+                    Field(description='Vault status (locked, unlocked, or unauthenticated)', title='TemplateStatusSchema')] = None
 
 
 class StatusDataSchema(BaseModel):
@@ -189,10 +191,10 @@ class StatusDataSchema(BaseModel):
     extra='ignore',
     populate_by_name=True,
   )
-  object: Literal['template'] | None
+  object: Literal['template'] | None = None
   template: Annotated[
     TemplateSchema | None,
-    Field(description='Vault template schema containing server URL, sync info, and user details', title='TemplateSchema')]
+    Field(description='Vault template schema containing server URL, sync info, and user details', title='TemplateSchema')] = None
 
 
 class StatusSchema(BaseModel):
@@ -201,9 +203,9 @@ class StatusSchema(BaseModel):
     extra='ignore',
     populate_by_name=True,
   )
-  success: bool | None
+  success: bool | None = None
   data: Annotated[StatusDataSchema | None,
-                  Field(description='Status response data containing template information', title='StatusDataSchema')]
+                  Field(description='Status response data containing template information', title='StatusDataSchema')] = None
 
 
 class LockUnlockDataSchema(BaseModel):
@@ -212,10 +214,11 @@ class LockUnlockDataSchema(BaseModel):
     extra='ignore',
     populate_by_name=True,
   )
-  no_color: Annotated[bool | None, Field(alias='noColor')]
-  object: str | None
-  title: str | None
-  message: str | None
+  no_color: Annotated[bool | None, Field(alias='noColor')] = None
+  object: str | None = None
+  title: str | None = None
+  message: SecretStr | None = None
+  raw: SecretStr | None = None
 
 
 class LockUnlockSuccessSchema(BaseModel):
@@ -224,12 +227,12 @@ class LockUnlockSuccessSchema(BaseModel):
     extra='ignore',
     populate_by_name=True,
   )
-  success: bool | None
+  success: bool | None = None
   data: Annotated[LockUnlockDataSchema | None,
                   Field(
                     description='Data schema for lock/unlock response containing status message and display options',
                     title='LockUnlockDataSchema'
-                  )]
+                  )] = None
 
 
 class DeviceApprovalPropertiesSchema(BaseModel):
@@ -238,13 +241,13 @@ class DeviceApprovalPropertiesSchema(BaseModel):
     extra='ignore',
     populate_by_name=True,
   )
-  id: str | None
-  user_id: Annotated[str | None, Field(alias='userId')]
-  email: str | None
-  request_device_identifier: Annotated[str | None, Field(alias='requestDeviceIdentifier')]
-  request_device_type: Annotated[str | None, Field(alias='requestDeviceType')]
-  request_ip_address: Annotated[str | None, Field(alias='requestIpAddress')]
-  creation_date: Annotated[str | None, Field(alias='creationDate')]
+  id: str | None = None
+  user_id: Annotated[str | None, Field(alias='userId')] = None
+  email: str | None = None
+  request_device_identifier: Annotated[str | None, Field(alias='requestDeviceIdentifier')] = None
+  request_device_type: Annotated[str | None, Field(alias='requestDeviceType')] = None
+  request_ip_address: Annotated[str | None, Field(alias='requestIpAddress')] = None
+  creation_date: Annotated[str | None, Field(alias='creationDate')] = None
 
 
 class UnlockPostRequestSchema(BaseModel):
@@ -253,7 +256,7 @@ class UnlockPostRequestSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  password: str | None
+  password: SecretStr | None = None
 
 
 class IdSchema(RootModel[UUID]):
@@ -278,7 +281,7 @@ class ObjectItemIdDeleteParameters(BaseModel):
     populate_by_name=True,
   )
   id: Annotated[UUID, Field(title='IdSchema')]
-  permanent: Annotated[bool | None, Field(title='PermanentSchema')]
+  permanent: Annotated[bool | None, Field(title='PermanentSchema')] = None
 
 
 class ObjectItemCollectionsIdGetParameters(ObjectItemIdPutParameters):
@@ -319,13 +322,13 @@ class ListObjectItemsGetParameters(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  organization_id: Annotated[UUID | None, Field(alias='organizationId', title='OrganizationIdSchema')]
-  collection_id: Annotated[UUID | None, Field(alias='collectionId', title='CollectionIdSchema')]
-  folderid: Annotated[UUID | None, Field(title='FolderIdSchema')]
-  url: Annotated[AnyUrl | None, Field(title='UrlSchema')]
-  trash: Annotated[bool | None, Field(title='TrashSchema')]
-  archived: Annotated[bool | None, Field(title='ArchivedSchema')]
-  search: Annotated[str | None, Field(title='SearchSchema')]
+  organization_id: Annotated[UUID | None, Field(alias='organizationId', title='OrganizationIdSchema')] = None
+  collection_id: Annotated[UUID | None, Field(alias='collectionId', title='CollectionIdSchema')] = None
+  folderid: Annotated[UUID | None, Field(title='FolderIdSchema')] = None
+  url: Annotated[AnyUrl | None, Field(title='UrlSchema')] = None
+  trash: Annotated[bool | None, Field(title='TrashSchema')] = None
+  archived: Annotated[bool | None, Field(title='ArchivedSchema')] = None
+  search: Annotated[str | None, Field(title='SearchSchema')] = None
 
 
 class ItemIdSchema(RootModel[UUID]):
@@ -345,7 +348,7 @@ class AttachmentRequestSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  file: bytes | None
+  file: bytes | None = None
 
 
 class ObjectAttachmentIdGetParameters(BaseModel):
@@ -402,7 +405,7 @@ class ListObjectFoldersGetParameters(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  search: Annotated[str | None, Field(title='SearchSchema')]
+  search: Annotated[str | None, Field(title='SearchSchema')] = None
 
 
 class ObjectSendIdPutParameters(ObjectItemIdPutParameters):
@@ -443,7 +446,7 @@ class MoveItemRequestSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  array: Sequence[str] | None
+  array: Sequence[str] | None = None
 
 
 class ObjectOrgCollectionPostParameters(BaseModel):
@@ -477,7 +480,7 @@ class ListObjectOrgCollectionsGetParameters(BaseModel):
     populate_by_name=True,
   )
   organization_id: Annotated[UUID, Field(alias='organizationId', title='OrganizationIdSchema')]
-  search: Annotated[str | None, Field(title='SearchSchema')]
+  search: Annotated[str | None, Field(title='SearchSchema')] = None
 
 
 class ListObjectCollectionsGetParameters(ListObjectFoldersGetParameters):
@@ -538,7 +541,7 @@ class SyncPostParameters(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  force: Annotated[bool | None, Field(title='ForceSchema')]
+  force: Annotated[bool | None, Field(title='ForceSchema')] = None
 
 
 class GenerateGetParameters(BaseModel):
@@ -546,19 +549,19 @@ class GenerateGetParameters(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  length: Annotated[int | None, Field(title='LengthSchema')]
-  uppercase: Annotated[bool | None, Field(title='UppercaseSchema')]
-  lowercase: Annotated[bool | None, Field(title='LowercaseSchema')]
-  number: Annotated[bool | None, Field(title='NumberSchema')]
-  special: Annotated[bool | None, Field(title='SpecialSchema')]
-  passphrase: Annotated[bool | None, Field(title='PassphraseSchema')]
-  words: Annotated[int | None, Field(title='WordsSchema')]
-  separator: Annotated[str | None, Field(title='SeparatorSchema')]
-  capitalize: Annotated[bool | None, Field(title='CapitalizeSchema')]
-  include_number: Annotated[bool | None, Field(alias='includeNumber', title='NumberSchema')]
-  min_number: Annotated[int | None, Field(alias='minNumber', title='MinNumberSchema')]
-  min_special: Annotated[int | None, Field(alias='minSpecial', title='MinSpecialSchema')]
-  ambiguous: Annotated[bool | None, Field(title='AmbiguousSchema')]
+  length: Annotated[int | None, Field(title='LengthSchema')] = None
+  uppercase: Annotated[bool | None, Field(title='UppercaseSchema')] = None
+  lowercase: Annotated[bool | None, Field(title='LowercaseSchema')] = None
+  number: Annotated[bool | None, Field(title='NumberSchema')] = None
+  special: Annotated[bool | None, Field(title='SpecialSchema')] = None
+  passphrase: Annotated[bool | None, Field(title='PassphraseSchema')] = None
+  words: Annotated[int | None, Field(title='WordsSchema')] = None
+  separator: Annotated[str | None, Field(title='SeparatorSchema')] = None
+  capitalize: Annotated[bool | None, Field(title='CapitalizeSchema')] = None
+  include_number: Annotated[bool | None, Field(alias='includeNumber', title='NumberSchema')] = None
+  min_number: Annotated[int | None, Field(alias='minNumber', title='MinNumberSchema')] = None
+  min_special: Annotated[int | None, Field(alias='minSpecial', title='MinSpecialSchema')] = None
+  ambiguous: Annotated[bool | None, Field(title='AmbiguousSchema')] = None
 
 
 class TypeSchema(Enum):
@@ -589,10 +592,10 @@ class ItemLoginSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  uris: Annotated[UrisSchema | None, Field(description='Array of URIs associated with this login')]
-  username: Annotated[str | None, Field(description='Username for the login')]
-  password: Annotated[str | None, Field(description='Password for the login')]
-  totp: Annotated[str | None, Field(description='TOTP secret for two-factor authentication')]
+  uris: Annotated[UrisSchema | None, Field(description='Array of URIs associated with this login')] = None
+  username: Annotated[str | None, Field(description='Username for the login')] = None
+  password: Annotated[str | None, Field(description='Password for the login')] = None
+  totp: Annotated[str | None, Field(description='TOTP secret for two-factor authentication')] = None
 
 
 class SendTemplateSchema(BaseModel):
@@ -601,18 +604,18 @@ class SendTemplateSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  name: Annotated[str | None, Field(description='Name of the Send', title='SendNameSchema')]
-  notes: Annotated[str | None, Field(description='Notes for the Send', title='SendNotesSchema')]
-  type: Annotated[SendTypeSchema | None, Field(description='Type of Send (0=text, 1=file)', title='SendTypeSchema')]
-  text: SendTextSchema | None
-  file: Annotated[str | None, Field(title='SendFileSchema')]
-  max_access_count: Annotated[int | None, Field(alias='maxAccessCount', title='SendMaxAccessCountSchema')]
-  deletion_date: Annotated[AwareDatetime | None, Field(alias='deletionDate', title='SendDeletionDateSchema')]
-  expiration_date: Annotated[AwareDatetime | None, Field(alias='expirationDate', title='SendExpirationDateSchema')]
-  password: Annotated[str | None, Field(title='SendPasswordSchema')]
-  emails: Sequence[EmailStr] | None
-  disabled: Annotated[bool | None, Field(title='SendDisabledSchema')]
-  hide_email: Annotated[bool | None, Field(alias='hideEmail', title='SendHideEmailSchema')]
+  name: Annotated[str | None, Field(description='Name of the Send', title='SendNameSchema')] = None
+  notes: Annotated[str | None, Field(description='Notes for the Send', title='SendNotesSchema')] = None
+  type: Annotated[SendTypeSchema | None, Field(description='Type of Send (0=text, 1=file)', title='SendTypeSchema')] = None
+  text: SendTextSchema | None = None
+  file: Annotated[str | None, Field(title='SendFileSchema')] = None
+  max_access_count: Annotated[int | None, Field(alias='maxAccessCount', title='SendMaxAccessCountSchema')] = None
+  deletion_date: Annotated[AwareDatetime | None, Field(alias='deletionDate', title='SendDeletionDateSchema')] = None
+  expiration_date: Annotated[AwareDatetime | None, Field(alias='expirationDate', title='SendExpirationDateSchema')] = None
+  password: Annotated[str | None, Field(title='SendPasswordSchema')] = None
+  emails: Sequence[EmailStr] | None = None
+  disabled: Annotated[bool | None, Field(title='SendDisabledSchema')] = None
+  hide_email: Annotated[bool | None, Field(alias='hideEmail', title='SendHideEmailSchema')] = None
 
 
 class CollectionSchema(BaseModel):
@@ -621,10 +624,10 @@ class CollectionSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  organization_id: Annotated[UUID | None, Field(alias='organizationId')]
-  name: str | None
-  external_id: Annotated[str | None, Field(alias='externalId')]
-  groups: Sequence[GroupSchema] | None
+  organization_id: Annotated[UUID | None, Field(alias='organizationId')] = None
+  name: str | None = None
+  external_id: Annotated[str | None, Field(alias='externalId')] = None
+  groups: Sequence[GroupSchema] | None = None
 
 
 class DeviceApprovalListSchema(RootModel[Sequence[DeviceApprovalPropertiesSchema]]):
@@ -641,24 +644,26 @@ class ItemTemplateSchema(BaseModel):
   )
   organization_id: Annotated[
     UUID | None,
-    Field(alias='organizationId', description='Organization ID if item belongs to an organization', title='OrganizationIdSchema')]
+    Field(alias='organizationId', description='Organization ID if item belongs to an organization', title='OrganizationIdSchema')
+  ] = None
   collection_ids: Annotated[
     Sequence[UUID] | None,
-    Field(alias='collectionIds', description='Array of collection IDs for organization items', title='CollectionIdsSchema')]
+    Field(alias='collectionIds', description='Array of collection IDs for organization items', title='CollectionIdsSchema')] = None
   folder_id: Annotated[UUID | None,
-                       Field(alias='folderId', description='Folder ID for organizing the item', title='FolderIdSchema')]
+                       Field(alias='folderId', description='Folder ID for organizing the item', title='FolderIdSchema')] = None
   type: Annotated[ItemTypeSchema | None,
-                  Field(description='Type of vault item (1=login, 2=note, 3=card, 4=identity)', title='ItemTypeSchema')]
-  name: Annotated[str | None, Field(description='Display name of the vault item', title='ItemNameSchema')]
-  notes: Annotated[str | None, Field(description='Free-form notes associated with the item', title='ItemNotesSchema')]
-  favorite: Annotated[bool | None, Field(description='Whether the item is marked as a favorite', title='ItemFavoriteSchema')]
-  fields: Annotated[Sequence[FieldSchema] | None, Field(description='Array of custom fields', title='ItemFieldsSchema')]
-  login: Annotated[ItemLoginSchema | None, Field(description='Login-specific data (username, password, URIs, TOTP)')]
-  secure_note: Annotated[ItemSecureNoteSchema | None, Field(alias='secureNote', description='Secure note data')]
-  card: Annotated[ItemCardSchema | None, Field(description='Credit card data')]
-  identity: Annotated[ItemIdentitySchema | None, Field(description='Identity data')]
-  reprompt: Annotated[RepromptSchema | None,
-                      Field(description='Master password re-prompt requirement (0=none, 1=required)', title='RepromptSchema')]
+                  Field(description='Type of vault item (1=login, 2=note, 3=card, 4=identity)', title='ItemTypeSchema')] = None
+  name: Annotated[str | None, Field(description='Display name of the vault item', title='ItemNameSchema')] = None
+  notes: Annotated[str | None, Field(description='Free-form notes associated with the item', title='ItemNotesSchema')] = None
+  favorite: Annotated[bool | None, Field(description='Whether the item is marked as a favorite', title='ItemFavoriteSchema')] = None
+  fields: Annotated[Sequence[FieldSchema] | None, Field(description='Array of custom fields', title='ItemFieldsSchema')] = None
+  login: Annotated[ItemLoginSchema | None, Field(description='Login-specific data (username, password, URIs, TOTP)')] = None
+  secure_note: Annotated[ItemSecureNoteSchema | None, Field(alias='secureNote', description='Secure note data')] = None
+  card: Annotated[ItemCardSchema | None, Field(description='Credit card data')] = None
+  identity: Annotated[ItemIdentitySchema | None, Field(description='Identity data')] = None
+  reprompt: Annotated[
+    RepromptSchema | None,
+    Field(description='Master password re-prompt requirement (0=none, 1=required)', title='RepromptSchema')] = None
 
 
 __all__ = [

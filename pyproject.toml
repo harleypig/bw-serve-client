@@ -113,6 +113,8 @@ linewrap-full-docstring = true
 
 [tool.pyright]
 include = ["bw_serve_client", "upstream", "tests"]
+# tests/test_detect.py imports upstream/detect.py by putting upstream/ on the path.
+extraPaths = ["upstream"]
 exclude = ["**/__pycache__"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"

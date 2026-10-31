@@ -24,13 +24,24 @@ page][vm-api]. There is no standalone JSON file, and the spec's own version
 is always `latest`. A copy of it is committed in `upstream/`, along with the
 local fixes the generator needs and the patched spec they produce.
 
-Keeping the spec current is manual for now: fetch the spec again, apply the
-fixes, and regenerate the models. Automating detection and regeneration is
-planned on the [project board][project].
+`pipeline.py` keeps it current in three stages: `detect` reports whether
+Bitwarden changed anything, `build` patches the spec and regenerates the
+models, and `check` runs the tests. `update` runs all three. Running them on
+a schedule is planned on the [project board][project].
+
+```bash
+poetry run python pipeline.py update   # or detect, build, check
+```
+
+Each stage exits 0 when nothing changed, 1 on an error, and 2 when something
+changed and there is work to do. `make detect`, `make build`, `make check`
+and `make update` run the same stages, but make exits 2 for every failure, so
+call `pipeline.py` directly when the exit code matters.
 
 | Path | What it holds |
 |------|---------------|
-| `upstream/` | The committed Bitwarden spec, the local fixes, the patched spec, and the spec tool. See `upstream/README.md`. |
+| `pipeline.py` | The update pipeline's entry point. |
+| `upstream/` | The committed Bitwarden spec and the other upstream snapshots, the lock file, the local fixes, the patched spec, and the detection and spec tools. See `upstream/README.md`. |
 | `codegen/` | Inputs to model generation. See `codegen/README.md`. |
 
 [vm-api]: https://bitwarden.com/help/vault-management-api/

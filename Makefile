@@ -17,6 +17,14 @@ version-minor:
 version-major:
 	@poetry run bump2version major
 
+# Update pipeline. make exits 2 for any failed recipe, so it cannot tell an
+# error from a change: call `python pipeline.py <stage>` directly when the
+# 0 / 1 / 2 exit code matters.
+.PHONY: detect build check update
+
+detect build check update:
+	@poetry run python pipeline.py $@
+
 # Development helpers
 .PHONY: test lint format install
 

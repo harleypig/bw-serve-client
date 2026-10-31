@@ -133,12 +133,9 @@ def build_steps() -> None:
       StageError: When a step fails.
   """
   steps = [
-    (
-      "patch the spec", [
-        sys.executable, str(ROOT / "upstream" / "api-spec-tool.py"), "fix", "--fixed-file",
-        relative(PATCHED_SPEC)
-      ]
-    ),
+    ("patch the spec", [sys.executable,
+                        str(ROOT / "upstream" / "spec_fixes.py"), "apply", "--out",
+                        relative(PATCHED_SPEC)]),
     ("generate the models", [sys.executable, "-m", "datamodel_code_generator"]),
   ]
 

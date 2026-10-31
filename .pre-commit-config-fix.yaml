@@ -142,7 +142,6 @@ repos:
         additional_dependencies:
           # Bundles Node.js, which the pyright wrapper otherwise downloads.
           - nodejs-wheel-binaries
-          - deepdiff
           - requests>=2.25.0
           - pydantic>=2.0.0
           - pytest>=7.2.1

@@ -152,6 +152,15 @@ def upstream_routes(spec_page: Optional[str] = None,
 
 WATCH = {"github": ["bitwarden/clients#1"], "pypi": ["bitwarden-sdk"]}
 
+# The recorded spec and the synthetic configurator disagree on these routes;
+# recording them keeps an unchanged upstream at exit 0.
+FIXTURE_DECISIONS = {
+  "GET /object/item/{id}": "fixture: the synthetic configurator registers no GET on objects.",
+  "GET /list/object/{object}": "fixture: not in the recorded spec.",
+  "POST /move/{id}/{organizationId}": "fixture: not in the recorded spec.",
+  "DELETE /object/{object}/{id}": "fixture: not in the recorded spec.",
+}
+
 
 @pytest.fixture
 def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
@@ -162,12 +171,13 @@ def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     ("LOCK_FILE", "lock.json"),
     ("WATCH_FILE", "watch.json"),
     ("FIXES_FILE", "spec-fixes.json"),
-    ("PATCHED_SPEC", "vault-management-api-fixed.json"),
+    ("DECISIONS_FILE", "route-decisions.json"),
   ):
     monkeypatch.setattr(detect, name, tmp_path / filename)
 
   (tmp_path / "watch.json").write_text(json.dumps(WATCH), encoding="utf-8")
-  (tmp_path / "spec-fixes.json").write_text(json.dumps({"operations": []}), encoding="utf-8")
+  (tmp_path / "spec-fixes.json").write_text(json.dumps({"fixes": []}), encoding="utf-8")
+  (tmp_path / "route-decisions.json").write_text(json.dumps({"routes": FIXTURE_DECISIONS}), encoding="utf-8")
   return tmp_path
 
 
@@ -458,64 +468,77 @@ class TestDiffSpec:
     assert detect.diff_spec(fixture_spec(), new) == ["Changed outside the routes and schemas (for example `info` or `servers`)"]
 
 
-class TestStaleFixes:
-  """Spotting fixes that no longer match the raw spec."""
+class TestRoutes:
+  """Comparing the spec's routes with the routes bw serve registers."""
 
-  def test_target_not_found(self: TestStaleFixes) -> None:
-    """A fix whose parent is gone is stale."""
-    fixes = [{"type": "set_value", "path": "paths|/gone|get|summary", "value": "x"}]
+  @pytest.mark.parametrize(
+    ("spec_path", "cli_path", "matches"),
+    [
+      ("/object/item/{id}", "/object/{object}/{id}", True),
+      ("/device-approval/{organizationId}/approve/{request-id}", "/device-approval/{organizationId}/approve/{requestId}", True),
+      ("/status", "/status", True),
+      ("/object/{id}", "/object/item", False),
+      ("/object/item/{id}", "/object/{id}", False),
+      ("/lock", "/unlock", False),
+    ],
+  )
+  def test_shape_matching(self: TestRoutes, spec_path: str, cli_path: str, matches: bool) -> None:
+    """CLI parameters match any segment; names are ignored; literals must agree."""
+    assert detect._route_shape_matches(spec_path, cli_path) is matches
 
-    assert detect.stale_fixes(fixes, fixture_spec(), fixture_spec()) == ["`set_value` `paths|/gone|get|summary`: target not found"]
+  def test_gaps_in_both_directions(self: TestRoutes) -> None:
+    """A route on only one side is a gap, whichever side it is on."""
+    result = detect.compare_routes(fixture_spec(), ["GET /status  oss", "POST /lock  oss"], {})
 
-  def test_replaced_value_moved_on(self: TestStaleFixes) -> None:
-    """A fix whose recorded old value is no longer upstream's is stale."""
-    fixes = [{"type": "set_value", "path": "paths|/status|get|summary", "value": "Status", "old_value": "Get status"}]
-    new = fixture_spec()
-    new["paths"]["/status"]["get"]["summary"] = "Server status"
-
-    assert detect.stale_fixes(fixes, fixture_spec(), new) == [
-      "`set_value` `paths|/status|get|summary`: upstream value is no longer the one this fix replaces"
+    assert result.gaps == [
+      "`GET /object/item/{id}`: documented, but bw serve registers no matching route; needs a decision",
+      "`POST /lock`: registered by bw serve, but not documented; needs a decision",
     ]
+    assert result.known == []
 
-  def test_array_position_shift(self: TestStaleFixes) -> None:
-    """A positional fix whose element was displaced is stale."""
-    path = "paths|/object/item/{id}|get|parameters|0|schema|title"
-    new = fixture_spec()
-    new["paths"]["/object/item/{id}"]["get"]["parameters"].insert(0, {"in": "query", "name": "q", "schema": {}})
+  def test_recorded_decision_makes_a_gap_known(self: TestRoutes) -> None:
+    """A gap with a recorded decision is reported with it, not as needing one."""
+    result = detect.compare_routes(
+      fixture_spec(), ["GET /status  oss", "GET /object/{object}/{id}  oss", "POST /lock  oss"],
+      {"POST /lock": "licensed build only"}
+    )
 
-    assert detect.stale_fixes([{
-      "type": "set_value",
-      "path": path,
-      "value": "IdSchema"
-    }], fixture_spec(), new) == [
-      f"`set_value` `{path}`: addresses an array element by position, and a different element is there now"
-    ]
+    assert result.gaps == []
+    assert result.known == ["`POST /lock`: registered by bw serve, but not documented. Decision: licensed build only"]
 
-  def test_edit_inside_element_is_not_a_shift(self: TestStaleFixes) -> None:
-    """Changing a parameter's description leaves its position's fix valid."""
-    path = "paths|/object/item/{id}|get|parameters|0|schema|title"
-    new = fixture_spec()
-    new["paths"]["/object/item/{id}"]["get"]["parameters"][0]["description"] = "The item's id."
+  def test_decision_matches_by_shape(self: TestRoutes) -> None:
+    """A decision keyed with the spec's parameter names covers the CLI's route."""
+    result = detect.compare_routes(
+      fixture_spec(), ["GET /status  oss", "GET /object/{object}/{id}  oss", "POST /move/{itemId}  oss"],
+      {"POST /move/{id}": "not in the spec"}
+    )
 
-    assert detect.stale_fixes([{"type": "set_value", "path": path, "value": "IdSchema"}], fixture_spec(), new) == []
+    assert result.gaps == []
+    assert result.stale == []
+    assert result.known == ["`POST /move/{itemId}`: registered by bw serve, but not documented. Decision: not in the spec"]
 
-  def test_upstream_now_supplies_value(self: TestStaleFixes) -> None:
-    """An add_if_missing fix for a value upstream now has is stale."""
-    path = "components|schemas|status|title"
-    new = fixture_spec()
-    new["components"]["schemas"]["status"]["title"] = "Status"
+  def test_licensed_only_route_is_its_own_difference(self: TestRoutes) -> None:
+    """A documented route only the licensed build registers is a difference, not served."""
+    result = detect.compare_routes(fixture_spec(), ["GET /status  oss", "GET /object/{object}/{id}  bit"], {})
 
-    assert detect.stale_fixes([{
-      "type": "add_if_missing",
-      "path": path,
-      "value": "StatusSchema"
-    }], fixture_spec(), new) == [f"`add_if_missing` `{path}`: upstream now supplies this value"]
+    assert result.gaps == ["`GET /object/item/{id}`: registered only by the licensed build; needs a decision"]
 
-  def test_matching_fix_is_not_stale(self: TestStaleFixes) -> None:
-    """A fix that still applies cleanly is not listed."""
-    fixes = [{"type": "add_if_missing", "path": "components|schemas|status|title", "value": "StatusSchema"}]
+  def test_route_both_builds_register_is_served(self: TestRoutes) -> None:
+    """A route the open-source build registers is served, whatever else registers it."""
+    result = detect.compare_routes(
+      fixture_spec(), ["GET /status  oss", "GET /object/{object}/{id}  oss", "GET /object/{object}/{id}  bit"], {}
+    )
 
-    assert detect.stale_fixes(fixes, fixture_spec(), fixture_spec()) == []
+    assert result.gaps == []
+
+  def test_decision_matching_nothing_is_stale(self: TestRoutes) -> None:
+    """A recorded decision with no difference left is reported for removal."""
+    result = detect.compare_routes(
+      fixture_spec(), ["GET /status  oss", "GET /object/{object}/{id}  oss"], {"POST /lock": "licensed build only"}
+    )
+
+    assert result.gaps == []
+    assert result.stale == ["`POST /lock`: recorded decision matches no difference any more; remove it"]
 
 
 class TestRun:
@@ -597,8 +620,8 @@ class TestRun:
 
   def test_stale_fix_is_reported_on_every_run(self: TestRun, repo: Path) -> None:
     """A stale fix keeps detect at exit 2 after the snapshot catches up."""
-    fixes = [{"type": "set_value", "path": "paths|/gone|get|summary", "value": "x"}]
-    (repo / "spec-fixes.json").write_text(json.dumps({"operations": fixes}), encoding="utf-8")
+    fixes = [{"op": "set", "path": ["paths", "/gone", "get", "summary"], "from": "Old", "value": "x"}]
+    (repo / "spec-fixes.json").write_text(json.dumps({"fixes": fixes}), encoding="utf-8")
     run(repo, upstream_routes())
 
     code = run(repo, upstream_routes())
@@ -607,7 +630,58 @@ class TestRun:
     assert code == 2
     assert "No upstream changes." in report
     assert "1 fix(es) no longer match the raw spec" in report
-    assert "`set_value` `paths|/gone|get|summary`: target not found" in report
+    assert "fix 1 (set paths › /gone › get › summary): key '/gone' not found" in report
+
+  def test_undecided_route_gap_is_work(self: TestRun, repo: Path) -> None:
+    """A route difference with no recorded decision keeps detect at exit 2."""
+    decisions = {k: v for k, v in FIXTURE_DECISIONS.items() if k != "POST /move/{id}/{organizationId}"}
+    (repo / "route-decisions.json").write_text(json.dumps({"routes": decisions}), encoding="utf-8")
+    run(repo, upstream_routes())
+
+    code = run(repo, upstream_routes())
+
+    report = (repo / "change-report.md").read_text(encoding="utf-8")
+    assert code == 2
+    assert "1 spec-vs-CLI route difference(s) or decision(s) need attention" in report
+    assert "`POST /move/{id}/{organizationId}`: registered by bw serve, but not documented; needs a decision" in report
+    assert "`GET /object/item/{id}`: documented, but bw serve registers no matching route. Decision: fixture:" in report
+
+  def test_stale_decision_is_work(self: TestRun, repo: Path) -> None:
+    """A recorded decision that matches no difference keeps detect at exit 2."""
+    decisions = {**FIXTURE_DECISIONS, "POST /gone": "fixture: nothing registers this."}
+    (repo / "route-decisions.json").write_text(json.dumps({"routes": decisions}), encoding="utf-8")
+    run(repo, upstream_routes())
+
+    code = run(repo, upstream_routes())
+
+    assert code == 2
+    assert "`POST /gone`: recorded decision matches no difference any more" in (repo
+                                                                                / "change-report.md").read_text(encoding="utf-8")
+
+  def test_behaviour_is_reported_without_counting_as_work(self: TestRun, repo: Path) -> None:
+    """Recorded behaviour goes in the report and leaves an unchanged upstream at exit 0."""
+    recorded = {"routes": FIXTURE_DECISIONS, "behaviour": {"GET /status": "fixture: answers 400."}}
+    (repo / "route-decisions.json").write_text(json.dumps(recorded), encoding="utf-8")
+    run(repo, upstream_routes())
+
+    code = run(repo, upstream_routes())
+
+    assert code == 0
+    assert "`GET /status`: fixture: answers 400." in (repo / "change-report.md").read_text(encoding="utf-8")
+
+  def test_missing_fixes_file_is_an_error(self: TestRun, repo: Path) -> None:
+    """With no fixes file, detection stops rather than counting zero fixes."""
+    (repo / "spec-fixes.json").unlink()
+
+    assert run(repo, upstream_routes()) == 1
+    assert "No such file or directory" in (repo / "change-report.md").read_text(encoding="utf-8")
+
+  def test_old_format_fixes_file_is_an_error(self: TestRun, repo: Path) -> None:
+    """A fixes file without a fixes list stops detection rather than passing."""
+    (repo / "spec-fixes.json").write_text(json.dumps({"operations": []}), encoding="utf-8")
+
+    assert run(repo, upstream_routes()) == 1
+    assert "spec-fixes.json has no fixes list" in (repo / "change-report.md").read_text(encoding="utf-8")
 
   def test_reordered_keys_leave_the_snapshot_alone(self: TestRun, repo: Path) -> None:
     """Same content in a different key order rewrites nothing."""
@@ -626,13 +700,13 @@ class TestRun:
     old = fixture_spec()
     old["paths"]["/legacy"] = {"get": {"summary": "Old"}}
     (repo / "vault-management-api-original.json").write_text(json.dumps(old), encoding="utf-8")
-    fixes: List[Dict[str, Any]] = [{"type": "set_value", "path": "paths|/legacy|get|summary", "value": "Legacy"}]
-    (repo / "spec-fixes.json").write_text(json.dumps({"operations": fixes}), encoding="utf-8")
+    fixes: List[Dict[str, Any]] = [{"op": "set", "path": ["paths", "/legacy", "get", "summary"], "from": "Old", "value": "Legacy"}]
+    (repo / "spec-fixes.json").write_text(json.dumps({"fixes": fixes}), encoding="utf-8")
 
     run(repo, upstream_routes())
 
     report = (repo / "change-report.md").read_text(encoding="utf-8")
     assert "Route removed: `GET /legacy`" in report
-    assert "`set_value` `paths|/legacy|get|summary`: target not found" in report
+    assert "fix 1 (set paths › /legacy › get › summary): key '/legacy' not found" in report
     assert "## Regenerated" in report
     assert "## Work created" in report

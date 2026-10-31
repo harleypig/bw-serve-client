@@ -1,0 +1,18 @@
+{
+  "description": "Recorded decisions on where the published spec and bw serve disagree. Detection compares the patched spec's routes with the routes bw serve registers. A difference listed under routes is reported as known; any other needs a decision, and a decision that matches no difference is reported as stale. Behaviour lists differences the route comparison cannot see. Decided on harleypig/bw-serve-client#21.",
+  "routes": {
+    "GET /device-approval/{organizationId}": "Registered only by the licensed build (bit-cli). The library offers it, documented as needing that build.",
+    "POST /device-approval/{organizationId}/approve/{request-id}": "Registered only by the licensed build (bit-cli). The library offers it, documented as needing that build.",
+    "POST /device-approval/{organizationId}/approve-all": "Registered only by the licensed build (bit-cli). The library offers it, documented as needing that build.",
+    "POST /device-approval/{organizationId}/deny/{request-id}": "Registered only by the licensed build (bit-cli). The library offers it, documented as needing that build.",
+    "POST /device-approval/{organizationId}/deny-all": "Registered only by the licensed build (bit-cli). The library offers it, documented as needing that build."
+  },
+  "behaviour": {
+    "GET /object/item-collections/{id}": "Documented, but bw serve answers 400. The library does not offer it."
+  },
+  "notes": [
+    "DELETE /object/item/{id} accepts an undocumented `permanent` query. A fix in spec-fixes.json adds it to the patched spec.",
+    "Routes are matched ignoring parameter names: bw serve's `{requestId}` is the spec's `{request-id}`.",
+    "bw serve registers generic routes such as `/object/{object}/{id}`, so a spec route matches whenever its shape does. An object type a handler rejects, as with item-collections, is a behaviour the comparison cannot see; it is recorded under behaviour by hand."
+  ]
+}

@@ -57,10 +57,14 @@ no longer matches is reported, and detection exits 2, until it is repaired,
 even when no source changed. It then compares the patched spec's routes with
 the routes `bw serve` registers. A route `bw serve` registers as a pattern,
 such as `/object/{object}/{id}`, matches every spec route of that shape, and
-parameter names are ignored. A difference recorded in `route-decisions.json`
-is reported with its decision; any other also exits 2 until one is recorded.
-Behaviour the routes cannot show, such as a handler that rejects one object
-type, is recorded there by hand.
+parameter names are ignored. A route only the licensed build's configurator
+registers is a difference of its own, since the open-source build does not
+serve it. A difference recorded under `routes` in `route-decisions.json` is
+reported with its decision, matched by shape. Any other difference, and any
+recorded decision that no longer matches a difference, also exits 2 until the
+file is updated. Behaviour the routes cannot show, such as a handler that
+rejects one object type, is recorded by hand under `behaviour`, and is
+reported without affecting the exit code.
 
 Detection fetches every source before it writes anything. If any fetch fails,
 or returns something it cannot use, it exits 1, names every failure in the

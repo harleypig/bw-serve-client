@@ -21,7 +21,9 @@ Exit codes:
 - 1: error. A fetch failed or returned something unusable; nothing but the
   report was written.
 - 2: work to do. A source changed (snapshots, lock file and report are
-  updated), or a fix in ``spec-fixes.json`` no longer matches the raw spec.
+  updated), a fix in ``spec-fixes.json`` no longer matches the raw spec, or
+  the spec and bw serve disagree on a route with no decision recorded in
+  ``upstream/route-decisions.json``.
 
 Set ``GITHUB_TOKEN`` to raise the GitHub API rate limit; it is optional.
 """
@@ -40,6 +42,7 @@ import sys
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import requests
+import spec_fixes
 
 HELP_PAGE_URL = "https://bitwarden.com/help/vault-management-api/"
 GITHUB_API = "https://api.github.com"
@@ -63,7 +66,7 @@ ROUTES_SNAPSHOT = UPSTREAM_DIR / "serve-routes.txt"
 LOCK_FILE = UPSTREAM_DIR / "lock.json"
 WATCH_FILE = UPSTREAM_DIR / "watch.json"
 FIXES_FILE = UPSTREAM_DIR / "spec-fixes.json"
-PATCHED_SPEC = UPSTREAM_DIR / "vault-management-api-fixed.json"
+DECISIONS_FILE = UPSTREAM_DIR / "route-decisions.json"
 REPORT_FILE = UPSTREAM_DIR / "change-report.md"
 
 ROUTE_RE = re.compile(r"""router\.(get|post|put|delete|patch)\(\s*["'`]([^"'`]+)["'`]""")
@@ -71,8 +74,6 @@ ROUTE_PARAM_RE = re.compile(r":([A-Za-z_][A-Za-z0-9_]*)")
 DATA_PAGE_SCRIPT_RE = re.compile(r'<script[^>]*\bdata-page="app"[^>]*>(.*?)</script>', re.DOTALL)
 DATA_PAGE_ATTR_RE = re.compile(r'data-page="(\{[^"]*)"')
 WATCHED_ITEM_RE = re.compile(r"^([\w.-]+/[\w.-]+)#(\d+)$")
-
-_MISSING = object()
 
 
 class FetchError(Exception):
@@ -110,6 +111,8 @@ class Changes:
       routes: The route lines added and removed.
       watched: The watched items and packages that changed.
       stale_fixes: The fixes that no longer match the raw spec.
+      routes_compared: How the spec's routes and bw serve's disagree.
+      behaviour: Recorded behaviour the routes cannot show, by route.
       changed: Whether any recorded source changed, or the lock file is new.
   """
 
@@ -118,6 +121,8 @@ class Changes:
   routes: List[str] = field(default_factory=list)
   watched: List[str] = field(default_factory=list)
   stale_fixes: List[str] = field(default_factory=list)
+  routes_compared: "RouteComparison" = field(default_factory=lambda: RouteComparison())
+  behaviour: List[str] = field(default_factory=list)
 
   @property
   def changed(self: "Changes") -> bool:
@@ -616,97 +621,6 @@ def diff_spec(old: Dict[str, Any], new: Dict[str, Any]) -> List[str]:
 
 
 # -----------------------------------------------------------------------------
-def resolve(spec: Any, parts: List[str]) -> Any:
-  """Follow a fix path into a spec, the way the spec tool does.
-
-  Arguments:
-      spec: The spec to look in.
-      parts: The fix path, split on ``|``.
-
-  Returns:
-      Any: The value, or ``_MISSING``.
-  """
-  current = spec
-
-  for part in parts:
-    if isinstance(current, list) and part.isdigit() and int(part) < len(current):
-      current = current[int(part)]
-
-    elif isinstance(current, dict) and part in current:
-      current = current[part]
-
-    else:
-      return _MISSING
-
-  return current
-
-
-# -----------------------------------------------------------------------------
-def _identity(element: Any) -> Any:
-  """Name an array element the way the spec does, where it can be named.
-
-  Arguments:
-      element: An array element from a spec.
-
-  Returns:
-      Any: ``(in, name)`` for a parameter-like object, else None.
-  """
-  if isinstance(element, dict) and "name" in element:
-    return (element.get("in"), element["name"])
-
-  return None
-
-
-# -----------------------------------------------------------------------------
-def stale_fixes(fixes: List[Dict[str, Any]], patched: Dict[str, Any], new: Dict[str, Any]) -> List[str]:
-  """List the fixes that no longer match the new raw spec.
-
-  A fix is stale when what it targets is gone, when the value it records
-  replacing is no longer there, when it addresses a named array element by
-  position and a different element now sits there, or when it adds a value
-  upstream now supplies itself. Each is judged against the current state,
-  not against the previous run, so a stale fix is reported on every run
-  until it is fixed.
-
-  Arguments:
-      fixes: The ``operations`` list from ``spec-fixes.json``.
-      patched: The committed patched spec, which the fixes were last applied to; it shows which element each position meant.
-      new: The fetched raw spec the fixes are checked against.
-
-  Returns:
-      List[str]: One line per stale fix.
-  """
-  lines: List[str] = []
-
-  for fix in fixes:
-    path = fix.get("path", "")
-    kind = fix.get("type", "?")
-    parts = path.split("|")
-    target = parts if kind == "delete_value" else parts[:-1]
-
-    if resolve(new, target) is _MISSING:
-      lines.append(f"`{kind}` `{path}`: target not found")
-      continue
-
-    current = resolve(new, parts)
-    if "old_value" in fix and current is not _MISSING and current not in (fix["old_value"], fix.get("value")):
-      lines.append(f"`{kind}` `{path}`: upstream value is no longer the one this fix replaces")
-      continue
-
-    shifted = [
-      i for i, part in enumerate(parts) if part.isdigit() and _identity(resolve(patched, parts[:i + 1])) is not None and
-      _identity(resolve(patched, parts[:i + 1])) != _identity(resolve(new, parts[:i + 1]))
-    ]
-    if shifted:
-      lines.append(f"`{kind}` `{path}`: addresses an array element by position, and a different element is there now")
-
-    elif kind == "add_if_missing" and current is not _MISSING:
-      lines.append(f"`{kind}` `{path}`: upstream now supplies this value")
-
-  return lines
-
-
-# -----------------------------------------------------------------------------
 def build_lock(upstream: Upstream, previous: Dict[str, Any], today: str) -> Dict[str, Any]:
   """Build the new lock file content.
 
@@ -788,8 +702,11 @@ def _summary(content: Optional[Dict[str, Any]]) -> str:
 
 # -----------------------------------------------------------------------------
 def compare(
-  previous_lock: Dict[str, Any], new_lock: Dict[str, Any], old_spec: Dict[str, Any], old_routes: List[str], upstream: Upstream,
-  fixes: List[Dict[str, Any]], patched: Dict[str, Any]
+  previous_lock: Dict[str, Any],
+  new_lock: Dict[str, Any],
+  old_spec: Dict[str, Any],
+  old_routes: List[str],
+  upstream: Upstream,
 ) -> Changes:
   """Work out what changed between the recorded and the fetched state.
 
@@ -799,11 +716,9 @@ def compare(
       old_spec: The recorded raw spec.
       old_routes: The recorded route lines.
       upstream: Everything fetched this run.
-      fixes: The ``operations`` list from ``spec-fixes.json``.
-      patched: The committed patched spec.
 
   Returns:
-      Changes: Everything the report needs.
+      Changes: What changed in the recorded sources.
   """
   changes = Changes()
 
@@ -827,9 +742,128 @@ def compare(
     if old != version:
       changes.watched.append(f"{name} (PyPI): {old or '(new)'} → {version}")
 
-  changes.stale_fixes = stale_fixes(fixes, patched, upstream.spec)
-
   return changes
+
+
+# -----------------------------------------------------------------------------
+def _is_param(segment: str) -> bool:
+  """Tell whether a path segment is a parameter, such as ``{id}``.
+
+  Arguments:
+      segment: One segment of a path.
+
+  Returns:
+      bool: Whether it is a parameter.
+  """
+  return segment.startswith("{") and segment.endswith("}")
+
+
+# -----------------------------------------------------------------------------
+def _route_shape_matches(spec_path: str, cli_path: str) -> bool:
+  """Tell whether a spec path is one a bw serve route pattern serves.
+
+  A parameter in the CLI's pattern matches any segment; a literal must
+  match the same literal. Parameter names are ignored.
+
+  Arguments:
+      spec_path: A path from the spec, such as ``/object/item/{id}``.
+      cli_path: A route pattern from bw serve, such as ``/object/{object}/{id}``.
+
+  Returns:
+      bool: Whether the pattern serves the path.
+  """
+  spec_parts, cli_parts = spec_path.strip("/").split("/"), cli_path.strip("/").split("/")
+  return len(spec_parts) == len(cli_parts) and all(
+    _is_param(c) or (s == c and not _is_param(s)) for s, c in zip(spec_parts, cli_parts, strict=True)
+  )
+
+
+# -----------------------------------------------------------------------------
+def route_shape(route: str) -> str:
+  """Reduce a ``METHOD /path`` route to its shape, with parameter names dropped.
+
+  Arguments:
+      route: A route, such as ``POST /device-approval/{organizationId}/deny/{requestId}``.
+
+  Returns:
+      str: The shape, such as ``POST /device-approval/{}/deny/{}``.
+  """
+  method, path = route.split(" ", 1)
+  return f"{method} " + "/".join("{}" if _is_param(segment) else segment for segment in path.split("/"))
+
+
+@dataclass
+class RouteComparison:
+  """How the spec's routes and bw serve's disagree.
+
+  Attributes:
+      gaps: Differences with no recorded decision.
+      known: Differences with a recorded decision, each with it.
+      stale: Recorded decisions that match no difference any more.
+  """
+
+  gaps: List[str] = field(default_factory=list)
+  known: List[str] = field(default_factory=list)
+  stale: List[str] = field(default_factory=list)
+
+
+# -----------------------------------------------------------------------------
+def compare_routes(spec: Dict[str, Any], cli_routes: List[str], decisions: Dict[str, str]) -> RouteComparison:
+  """Compare the spec's routes with the routes bw serve registers.
+
+  A route the open-source configurator registers is served by every build;
+  one only another configurator registers is served by the licensed build
+  alone, which is a difference of its own.
+
+  Arguments:
+      spec: The patched spec.
+      cli_routes: The ``METHOD /path  name`` route lines from the configurators.
+      decisions: Recorded decisions, by ``METHOD /path``; matched by shape.
+
+  Returns:
+      RouteComparison: The differences, sorted into decided and not, and the
+      decisions nothing matches.
+  """
+  documented = [tuple(route.split(" ", 1)) for route in sorted(operations(spec))]
+  registered = [(parts[0], parts[1], parts[2]) for parts in (line.split() for line in cli_routes)]
+  everywhere = [(method, path) for method, path, build in registered if build == "oss"]
+  licensed = [(method, path) for method, path, build in registered if build != "oss"]
+
+  by_shape = {route_shape(route): (route, decision) for route, decision in decisions.items()}
+  used = set()
+  result = RouteComparison()
+
+  def record(route: str, problem: str) -> None:
+    shape = route_shape(route)
+    if shape in by_shape:
+      used.add(shape)
+      result.known.append(f"`{route}`: {problem}. Decision: {by_shape[shape][1]}")
+
+    else:
+      result.gaps.append(f"`{route}`: {problem}; needs a decision")
+
+  def served(method: str, path: str, routes: List[Tuple[str, str]]) -> bool:
+    return any(method == m and _route_shape_matches(path, p) for m, p in routes)
+
+  for method, path in documented:
+    if served(method, path, everywhere):
+      continue
+
+    if served(method, path, licensed):
+      record(f"{method} {path}", "registered only by the licensed build")
+
+    else:
+      record(f"{method} {path}", "documented, but bw serve registers no matching route")
+
+  for method, path in sorted(set(everywhere + licensed)):
+    if not any(method == m and _route_shape_matches(p, path) for m, p in documented):
+      record(f"{method} {path}", "registered by bw serve, but not documented")
+
+  result.stale = [
+    f"`{route}`: recorded decision matches no difference any more; remove it" for shape, (route, _) in sorted(by_shape.items())
+    if shape not in used
+  ]
+  return result
 
 
 ###############################################################################
@@ -884,6 +918,10 @@ def render_report(changes: Changes, lock: Dict[str, Any]) -> str:
     if changes.stale_fixes:
       lines.extend([f"{len(changes.stale_fixes)} fix(es) no longer match the raw spec; see below.", ""])
 
+    undecided = len(changes.routes_compared.gaps) + len(changes.routes_compared.stale)
+    if undecided:
+      lines.extend([f"{undecided} spec-vs-CLI route difference(s) or decision(s) need attention; see below.", ""])
+
   else:
     lines.extend([f"{len(changes.sources)} recorded source(s) changed. Review, then run `make build` and `make check`.", ""])
     lines.extend(["| Source | Was | Now |", "|--------|-----|-----|"])
@@ -897,6 +935,9 @@ def render_report(changes: Changes, lock: Dict[str, Any]) -> str:
   lines.extend(_section("Routes bw serve registers", changes.routes, "None."))
   lines.extend(_section("Watched items", changes.watched, "None."))
   lines.extend(_section("Fixes that no longer match", changes.stale_fixes, "None."))
+  compared = changes.routes_compared
+  lines.extend(_section("Spec vs CLI routes", compared.gaps + compared.stale + compared.known, "No differences."))
+  lines.extend(_section("Recorded behaviour", changes.behaviour, "None."))
   lines.extend(_section("Regenerated", [], "Not run. `make build` fills this in."))
   lines.extend(_section("Work created", [], "Not run. `make check` fills this in."))
 
@@ -941,26 +982,33 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
       today: Today's date, ISO formatted.
 
   Returns:
-      int: The exit code: 0 no change, 1 error, 2 a change or a fix that
-      no longer matches.
+      int: The exit code: 0 no change, 1 error, 2 a change, a fix that no
+      longer matches, or a route difference with no recorded decision.
   """
   try:
     previous_lock = read_json(LOCK_FILE, {})
     old_spec = read_json(SPEC_SNAPSHOT, {})
     watch = read_json(WATCH_FILE, {})
-    fixes = read_json(FIXES_FILE, {}).get("operations", [])
-    patched = read_json(PATCHED_SPEC, {})
+    fixes = spec_fixes.load_fixes(FIXES_FILE)
+    recorded = read_json(DECISIONS_FILE, {})
+    decisions, behaviour = recorded.get("routes", {}), recorded.get("behaviour", {})
     old_routes = ROUTES_SNAPSHOT.read_text(encoding="utf-8").splitlines() if ROUTES_SNAPSHOT.exists() else []
 
     upstream = fetch_all(session, watch)
 
-  except (FetchError, OSError, ValueError) as exc:
+  except (FetchError, spec_fixes.FixError, OSError, ValueError, AttributeError) as exc:
     report_path.write_text(render_error_report(str(exc).splitlines()), encoding="utf-8")
     print(f"detect: error:\n{exc}", file=sys.stderr)
     return 1
 
   new_lock = build_lock(upstream, previous_lock, today)
-  changes = compare(previous_lock, new_lock, old_spec, old_routes, upstream, fixes, patched)
+  changes = compare(previous_lock, new_lock, old_spec, old_routes, upstream)
+
+  # The fixes are applied to the new raw spec on every run, so a fix that no
+  # longer matches is reported until it is repaired, not only once.
+  patched, changes.stale_fixes = spec_fixes.apply_fixes(upstream.spec, fixes)
+  changes.routes_compared = compare_routes(patched, upstream.routes, decisions)
+  changes.behaviour = [f"`{route}`: {note}" for route, note in behaviour.items()]
 
   # Bitwarden can reorder keys without changing content; rewriting the file
   # then would leave a diff behind a run that reports no change.
@@ -975,8 +1023,12 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
     print(f"detect: {len(changes.sources)} source(s) changed; see {report_path}")
     return 2
 
-  if changes.stale_fixes:
-    print(f"detect: no upstream changes, but {len(changes.stale_fixes)} fix(es) no longer match; see {report_path}")
+  undecided = len(changes.routes_compared.gaps) + len(changes.routes_compared.stale)
+  if changes.stale_fixes or undecided:
+    print(
+      f"detect: no upstream changes, but {len(changes.stale_fixes)} fix(es) no longer match and "
+      f"{undecided} route difference(s) or decision(s) need attention; see {report_path}"
+    )
     return 2
 
   print("detect: no upstream changes")

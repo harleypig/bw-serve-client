@@ -176,7 +176,7 @@ class TemplateSchema(BaseModel):
   server_url: Annotated[AnyUrl | None, Field(alias='serverUrl')]
   last_sync: Annotated[AwareDatetime | None, Field(alias='lastSync')]
   user_email: Annotated[EmailStr | None, Field(alias='userEmail')]
-  user_id: Annotated[UUID | None, Field(alias='userID')]
+  user_id: Annotated[UUID | None, Field(alias='userId')]
   status: Annotated[TemplateStatusSchema | None,
                     Field(description='Vault status (locked, unlocked, or unauthenticated)', title='TemplateStatusSchema')]
 
@@ -260,9 +260,28 @@ class ObjectItemIdPutParameters(BaseModel):
 
 ObjectItemIdGetParameters = ObjectItemIdPutParameters
 
-ObjectItemIdDeleteParameters = ObjectItemIdPutParameters
+
+class ObjectItemIdDeleteParameters(BaseModel):
+  id: Annotated[UUID, Field(title='IdSchema')]
+  permanent: Annotated[bool | None, Field(title='PermanentSchema')]
+
+
+ObjectItemCollectionsIdGetParameters = ObjectItemIdPutParameters
+
+ObjectItemCollectionsIdPutParameters = ObjectItemIdPutParameters
+
+
+class ObjectItemCollectionsIdPutRequest(RootModel[Sequence[UUID]]):
+  model_config = ConfigDict(populate_by_name=True,)
+  root: Sequence[UUID]
+
 
 RestoreItemIdPostParameters = ObjectItemIdPutParameters
+
+
+class ArchiveObjectIdPostParameters(BaseModel):
+  object: Annotated[Literal['item'], Field(title='ObjectSchema')]
+  id: Annotated[UUID, Field(title='IdSchema')]
 
 
 class ListObjectItemsGetParameters(BaseModel):
@@ -271,6 +290,7 @@ class ListObjectItemsGetParameters(BaseModel):
   folderid: Annotated[UUID | None, Field(title='FolderIdSchema')]
   url: Annotated[AnyUrl | None, Field(title='UrlSchema')]
   trash: Annotated[bool | None, Field(title='TrashSchema')]
+  archived: Annotated[bool | None, Field(title='ArchivedSchema')]
   search: Annotated[str | None, Field(title='SearchSchema')]
 
 
@@ -324,6 +344,8 @@ ObjectSendIdDeleteParameters = ObjectItemIdPutParameters
 
 ListObjectSendGetParameters = ListObjectFoldersGetParameters
 
+SendListGetParameters = ListObjectFoldersGetParameters
+
 SendIdRemovePasswordPostParameters = ObjectItemIdPutParameters
 
 
@@ -365,19 +387,29 @@ ListObjectOrganizationsGetParameters = ListObjectFoldersGetParameters
 
 ListObjectOrgMembersGetParameters = ObjectOrgCollectionPostParameters
 
+ObjectCollectionIdGetParameters = ObjectItemIdPutParameters
+
+ObjectOrganizationIdGetParameters = ObjectItemIdPutParameters
+
 ConfirmOrgMemberIdPostParameters = ObjectOrgCollectionIdPutParameters
 
 DeviceApprovalOrganizationIdGetParameters = ObjectOrgCollectionPostParameters
 
-DeviceApprovalOrganizationIdApproveAllPostParameters = ObjectOrgCollectionPostParameters
 
-
-class DeviceApprovalOrganizationIdDenyRequestIdPostParameters(BaseModel):
+class DeviceApprovalOrganizationIdApproveRequestIdPostParameters(BaseModel):
   organization_id: Annotated[UUID, Field(alias='organizationId', title='OrganizationIdSchema')]
   request_id: Annotated[UUID, Field(alias='request-id', title='RequestIdSchema')]
 
 
+DeviceApprovalOrganizationIdApproveAllPostParameters = ObjectOrgCollectionPostParameters
+
+DeviceApprovalOrganizationIdDenyRequestIdPostParameters = DeviceApprovalOrganizationIdApproveRequestIdPostParameters
+
 DeviceApprovalOrganizationIdDenyAllPostParameters = ObjectOrgCollectionPostParameters
+
+
+class SyncPostParameters(BaseModel):
+  force: Annotated[bool | None, Field(title='ForceSchema')]
 
 
 class GenerateGetParameters(BaseModel):
@@ -391,6 +423,9 @@ class GenerateGetParameters(BaseModel):
   separator: Annotated[str | None, Field(title='SeparatorSchema')]
   capitalize: Annotated[bool | None, Field(title='CapitalizeSchema')]
   include_number: Annotated[bool | None, Field(alias='includeNumber', title='NumberSchema')]
+  min_number: Annotated[int | None, Field(alias='minNumber', title='MinNumberSchema')]
+  min_special: Annotated[int | None, Field(alias='minSpecial', title='MinSpecialSchema')]
+  ambiguous: Annotated[bool | None, Field(title='AmbiguousSchema')]
 
 
 class TypeSchema(Enum):
@@ -409,9 +444,6 @@ class TypeSchema(Enum):
 
 class ObjectTemplateTypeGetParameters(BaseModel):
   type: Annotated[TypeSchema, Field(title='TypeSchema')]
-
-
-DeviceApprovalOrganizationIdApproveRequestIdPostParameters = DeviceApprovalOrganizationIdDenyRequestIdPostParameters
 
 
 class ItemLoginSchema(BaseModel):
@@ -441,6 +473,7 @@ class SendTemplateSchema(BaseModel):
   deletion_date: Annotated[AwareDatetime | None, Field(alias='deletionDate', title='SendDeletionDateSchema')]
   expiration_date: Annotated[AwareDatetime | None, Field(alias='expirationDate', title='SendExpirationDateSchema')]
   password: Annotated[str | None, Field(title='SendPasswordSchema')]
+  emails: Sequence[EmailStr] | None
   disabled: Annotated[bool | None, Field(title='SendDisabledSchema')]
   hide_email: Annotated[bool | None, Field(alias='hideEmail', title='SendHideEmailSchema')]
 

@@ -175,7 +175,9 @@
                 "card": {
                   "value": {
                     "organizationId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
-                    "collectionIds": "c4e31257-f3e1-4b13-895a-ae2700f9884e",
+                    "collectionIds": [
+                      "c4e31257-f3e1-4b13-895a-ae2700f9884e"
+                    ],
                     "folderId": null,
                     "type": 3,
                     "name": "Company Credit Card",
@@ -262,7 +264,7 @@
           "Vault Items"
         ],
         "summary": "Edit an item in your Vault.",
-        "description": "Edit an existing login, card, secure note, or identity in your Vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the new object contents in the request body.",
+        "description": "Edit an existing login, card, secure note, or identity in your Vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the new object contents in the request body.<br><br>**Include the full object in the request body**, not just the properties to edit, as the new object will replace the pre-existing object.<br><br>**Exception &ndash; `collectionIds` is merged, not replaced.** Any collection identifiers in the request body are **added** to the item's existing collections; this endpoint cannot **remove** an item from a collection. To replace an item's collection membership (including removing it from a collection), use `PUT /object/item-collections/{id}` instead.<br><br>**Exception &ndash; this endpoint cannot change an item's ownership.** Editing `organizationId` here will not move the item. To move a personal item to an organization, use `POST /move/{itemid}/{organizationId}`. Moving an item from one organization to another is not supported by the API &ndash; delete the item and recreate it in the target organization.",
         "parameters": [
           {
             "name": "id",
@@ -287,7 +289,9 @@
                 "login": {
                   "value": {
                     "organizationId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
-                    "collectionIds": "c4e31257-f3e1-4b13-895a-ae2700f9884e",
+                    "collectionIds": [
+                      "c4e31257-f3e1-4b13-895a-ae2700f9884e"
+                    ],
                     "folderId": null,
                     "type": 1,
                     "name": "Shared Twitter Account",
@@ -333,7 +337,9 @@
                 "card": {
                   "value": {
                     "organizationId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
-                    "collectionIds": "c4e31257-f3e1-4b13-895a-ae2700f9884e",
+                    "collectionIds": [
+                      "c4e31257-f3e1-4b13-895a-ae2700f9884e"
+                    ],
                     "folderId": null,
                     "type": 3,
                     "name": "Company Credit Card",
@@ -418,7 +424,7 @@
           "Vault Items"
         ],
         "summary": "Retrieve an item from your vault.",
-        "description": "Retrieve an existing item from your vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.",
+        "description": "Retrieve an existing item from your vault by specifying a unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.<br><br>In place of an identifier you may also provide a search term, in which case the first matching item is returned. If the search term matches more than one item, the response instead contains an array of the matching items so you can identify the one you want.",
         "parameters": [
           {
             "name": "id",
@@ -497,13 +503,123 @@
         }
       }
     },
+    "/object/item-collections/{id}": {
+      "get": {
+        "tags": [
+          "Vault Items"
+        ],
+        "summary": "Retrieve the Collection IDs an item belongs to.",
+        "description": "Retrieve the Collection membership of an item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path. Returns a template-shaped object listing the Collection identifiers the item currently belongs to.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the item.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success returns an object containing the item's Collection identifiers.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "object": "template",
+                    "template": {
+                      "collectionIds": [
+                        "c4e31257-f3e1-4b13-895a-ae2700f9884e",
+                        "fcdd8536-539a-422f-8507-af0001348815"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "404": {
+            "description": "Not Found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Vault Items"
+        ],
+        "summary": "Replace the Collections an item belongs to.",
+        "description": "Replace the Collection membership of an item by specifying the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and an array of Collection identifiers in the request body. This performs a **full replace**: the item is placed into exactly the Collections you specify, so this is the only way over the API to **remove** an item from a Collection. The item must already belong to an organization.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the item.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The request body must be an array of one or more Collection identifiers. The item will belong to exactly these Collections after the request.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "example": [
+                "75bb2724-abed-4f1f-aa4a-ae530106c958",
+                "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success returns confirmation that the item's Collections were updated.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "404": {
+            "description": "Not Found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
     "/restore/item/{id}": {
       "post": {
         "tags": [
           "Vault Items"
         ],
-        "summary": "Restore a deleted item.",
-        "description": "Restore an item that was sent to the trash by specifying the unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.",
+        "summary": "Restore a deleted or archived item.",
+        "description": "Restore an item by specifying the unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path. Depending on the item's current state, this restores the item either from the trash or from the archive.",
         "parameters": [
           {
             "name": "id",
@@ -519,6 +635,60 @@
         "responses": {
           "200": {
             "description": "Success returns confirmation that the item was restored.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "404": {
+            "description": "Not Found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/archive/{object}/{id}": {
+      "post": {
+        "tags": [
+          "Vault Items"
+        ],
+        "summary": "Archive an item.",
+        "description": "Archive an item by specifying the object type and the item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path. Only `item` is supported as the object type. Archived items can be restored using `POST /restore/item/{id}`.",
+        "parameters": [
+          {
+            "name": "object",
+            "in": "path",
+            "required": true,
+            "description": "The type of object to archive. Only `item` is supported.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "item"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the item to archive.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success returns confirmation that the item was archived.",
             "content": {
               "application/json": {
                 "example": {
@@ -587,6 +757,14 @@
             "name": "trash",
             "in": "query",
             "description": "List all items in the trash. This query parameter is not a true boolean, in that `?trash`, `?trash=true`, and `?trash=false` will all be interpretted as a request to list items in the trash.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "description": "List all items in the archive. Like `trash`, this parameter is not a true boolean: `?archived`, `?archived=true`, and `?archived=false` are all interpreted as a request to list archived items. Requires the user to have the archive permission.",
             "schema": {
               "type": "boolean"
             }
@@ -683,7 +861,7 @@
                     "secureNote": {
                       "type": 0
                     },
-                    "collectionIdss": [],
+                    "collectionIds": [],
                     "attachments": [
                       {
                         "id": "o4lrz575u84koanvu9f5gqv9a9ab92gf",
@@ -1349,6 +1527,7 @@
                 "deletionDate": "2022-03-21T19:06:53.810Z",
                 "expirationDate": "2022-03-21T19:06:53.810Z",
                 "password": "P@ssw0Rd",
+                "emails": [],
                 "disabled": false,
                 "hideEmail": true
               }
@@ -1377,6 +1556,7 @@
                     "deletionDate": "2022-03-21T19:06:53.810Z",
                     "expirationDate": "2022-03-21T19:06:53.810Z",
                     "passwordSet": true,
+                    "emails": [],
                     "disabled": false,
                     "hideEmail": true,
                     "text": {
@@ -1468,6 +1648,7 @@
                     "deletionDate": "2022-03-21T19:06:53.810Z",
                     "expirationDate": "2022-03-21T19:06:53.810Z",
                     "passwordSet": true,
+                    "emails": [],
                     "disabled": false,
                     "hideEmail": true,
                     "text": {
@@ -1530,6 +1711,7 @@
                     "deletionDate": "2022-03-21T19:06:53.810Z",
                     "expirationDate": "2022-03-21T19:06:53.810Z",
                     "passwordSet": true,
+                    "emails": [],
                     "disabled": false,
                     "hideEmail": true,
                     "text": {
@@ -1637,6 +1819,50 @@
         }
       }
     },
+    "/send/list": {
+      "get": {
+        "tags": [
+          "Send"
+        ],
+        "summary": "Retrieve a list of Sends (alias).",
+        "description": "Retrieve a list of Sends. This is an alias for `GET /list/object/send` and behaves identically.<br><br>**Only Text Sends are supported.**",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "List all Sends that contain this search term.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success returns an array (in `\"data\":[]`) of matching Sends as objects. If no Sends are found, an empty array is returned.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "object": "list",
+                    "data": []
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "404": {
+            "description": "Not Found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
     "/send/{id}/remove-password": {
       "post": {
         "tags": [
@@ -1678,6 +1904,7 @@
                     "deletionDate": "2022-03-21T19:06:53.810Z",
                     "expirationDate": "2022-03-21T19:06:53.810Z",
                     "passwordSet": false,
+                    "emails": [],
                     "disabled": false,
                     "hideEmail": true,
                     "text": {
@@ -1707,7 +1934,7 @@
           "Collections & Organizations"
         ],
         "summary": "Move an item to a Collection.",
-        "description": "Move an item to a Collection by specifying an `itemid` and `organizationId` in the path, and specifying one or more Collection identifiers in the request body.",
+        "description": "Move an item to a Collection by specifying an `itemid` and `organizationId` in the path, and specifying one or more Collection identifiers in the request body.<br><br>This endpoint only works for items that do not yet belong to an organization (personal items). To move an item from one organization to another, delete the item and recreate it in the target organization.",
         "parameters": [
           {
             "name": "itemid",
@@ -1751,7 +1978,7 @@
         },
         "responses": {
           "200": {
-            "description": "Success returns an object representing the moved item with the specified Collections added to `\"collectionIdss\":[]`.",
+            "description": "Success returns an object representing the moved item with the specified Collections added to `\"collectionIds\":[]`.",
             "content": {
               "application/json": {
                 "example": {
@@ -1773,7 +2000,7 @@
                       "totp": null,
                       "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
                     },
-                    "collectionIdss": [
+                    "collectionIds": [
                       "75bb2724-abed-4f1f-aa4a-ae530106c958",
                       "b64d6e40-adf2-4f46-b4d2-acd40147548a"
                     ],
@@ -2199,7 +2426,7 @@
           "200": {
             "description": "Success returns an array (in `\"data\":`) of Organizations as objects. If no Collections are found, an empty array is returned.",
             "content": {
-              "applcation/json": {
+              "application/json": {
                 "example": {
                   "success": true,
                   "data": {
@@ -2262,6 +2489,105 @@
                       },
                       []
                     ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "404": {
+            "description": "Not Found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/object/collection/{id}": {
+      "get": {
+        "tags": [
+          "Collections & Organizations"
+        ],
+        "summary": "Retrieve a Collection from local state.",
+        "description": "Retrieve a single Collection synced to your local state by specifying its unique identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.<br><br>This is distinct from `GET /object/org-collection/{id}`, which fetches a Collection directly from the server and is restricted to certain administrative roles and the **Can Manage** permission.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the Collection.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success returns an object representing the retrieved Collection in the `\"data\":{}` property.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "object": "collection",
+                    "id": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+                    "organizationId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+                    "name": "Shared Logins",
+                    "externalId": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "404": {
+            "description": "Not Found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/object/organization/{id}": {
+      "get": {
+        "tags": [
+          "Collections & Organizations"
+        ],
+        "summary": "Retrieve an Organization you are a member of.",
+        "description": "Retrieve a single Organization that you are a member of from local state by specifying its unique identifier (e.g. `3c89a31d-f1cc-4673-8d5a-ae2700f9860d`) in the path.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the Organization.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success returns an object representing the retrieved Organization in the `\"data\":{}` property.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "object": "organization",
+                    "id": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+                    "name": "My Organization",
+                    "status": 2,
+                    "type": 0,
+                    "enabled": true
                   }
                 }
               }
@@ -2358,16 +2684,18 @@
                 "schema": {
                   "$ref": "#/components/schemas/deviceapprovallist"
                 },
-                "example": {
-                  "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
-                  "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
-                  "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
-                  "email": "orguser@bitwarden.com",
-                  "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
-                  "requestDeviceType": "Chrome",
-                  "requestIpAddress": "130.6.255.219",
-                  "creationDate": "2024-06-09T17:52:10.775Z"
-                }
+                "example": [
+                  {
+                    "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
+                    "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+                    "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+                    "email": "orguser@bitwarden.com",
+                    "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
+                    "requestDeviceType": "Chrome",
+                    "requestIpAddress": "130.6.255.219",
+                    "creationDate": "2024-06-09T17:52:10.775Z"
+                  }
+                ]
               }
             }
           },
@@ -2383,7 +2711,7 @@
         }
       }
     },
-    "/device-approval/{organizationId}/approve/{request-id}}": {
+    "/device-approval/{organizationId}/approve/{request-id}": {
       "post": {
         "tags": [
           "Trusted Device Approval"
@@ -2604,7 +2932,17 @@
           "500": {
             "description": "Internal Server Error."
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "force",
+            "in": "query",
+            "description": "Force a full sync from the server, ignoring the last-sync timestamp. `?force=true` will perform a full re-sync.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ]
       }
     },
     "/status": {
@@ -2613,7 +2951,7 @@
           "Miscellaneous"
         ],
         "summary": "Get the status of the Bitwarden CLI.",
-        "description": "Get the current `serverURL`, `lastSync`, `userEmail`, `userID`, and `status` of your Bitwarden CLI client.",
+        "description": "Get the current `serverURL`, `lastSync`, `userEmail`, `userId`, and `status` of your Bitwarden CLI client.",
         "responses": {
           "200": {
             "description": "Success returns an object containing status information about your Bitwarden CLI client.",
@@ -2737,6 +3075,30 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "minNumber",
+            "in": "query",
+            "description": "Minimum number of numeric characters to include in the **password**.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "minSpecial",
+            "in": "query",
+            "description": "Minimum number of special characters to include in the **password**.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "ambiguous",
+            "in": "query",
+            "description": "Include ambiguous characters in the **password** or **passphrase**.",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -2834,7 +3196,7 @@
           "Miscellaneous"
         ],
         "summary": "Retrieve your fingerprint phrase.",
-        "description": "Retrieve your fingerprint phrase.",
+        "description": "Retrieve a fingerprint phrase. By default this returns your own account fingerprint phrase. You may also supply another user's identifier (GUID) in place of `me` in the path to look up that user's fingerprint phrase via the API.",
         "responses": {
           "200": {
             "description": "Success returns an object containing your account fingerprint phrase.",
@@ -3115,6 +3477,13 @@
           "password": {
             "type": "string"
           },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            }
+          },
           "disabled": {
             "type": "boolean"
           },
@@ -3196,7 +3565,7 @@
                     "type": "string",
                     "format": "email"
                   },
-                  "userID": {
+                  "userId": {
                     "type": "string",
                     "format": "uuid"
                   },

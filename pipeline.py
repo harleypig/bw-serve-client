@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+
+"""Run the update pipeline: detect, build, check, or all three.
+
+Usage: ``python pipeline.py {detect,build,check,update}``
+
+Stages:
+
+- ``detect``: fetch every upstream source and write the snapshots, the lock
+  file and the change report (``upstream/detect.py``).
+- ``build``: patch the spec, regenerate the models, and format the result.
+- ``check``: run the test suite.
+- ``update``: detect, then build, then check. Stops at the first error.
+
+Every stage, and ``update``, exits:
+
+- 0: no change. Nothing changed, nothing to do.
+- 1: error. The stage could not do its job.
+- 2: change. Something changed and there is work to do: upstream moved,
+  files were regenerated, or tests fail.
+
+Run it directly, not through ``make``, when the exit code matters: make
+exits 2 for every failed recipe, so it cannot tell an error from a change.
+Each stage is idempotent: run again on the same input, it changes nothing
+more. The exit code reflects what is still to do, so detect keeps exiting 2
+while a fix no longer matches, and check while a test fails.
+"""
+
+import hashlib
+from pathlib import Path
+import re
+import shutil
+import subprocess  # noqa: S404 - runs this repo's own tools with fixed arguments. # nosec B404
+import sys
+from typing import Callable, Dict, List, Optional
+
+ROOT = Path(__file__).resolve().parent
+REPORT = ROOT / "upstream" / "change-report.md"
+PATCHED_SPEC = ROOT / "upstream" / "vault-management-api-fixed.json"
+MODELS = ROOT / "bw_serve_client" / "models.py"
+BUILD_OUTPUTS = (PATCHED_SPEC, MODELS)
+FORMAT_HOOKS = ("trailing-whitespace", "end-of-file-fixer", "isort", "yapf", "pydocstringformatter")
+
+NO_CHANGE, ERROR, CHANGE = 0, 1, 2
+
+
+class StageError(Exception):
+  """A stage could not do its job."""
+
+
+# -----------------------------------------------------------------------------
+def relative(path: Path) -> str:
+  """Return a path relative to the repository root, for messages.
+
+  Arguments:
+      path: A path inside the repository.
+
+  Returns:
+      str: The relative path.
+  """
+  return str(path.relative_to(ROOT))
+
+
+# -----------------------------------------------------------------------------
+def run_tool(args: List[str]) -> "subprocess.CompletedProcess[str]":
+  """Run a command from the repository root, capturing its output.
+
+  Arguments:
+      args: The command and its arguments.
+
+  Returns:
+      subprocess.CompletedProcess[str]: The finished process.
+  """
+  return subprocess.run(args, cwd=ROOT, capture_output=True, text=True, check=False)  # noqa: S603 - fixed arguments. # nosec B603
+
+
+# -----------------------------------------------------------------------------
+def set_report_section(title: str, lines: List[str], empty: str) -> None:
+  """Replace one ``## title`` section of the change report, or add it.
+
+  Starts a report when detect has not written one, so a stage run alone
+  still leaves its result on record.
+
+  Arguments:
+      title: The section heading, without the ``##``.
+      lines: The bullet items.
+      empty: The line to show when there are no items.
+  """
+  text = REPORT.read_text(encoding="utf-8") if REPORT.exists() else "# Upstream change report\n\n"
+  body = "\n".join(f"- {line}" for line in lines) if lines else empty
+  section = f"## {title}\n\n{body}\n"
+
+  pattern = re.compile(rf"^## {re.escape(title)}\n.*?(?=^## |\Z)", re.MULTILINE | re.DOTALL)
+  match = pattern.search(text)
+  if match:
+    text = f"{text[:match.start()]}{section}\n{text[match.end():]}".rstrip("\n") + "\n"
+
+  else:
+    text = f"{text.rstrip(chr(10))}\n\n{section}"
+
+  REPORT.write_text(text, encoding="utf-8")
+
+
+# -----------------------------------------------------------------------------
+def checksums(paths: "tuple[Path, ...]") -> Dict[Path, Optional[str]]:
+  """SHA-256 of each file, or None for a file that does not exist.
+
+  Arguments:
+      paths: The files to checksum.
+
+  Returns:
+      Dict[Path, Optional[str]]: The checksum of each path.
+  """
+  return {path: hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None for path in paths}
+
+
+# -----------------------------------------------------------------------------
+def detect() -> int:
+  """Run upstream detection.
+
+  Returns:
+      int: detect's own exit code, which follows the same contract.
+  """
+  command = [sys.executable, str(ROOT / "upstream" / "detect.py")]
+  return subprocess.run(command, cwd=ROOT, check=False).returncode  # noqa: S603 - fixed arguments. # nosec B603
+
+
+# -----------------------------------------------------------------------------
+def build_steps() -> None:
+  """Patch the spec, generate the models, and format both.
+
+  Raises:
+      StageError: When a step fails.
+  """
+  steps = [
+    (
+      "patch the spec", [
+        sys.executable, str(ROOT / "upstream" / "api-spec-tool.py"), "fix", "--fixed-file",
+        relative(PATCHED_SPEC)
+      ]
+    ),
+    ("generate the models", [sys.executable, "-m", "datamodel_code_generator"]),
+  ]
+
+  for name, args in steps:
+    result = run_tool(args)
+    if result.returncode != 0:
+      # The tools print their reason on stderr, after any progress output.
+      reason = (result.stderr.strip() or result.stdout.strip() or "no output").splitlines()[0]
+      raise StageError(f"could not {name} (exit {result.returncode}): {reason}\n{result.stdout}{result.stderr}")
+
+  pre_commit = shutil.which("pre-commit")
+  if not pre_commit:
+    raise StageError("pre-commit is not on PATH; it formats the generated files")
+
+  # Only the formatters: the fix config also runs poetry lock on every
+  # invocation, which would reach the network and rewrite poetry.lock.
+  files = [*map(relative, BUILD_OUTPUTS)]
+  passes = [[
+    run_tool([pre_commit, "run", hook, "--config", ".pre-commit-config-fix.yaml", "--files", *files]) for hook in FORMAT_HOOKS
+  ] for _ in range(2)]
+
+  # A fixing hook exits 1 when it changed a file, so the second pass is the
+  # one that must come back clean.
+  failed = [result for result in passes[1] if result.returncode != 0]
+  if failed:
+    raise StageError(f"pre-commit could not format the generated files:\n{failed[0].stdout}{failed[0].stderr}")
+
+
+# -----------------------------------------------------------------------------
+def build() -> int:
+  """Regenerate the patched spec and the models.
+
+  Returns:
+      int: 0 when nothing changed, 2 when a file was regenerated, 1 on error.
+  """
+  before = checksums(BUILD_OUTPUTS)
+
+  try:
+    build_steps()
+
+  except StageError as exc:
+    set_report_section("Regenerated", [f"Build failed: {str(exc).splitlines()[0]}"], "")
+    print(f"build: error: {exc}", file=sys.stderr)
+    return ERROR
+
+  after = checksums(BUILD_OUTPUTS)
+  changed = [relative(path) for path in BUILD_OUTPUTS if before[path] != after[path]]
+
+  set_report_section("Regenerated", [f"`{path}`" for path in changed], "Nothing; the generated files were already current.")
+  print(f"build: regenerated {', '.join(changed)}" if changed else "build: nothing to regenerate")
+  return CHANGE if changed else NO_CHANGE
+
+
+# -----------------------------------------------------------------------------
+def check() -> int:
+  """Run the test suite.
+
+  Returns:
+      int: 0 when every test passes, 2 when some fail, 1 when pytest itself
+      could not run the suite.
+  """
+  # -rfE lists errors (a broken fixture, say) as well as failures.
+  result = run_tool([sys.executable, "-m", "pytest", "-q", "-rfE", "-p", "no:randomly"])
+  print(result.stdout, end="")
+  print(result.stderr, end="", file=sys.stderr)
+
+  # pytest exits 1 for failing tests; 2-5 mean it could not run them.
+  if result.returncode not in (0, 1):
+    set_report_section("Work created", [f"The test suite could not run (pytest exit {result.returncode})."], "")
+    return ERROR
+
+  failed = [line.split(" ", 2)[:2] for line in result.stdout.splitlines() if line.startswith(("FAILED ", "ERROR "))]
+  set_report_section(
+    "Work created", [f"{'Failing' if kind == 'FAILED' else 'Erroring'} test: `{name}`" for kind, name in failed],
+    "None; every test passes."
+  )
+  return CHANGE if result.returncode == 1 else NO_CHANGE
+
+
+# -----------------------------------------------------------------------------
+def update() -> int:
+  """Run detect, build and check in order.
+
+  Returns:
+      int: 1 at the first stage error, otherwise 2 if any stage found work,
+      otherwise 0.
+  """
+  outcome = NO_CHANGE
+
+  for stage in (detect, build, check):
+    code = stage()
+    if code == ERROR:
+      return ERROR
+
+    outcome = max(outcome, code)
+
+  return outcome
+
+
+STAGES: Dict[str, Callable[[], int]] = {"detect": detect, "build": build, "check": check, "update": update}
+
+
+# -----------------------------------------------------------------------------
+def main(argv: List[str]) -> int:
+  """Dispatch to a stage.
+
+  Arguments:
+      argv: The command-line arguments, without the program name.
+
+  Returns:
+      int: The stage's exit code, or 1 for a bad argument.
+  """
+  if len(argv) != 1 or argv[0] not in STAGES:
+    print(f"usage: pipeline.py {{{','.join(STAGES)}}}", file=sys.stderr)
+    return ERROR
+
+  return STAGES[argv[0]]()
+
+
+if __name__ == "__main__":
+  sys.exit(main(sys.argv[1:]))

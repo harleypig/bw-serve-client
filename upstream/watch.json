@@ -1,0 +1,11 @@
+{
+  "github": [
+    "bitwarden/clients#22699",
+    "bitwarden/clients#22867",
+    "bitwarden/clients#23024",
+    "bitwarden/clients#23933"
+  ],
+  "pypi": [
+    "bitwarden-sdk"
+  ]
+}

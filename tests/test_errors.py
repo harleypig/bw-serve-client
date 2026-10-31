@@ -11,6 +11,7 @@ import pytest
 
 from bw_serve_client import errors
 from bw_serve_client.errors import BitwardenError
+from bw_serve_client.errors import category_for_status
 from bw_serve_client.errors import DefaultErrorHandler
 from bw_serve_client.errors import ErrorHandler
 from bw_serve_client.errors import ExternalServiceError
@@ -69,6 +70,44 @@ class TestErrorTypes:
     assert type(error) is UserError
     assert str(error) == "vault is locked"
     assert (error.level, error.status_code) == (logging.WARNING, 401)
+
+
+# -----------------------------------------------------------------------------
+class TestCategoryForStatus:
+  """Tests for the one mapping from an HTTP error status to a category."""
+
+  @pytest.mark.parametrize(
+    ("status", "category"),
+    [
+      (400, ValidationError),
+      (401, UserError),
+      (403, UserError),
+      (404, ValidationError),
+      (409, ValidationError),
+      (418, ValidationError),
+      (500, ExternalServiceError),
+      (502, ExternalServiceError),
+      (503, ExternalServiceError),
+    ],
+  )
+  def test_maps_status(self: TestCategoryForStatus, status: int, category: type[BitwardenError]) -> None:
+    """Each status maps to the category in the module's table."""
+    assert category_for_status(status, "Bad request.") is category
+
+  # The two messages bw serve's errorIfLocked sends, verbatim, and a case
+  # variant to pin the case-insensitive match.
+  @pytest.mark.parametrize("message", ["Vault is locked.", "You are not logged in.", "VAULT IS LOCKED"])
+  def test_locked_or_logged_out_400_is_user_error(self: TestCategoryForStatus, message: str) -> None:
+    """A 400 saying the vault is locked or no one is logged in is a user error."""
+    assert category_for_status(400, message) is UserError
+
+  def test_locked_message_only_matters_on_400(self: TestCategoryForStatus) -> None:
+    """A 5xx stays a service error whatever its message says."""
+    assert category_for_status(500, "Vault is locked.") is ExternalServiceError
+
+  def test_message_defaults_to_empty(self: TestCategoryForStatus) -> None:
+    """With no message, a 400 is a validation error."""
+    assert category_for_status(400) is ValidationError
 
 
 # -----------------------------------------------------------------------------

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import http.server
 import json
+import logging
 import socketserver
 import tempfile
 import threading
@@ -15,13 +16,14 @@ import httpx
 import pytest
 
 from bw_serve_client.api_client import ApiClient
-from bw_serve_client.api_client import AuthenticationError
-from bw_serve_client.api_client import BitwardenAPIError
-from bw_serve_client.api_client import NotFoundError
-from bw_serve_client.api_client import ServerError
-from bw_serve_client.api_client import ValidationError
+from bw_serve_client.errors import DefaultErrorHandler
+from bw_serve_client.errors import ExternalServiceError
+from bw_serve_client.errors import InternalError
+from bw_serve_client.errors import UserError
+from bw_serve_client.errors import ValidationError
 
 if TYPE_CHECKING:
+  from conftest import ReturningHandler
   from pytest_mock import MockerFixture
 
 
@@ -155,14 +157,6 @@ class TestApiClient:
 
     assert result == "plain text"
 
-  def test_handle_error_success(self: "TestApiClient") -> None:
-    """Test error handling for successful responses."""
-    client = ApiClient()
-    response = Mock()
-    response.status_code = 200
-
-    client._handle_error(response)  # act
-
   def test_handle_error_401(self: "TestApiClient") -> None:
     """Test error handling for 401 Unauthorized."""
     client = ApiClient()
@@ -170,7 +164,7 @@ class TestApiClient:
     response.status_code = 401
     response.json.return_value = {"message": "Unauthorized"}
 
-    with pytest.raises(AuthenticationError, match="Unauthorized"):  # act
+    with pytest.raises(UserError, match="Unauthorized"):  # act
       client._handle_error(response)
 
   def test_handle_error_400(self: "TestApiClient") -> None:
@@ -190,8 +184,10 @@ class TestApiClient:
     response.status_code = 404
     response.json.return_value = {"message": "Not Found"}
 
-    with pytest.raises(NotFoundError, match="Not Found"):  # act
+    with pytest.raises(ValidationError, match="Not Found") as exc_info:  # act
       client._handle_error(response)
+
+    assert exc_info.value.status_code == 404
 
   def test_handle_error_500(self: "TestApiClient") -> None:
     """Test error handling for 500 Server Error."""
@@ -200,7 +196,7 @@ class TestApiClient:
     response.status_code = 500
     response.json.return_value = {"message": "Server Error"}
 
-    with pytest.raises(ServerError, match="Server Error"):  # act
+    with pytest.raises(ExternalServiceError, match="Server Error"):  # act
       client._handle_error(response)
 
   def test_get_request(self: "TestApiClient") -> None:
@@ -481,7 +477,7 @@ class TestApiClient:
     response.status_code = 418  # I'm a teapot
     response.json.return_value = {"message": "I'm a teapot"}
 
-    with pytest.raises(BitwardenAPIError, match="I'm a teapot"):  # act
+    with pytest.raises(ValidationError, match="I'm a teapot"):  # act
       client._handle_error(response)
 
   def test_make_request_with_headers(self: "TestApiClient") -> None:
@@ -500,19 +496,34 @@ class TestApiClient:
     """Test _make_request with a transport error."""
     client = ApiClient(transport=httpx.MockTransport(_refuse))
 
-    with pytest.raises(BitwardenAPIError, match="Request failed: Connection failed"):  # act
+    with pytest.raises(ExternalServiceError, match="Request failed: Connection failed") as exc_info:  # act
       client._make_request("GET", "/test")
+
+    assert isinstance(exc_info.value.__cause__, httpx.ConnectError)
 
   @pytest.mark.parametrize(
     ("status", "error"),
-    [(400, ValidationError), (401, AuthenticationError), (404, NotFoundError), (500, ServerError), (418, BitwardenAPIError)],
+    [(400, ValidationError), (401, UserError), (403, UserError), (404, ValidationError), (500, ExternalServiceError),
+     (418, ValidationError)],
   )
   def test_make_request_error_status(self: "TestApiClient", status: int, error: type) -> None:
-    """An error status from the server raises its domain error."""
+    """An error status from the server raises its domain error, keeping the status."""
     client, _ = _recording_client(status=status, json_body={"message": "nope"})
 
-    with pytest.raises(error, match="nope"):  # act
+    with pytest.raises(error, match="nope") as exc_info:  # act
       client.get("/test")
+
+    assert exc_info.value.status_code == status
+
+  @pytest.mark.parametrize("message", ["Vault is locked.", "You are not logged in."])
+  def test_locked_vault_400_is_user_error(self: "TestApiClient", message: str) -> None:
+    """Bw serve's 400 for a locked vault or no login is a user-side error."""
+    client, _ = _recording_client(status=400, json_body={"success": False, "message": message})
+
+    with pytest.raises(UserError, match=message) as exc_info:  # act
+      client.get("/list/object/folders")
+
+    assert exc_info.value.status_code == 400
 
   def test_put_request(self: "TestApiClient") -> None:
     """Test PUT request method."""
@@ -657,7 +668,7 @@ class TestApiClient:
     """Test that _make_request raises error for unsupported HTTP methods."""
     client = ApiClient()
 
-    with pytest.raises(BitwardenAPIError) as exc_info:  # act
+    with pytest.raises(InternalError) as exc_info:  # act
       client._make_request("PATCH", "/test")
 
     assert "Unsupported HTTP method: PATCH" in str(exc_info.value)
@@ -749,6 +760,66 @@ class TestApiClientConnection:
     [request] = seen
     assert request.headers["Host"] == "vault:9000"
     assert result == {"ok": True}
+
+
+class TestApiClientErrorHandling:
+  """Failures go through the injected or default error handler."""
+
+  def test_default_logger_is_left_unconfigured(self: "TestApiClientErrorHandling") -> None:
+    """Without a logger, the module logger is used with no handler or level set."""
+    client = ApiClient()  # act
+
+    assert client.logger is logging.getLogger("bw_serve_client.api_client")
+    assert client.logger.handlers == []
+    assert client.logger.level == logging.NOTSET
+
+  def test_default_handler_logs_to_client_logger(self: "TestApiClientErrorHandling") -> None:
+    """The default handler is a DefaultErrorHandler on the client's logger."""
+    logger = logging.getLogger("test.api_client.injected")
+
+    client = ApiClient(logger=logger)  # act
+
+    assert isinstance(client.error_handler, DefaultErrorHandler)
+    assert client.error_handler.logger is logger
+
+  def test_returning_handler_result_replaces_response(
+    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler
+  ) -> None:
+    """A handler that returns has its value come back from the request method."""
+    handler = returning_handler
+    client, _ = _recording_client(status=500, json_body={"message": "boom"}, error_handler=handler)
+
+    result = client.get("/test")  # act
+
+    assert result is handler.result
+    assert handler.calls == [(ExternalServiceError, "boom", 500, None)]
+
+  def test_returning_handler_receives_transport_failure(
+    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler
+  ) -> None:
+    """A transport failure reaches the handler with its cause."""
+    handler = returning_handler
+    client = ApiClient(transport=httpx.MockTransport(_refuse), error_handler=handler)
+
+    result = client.get("/test")  # act
+
+    assert result is handler.result
+    [(category, _, status_code, cause)] = handler.calls
+    assert category is ExternalServiceError
+    assert status_code is None
+    assert isinstance(cause, httpx.ConnectError)
+
+  def test_per_request_handler_overrides_client_handler(
+    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler
+  ) -> None:
+    """A handler passed to one request is used instead of the client's."""
+    client, _ = _recording_client(status=404, json_body={"message": "Not found."})
+    handler = returning_handler
+
+    result = client._make_request("GET", "/test", error_handler=handler)  # act
+
+    assert result is handler.result
+    assert handler.calls == [(ValidationError, "Not found.", 404, None)]
 
 
 # -----------------------------------------------------------------------------

@@ -11,7 +11,6 @@ Mirrors the ``Folders`` tag in the API spec. One method per route:
 
 from __future__ import annotations
 
-import logging
 from typing import Any, Optional, Union
 from uuid import UUID
 
@@ -19,8 +18,12 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 
 from ._generated.models import FolderSchema
-from .api_client import ApiClient
-from .api_client import ValidationError
+from ._generated.models import ListObjectFoldersGetParameters
+from ._generated.models import ObjectFolderIdDeleteParameters
+from ._generated.models import ObjectFolderIdGetParameters
+from ._generated.models import ObjectFolderIdPutParameters
+from .errors import ValidationError
+from .resource import Resource
 
 FolderId = Union[UUID, str]
 
@@ -46,33 +49,17 @@ class Folder(BaseModel):
   object: str = "folder"
 
 
-class Folders:
+class Folders(Resource):
   """Folder operations on a Bitwarden vault.
 
-  ``error_handler`` follows the *Error / Logging Module Contract* in
-  ``WORKFLOW.md``. When it is ``None``, errors propagate as exceptions
-  raised by :class:`ApiClient`.
-
-  Args:
-      client: Shared :class:`ApiClient` for HTTP transport.
-      logger: Optional logger; falls back to a module logger.
-      error_handler: Optional injected error handler.
+  Construction, logging and error handling are :class:`Resource`'s. Every
+  method returns what the error handler returned, in place of its result,
+  when a failure is handled without raising.
   """
 
   # ---------------------------------------------------------------------------
-  def __init__(
-    self: "Folders",
-    client: ApiClient,
-    logger: Optional[logging.Logger] = None,
-    error_handler: Optional[Any] = None,
-  ) -> None:
-    self._client = client
-    self._log = logger or logging.getLogger(__name__)
-    self._errors = error_handler
-
-  # ---------------------------------------------------------------------------
   # POST /object/folder
-  def add(self: "Folders", name: str) -> Folder:
+  def add(self: Folders, name: str) -> Union[Folder, Any]:
     """Add a folder to your vault.
 
     Args:
@@ -80,23 +67,15 @@ class Folders:
 
     Returns:
         The created :class:`Folder` with its server-assigned id.
-
-    Raises:
-        ValidationError: If ``name`` is empty or whitespace-only.
     """
     if not name or not name.strip():
-      raise ValidationError("folder name must be non-empty")
+      return self._fail(ValidationError, "folder name must be non-empty")
 
-    body = FolderSchema(name=name).model_dump(exclude_none=True, by_alias=True)
-
-    self._log.debug("POST /object/folder name=%r", name)
-    resp = self._client.post("/object/folder", data=body)
-
-    return Folder.model_validate(resp["data"])
+    return self._request("POST", "/object/folder", body=(FolderSchema, {"name": name}), response_type=Folder)
 
   # ---------------------------------------------------------------------------
   # PUT /object/folder/{id}
-  def modify(self: "Folders", folder_id: FolderId, name: str) -> Folder:
+  def modify(self: Folders, folder_id: FolderId, name: str) -> Union[Folder, Any]:
     """Edit an existing folder.
 
     Args:
@@ -105,23 +84,25 @@ class Folders:
 
     Returns:
         The updated :class:`Folder`.
-
-    Raises:
-        ValidationError: If ``name`` is empty or whitespace-only.
     """
     if not name or not name.strip():
-      raise ValidationError("folder name must be non-empty")
+      return self._fail(ValidationError, "folder name must be non-empty")
 
-    body = FolderSchema(name=name).model_dump(exclude_none=True, by_alias=True)
-
-    self._log.debug("PUT /object/folder/%s name=%r", folder_id, name)
-    resp = self._client.put(f"/object/folder/{folder_id}", data=body)
-
-    return Folder.model_validate(resp["data"])
+    return self._request(
+      "PUT",
+      "/object/folder/{id}",
+      path_params=(ObjectFolderIdPutParameters, {
+        "id": folder_id
+      }),
+      body=(FolderSchema, {
+        "name": name
+      }),
+      response_type=Folder,
+    )
 
   # ---------------------------------------------------------------------------
   # GET /object/folder/{id}
-  def get(self: "Folders", folder_id: FolderId) -> Folder:
+  def get(self: Folders, folder_id: FolderId) -> Union[Folder, Any]:
     """Retrieve a folder by id.
 
     Args:
@@ -130,14 +111,15 @@ class Folders:
     Returns:
         The :class:`Folder`.
     """
-    self._log.debug("GET /object/folder/%s", folder_id)
-    resp = self._client.get(f"/object/folder/{folder_id}")
-
-    return Folder.model_validate(resp["data"])
+    return self._request(
+      "GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetParameters, {
+        "id": folder_id
+      }), response_type=Folder
+    )
 
   # ---------------------------------------------------------------------------
   # DELETE /object/folder/{id}
-  def delete(self: "Folders", folder_id: FolderId) -> None:
+  def delete(self: Folders, folder_id: FolderId) -> Any:
     """Delete a folder by id.
 
     Deleting a folder does NOT delete the items in it; the API moves
@@ -145,13 +127,15 @@ class Folders:
 
     Args:
         folder_id: Unique identifier of the folder.
+
+    Returns:
+        ``None``, or the error handler's return value.
     """
-    self._log.debug("DELETE /object/folder/%s", folder_id)
-    self._client.delete(f"/object/folder/{folder_id}")
+    return self._request("DELETE", "/object/folder/{id}", path_params=(ObjectFolderIdDeleteParameters, {"id": folder_id}))
 
   # ---------------------------------------------------------------------------
   # GET /list/object/folders
-  def list(self: "Folders", search: Optional[str] = None) -> list[Folder]:
+  def list(self: Folders, search: Optional[str] = None) -> Union[list[Folder], Any]:
     """List folders, optionally filtered by a search term.
 
     Args:
@@ -161,9 +145,6 @@ class Folders:
     Returns:
         List of matching :class:`Folder` objects (empty if none match).
     """
-    params = {"search": search} if search else None
+    query = (ListObjectFoldersGetParameters, {"search": search or None})
 
-    self._log.debug("GET /list/object/folders params=%r", params)
-    resp = self._client.get("/list/object/folders", params=params)
-
-    return [Folder.model_validate(f) for f in resp["data"]["data"]]
+    return self._request("GET", "/list/object/folders", query=query, response_type=list[Folder])

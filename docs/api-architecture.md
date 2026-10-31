@@ -105,7 +105,8 @@ An API class MUST handle:
 - Gracefully return errors when something isn't right
 - Log various levels of information
 - General API errors, such as 500 errors
-- Authentication (proper inclusion of bearer token or whatever)
+- No authentication: `bw serve` has none on its endpoints, because the
+  session lives in the `bw serve` process
 - Formatting of data into JSON (or proper format the API expects)
 - Formatting of JSON (or whatever format the API returns) into data
 - Validate parameters before making requests

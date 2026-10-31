@@ -11,41 +11,17 @@ from urllib.parse import urljoin
 
 import httpx
 
+from .errors import category_for_status
+from .errors import DefaultErrorHandler
+from .errors import ErrorHandler
+from .errors import ExternalServiceError
+from .errors import InternalError
+
 # Type aliases for complex types
 RequestData = Optional[Union[Dict[str, Any], str]]
 QueryParams = Optional[Dict[str, Any]]
 
 UNIX_SCHEME = "unix://"
-
-
-class BitwardenAPIError(Exception):
-  """Base exception for Bitwarden API errors."""
-
-  pass
-
-
-class AuthenticationError(BitwardenAPIError):
-  """Raised when authentication fails."""
-
-  pass
-
-
-class ValidationError(BitwardenAPIError):
-  """Raised when request validation fails."""
-
-  pass
-
-
-class NotFoundError(BitwardenAPIError):
-  """Raised when a resource is not found."""
-
-  pass
-
-
-class ServerError(BitwardenAPIError):
-  """Raised when the server returns an error."""
-
-  pass
 
 
 class ApiClient:
@@ -68,6 +44,12 @@ class ApiClient:
   ``max_retries`` retries failed connection attempts only; an HTTP error
   status is never retried.
 
+  Every failure -- an error status, a failed connection, a timeout -- goes
+  to ``error_handler``, whose return value comes back in place of the
+  response when it does not raise. The default handler raises, and logs to
+  ``logger``; the default logger is the module's, with no handler or level
+  set, so where its records go is the application's choice.
+
   Args:
       protocol: Protocol to use (http, https) - default: http
       domain: Domain or IP address - default: localhost
@@ -79,6 +61,7 @@ class ApiClient:
       logger: Optional logger instance for logging requests/responses
       base_url: Full base URL, or ``unix://<socket path>``; replaces the URL parts
       transport: Caller-supplied httpx transport
+      error_handler: Where failures go; a :class:`DefaultErrorHandler` by default
 
   Raises:
       ValueError: If a ``unix://`` base_url has no path or comes with a transport.
@@ -123,7 +106,8 @@ class ApiClient:
     logger: Optional[logging.Logger] = None,
     *,
     base_url: Optional[str] = None,
-    transport: Optional[httpx.BaseTransport] = None
+    transport: Optional[httpx.BaseTransport] = None,
+    error_handler: Optional[ErrorHandler] = None
   ) -> None:
     from . import __version__
 
@@ -152,23 +136,12 @@ class ApiClient:
 
     self.base_url = base_url.rstrip('/')
     self.timeout = timeout
-    self.logger = logger or self._setup_default_logger()
+    self.logger = logger if logger is not None else logging.getLogger(__name__)
+    self.error_handler = error_handler if error_handler is not None else DefaultErrorHandler(logger=self.logger)
 
     # No default Content-Type: httpx sets it per body (JSON, multipart
     # with its boundary), and a client default would override that.
     self.session = httpx.Client(transport=transport, headers=headers, timeout=timeout)
-
-  def _setup_default_logger(self: "ApiClient") -> logging.Logger:
-    """Set up default logger for the API client."""
-    logger = logging.getLogger(__name__)
-    if not logger.handlers:
-      handler = logging.StreamHandler()
-      formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-      handler.setFormatter(formatter)
-      logger.addHandler(handler)
-      logger.setLevel(logging.INFO)
-
-    return logger
 
   def _make_request(
     self: "ApiClient",
@@ -177,32 +150,37 @@ class ApiClient:
     data: RequestData = None,
     params: QueryParams = None,
     files: Optional[Dict[str, Any]] = None,
-    headers: Optional[Dict[str, str]] = None
-  ) -> httpx.Response:
+    headers: Optional[Dict[str, str]] = None,
+    *,
+    error_handler: Optional[ErrorHandler] = None
+  ) -> Union[httpx.Response, Any]:
     """Make an HTTP request to the API.
 
+    A failure goes to ``error_handler``, or to the client's handler when
+    that is ``None``: an unsupported method as an ``InternalError``, a
+    transport failure as an ``ExternalServiceError``, and an error status
+    as the category ``category_for_status()`` picks.
+
     Args:
-        method: HTTP method (GET, POST, PUT, DELETE). Must be one of the
-            supported methods or BitwardenAPIError will be raised.
+        method: HTTP method: GET, POST, PUT or DELETE, in any case.
         endpoint: API endpoint path
         data: Request body data
         params: Query parameters
         files: Files to upload (for multipart requests)
         headers: Additional headers
+        error_handler: Handler for this request's failures.
 
     Returns:
-        Response object
-
-    Raises:
-        BitwardenAPIError: For various API errors, including unsupported
-            HTTP methods
+        The response, or the handler's return value when it does not raise.
     """
-    # Validate HTTP method
+    handler = error_handler if error_handler is not None else self.error_handler
+
     supported_methods = {'GET', 'POST', 'PUT', 'DELETE'}
     method_upper = method.upper()
+
     if method_upper not in supported_methods:
-      raise BitwardenAPIError(
-        f"Unsupported HTTP method: {method}. "
+      return handler.handle(
+        InternalError, f"Unsupported HTTP method: {method}. "
         f"Supported methods are: {', '.join(sorted(supported_methods))}"
       )
 
@@ -242,18 +220,17 @@ class ApiClient:
     try:
       response = self.session.request(method=method, url=url, files=files, params=params, headers=headers, **body)
 
-      # Log response
-      self.logger.debug(f"Response status: {response.status_code}")
-      self.logger.debug(f"Response headers: {dict(response.headers)}")
-
-      # Handle errors
-      self._handle_error(response)
-
-      return response
-
     except httpx.RequestError as e:
-      self.logger.exception("Request failed")
-      raise BitwardenAPIError(f"Request failed: {e}") from e
+      return handler.handle(ExternalServiceError, f"Request failed: {e}", cause=e)
+
+    # Log response
+    self.logger.debug(f"Response status: {response.status_code}")
+    self.logger.debug(f"Response headers: {dict(response.headers)}")
+
+    if response.status_code >= 400:
+      return self._handle_error(response, handler)
+
+    return response
 
   def _serialize_data(self: "ApiClient", data: Any, content_type: str = "application/json") -> Any:
     """Serialize data for API requests.
@@ -303,49 +280,31 @@ class ApiClient:
     else:
       return response.text
 
-  def _handle_error(self: "ApiClient", response: httpx.Response) -> None:
-    """Handle HTTP errors and raise appropriate exceptions.
+  def _handle_error(self: "ApiClient", response: httpx.Response, error_handler: Optional[ErrorHandler] = None) -> Any:
+    """Pass an error response to the error handler.
 
     Args:
-        response: Response object to check for errors
+        response: A response whose status is 400 or above.
+        error_handler: Handler to use instead of the client's.
 
-    Raises:
-        AuthenticationError: When status code is 401 (Unauthorized).
-        ValidationError: When status code is 400 (Bad Request).
-        NotFoundError: When status code is 404 (Not Found).
-        ServerError: When status code is 500 or higher (Server Error).
-        BitwardenAPIError: For any other error status codes.
+    Returns:
+        Whatever the handler returns, when it does not raise.
     """
-    if response.status_code < 400:
-      return
-
+    handler = error_handler if error_handler is not None else self.error_handler
     error_message = f"API request failed with status {response.status_code}"
 
     try:
       error_data = response.json()
 
-      if isinstance(error_data, dict) and 'message' in error_data:
+      if isinstance(error_data, dict) and isinstance(error_data.get('message'), str):
         error_message = error_data['message']
 
     except (json.JSONDecodeError, KeyError):
       error_message = response.text or error_message
 
-    self.logger.error(f"{error_message} (Status: {response.status_code})")
+    category = category_for_status(response.status_code, error_message)
 
-    if response.status_code == 401:
-      raise AuthenticationError(error_message)
-
-    elif response.status_code == 400:
-      raise ValidationError(error_message)
-
-    elif response.status_code == 404:
-      raise NotFoundError(error_message)
-
-    elif response.status_code >= 500:
-      raise ServerError(error_message)
-
-    else:
-      raise BitwardenAPIError(error_message)
+    return handler.handle(category, error_message, status_code=response.status_code)
 
   # ---------------------------------------------------------------------------
   # Public methods
@@ -359,9 +318,13 @@ class ApiClient:
         kwargs: Additional arguments for _make_request
 
     Returns:
-        Deserialized response data
+        Deserialized response data, or the error handler's return value
     """
     response = self._make_request(method, endpoint, **kwargs)
+
+    if not isinstance(response, httpx.Response):
+      return response
+
     return self._deserialize_data(response)
 
   def get(self: "ApiClient", endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:

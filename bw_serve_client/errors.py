@@ -21,26 +21,32 @@ raises it if its level clears the error-level threshold, otherwise returns
 it. Both thresholds are stdlib ``logging`` levels, so one scale serves
 both.
 
-Intended mapping from an HTTP outcome to a category, for the API classes
-that will route their failures through a handler:
+How an HTTP outcome maps to a category. ``category_for_status()`` is the
+one implementation of the status rows; the rest are decided where the
+failure happens:
 
-=============================  ==========================
-Outcome                        Category
-=============================  ==========================
-400 and other unlisted 4xx     ``ValidationError``
-401, 403                       ``UserError``
-404                            ``ValidationError``
-5xx                            ``ExternalServiceError``
-connection failure, timeout    ``ExternalServiceError``
-2xx body that does not parse   ``ExternalServiceError``
-a bug in this library          ``InternalError``
-=============================  ==========================
+==============================  ==========================
+Outcome                         Category
+==============================  ==========================
+400 saying the vault is locked  ``UserError``
+or no user is logged in
+400 and other unlisted 4xx      ``ValidationError``
+401, 403                        ``UserError``
+404                             ``ValidationError``
+5xx                             ``ExternalServiceError``
+connection failure, timeout     ``ExternalServiceError``
+2xx body that does not parse    ``ExternalServiceError``
+a bug in this library           ``InternalError``
+==============================  ==========================
 
-``bw serve`` has no endpoint authentication, so 401/403 can only mean a
-user-side state such as a locked vault or a bad password. A 404 means the
-caller's id or path names nothing, which is a fault in the request rather
-than in the user's vault state; the status code is kept on the error for a
-caller that needs to tell it apart from a 400.
+``bw serve`` answers every failed command with a 400 and a
+``{"success": false, "message": ...}`` body, a locked vault included, so
+the message is the only thing that tells a user-side state from a bad
+request. It has no endpoint authentication, so a 401/403 can only mean a
+user-side state too. A 404 means the caller's id or path names nothing,
+which is a fault in the request rather than in the user's vault state; the
+status code is kept on the error for a caller that needs to tell it apart
+from a 400.
 """
 
 from __future__ import annotations
@@ -98,6 +104,36 @@ class ExternalServiceError(BitwardenError):
 
 class InternalError(BitwardenError):
   """A bug in this library; the contract's *system* error category."""
+
+
+# -----------------------------------------------------------------------------
+# The messages bw serve sends, with a 400, when the vault is locked or no
+# user is logged in (``errorIfLocked`` in the CLI's serve configurator).
+# Matched as lowercase substrings so trailing punctuation can drift.
+_USER_STATE_MESSAGES = ("vault is locked", "not logged in")
+
+
+def category_for_status(status_code: int, message: str = "") -> type[BitwardenError]:
+  """Choose the error category for an HTTP error status.
+
+  Args:
+    status_code: An HTTP status of 400 or above.
+    message: The ``message`` from the response body, if it had one.
+
+  Returns:
+    The :class:`BitwardenError` subclass for that outcome, per the table
+    in this module's docstring.
+  """
+  if status_code >= 500:
+    return ExternalServiceError
+
+  if status_code in (401, 403):
+    return UserError
+
+  if status_code == 400 and any(text in message.lower() for text in _USER_STATE_MESSAGES):
+    return UserError
+
+  return ValidationError
 
 
 # -----------------------------------------------------------------------------

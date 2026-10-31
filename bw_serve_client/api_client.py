@@ -9,13 +9,13 @@ import logging
 from typing import Any, Dict, Optional, Union
 from urllib.parse import urljoin
 
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+import httpx
 
 # Type aliases for complex types
 RequestData = Optional[Union[Dict[str, Any], str]]
 QueryParams = Optional[Dict[str, Any]]
+
+UNIX_SCHEME = "unix://"
 
 
 class BitwardenAPIError(Exception):
@@ -54,21 +54,40 @@ class ApiClient:
   Handles all HTTP requests, response processing, error handling, and
   data serialization/deserialization for the Bitwarden API.
 
+  The client connects to a running ``bw serve``; it never starts or stops
+  it. It reaches the server one of three ways:
+
+  - **URL** (the default): built from ``protocol``, ``domain``, ``port``
+    and ``path``, or given whole as ``base_url``.
+  - **Unix socket**: ``base_url="unix:///path/to/bw.sock"``, joined with
+    ``path``. Requests go over the socket with ``Host: localhost:<port>``,
+    so ``port`` must match the port ``bw serve`` was started with.
+  - **Caller's transport**: any ``httpx.BaseTransport`` as ``transport``,
+    used as-is, so ``max_retries`` does not apply to it.
+
+  ``max_retries`` retries failed connection attempts only; an HTTP error
+  status is never retried.
+
   Args:
       protocol: Protocol to use (http, https) - default: http
       domain: Domain or IP address - default: localhost
       port: Port number - default: 8087
       path: Base path - default: empty string
       timeout: Request timeout in seconds
-      max_retries: Maximum number of retry attempts
-      user_agent: Custom User-Agent string (default: 'bw-serve-client/0.1.0')
+      max_retries: Connection attempts to retry
+      user_agent: Custom User-Agent string (default: 'bw-serve-client/<version>')
       logger: Optional logger instance for logging requests/responses
+      base_url: Full base URL, or ``unix://<socket path>``; replaces the URL parts
+      transport: Caller-supplied httpx transport
+
+  Raises:
+      ValueError: If a ``unix://`` base_url has no path or comes with a transport.
 
   Attributes:
-      session: The underlying requests.Session instance for HTTP communication
+      session: The underlying ``httpx.Client`` for HTTP communication
   """
 
-  session: requests.Session
+  session: httpx.Client
 
   # ---------------------------------------------------------------------------
   # for use with 'with'
@@ -101,35 +120,43 @@ class ApiClient:
     timeout: int = 30,
     max_retries: int = 3,
     user_agent: Optional[str] = None,
-    logger: Optional[logging.Logger] = None
+    logger: Optional[logging.Logger] = None,
+    *,
+    base_url: Optional[str] = None,
+    transport: Optional[httpx.BaseTransport] = None
   ) -> None:
-    # Build base_url from components
-    self.base_url = f"{protocol}://{domain}:{port}{path}".rstrip('/')
+    from . import __version__
 
+    headers = {'Accept': 'application/json', 'User-Agent': user_agent or f'bw-serve-client/{__version__}'}
+
+    if base_url is not None and base_url.startswith(UNIX_SCHEME):
+      if transport is not None:
+        raise ValueError("pass either a unix:// base_url or a transport, not both")
+
+      socket_path = base_url[len(UNIX_SCHEME):]
+
+      if not socket_path:
+        raise ValueError(f"no socket path in base_url {base_url!r}")
+
+      transport = httpx.HTTPTransport(uds=socket_path, retries=max_retries)
+      base_url = f"http://localhost:{port}{path}"
+
+      # bw CLI 2026.6.0+ 403s any other Host (bitwarden/clients#22867).
+      headers['Host'] = f"localhost:{port}"
+
+    elif base_url is None:
+      base_url = f"{protocol}://{domain}:{port}{path}"
+
+    if transport is None:
+      transport = httpx.HTTPTransport(retries=max_retries)
+
+    self.base_url = base_url.rstrip('/')
     self.timeout = timeout
     self.logger = logger or self._setup_default_logger()
 
-    # Setup session with retry strategy
-    self.session = requests.Session()
-
-    retry_strategy = Retry(
-      total=max_retries,
-      backoff_factor=1,
-      status_forcelist=[429, 500, 502, 503, 504],
-    )
-
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-
-    self.session.mount("http://", adapter)
-    self.session.mount("https://", adapter)
-
-    # Set default headers
-    from . import __version__
-    self.session.headers.update({
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'User-Agent': user_agent or f'bw-serve-client/{__version__}'
-    })
+    # No default Content-Type: httpx sets it per body (JSON, multipart
+    # with its boundary), and a client default would override that.
+    self.session = httpx.Client(transport=transport, headers=headers, timeout=timeout)
 
   def _setup_default_logger(self: "ApiClient") -> logging.Logger:
     """Set up default logger for the API client."""
@@ -151,7 +178,7 @@ class ApiClient:
     params: QueryParams = None,
     files: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None
-  ) -> requests.Response:
+  ) -> httpx.Response:
     """Make an HTTP request to the API.
 
     Args:
@@ -184,12 +211,6 @@ class ApiClient:
 
     url = urljoin(self.base_url, endpoint.lstrip('/'))
 
-    # Prepare headers
-    request_headers = dict(self.session.headers)
-
-    if headers:
-      request_headers.update(headers)
-
     # Log request
     self.logger.debug(f"Making {method} request to {url}")
 
@@ -199,27 +220,27 @@ class ApiClient:
     if data and not files:
       self.logger.debug(f"Request data: {data}")
 
+    content_type = httpx.Headers(headers).get('Content-Type', 'application/json')
+    use_json = not files and content_type.startswith('application/json')
+
+    # httpx takes a JSON body, raw text and form fields as three separate
+    # arguments.
+    body: Dict[str, Any] = {}
+
+    if data is not None:
+      serialized_data = self._serialize_data(data, content_type)
+
+      if use_json:
+        body['json'] = serialized_data
+
+      elif isinstance(serialized_data, (str, bytes)):
+        body['content'] = serialized_data
+
+      else:
+        body['data'] = serialized_data
+
     try:
-      # Serialize data based on content type
-      serialized_data = None
-      if data is not None:
-        content_type = str(request_headers.get('Content-Type', 'application/json'))
-        serialized_data = self._serialize_data(data, content_type)
-
-      # Determine whether to use json or data parameter based on content type
-      content_type_str = str(request_headers.get('Content-Type', 'application/json'))
-      use_json = not files and content_type_str.startswith('application/json')
-
-      response = self.session.request(
-        method=method,
-        url=url,
-        json=serialized_data if use_json else None,
-        data=serialized_data if not use_json else None,
-        files=files,
-        params=params,
-        headers=request_headers,
-        timeout=self.timeout
-      )
+      response = self.session.request(method=method, url=url, files=files, params=params, headers=headers, **body)
 
       # Log response
       self.logger.debug(f"Response status: {response.status_code}")
@@ -230,7 +251,7 @@ class ApiClient:
 
       return response
 
-    except requests.exceptions.RequestException as e:
+    except httpx.RequestError as e:
       self.logger.exception("Request failed")
       raise BitwardenAPIError(f"Request failed: {e}") from e
 
@@ -260,7 +281,7 @@ class ApiClient:
     else:
       return str(data)
 
-  def _deserialize_data(self: "ApiClient", response: requests.Response) -> Any:
+  def _deserialize_data(self: "ApiClient", response: httpx.Response) -> Any:
     """Deserialize API response data.
 
     Args:
@@ -282,7 +303,7 @@ class ApiClient:
     else:
       return response.text
 
-  def _handle_error(self: "ApiClient", response: requests.Response) -> None:
+  def _handle_error(self: "ApiClient", response: httpx.Response) -> None:
     """Handle HTTP errors and raise appropriate exceptions.
 
     Args:

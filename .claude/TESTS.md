@@ -31,7 +31,7 @@ unit tests covering:
 - Request body construction.
 - Response parsing into pydantic models.
 - HTTP status handling (success, 4xx, 5xx).
-- Authentication header injection.
+- No authentication header is sent: `bw serve` has no endpoint auth.
 - Error path: how errors propagate through the injected error handler.
 
 ## Mocking

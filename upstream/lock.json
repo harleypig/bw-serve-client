@@ -1,0 +1,49 @@
+{
+  "spec": {
+    "source": "https://bitwarden.com/help/vault-management-api/",
+    "sha256": "20c23d85454397dad7d27eb2c3f186a958a8a2a9cf95cf6d98505acceecfed97",
+    "fetched": "2026-10-31"
+  },
+  "cli": {
+    "release": "cli-v2026.10.1",
+    "fetched": "2026-10-31"
+  },
+  "configurators": {
+    "apps/cli/src/oss-serve-configurator.ts": {
+      "commit": "fe06639c7a84d2fbbc43f2ed9ba958585bb9af73",
+      "fetched": "2026-10-31"
+    },
+    "bitwarden_license/bit-cli/src/bit-serve-configurator.ts": {
+      "commit": "afc46cc50a432961a56e051df6afd0510ee3735d",
+      "fetched": "2026-10-31"
+    }
+  },
+  "serve_routes": {
+    "sha256": "c45436ed64f2dc5f5e5376b77336b4eb6b58afbc88cba47bf4b109f407e2c0fa",
+    "fetched": "2026-10-31"
+  },
+  "watched": {
+    "bitwarden/clients#22699": {
+      "state": "open",
+      "fetched": "2026-10-31"
+    },
+    "bitwarden/clients#22867": {
+      "state": "open",
+      "fetched": "2026-10-31"
+    },
+    "bitwarden/clients#23024": {
+      "state": "open",
+      "fetched": "2026-10-31"
+    },
+    "bitwarden/clients#23933": {
+      "state": "open",
+      "fetched": "2026-10-31"
+    }
+  },
+  "packages": {
+    "bitwarden-sdk": {
+      "version": "2.1.0",
+      "fetched": "2026-10-31"
+    }
+  }
+}

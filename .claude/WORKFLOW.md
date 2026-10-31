@@ -20,7 +20,8 @@ raising, never by `sys.exit`.
 | `bw_serve_client/`   | Package source                           |
 | `tests/`             | pytest test suite                        |
 | `docs/`              | Sphinx docs and architecture notes       |
-| `scripts/`           | Local development helpers                |
+| `upstream/`          | Detection: the raw Bitwarden spec, the local fixes, the patched spec, and the spec tool |
+| `codegen/`           | Generation inputs: the patched spec becomes `bw_serve_client/models.py` |
 | `pyproject.toml`     | Poetry config; tool config inline        |
 | `.pre-commit-config.yaml` / `-fix.yaml` | Check / auto-fix configs |
 

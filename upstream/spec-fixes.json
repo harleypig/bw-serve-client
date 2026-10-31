@@ -4,8 +4,8 @@
   "metadata": {
     "generated_by": "api_spec_tool.py",
     "generated_at": "2024-01-01T00:00:00Z",
-    "original_spec": "scripts/vault-management-api-original.json",
-    "fixed_spec": "scripts/vault-management-api-fixed.json",
+    "original_spec": "upstream/vault-management-api-original.json",
+    "fixed_spec": "upstream/vault-management-api-fixed.json",
     "features": [
       "array_position_tracking",
       "content_based_hashing",

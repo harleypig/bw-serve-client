@@ -9,11 +9,11 @@ from typing import Any, Dict
 
 import pytest
 
-# Import the tool from the scripts directory
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+# Import the tool from the upstream directory
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'upstream'))
 
 spec = importlib.util.spec_from_file_location(
-  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'scripts', 'api-spec-tool.py')
+  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py')
 )
 if spec is None or spec.loader is None:
   raise ImportError("Could not load api_spect_tool module")

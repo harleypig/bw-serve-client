@@ -8,7 +8,6 @@ from typing import Any, TYPE_CHECKING
 from uuid import uuid4
 
 from pydantic import BaseModel
-from pydantic import ValidationError as PydanticValidationError
 import pytest
 
 from bw_serve_client._generated.models import FolderSchema
@@ -140,7 +139,9 @@ class TestValidation:
     with pytest.raises(ValidationError, match="invalid") as exc_info:  # act
       resource._request("POST", "/object/folder/{id}", **kwargs)
 
-    assert isinstance(exc_info.value.__cause__, PydanticValidationError)
+    # The pydantic error holds the input, which can be a secret (#30).
+    assert exc_info.value.__cause__ is None
+    assert exc_info.value.__context__ is None
     assert sent == []
 
   def test_invalid_input_with_returning_handler(
@@ -155,7 +156,7 @@ class TestValidation:
     [(category, _, status_code, cause)] = returning_handler.calls
     assert category is ValidationError
     assert status_code is None
-    assert isinstance(cause, PydanticValidationError)
+    assert cause is None
     assert sent == []
 
 
@@ -262,7 +263,7 @@ class TestResponseParsing:
     assert result is returning_handler.result
     [(category, _, _, cause)] = returning_handler.calls
     assert category is ExternalServiceError
-    assert isinstance(cause, PydanticValidationError)
+    assert cause is None
 
 
 # -----------------------------------------------------------------------------

@@ -19,6 +19,7 @@ from pydantic import ConfigDict
 from pydantic import EmailStr
 from pydantic import Field
 from pydantic import RootModel
+from pydantic import SecretStr
 
 
 class ItemTypeSchema(IntEnum):
@@ -215,7 +216,8 @@ class LockUnlockDataSchema(BaseModel):
   no_color: Annotated[bool | None, Field(alias='noColor')]
   object: str | None
   title: str | None
-  message: str | None
+  message: SecretStr | None
+  raw: SecretStr | None
 
 
 class LockUnlockSuccessSchema(BaseModel):
@@ -253,7 +255,7 @@ class UnlockPostRequestSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  password: str | None
+  password: SecretStr | None
 
 
 class IdSchema(RootModel[UUID]):

@@ -195,8 +195,10 @@ class ApiClient:
     if params:
       self.logger.debug(f"Query parameters: {params}")
 
-    if data and not files:
-      self.logger.debug(f"Request data: {data}")
+    # Field names only: a body can carry the master password or vault
+    # secrets, and a debug log is no place for either.
+    if isinstance(data, dict) and not files:
+      self.logger.debug(f"Request fields: {sorted(data)}")
 
     content_type = httpx.Headers(headers).get('Content-Type', 'application/json')
     use_json = not files and content_type.startswith('application/json')
@@ -217,11 +219,10 @@ class ApiClient:
       else:
         body['data'] = serialized_data
 
-    try:
-      response = self.session.request(method=method, url=url, files=files, params=params, headers=headers, **body)
+    response = self._send(method, url, files=files, params=params, headers=headers, **body)
 
-    except httpx.RequestError as e:
-      return handler.handle(ExternalServiceError, f"Request failed: {e}", cause=e)
+    if isinstance(response, httpx.RequestError):
+      return handler.handle(ExternalServiceError, f"Request failed: {response}", cause=response)
 
     # Log response
     self.logger.debug(f"Response status: {response.status_code}")
@@ -231,6 +232,30 @@ class ApiClient:
       return self._handle_error(response, handler)
 
     return response
+
+  def _send(self: "ApiClient", method: str, url: str, **kwargs: Any) -> Union[httpx.Response, httpx.RequestError]:
+    """Send one request, returning a transport failure rather than raising it.
+
+    The failure comes back as a copy of httpx's error without its request,
+    which holds the body -- the master password, on ``/unlock``. Returning
+    it, rather than handling it in the ``except`` block, keeps the original
+    from becoming the ``__context__`` of whatever the error handler raises.
+
+    Args:
+        method: HTTP method, upper case.
+        url: Full request URL.
+        kwargs: Further arguments for ``httpx.Client.request``.
+
+    Returns:
+        The response, or the transport failure.
+    """
+    try:
+      return self.session.request(method=method, url=url, **kwargs)
+
+    except httpx.RequestError as e:
+      failure = type(e)(str(e))
+      failure.__cause__ = e.__cause__
+      return failure
 
   def _serialize_data(self: "ApiClient", data: Any, content_type: str = "application/json") -> Any:
     """Serialize data for API requests.

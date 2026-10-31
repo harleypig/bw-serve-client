@@ -18,8 +18,10 @@ from typing import Any, Optional, Tuple, Type, TYPE_CHECKING
 
 import httpx
 from pydantic import BaseModel
+from pydantic import SecretStr
 from pydantic import TypeAdapter
 from pydantic import ValidationError as PydanticValidationError
+from pydantic_core import to_jsonable_python
 
 from .errors import ExternalServiceError
 from .errors import ValidationError
@@ -45,6 +47,46 @@ def _adapter(response_type: Any) -> TypeAdapter[Any]:
     The cached adapter.
   """
   return TypeAdapter(response_type)
+
+
+# -----------------------------------------------------------------------------
+def _reveal(value: Any) -> Any:
+  """Replace every ``SecretStr`` in a dumped model with its value.
+
+  Args:
+    value: A model dumped in python mode, or any part of one.
+
+  Returns:
+    The same structure, with secrets in the clear for sending.
+  """
+  if isinstance(value, SecretStr):
+    return value.get_secret_value()
+
+  if isinstance(value, dict):
+    return {key: _reveal(item) for key, item in value.items()}
+
+  if isinstance(value, list):
+    return [_reveal(item) for item in value]
+
+  return value
+
+
+# -----------------------------------------------------------------------------
+def _summarize(error: PydanticValidationError) -> str:
+  """Describe a validation failure without the input that failed.
+
+  The input can be a secret -- a master password under a misspelled field
+  name, a session key in a response -- so only where and why are kept.
+
+  Args:
+    error: The pydantic failure.
+
+  Returns:
+    One ``location: reason`` entry per error, separated by semicolons.
+  """
+  details = error.errors(include_url=False, include_context=False, include_input=False)
+
+  return "; ".join(f"{'.'.join(str(part) for part in detail['loc']) or '<root>'}: {detail['msg']}" for detail in details)
 
 
 # -----------------------------------------------------------------------------
@@ -135,11 +177,17 @@ class Resource:
 
       model, fields = unvalidated
 
+      # The failure is reported outside the except block, so the pydantic
+      # error, which holds the input, is neither the cause nor the context.
       try:
-        validated[name] = model.model_validate(dict(fields)).model_dump(mode="json", by_alias=True, exclude_none=True)
+        dumped = model.model_validate(dict(fields)).model_dump(by_alias=True, exclude_none=True)
+        validated[name] = to_jsonable_python(_reveal(dumped))
+        continue
 
       except PydanticValidationError as e:
-        return self._fail(ValidationError, f"invalid {name} for {method} {path}: {e}", cause=e)
+        problems = _summarize(e)
+
+      return self._fail(ValidationError, f"invalid {name} for {method} {path}: {problems}")
 
     endpoint = path.format(**validated.get("path", {}))
 
@@ -175,9 +223,11 @@ class Resource:
     """
     payload = self.client._deserialize_data(response)
 
+    # The body itself stays out of the message: on /unlock it holds the
+    # session key.
     if not isinstance(payload, dict) or "data" not in payload:
       return self._fail(
-        ExternalServiceError, f"response has no data member: {response.text[:200]!r}", status_code=response.status_code
+        ExternalServiceError, f"response has no data member (a {type(payload).__name__} body)", status_code=response.status_code
       )
 
     data = payload["data"]
@@ -189,6 +239,8 @@ class Resource:
       return _adapter(response_type).validate_python(data)
 
     except PydanticValidationError as e:
-      return self._fail(
-        ExternalServiceError, f"response does not match {response_type!r}: {e}", status_code=response.status_code, cause=e
-      )
+      problems = _summarize(e)
+
+    return self._fail(
+      ExternalServiceError, f"response does not match {response_type!r}: {problems}", status_code=response.status_code
+    )

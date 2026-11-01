@@ -17,7 +17,11 @@ from bw_serve_client.errors import DefaultErrorHandler
 from bw_serve_client.errors import ExternalServiceError
 from bw_serve_client.errors import UserError
 from bw_serve_client.errors import ValidationError
+from bw_serve_client.resource import declared_routes
 from bw_serve_client.resource import Resource
+from bw_serve_client.resource import route
+from bw_serve_client.resource import routed_methods
+from bw_serve_client.resource import RouteKey
 
 if TYPE_CHECKING:
   from conftest import MakeClient
@@ -311,3 +315,60 @@ class TestStatusHandling:
       resource._request("GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetParameters, {"id": str(uuid4())}))
 
     assert any(r.name == "test.resource.log" and r.message.startswith("GET /object/folder/") for r in caplog.records)
+
+
+# -----------------------------------------------------------------------------
+class TestRouteDeclaration:
+  """The @route decorator and the functions that read it back."""
+
+  def test_records_the_route_and_returns_the_function(self: TestRouteDeclaration) -> None:
+    """The function comes back unchanged, carrying its route."""
+
+    def method() -> str:
+      return "called"
+
+    decorated = route("GET", "/status")(method)  # act
+
+    assert decorated is method
+    assert decorated() == "called"
+    assert declared_routes(decorated) == (RouteKey("GET", "/status"),)
+
+  def test_stacked_routes_are_all_recorded(self: TestRouteDeclaration) -> None:
+    """A method serving two routes declares both, outermost first."""
+
+    @route("GET", "/list/object/send")
+    @route("GET", "/send/list")
+    def method() -> None:
+      """Serve both."""
+
+    assert declared_routes(method) == (RouteKey("GET", "/list/object/send"), RouteKey("GET", "/send/list"))
+
+  def test_undecorated_function_declares_nothing(self: TestRouteDeclaration) -> None:
+    """A plain function, or any other object, has no routes."""
+    assert declared_routes(len) == ()
+    assert declared_routes(None) == ()
+
+  def test_route_key_spells_method_and_path(self: TestRouteDeclaration) -> None:
+    """Spell a route the way the exclusion list keys it: METHOD /path."""
+    assert str(RouteKey("PUT", "/object/folder/{id}")) == "PUT /object/folder/{id}"
+
+  def test_routed_methods_reads_only_the_class_namespace(self: TestRouteDeclaration) -> None:
+    """Declared methods are listed by the class defining them, never by a subclass."""
+
+    class Base:
+
+      @route("POST", "/lock")
+      def lock(self: Base) -> None:
+        """Lock."""
+
+      def helper(self: Base) -> None:
+        """Do nothing; no route is declared."""
+
+    class Child(Base):
+
+      @route("POST", "/unlock")
+      def unlock(self: Child) -> None:
+        """Unlock."""
+
+    assert routed_methods(Base) == {"lock": (RouteKey("POST", "/lock"),)}
+    assert routed_methods(Child) == {"unlock": (RouteKey("POST", "/unlock"),)}

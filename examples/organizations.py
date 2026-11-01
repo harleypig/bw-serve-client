@@ -37,7 +37,7 @@ def main() -> int:
       found = organizations.list()
 
     except ExternalServiceError as error:
-      print(f"Cannot reach bw serve at {base_url}: {error}", file=sys.stderr)
+      print(f"bw serve at {base_url} failed: {error}", file=sys.stderr)
       return 1
 
     except UserError as error:

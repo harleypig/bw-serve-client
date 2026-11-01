@@ -19,6 +19,7 @@ from bw_serve_client import ApiClient
 from bw_serve_client import ExternalServiceError
 from bw_serve_client import UserError
 from bw_serve_client import ValidationError
+from bw_serve_client import VaultControl
 from bw_serve_client import VaultItems
 
 if TYPE_CHECKING:
@@ -26,16 +27,18 @@ if TYPE_CHECKING:
 
 
 # -----------------------------------------------------------------------------
-def _archive(items: VaultItems, item_id: UUID) -> None:
+def _archive(items: VaultItems, vault: VaultControl, item_id: UUID) -> None:
   """Archive the item and restore it from the archive.
 
   Args:
     items: The resource.
+    vault: Syncs, so a list reflects the write before it.
     item_id: The item's id.
   """
   # Archiving needs a premium account, so bw serve may refuse it here.
   try:
     items.archive(item_id)
+    vault.sync()
     print(f"Archived it; {len(items.list(archived=True))} archived items")
 
     items.restore(item_id)
@@ -46,20 +49,23 @@ def _archive(items: VaultItems, item_id: UUID) -> None:
 
 
 # -----------------------------------------------------------------------------
-def _trash_and_delete(items: VaultItems, item_id: UUID) -> None:
+def _trash_and_delete(items: VaultItems, vault: VaultControl, item_id: UUID) -> None:
   """Trash the item, restore it, then delete it for good.
 
   Args:
     items: The resource.
+    vault: Syncs, so a read reflects the write before it.
     item_id: The item's id.
   """
   items.delete(item_id)
+  vault.sync()
   print(f"Moved it to the trash; {len(items.list(trash=True))} items there")
 
   items.restore(item_id)
   print("Restored it from the trash")
 
   items.delete(item_id, permanent=True)
+  vault.sync()
   print("Deleted it permanently")
 
   # By default every failure raises. bw serve answers a get for an item
@@ -82,12 +88,13 @@ def main() -> int:
 
   with ApiClient(base_url=base_url) as client:
     items = VaultItems(client)
+    vault = VaultControl(client)
 
     try:
       existing = items.list()
 
     except ExternalServiceError as error:
-      print(f"Cannot reach bw serve at {base_url}: {error}", file=sys.stderr)
+      print(f"bw serve at {base_url} failed: {error}", file=sys.stderr)
       return 1
 
     except UserError as error:
@@ -107,20 +114,35 @@ def main() -> int:
 
     print(f"Added {note.name!r} with id {item_id}")
 
+    # bw serve's local state can lag its own writes, so a read straight
+    # after one may not see it; a sync brings the local state up to date.
+    vault.sync()
+
     # A search term finds it too, as long as it matches only this item.
+    # bw serve answers an ambiguous search with a 400 listing the matches.
     try:
       print(f"Found by search: {items.get(search='Example note').name!r}")
 
     except ValidationError as error:
-      print(f"Search matched more than one item: {error}")
+      if "more than one result" in str(error).lower():
+        print(f"Search matched more than one item: {error}")
+
+      else:
+        print(f"Search did not find it: {error}")
 
     # The edit is get, change, put: the fetched item goes back whole, and
     # its server-side fields are dropped on the way.
-    renamed = items.modify(item_id, items.get(item_id).model_copy(update={"name": "Example note, renamed"}))
+    try:
+      renamed = items.modify(item_id, items.get(item_id).model_copy(update={"name": "Example note, renamed"}))
+
+    except ValidationError as error:
+      print(f"Cannot read the new item back to edit it: {error}", file=sys.stderr)
+      return 1
+
     print(f"Renamed it to {renamed.name!r}")
 
-    _archive(items, item_id)
-    _trash_and_delete(items, item_id)
+    _archive(items, vault, item_id)
+    _trash_and_delete(items, vault, item_id)
 
   return 0
 

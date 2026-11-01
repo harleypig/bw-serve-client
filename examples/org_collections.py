@@ -21,6 +21,7 @@ from bw_serve_client import Organizations
 from bw_serve_client import OrgCollections
 from bw_serve_client import UserError
 from bw_serve_client import ValidationError
+from bw_serve_client import VaultControl
 
 
 def main() -> int:
@@ -38,7 +39,7 @@ def main() -> int:
       existing = collections.list_collections()
 
     except ExternalServiceError as error:
-      print(f"Cannot reach bw serve at {base_url}: {error}", file=sys.stderr)
+      print(f"bw serve at {base_url} failed: {error}", file=sys.stderr)
       return 1
 
     except UserError as error:
@@ -72,14 +73,21 @@ def main() -> int:
     collections.delete(collection_id, organization_id)
     print("Deleted it")
 
-    # By default every failure raises. bw serve answers a get for a
-    # collection that no longer exists with a 400, which is a
-    # ValidationError.
+    # Never get() a deleted collection to prove it is gone: a Vaultwarden
+    # server answers that with a 401, and bw serve logs its account out on
+    # a 401. A sync and a list show it instead.
+    VaultControl(client).sync()
+    remaining = collections.list(organization_id)
+    print(f"Gone from the organization: {all(c.id != collection_id for c in remaining)}")
+
+    # By default every failure raises. get_collection reads bw serve's
+    # local state, never the server, and answers a collection no longer
+    # there with a 400, which is a ValidationError.
     try:
-      collections.get(collection_id, organization_id)
+      collections.get_collection(collection_id)
 
     except ValidationError as error:
-      print(f"Getting it again fails as expected: {error} (HTTP {error.status_code})")
+      print(f"Getting it from local state fails as expected: {error} (HTTP {error.status_code})")
 
   return 0
 

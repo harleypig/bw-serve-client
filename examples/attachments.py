@@ -45,7 +45,7 @@ def main() -> int:
       item = attachments.add(item_id, content, "example-attachment.bin")
 
     except ExternalServiceError as error:
-      print(f"Cannot reach bw serve at {base_url}: {error}", file=sys.stderr)
+      print(f"bw serve at {base_url} failed: {error}", file=sys.stderr)
       return 1
 
     except UserError as error:
@@ -59,7 +59,9 @@ def main() -> int:
       return 1
 
     attachment_id = added[-1].id
-    print(f"Attached {added[-1].file_name!r} ({added[-1].size_name}) with id {attachment_id}")
+    # size_name is the size the server stores, which is larger than the
+    # upload: the server holds the file encrypted.
+    print(f"Attached {added[-1].file_name!r} ({added[-1].size_name} on the server) with id {attachment_id}")
 
     downloaded = attachments.get(attachment_id, item_id)
     print(f"Downloaded {len(downloaded)} bytes; identical to the upload: {downloaded == content}")

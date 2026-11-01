@@ -31,12 +31,15 @@ RequestId = ObjectId
 class DeviceApproval(Resource):
   """Approve or deny the trusted-device requests of an organization.
 
-  **Commercial build only.** These routes are registered by the licensed
-  Bitwarden CLI build alone; the open-source ``bw`` has none of them, so
-  its ``bw serve`` answers every call here with a 404, which arrives as a
+  **Needs the routes in the CLI and the endpoint on the server.** The npm
+  ``@bitwarden/cli`` 2026.10.1 build includes these routes. A CLI build
+  without them makes ``bw serve`` answer every call here with a 404, a
   :class:`~bw_serve_client.errors.ValidationError` with ``status_code``
-  404. The account also needs permission to manage the organization's
-  users' passwords.
+  404. With the routes, a server that lacks the endpoint (Vaultwarden
+  1.37.4) answers through ``bw serve`` as a 400, a ``ValidationError``
+  with ``status_code`` 400 whose message carries the server's 404. The
+  account also needs permission to manage the organization's users'
+  passwords.
 
   Construction, logging and error handling are :class:`Resource`'s. Every
   method returns what the error handler returned, in place of its result,

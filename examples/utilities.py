@@ -36,7 +36,7 @@ def main() -> int:
       password = utilities.generate(length=24, special=True, uppercase=True, lowercase=True, number=True, avoid_ambiguous=True)
 
     except ExternalServiceError as error:
-      print(f"Cannot reach bw serve at {base_url}: {error}", file=sys.stderr)
+      print(f"bw serve at {base_url} failed: {error}", file=sys.stderr)
       return 1
 
     # A generated password is a SecretStr: printed, it shows asterisks.

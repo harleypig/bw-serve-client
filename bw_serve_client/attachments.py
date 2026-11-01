@@ -11,17 +11,17 @@ from __future__ import annotations
 
 import os
 from typing import Any, BinaryIO, Optional, Union
-from uuid import UUID
 
 from ._generated.models import AttachmentPostParameters
 from ._generated.models import ItemSchema
 from ._generated.models import ObjectAttachmentIdDeleteParameters
 from ._generated.models import ObjectAttachmentIdGetParameters
 from .errors import ValidationError
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
-ItemId = Union[UUID, str]
+ItemId = ObjectId
 
 #: What :meth:`Attachments.add` uploads: a path to read, or the content.
 FileSource = Union[str, os.PathLike[str], bytes, BinaryIO]

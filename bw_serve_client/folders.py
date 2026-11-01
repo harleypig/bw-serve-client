@@ -14,20 +14,46 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from uuid import UUID
 
+from pydantic import field_validator
+
 from ._generated.models import FolderResponseSchema
 from ._generated.models import FolderSchema
 from ._generated.models import ListObjectFoldersGetParameters
 from ._generated.models import ObjectFolderIdDeleteParameters
 from ._generated.models import ObjectFolderIdGetParameters
 from ._generated.models import ObjectFolderIdPutParameters
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
-FolderId = Union[UUID, str]
+FolderId = ObjectId
 
-#: A folder as bw serve returns it; the built-in "No Folder" has the empty
-#: string for its id.
-Folder = FolderResponseSchema
+
+class Folder(FolderResponseSchema):
+  """A folder as bw serve returns it.
+
+  bw gives the built-in "No Folder" an empty-string id. It is read as
+  ``None``, which is also what an item's ``folderId`` takes for no folder.
+
+  Attributes:
+    id: The folder's id; ``None`` for "No Folder".
+  """
+
+  id: Optional[UUID] = None  # type: ignore[assignment] - narrows the generated UUID | '' | None.
+
+  # ---------------------------------------------------------------------------
+  @field_validator("id", mode="before")
+  @classmethod
+  def _empty_id_is_none(cls: type[Folder], value: Any) -> Any:
+    """Read the empty-string id bw serve gives "No Folder" as ``None``.
+
+    Args:
+      value: The raw id.
+
+    Returns:
+      ``None`` for an empty string, otherwise the value unchanged.
+    """
+    return None if value == "" else value
 
 
 class Folders(Resource):

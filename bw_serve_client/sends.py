@@ -19,7 +19,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Optional, TYPE_CHECKING, Union
-from uuid import UUID
 
 from pydantic import SecretStr
 
@@ -31,13 +30,14 @@ from ._generated.models import SendIdRemovePasswordPostParameters
 from ._generated.models import SendSchema
 from ._generated.models import SendTemplateSchema
 from ._generated.models import SendTypeSchema
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
 if TYPE_CHECKING:
   from collections.abc import Sequence
 
-SendId = Union[UUID, str]
+SendId = ObjectId
 Password = Union[SecretStr, str]
 Timestamp = Union[datetime, str]
 

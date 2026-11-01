@@ -17,6 +17,8 @@ from collections.abc import Callable, Mapping, Sequence
 import functools
 import logging
 from typing import Any, NamedTuple, Optional, Tuple, Type, TYPE_CHECKING, TypeVar, Union
+from urllib.parse import quote
+from uuid import UUID
 
 import httpx
 from pydantic import BaseModel
@@ -33,6 +35,10 @@ if TYPE_CHECKING:
   from .api_client import ApiClient
   from .errors import BitwardenError
   from .errors import ErrorHandler
+
+#: What every id parameter accepts; a string is validated as a UUID by the
+#: route's model.
+ObjectId = Union[UUID, str]
 
 #: Raw input and the pydantic model it must validate against: a mapping of
 #: fields, or for a ``RootModel`` (a bare JSON array body) its root value.
@@ -292,7 +298,9 @@ class Resource:
 
       return self._fail(ValidationError, f"invalid {name} for {method} {path}: {problems}")
 
-    endpoint = path.format(**validated.get("path", {}))
+    # Each value is percent-encoded whole, so a slash or a question mark in
+    # one stays inside its segment instead of changing the route.
+    endpoint = path.format(**{name: quote(str(value), safe="") for name, value in validated.get("path", {}).items()})
 
     self.logger.debug("%s %s", method, endpoint)
 

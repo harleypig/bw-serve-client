@@ -12,7 +12,6 @@ the API spec. One method per route:
 from __future__ import annotations
 
 from typing import Any, Optional, Union
-from uuid import UUID
 
 from ._generated.models import ConfirmOrgMemberIdPostParameters
 from ._generated.models import ListObjectOrganizationsGetParameters
@@ -20,11 +19,12 @@ from ._generated.models import ListObjectOrgMembersGetParameters
 from ._generated.models import ObjectOrganizationIdGetParameters
 from ._generated.models import OrganizationSchema
 from ._generated.models import OrgMemberSchema
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
-OrganizationId = Union[UUID, str]
-MemberId = Union[UUID, str]
+OrganizationId = ObjectId
+MemberId = ObjectId
 
 # The generated confirm model holds the path id and the organizationId
 # query in one model, so it validates the path and this model, which holds

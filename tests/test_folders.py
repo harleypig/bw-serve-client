@@ -69,15 +69,15 @@ class TestFolderModel:
     assert result.name == "Notes"
     assert result.object == "folder"
 
-  def test_empty_string_id_is_kept(self: "TestFolderModel") -> None:
-    """The empty-string id bw serve gives "No Folder" stays the empty string."""
+  def test_empty_string_id_is_none(self: "TestFolderModel") -> None:
+    """The empty-string id bw serve gives "No Folder" is read as None."""
     result = Folder.model_validate({"id": "", "name": "No Folder", "object": "folder"})  # act
 
-    assert result.id == ""
+    assert result.id is None
 
-  def test_folder_is_the_generated_response_model(self: "TestFolderModel") -> None:
-    """The public Folder name is the generated folder response model."""
-    assert Folder is FolderResponseSchema
+  def test_folder_extends_the_generated_response_model(self: "TestFolderModel") -> None:
+    """The public Folder is the generated folder response model, plus the id rule."""
+    assert issubclass(Folder, FolderResponseSchema)
 
   def test_rejects_an_id_that_is_neither_a_uuid_nor_empty(self: "TestFolderModel") -> None:
     """Only a UUID or the empty string is a folder id."""
@@ -256,7 +256,7 @@ class TestFoldersList:
 
     result = folders.list()  # act
 
-    assert [(f.name, f.id == "") for f in result] == [("Personal", False), ("No Folder", True)]
+    assert [(f.name, f.id is None) for f in result] == [("Personal", False), ("No Folder", True)]
 
   def test_list_with_empty_search_omits_query_param(
     self: TestFoldersList, make_client: MakeClient, sent: list[httpx.Request]

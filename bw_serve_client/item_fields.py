@@ -14,7 +14,6 @@ tag in the API spec. One method per route, named for the field it reads:
 from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING, Union
-from uuid import UUID
 
 from ._generated.models import ObjectExposedIdGetParameters
 from ._generated.models import ObjectNotesIdGetParameters
@@ -25,6 +24,7 @@ from ._generated.models import ObjectUsernameIdGetParameters
 from ._generated.models import SecretStringResponseSchema
 from ._generated.models import StringResponseSchema
 from .errors import ExternalServiceError
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
   from pydantic import BaseModel
   from pydantic import SecretStr
 
-ItemId = Union[UUID, str]
+ItemId = ObjectId
 
 
 class ItemFields(Resource):

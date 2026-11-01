@@ -13,7 +13,6 @@ Mirrors the ``Trusted Device Approval`` tag in the API spec. One
 from __future__ import annotations
 
 from typing import Any, Union
-from uuid import UUID
 
 from ._generated.models import DeviceApprovalOrganizationIdApproveAllPostParameters
 from ._generated.models import DeviceApprovalOrganizationIdApproveRequestIdPostParameters
@@ -21,11 +20,12 @@ from ._generated.models import DeviceApprovalOrganizationIdDenyAllPostParameters
 from ._generated.models import DeviceApprovalOrganizationIdDenyRequestIdPostParameters
 from ._generated.models import DeviceApprovalOrganizationIdGetParameters
 from ._generated.models import DeviceApprovalPropertiesSchema
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
-OrganizationId = Union[UUID, str]
-RequestId = Union[UUID, str]
+OrganizationId = ObjectId
+RequestId = ObjectId
 
 
 class DeviceApproval(Resource):

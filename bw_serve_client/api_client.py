@@ -395,7 +395,7 @@ class ApiClient:
         params: Query parameters
 
     Returns:
-        Deserialized response data; ``bytes`` for a downloaded file.
+        Deserialized response data; ``bytes`` for an ``application/octet-stream`` body, which is how bw serve sends a file.
     """
     return self._make_request_and_deserialize('GET', endpoint, params=params)
 

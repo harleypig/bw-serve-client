@@ -23,7 +23,6 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from typing import Any, Optional, Union
-from uuid import UUID
 
 from ._generated.models import CollectionResponseSchema
 from ._generated.models import CollectionSchema
@@ -41,12 +40,13 @@ from ._generated.models import ObjectOrgCollectionIdGetParameters
 from ._generated.models import ObjectOrgCollectionIdPutParameters
 from ._generated.models import ObjectOrgCollectionPostParameters
 from ._generated.models import OrgCollectionSchema
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
-CollectionId = Union[UUID, str]
-OrganizationId = Union[UUID, str]
-ItemId = Union[UUID, str]
+CollectionId = ObjectId
+OrganizationId = ObjectId
+ItemId = ObjectId
 
 #: A group's or user's access to a collection: a :class:`GroupSchema`, or
 #: a mapping of its fields (``id``, ``readOnly``, ``hidePasswords``,

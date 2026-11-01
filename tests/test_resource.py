@@ -44,6 +44,16 @@ class Thing(BaseModel):
   name: str
 
 
+class PathTerm(BaseModel):
+  """A free-text path parameter, as a search term in place of an id is.
+
+  Attributes:
+    id: Any string.
+  """
+
+  id: str
+
+
 def _ok(data: object) -> dict[str, object]:
   """Wrap a payload the way bw serve does on success.
 
@@ -201,6 +211,16 @@ class TestRequestBody:
     [request] = sent
     assert request.headers["Content-Type"] == "application/json"
     assert json.loads(request.content) == [FOLDER_ID]
+
+  def test_path_values_are_percent_encoded(self: TestRequestBody, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """A slash or a question mark in a path value stays inside its segment."""
+    resource = Resource(make_client(json_body=_ok(None)))
+
+    resource._request("GET", "/object/item/{id}", path_params=(PathTerm, {"id": "a/b?trash=true"}))  # act
+
+    [request] = sent
+    assert request.url.raw_path == b"/object/item/a%2Fb%3Ftrash%3Dtrue"
+    assert request.url.query == b""
 
   def test_root_model_body_is_validated(self: TestRequestBody, make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Each element of a RootModel body is validated, and a failure names its position."""

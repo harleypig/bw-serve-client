@@ -15,8 +15,6 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import Annotated, Any, get_args, Optional, Union
-from urllib.parse import quote
-from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -32,10 +30,11 @@ from ._generated.models import ObjectItemIdPutParameters
 from ._generated.models import RestoreItemIdPostParameters
 from .errors import ValidationError
 from .resource import _reveal
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
-ItemId = Union[UUID, str]
+ItemId = ObjectId
 
 #: What ``add`` and ``modify`` take: request fields, by alias or by field
 #: name, a built request model, or an item fetched from bw serve.
@@ -46,7 +45,7 @@ class _SearchPath(BaseModel):
   """The path of a get by search term, in place of the item id.
 
   Attributes:
-      id: The search term, already percent-encoded.
+      id: The search term; ``Resource`` percent-encodes it into the path.
       model_config: Refuses unknown fields.
   """
 
@@ -197,8 +196,8 @@ class VaultItems(Resource):
     Returns:
         The matching items as :class:`ItemSchema` (empty if none match).
     """
-    # bw reads ?trash and ?archived as true whatever their value, so a
-    # false flag is left out rather than sent.
+    # False is bw's default for both flags (list.command.ts), so a false
+    # flag is left out rather than sent.
     fields = {
       "organization_id": organization_id,
       "collection_id": collection_id,
@@ -304,9 +303,7 @@ class VaultItems(Resource):
       return self._fail(ValidationError, "give exactly one of item_id and search for GET /object/item/{id}")
 
     if search is not None:
-      # Quoted whole, so a slash or a question mark stays in the term
-      # instead of changing the route.
-      path_params = (_SearchPath, {"id": quote(search, safe="")})
+      path_params = (_SearchPath, {"id": search})
 
     else:
       path_params = (ObjectItemIdGetParameters, {"id": item_id})

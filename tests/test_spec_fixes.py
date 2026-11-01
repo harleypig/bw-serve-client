@@ -350,6 +350,27 @@ class TestCommittedFiles:
     assert patched == committed
 
   def test_no_fix_addresses_an_array_by_position(self: TestCommittedFiles) -> None:
-    """Every array step in a committed fix is a selector, never an index."""
+    """Every array step in a committed fix is a selector, never an index.
+
+    Walked against the patched spec, so a digit that is an object key -- a
+    response status such as ``"200"`` -- is not mistaken for an index.
+    """
+    patched = json.loads((UPSTREAM / "vault-management-api-fixed.json").read_text(encoding="utf-8"))
+    walked = 0
+
     for entry in spec_fixes.load_fixes(UPSTREAM / "spec-fixes.json"):
-      assert not any(isinstance(segment, str) and segment.isdigit() for segment in entry["path"]), entry["path"]
+      node: Any = patched
+
+      for segment in entry["path"]:
+        if isinstance(node, list):
+          assert isinstance(segment, dict), entry["path"]
+          walked += 1
+          node = next(item for item in node if all(item.get(key) == value for key, value in segment.items()))
+
+        elif isinstance(node, dict) and isinstance(segment, str) and segment in node:
+          node = node[segment]
+
+        else:
+          break
+
+    assert walked

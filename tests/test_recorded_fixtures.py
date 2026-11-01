@@ -21,6 +21,8 @@ off.
 from __future__ import annotations
 
 from functools import reduce
+import json
+from pathlib import Path
 import re
 from typing import Any, Callable, cast, Optional, TYPE_CHECKING
 from uuid import UUID
@@ -28,9 +30,26 @@ from uuid import UUID
 from conftest import load_recorded
 from conftest import RECORDED_DIR
 import pytest
+from test_spec_examples import unread_keys
 
+from bw_serve_client._generated import models
+from bw_serve_client._generated.models import CollectionListSuccessSchema
+from bw_serve_client._generated.models import CollectionSuccessSchema
+from bw_serve_client._generated.models import ItemListSuccessSchema
+from bw_serve_client._generated.models import ItemSuccessSchema
 from bw_serve_client._generated.models import LockUnlockSuccessSchema
+from bw_serve_client._generated.models import OrganizationListSuccessSchema
+from bw_serve_client._generated.models import OrganizationSuccessSchema
+from bw_serve_client._generated.models import OrgCollectionSuccessSchema
+from bw_serve_client._generated.models import OrgMemberListSuccessSchema
+from bw_serve_client._generated.models import SecretStringSuccessSchema
+from bw_serve_client._generated.models import SendListSuccessSchema
+from bw_serve_client._generated.models import SendSuccessSchema
 from bw_serve_client._generated.models import StatusSchema
+from bw_serve_client._generated.models import StringSuccessSchema
+from bw_serve_client._generated.models import SuccessSchema
+from bw_serve_client._generated.models import SyncMessageSuccessSchema
+from bw_serve_client._generated.models import TemplateSuccessSchema
 from bw_serve_client.errors import ExternalServiceError
 from bw_serve_client.errors import UserError
 from bw_serve_client.errors import ValidationError
@@ -50,10 +69,14 @@ Payload = dict[str, Any]
 #: Every recorded case, from the files themselves rather than a list here.
 RECORDED = sorted(path.stem for path in RECORDED_DIR.glob("*.json"))
 
+SPEC = json.loads(
+  (Path(__file__).resolve().parent.parent / "upstream" / "vault-management-api-fixed.json").read_text(encoding="utf-8")
+)
+
 # -----------------------------------------------------------------------------
 # What each recording must do in the library. Every recorded case appears in
-# exactly one of the five tables below: FAILURES, MODELLED, FOLDER_ROUTES,
-# UNMODELLED and FILES.
+# exactly one of the four tables below: FAILURES, MODELLED, FOLDER_ROUTES and
+# FILES.
 
 #: Failures, and the category the error handler must receive.
 FAILURES: dict[str, type[BitwardenError]] = {
@@ -81,12 +104,66 @@ FAILURES: dict[str, type[BitwardenError]] = {
   "item-collections-not-in-org": ValidationError,
 }
 
-#: Successes on routes whose spec response is a generated model.
+#: Successes, and the generated model of the whole body: the route's 200
+#: schema in the patched spec, which ``test_model_is_the_routes`` checks.
 MODELLED: dict[str, type[BaseModel]] = {
   "status-locked": StatusSchema,
   "status-unlocked": StatusSchema,
   "unlock": LockUnlockSuccessSchema,
   "lock": LockUnlockSuccessSchema,
+  "sync": SyncMessageSuccessSchema,
+  "sync-after-move": SyncMessageSuccessSchema,
+  "item-create": ItemSuccessSchema,
+  "item-create-note": ItemSuccessSchema,
+  "item-create-shared": ItemSuccessSchema,
+  "item-get": ItemSuccessSchema,
+  "item-get-by-search": ItemSuccessSchema,
+  "item-edit": ItemSuccessSchema,
+  "item-move": ItemSuccessSchema,
+  "item-collections-edit": ItemSuccessSchema,
+  "attachment-create": ItemSuccessSchema,
+  "items-list": ItemListSuccessSchema,
+  "items-list-before-sync": ItemListSuccessSchema,
+  "items-list-archived": ItemListSuccessSchema,
+  "items-list-trash": ItemListSuccessSchema,
+  "item-field-username": StringSuccessSchema,
+  "item-field-uri": StringSuccessSchema,
+  "item-field-notes": StringSuccessSchema,
+  "item-field-exposed": StringSuccessSchema,
+  "fingerprint": StringSuccessSchema,
+  "item-field-password": SecretStringSuccessSchema,
+  "item-field-totp": SecretStringSuccessSchema,
+  "generate": SecretStringSuccessSchema,
+  "generate-minimums": SecretStringSuccessSchema,
+  "generate-passphrase": SecretStringSuccessSchema,
+  "item-archive": SuccessSchema,
+  "item-restore-archived": SuccessSchema,
+  "item-delete": SuccessSchema,
+  "item-restore": SuccessSchema,
+  "item-delete-permanent": SuccessSchema,
+  "attachment-delete": SuccessSchema,
+  "send-delete": SuccessSchema,
+  "org-collection-delete": SuccessSchema,
+  "send-create": SendSuccessSchema,
+  "send-get": SendSuccessSchema,
+  "send-edit": SendSuccessSchema,
+  "send-remove-password": SendSuccessSchema,
+  "sends-list-object": SendListSuccessSchema,
+  "sends-list": SendListSuccessSchema,
+  "template-item": TemplateSuccessSchema,
+  "template-item-login": TemplateSuccessSchema,
+  "template-folder": TemplateSuccessSchema,
+  "template-org-collection": TemplateSuccessSchema,
+  "template-item-collections": TemplateSuccessSchema,
+  "organizations-list": OrganizationListSuccessSchema,
+  "organization-get": OrganizationSuccessSchema,
+  "collections-list": CollectionListSuccessSchema,
+  "org-collections-list": CollectionListSuccessSchema,
+  "collection-get": CollectionSuccessSchema,
+  "org-collection-get": OrgCollectionSuccessSchema,
+  "org-collection-create": OrgCollectionSuccessSchema,
+  "org-collection-edit": OrgCollectionSuccessSchema,
+  "org-members-list": OrgMemberListSuccessSchema,
 }
 
 #: Successes on the Folders routes, replayed through the Folders methods.
@@ -98,79 +175,6 @@ FOLDER_ROUTES = (
   "folder-delete",
   "folders-list",
 )
-
-#: Successes on routes the spec gives no response model, so only the
-#: envelope and the ``object`` of its ``data`` can be checked, or that there
-#: is no ``data`` at all (None). Each is a coverage gap, not a pass.
-UNMODELLED: dict[str, Optional[str]] = {
-  "sync": "message",
-  "item-create": "item",
-  "item-get": "item",
-  "items-list": "list",
-  "items-list-before-sync": "list",
-  "item-edit": "item",
-  "item-field-username": "string",
-  "item-field-password": "string",
-  "item-field-uri": "string",
-  "item-field-totp": "string",
-  "item-field-notes": "string",
-  "item-field-exposed": "string",
-  "item-get-by-search": "item",
-  "item-create-note": "item",
-  "item-archive": None,
-  "items-list-archived": "list",
-  "item-restore-archived": None,
-  "item-delete": None,
-  "items-list-trash": "list",
-  "item-restore": None,
-  "item-delete-permanent": None,
-  "attachment-create": "item",
-  "attachment-delete": None,
-  "send-create": "send",
-  "send-get": "send",
-  "sends-list-object": "list",
-  "sends-list": "list",
-  "send-remove-password": "send",
-  "send-edit": "send",
-  "send-delete": None,
-  "generate": "string",
-  "generate-minimums": "string",
-  "generate-passphrase": "string",
-  "template-item": "template",
-  "template-item-login": "template",
-  "template-folder": "template",
-  "template-org-collection": "template",
-  "template-item-collections": "template",
-  "fingerprint": "string",
-  "organizations-list": "list",
-  "organization-get": "organization",
-  "collections-list": "list",
-  "collection-get": "collection",
-  "org-collections-list": "list",
-  "org-collection-get": "org-collection",
-  "org-collection-create": "org-collection",
-  "org-collection-edit": "org-collection",
-  "org-members-list": "list",
-  "item-create-shared": "item",
-  "item-move": "item",
-  "sync-after-move": "message",
-  "item-collections-edit": "item",
-  "org-collection-delete": None,
-}
-
-#: The ``object`` every member of each unmodelled list must carry.
-LIST_MEMBERS: dict[str, str] = {
-  "items-list": "item",
-  "items-list-before-sync": "item",
-  "items-list-archived": "item",
-  "items-list-trash": "item",
-  "sends-list-object": "send",
-  "sends-list": "send",
-  "organizations-list": "organization",
-  "collections-list": "collection",
-  "org-collections-list": "collection",
-  "org-members-list": "org-member",
-}
 
 #: Successes whose body is a file rather than JSON, with the recording that
 #: uploaded it.
@@ -197,6 +201,34 @@ def _cases(names: tuple[str, ...] | list[str]) -> list[Any]:
     pytest.param(name, marks=pytest.mark.xfail(strict=True, reason=MISMATCHES[name])) if name in MISMATCHES else name
     for name in names
   ]
+
+
+def _route_model(payload: Payload) -> type[BaseModel]:
+  """Find the generated model of the 200 response of a recording's route.
+
+  The recorded path is concrete, so it is matched against each spec path
+  with every ``{name}`` read as one path segment.
+
+  Args:
+    payload: One recording.
+
+  Returns:
+    The model named by the route's 200 schema title.
+  """
+  method = payload["request"]["method"].lower()
+  path = payload["request"]["path"].split("?", 1)[0]
+  matches = [
+    template for template, item in SPEC["paths"].items()
+    if method in item and re.fullmatch(re.sub(r"\\\{[^}]+\\\}", "[^/]+", re.escape(template)), path)
+  ]
+
+  # A literal path such as /object/fingerprint/me also matches a template
+  # with a parameter there; the one with fewer parameters is the route.
+  [template] = sorted(matches, key=lambda candidate: candidate.count("{"))[:1]
+  schema = SPEC["paths"][template][method]["responses"]["200"]["content"]["application/json"]["schema"]
+  title = SPEC["components"]["schemas"][schema["$ref"].rsplit("/", 1)[1]]["title"]
+
+  return getattr(models, title)
 
 
 def _client(make_client: MakeClient, payload: Payload, handler: ReturningHandler) -> ApiClient:
@@ -228,7 +260,7 @@ class TestRecordings:
   def test_every_payload_has_an_expectation(self: TestRecordings) -> None:
     """The recorded set and the expectation tables name the same cases."""
     # Arrange
-    expected = set(FAILURES) | set(MODELLED) | set(FOLDER_ROUTES) | set(UNMODELLED) | set(FILES)
+    expected = set(FAILURES) | set(MODELLED) | set(FOLDER_ROUTES) | set(FILES)
 
     result = set(RECORDED)
 
@@ -323,14 +355,40 @@ class TestModelledSuccesses:
 
   @pytest.mark.parametrize("name", _cases(list(MODELLED)))
   def test_parses_into_model(self: TestModelledSuccesses, name: str) -> None:
-    """The whole recorded body validates against the route's model."""
+    """The whole recorded body validates against its model and loses no key.
+
+    Response models ignore unknown fields (#22), so validating alone would
+    pass a body the model only half reads; every recorded key must land on
+    a field.
+    """
     # Arrange
     body = load_recorded(name)["response"]["body"]
 
     result = MODELLED[name].model_validate(body)
 
     # Assert
-    assert result.model_dump(by_alias=True)["success"] is True
+    dumped = result.model_dump(mode="json", by_alias=True)
+    assert dumped["success"] is True
+    assert unread_keys(body, dumped) == []
+
+  @pytest.mark.parametrize("name", list(MODELLED) + list(FOLDER_ROUTES))
+  def test_model_is_the_routes(self: TestModelledSuccesses, name: str) -> None:
+    """Each table entry names the model the spec gives the recorded route."""
+    result = _route_model(load_recorded(name))
+
+    # Assert
+    assert result is MODELLED.get(name, result)
+
+  @pytest.mark.parametrize("name", _cases(FOLDER_ROUTES))
+  def test_folder_body_parses_into_route_model(self: TestModelledSuccesses, name: str) -> None:
+    """The Folders recordings also parse into the generated folder models."""
+    # Arrange
+    body = load_recorded(name)["response"]["body"]
+
+    result = _route_model(load_recorded(name)).model_validate(body)
+
+    # Assert
+    assert unread_keys(body, result.model_dump(mode="json", by_alias=True)) == []
 
   @pytest.mark.parametrize(("name", "status"), [("status-locked", "locked"), ("status-unlocked", "unlocked")])
   def test_status_reads_the_vault_state(self: TestModelledSuccesses, name: str, status: str) -> None:
@@ -468,43 +526,6 @@ class TestFolderSuccesses:
 
     # Assert
     assert result.id == UUID(data["id"])
-
-
-# -----------------------------------------------------------------------------
-class TestUnmodelledSuccesses:
-  """Successes the spec gives no response model: only the envelope is checked."""
-
-  @pytest.mark.parametrize("name", _cases(list(UNMODELLED)))
-  def test_envelope_is_success(self: TestUnmodelledSuccesses, name: str) -> None:
-    """The body is bw serve's success envelope, its data the expected object.
-
-    A route expected to answer with no data must carry no ``data`` member.
-    """
-    # Arrange
-    response = load_recorded(name)["response"]
-
-    result = response["body"].get("data")
-
-    # Assert
-    assert response["status"] == 200
-    assert response["body"]["success"] is True
-    assert (None if result is None else result["object"]) == UNMODELLED[name]
-
-  @pytest.mark.parametrize("name", _cases(list(LIST_MEMBERS)))
-  def test_list_members_share_the_object(self: TestUnmodelledSuccesses, name: str) -> None:
-    """Every member of a recorded list carries the expected object.
-
-    An empty list passes vacuously. That is deliberate: bw serve's lists
-    lag its own writes (items-list-before-sync, the Send lists), so a
-    re-record can come back empty, and the envelope test above still holds.
-    """
-    # Arrange
-    members = load_recorded(name)["response"]["body"]["data"]["data"]
-
-    result = {member["object"] for member in members}
-
-    # Assert
-    assert result <= {LIST_MEMBERS[name]}
 
 
 # -----------------------------------------------------------------------------

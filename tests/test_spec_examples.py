@@ -63,11 +63,6 @@ SPEC: Dict[str, Any] = json.loads(generate.PATCHED_SPEC.read_text(encoding="utf-
 # ``examples`` key itself.
 Location = Tuple[str, ...]
 
-NO_SCHEMA = (
-  "The spec gives this response no schema, so no model exists to parse it into. "
-  "It is checked automatically once a spec fix adds one."
-)
-
 
 @dataclass(frozen=True)
 class Example:
@@ -259,7 +254,10 @@ def unread_keys(example: Any, dumped: Any, where: str = "") -> List[str]:
 
 # -----------------------------------------------------------------------------
 def cases(examples: List[Example]) -> List[Any]:
-  """Turn examples into cases, skipping only those with no schema.
+  """Turn examples into cases, one per example.
+
+  None is skipped: an example whose content has no schema fails ``check``,
+  so a route the spec fixes leave unmodelled cannot pass unnoticed (#100).
 
   Arguments:
       examples: The collected examples.
@@ -267,10 +265,7 @@ def cases(examples: List[Example]) -> List[Any]:
   Returns:
       List[Any]: One ``pytest.param`` per example, with its name as the id.
   """
-  return [
-    pytest.param(example, id=example.name, marks=[] if example.model else [pytest.mark.skip(reason=NO_SCHEMA)])
-    for example in examples
-  ]
+  return [pytest.param(example, id=example.name) for example in examples]
 
 
 # -----------------------------------------------------------------------------
@@ -278,9 +273,9 @@ def check(example: Example) -> None:
   """Validate an example against its model and require every key be read.
 
   Arguments:
-      example: The example; its model is not None.
+      example: The example.
   """
-  assert example.model is not None
+  assert example.model is not None, "the spec gives this example no schema, so no model exists to check it against"
   assert hasattr(models, example.model), f"no generated model named {example.model}"
   model: type[pydantic.BaseModel] = getattr(models, example.model)
 

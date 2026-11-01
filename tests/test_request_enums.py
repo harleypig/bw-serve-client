@@ -20,6 +20,8 @@ from pathlib import Path
 import types
 from typing import Any, get_args, get_origin, Literal, TYPE_CHECKING, Union
 
+from conftest import load_recorded
+from pydantic import SecretStr
 import pytest
 
 from bw_serve_client._generated import models
@@ -190,13 +192,16 @@ class TestUnknownItemType:
   Vaultwarden and is stored as a login against Bitwarden Cloud (#108).
   """
 
-  @pytest.mark.parametrize("item_type", [0, 9, 99])
+  @pytest.mark.parametrize("item_type", [0, 9, 99, None])
   def test_refused_before_sending(
     self: TestUnknownItemType, make_client: MakeClient, sent: list[httpx.Request], item_type: int
   ) -> None:
-    """The item body fails validation, and the transport sees nothing."""
+    """The item body fails validation, and the transport sees nothing.
+
+    A missing type is refused too: CipherExport.toView copies it unchecked.
+    """
     resource = Resource(make_client())
-    body = {"type": item_type, "name": "Bad type"}
+    body = {"name": "Bad type"} if item_type is None else {"type": item_type, "name": "Bad type"}
 
     with pytest.raises(ValidationError, match=r"invalid body for POST /object/item: type: "):  # act
       resource._request("POST", "/object/item", body=(models.ItemTemplateSchema, body))
@@ -211,3 +216,101 @@ class TestUnknownItemType:
 
     [request] = sent
     assert json.loads(request.content) == {"type": 5, "name": "Key"}
+
+
+# -----------------------------------------------------------------------------
+#: Made-up values for the type 5-8 payloads; secret ones must be SecretStr.
+PRIVATE_KEY = "made-up-ssh-private-key-9Tq4"
+
+#: One body per newer item type, with the sub-object CipherExport.toView
+#: reads for it (clients libs/common/src/models/export/cipher.export.ts).
+NEWER_TYPES = [
+  pytest.param(
+    5, "sshKey", {
+      "privateKey": PRIVATE_KEY,
+      "publicKey": "ssh-ed25519 AAAA",
+      "keyFingerprint": "SHA256:x"
+    }, id="ssh-key"
+  ),
+  pytest.param(
+    6, "bankAccount", {
+      "bankName": "Bank",
+      "accountNumber": "12345678",
+      "pin": "1234",
+      "iban": "GB00"
+    }, id="bank-account"
+  ),
+  pytest.param(
+    7, "driversLicense", {
+      "firstName": "Jo",
+      "licenseNumber": "D123",
+      "expirationDate": "2030-01-01"
+    }, id="drivers-license"
+  ),
+  pytest.param(8, "passport", {
+    "surname": "Doe",
+    "passportNumber": "X123",
+    "issueDate": "2020-01-01"
+  }, id="passport"),
+]
+
+
+class TestItemBodies:
+  """Item bodies bw serve accepts are accepted (#108)."""
+
+  @pytest.mark.parametrize(("item_type", "key", "data"), NEWER_TYPES)
+  def test_newer_type_with_its_data_is_sent(
+    self: TestItemBodies, make_client: MakeClient, sent: list[httpx.Request], item_type: int, key: str, data: dict[str, str]
+  ) -> None:
+    """A type 5-8 item with its sub-object validates and goes out whole."""
+    resource = Resource(make_client(json_body={"success": True, "data": None}))
+    body = {"type": item_type, "name": "Newer", key: data}
+
+    resource._request("POST", "/object/item", body=(models.ItemTemplateSchema, body))  # act
+
+    [request] = sent
+    assert json.loads(request.content) == body
+
+  def test_ssh_private_key_is_secret(self: TestItemBodies) -> None:
+    """The private key is a SecretStr, so the model's repr hides it."""
+    item = models.ItemTemplateSchema.model_validate({"type": 5, "sshKey": {"privateKey": PRIVATE_KEY}})  # act
+
+    assert item.ssh_key is not None
+    assert isinstance(item.ssh_key.private_key, SecretStr)
+    assert PRIVATE_KEY not in repr(item)
+
+  @pytest.mark.parametrize(
+    ("case", "model"),
+    [
+      ("template-item", models.ItemTemplateSchema),
+      ("template-item-login", models.ItemLoginSchema),
+      ("template-org-collection", models.CollectionSchema),
+      ("template-folder", models.FolderSchema),
+    ],
+  )
+  def test_fetched_template_posts_back(self: TestItemBodies, case: str, model: type[BaseModel]) -> None:
+    """What ``GET /object/template/{type}`` returns validates as a request body."""
+    template = load_recorded(case)["response"]["body"]["data"]["template"]
+
+    result = model.model_validate(template)  # act
+
+    assert result.model_dump(by_alias=True, exclude_unset=True).keys() == template.keys()
+
+
+# -----------------------------------------------------------------------------
+class TestSendBodies:
+  """A Send body omitting ``disabled`` still carries it."""
+
+  def test_disabled_defaults_to_false(self: TestSendBodies, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """Vaultwarden answers 422 without ``disabled``, so false is sent.
+
+    False is the CLI's own template value (clients
+    apps/cli/src/tools/send/models/send.response.ts, ``template``).
+    """
+    resource = Resource(make_client(json_body={"success": True, "data": None}))
+    body = {"name": "Text", "type": 0, "text": {"text": "hello"}, "deletionDate": "2030-01-01T00:00:00Z"}
+
+    resource._request("POST", "/object/send", body=(models.SendTemplateSchema, body))  # act
+
+    [request] = sent
+    assert json.loads(request.content)["disabled"] is False

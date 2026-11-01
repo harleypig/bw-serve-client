@@ -16,6 +16,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic import ConfigDict
+from pydantic import field_validator
 
 from ._generated.models import FolderSchema
 from ._generated.models import ListObjectFoldersGetParameters
@@ -45,10 +46,25 @@ class Folder(BaseModel):
 
   model_config = ConfigDict(populate_by_name=True)
 
-  # bw lists "No Folder" with a null id; it must not fail the whole list.
+  # bw lists "No Folder" with an empty-string id; it must not fail the
+  # whole list, so the empty string is read as no id.
   id: Optional[UUID]
   name: str
   object: str = "folder"
+
+  # ---------------------------------------------------------------------------
+  @field_validator("id", mode="before")
+  @classmethod
+  def _empty_id_is_none(cls: type[Folder], value: Any) -> Any:
+    """Read the empty-string id bw serve gives "No Folder" as ``None``.
+
+    Args:
+        value: The raw id.
+
+    Returns:
+        ``None`` for an empty string, otherwise the value unchanged.
+    """
+    return None if value == "" else value
 
 
 class Folders(Resource):
@@ -65,14 +81,12 @@ class Folders(Resource):
     """Add a folder to your vault.
 
     Args:
-        name: Name of the folder to create. Must be non-empty.
+        name: Name of the folder to create. bw serve accepts an empty
+            name, so this does too.
 
     Returns:
         The created :class:`Folder` with its server-assigned id.
     """
-    if not name or not name.strip():
-      return self._fail(ValidationError, "folder name must be non-empty")
-
     return self._request("POST", "/object/folder", body=(FolderSchema, {"name": name}), response_type=Folder)
 
   # ---------------------------------------------------------------------------

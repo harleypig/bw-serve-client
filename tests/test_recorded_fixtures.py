@@ -94,17 +94,9 @@ UNMODELLED = (
   "items-list-before-sync",
 )
 
-#: Recorded behaviour the library or the spec does not match yet.
-MISMATCHES = {
-  "unlock-wrong-password":
-    "POST /unlock with a wrong master password answers 400 'Cryptography error, The decryption operation failed'; "
-    "category_for_status() maps it to ValidationError, but the errors module documents a wrong master password as UserError",
-  "folders-list":
-    "GET /list/object/folders lists 'No Folder' with id \"\" (empty string), not null; Folder.id is Optional[UUID], "
-    "so the whole list fails to parse",
-  "folder-create-empty-name":
-    "POST /object/folder with name \"\" is accepted by bw serve (200, folder created); Folders.add refuses it client-side",
-}
+#: Recorded behaviour the library or the spec does not match yet, by case
+#: name, with the disagreement as the reason.
+MISMATCHES: dict[str, str] = {}
 
 
 def _cases(names: tuple[str, ...] | list[str]) -> list[Any]:

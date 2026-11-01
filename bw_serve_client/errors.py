@@ -29,7 +29,9 @@ failure happens:
 Outcome                         Category
 ==============================  ==========================
 400 saying the vault is locked  ``UserError``
-or no user is logged in
+or no user is logged in, or
+that the master password did
+not decrypt the vault
 400 and other unlisted 4xx      ``ValidationError``
 401, 403                        ``UserError``
 404                             ``ValidationError``
@@ -109,9 +111,12 @@ class InternalError(BitwardenError):
 
 # -----------------------------------------------------------------------------
 # The messages bw serve sends, with a 400, when the vault is locked or no
-# user is logged in (``errorIfLocked`` in the CLI's serve configurator).
-# Matched as lowercase substrings so trailing punctuation can drift.
-_USER_STATE_MESSAGES = ("vault is locked", "not logged in")
+# user is logged in (``errorIfLocked`` in the CLI's serve configurator), or
+# when POST /unlock is given a wrong master password (recorded from CLI
+# 2026.10.1). Matched as lowercase substrings so trailing punctuation can
+# drift; the password message is matched whole, since a bare "decryption"
+# would also catch unrelated failures.
+_USER_STATE_MESSAGES = ("vault is locked", "not logged in", "cryptography error, the decryption operation failed")
 
 
 def category_for_status(status_code: int, message: str = "") -> type[BitwardenError]:

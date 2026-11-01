@@ -101,6 +101,14 @@ class TestCategoryForStatus:
     """A 400 saying the vault is locked or no one is logged in is a user error."""
     assert category_for_status(400, message) is UserError
 
+  def test_wrong_master_password_400_is_user_error(self: TestCategoryForStatus) -> None:
+    """The 400 bw serve sends for a wrong master password is a user error."""
+    assert category_for_status(400, "Cryptography error, The decryption operation failed") is UserError
+
+  def test_other_cryptography_400_is_validation_error(self: TestCategoryForStatus) -> None:
+    """Only the whole wrong-password message matches, not any crypto 400."""
+    assert category_for_status(400, "Cryptography error, Invalid key") is ValidationError
+
   def test_locked_message_only_matters_on_400(self: TestCategoryForStatus) -> None:
     """A 5xx stays a service error whatever its message says."""
     assert category_for_status(500, "Vault is locked.") is ExternalServiceError

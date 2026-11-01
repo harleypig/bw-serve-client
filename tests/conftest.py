@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import logging
 from pathlib import Path
 from typing import Any, Optional, Protocol, TYPE_CHECKING
 
@@ -83,7 +82,7 @@ class ReturningHandler:
     category: type[BitwardenError],
     message: str,
     *,
-    level: int = logging.ERROR,  # noqa: U100 - part of the ErrorHandler protocol; not recorded.
+    level: Optional[int] = None,  # noqa: U100 - part of the ErrorHandler protocol; not recorded.
     status_code: Optional[int] = None,
     cause: Optional[BaseException] = None,
   ) -> object:

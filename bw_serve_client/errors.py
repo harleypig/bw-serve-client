@@ -179,9 +179,9 @@ class ErrorHandler(Protocol):
 
   An implementation may return any object, including one of its own error
   types; raising instead of returning is equally valid. The library calls
-  ``handle`` without ``level``, so the implementation's own default
-  applies; :class:`DefaultErrorHandler` takes the category's
-  ``default_level``.
+  ``handle`` without ``level``; an implementation that compares severities
+  should read ``None`` as the category's ``default_level``, as
+  :class:`DefaultErrorHandler` does.
   """
 
   # A Protocol stub declares the parameters for implementers; its body
@@ -191,7 +191,7 @@ class ErrorHandler(Protocol):
     category: type[BitwardenError],  # noqa: U100
     message: str,  # noqa: U100
     *,
-    level: int = logging.ERROR,  # noqa: U100
+    level: int | None = None,  # noqa: U100
     status_code: int | None = None,  # noqa: U100
     cause: BaseException | None = None,  # noqa: U100
   ) -> object:
@@ -200,7 +200,8 @@ class ErrorHandler(Protocol):
     Args:
       category: The failure's category, a :class:`BitwardenError` subclass.
       message: Human-readable description of the failure.
-      level: Severity as a stdlib ``logging`` level.
+      level: Severity as a stdlib ``logging`` level; ``None`` means the
+        category's ``default_level``.
       status_code: HTTP status, or ``None`` when there was no response.
       cause: The exception that triggered the failure, if any.
     """

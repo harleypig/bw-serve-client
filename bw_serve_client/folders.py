@@ -14,10 +14,7 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel
-from pydantic import ConfigDict
-from pydantic import field_validator
-
+from ._generated.models import FolderResponseSchema
 from ._generated.models import FolderSchema
 from ._generated.models import ListObjectFoldersGetParameters
 from ._generated.models import ObjectFolderIdDeleteParameters
@@ -28,42 +25,9 @@ from .resource import route
 
 FolderId = Union[UUID, str]
 
-
-class Folder(BaseModel):
-  """A folder as returned by the Vault Management API.
-
-  The generated ``FolderSchema`` describes the request body
-  (``{"name": ...}``). The API responds with id + name + object, which
-  the generator does not produce a schema for, so it is modelled here.
-
-  Attributes:
-      id: Server-assigned unique identifier; ``None`` for "No Folder".
-      name: Folder name.
-      object: API object discriminator; always ``"folder"``.
-      model_config: Accepts field names as well as aliases.
-  """
-
-  model_config = ConfigDict(populate_by_name=True)
-
-  # bw lists "No Folder" with an empty-string id; it must not fail the
-  # whole list, so the empty string is read as no id.
-  id: Optional[UUID]
-  name: str
-  object: str = "folder"
-
-  # ---------------------------------------------------------------------------
-  @field_validator("id", mode="before")
-  @classmethod
-  def _empty_id_is_none(cls: type[Folder], value: Any) -> Any:
-    """Read the empty-string id bw serve gives "No Folder" as ``None``.
-
-    Args:
-        value: The raw id.
-
-    Returns:
-        ``None`` for an empty string, otherwise the value unchanged.
-    """
-    return None if value == "" else value
+#: A folder as bw serve returns it; the built-in "No Folder" has the empty
+#: string for its id.
+Folder = FolderResponseSchema
 
 
 class Folders(Resource):

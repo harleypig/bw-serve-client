@@ -308,7 +308,7 @@ class _CollectingHandler:
     category: type[BitwardenError],
     message: str,
     *,
-    level: int = logging.ERROR,
+    level: int | None = None,
     status_code: int | None = None,
     cause: BaseException | None = None,
   ) -> object:

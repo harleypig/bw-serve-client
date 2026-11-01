@@ -24,7 +24,7 @@ from functools import reduce
 import json
 from pathlib import Path
 import re
-from typing import Any, Callable, cast, Optional, TYPE_CHECKING
+from typing import Any, Callable, cast, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 from conftest import load_recorded
@@ -430,7 +430,7 @@ FOLDER_CALLS: dict[str, Callable[[Folders, Payload], Any]] = {
 }
 
 #: A folder reduced to the fields compared: id, name, object.
-FolderFields = tuple[Optional[UUID], str, str]
+FolderFields = tuple[Union[UUID, Literal[""], None], Optional[str], Optional[str]]
 
 
 def _raw_fields(item: Payload) -> FolderFields:
@@ -443,10 +443,10 @@ def _raw_fields(item: Payload) -> FolderFields:
     item: One folder object from a recorded response body.
 
   Returns:
-    The id as a UUID (None for the empty id of "No Folder"), the name and
-    the object discriminator.
+    The id as a UUID (the empty string for "No Folder"), the name and the
+    object discriminator.
   """
-  return (UUID(item["id"]) if item["id"] else None, item["name"], item["object"])
+  return (UUID(item["id"]) if item["id"] else "", item["name"], item["object"])
 
 
 def _parsed_fields(folder: Folder) -> FolderFields:

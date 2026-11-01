@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import sys
+from uuid import UUID
 
 from bw_serve_client import ApiClient
 from bw_serve_client import ExternalServiceError
@@ -48,9 +49,9 @@ def main() -> int:
     folder = folders.add("Example folder")
     folder_id = folder.id
 
-    # Only bw's built-in "No Folder" has no id, so a new folder always has
-    # one; the check is what lets a type checker see that.
-    if folder_id is None:
+    # Only bw's built-in "No Folder" lacks a UUID (its id is ""), so a new
+    # folder always has one; the check is what lets a type checker see that.
+    if not isinstance(folder_id, UUID):
       print("bw serve returned the new folder without an id", file=sys.stderr)
       return 1
 

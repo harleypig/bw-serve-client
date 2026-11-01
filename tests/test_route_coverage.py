@@ -212,7 +212,7 @@ class TestRouteCoverage:
     """The exclusion file is read, so a clean result is not an empty list."""
     exclusions = load_exclusions()  # act
 
-    assert "POST /lock" in exclusions
+    assert "GET /object/item-collections/{id}" in exclusions
 
 
 # -----------------------------------------------------------------------------
@@ -230,12 +230,12 @@ class TestFailurePaths:
 
   def test_a_removed_spec_route_makes_its_exclusion_stale(self: TestFailurePaths, monkeypatch: pytest.MonkeyPatch) -> None:
     """An exclusion whose route left the spec is reported."""
-    kept = tuple(r for r in routes_module.ROUTES if (r.method, r.path) != ("POST", "/lock"))
+    kept = tuple(r for r in routes_module.ROUTES if (r.method, r.path) != ("GET", "/object/item-collections/{id}"))
     monkeypatch.setattr(routes_module, "ROUTES", kept)
 
     problems = added_problems()  # act
 
-    assert problems == {"POST /lock: excluded, but no longer in the spec; remove the exclusion"}
+    assert problems == {"GET /object/item-collections/{id}: excluded, but no longer in the spec; remove the exclusion"}
 
   def test_a_removed_spec_route_makes_its_declaration_unknown(self: TestFailurePaths, monkeypatch: pytest.MonkeyPatch) -> None:
     """A declaration whose route left the spec is reported."""
@@ -273,16 +273,16 @@ class TestFailurePaths:
   @pytest.mark.parametrize(
     ("reason", "expected"),
     [
-      ("", "POST /lock: excluded with no reason"),
-      ("   ", "POST /lock: excluded with no reason"),
-      (NOT_YET, f"POST /lock: {NOT_YET!r} names no issue"),
-      ("Not Yet Implemented", f"POST /lock: {NOT_YET!r} names no issue"),
-      ("Deferred: not yet implemented upstream", f"POST /lock: {NOT_YET!r} names no issue"),
+      ("", "GET /object/item-collections/{id}: excluded with no reason"),
+      ("   ", "GET /object/item-collections/{id}: excluded with no reason"),
+      (NOT_YET, f"GET /object/item-collections/{{id}}: {NOT_YET!r} names no issue"),
+      ("Not Yet Implemented", f"GET /object/item-collections/{{id}}: {NOT_YET!r} names no issue"),
+      ("Deferred: not yet implemented upstream", f"GET /object/item-collections/{{id}}: {NOT_YET!r} names no issue"),
     ],
   )
   def test_an_unjustified_exclusion_fails(self: TestFailurePaths, reason: str, expected: str) -> None:
     """An exclusion must say why, and a pending one must say where."""
-    exclusions = {**load_exclusions(), "POST /lock": reason}
+    exclusions = {**load_exclusions(), "GET /object/item-collections/{id}": reason}
 
     problems = added_problems(exclusions=exclusions)  # act
 
@@ -291,7 +291,7 @@ class TestFailurePaths:
   def test_a_duplicate_exclusion_key_is_refused(self: TestFailurePaths, tmp_path: Path) -> None:
     """A key listed twice is an error, not a silently dropped entry."""
     path = tmp_path / "exclusions.json"
-    path.write_text('{"routes": {"POST /lock": "a", "POST /lock": "b"}}')
+    path.write_text('{"routes": {"GET /object/item-collections/{id}": "a", "GET /object/item-collections/{id}": "b"}}')
 
     with pytest.raises(ValueError, match="duplicate key"):
       load_exclusions(path)

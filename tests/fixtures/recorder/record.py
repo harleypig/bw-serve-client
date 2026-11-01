@@ -312,13 +312,19 @@ CASES = (
   Case("sends-list", "List Sends through the send route.", "GET", "/send/list"),
   Case("send-remove-password", "Remove the Send's password.", "POST", "/send/{send_id}/remove-password"),
   Case(
-    "send-edit", "Rename the Send and hide its text.", "PUT", "/object/send/{send_id}", {
+    "send-edit",
+    "Rename the Send and hide its text.",
+    "PUT",
+    "/object/send/{send_id}",
+    {
       **SEND, "name": "Renamed send",
       "text": {
         "text": "Made-up send text.",
         "hidden": True
       }
-    }
+    },
+    # The edit hands back a new key, which send-create's secret never saw.
+    secret=_data_fields("key", "accessUrl"),
   ),
   Case("send-delete", "Delete the Send.", "DELETE", "/object/send/{send_id}"),
   Case("send-get-deleted", "Get the Send just deleted.", "GET", "/object/send/{send_id}"),

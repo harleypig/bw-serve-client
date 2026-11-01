@@ -19,6 +19,15 @@ HAND_WRITTEN = [
   "InternalError",
   "Folders",
   "Folder",
+  "VaultItems",
+  "Attachments",
+  "ItemFields",
+  "Sends",
+  "VaultControl",
+  "Utilities",
+  "Organizations",
+  "OrgCollections",
+  "DeviceApproval",
 ]
 
 # Importable from their modules, but deliberately not part of the surface.

@@ -10,12 +10,15 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 import re
-from types import ModuleType
+from typing import TYPE_CHECKING
 
 import pytest
 
 import bw_serve_client
 from bw_serve_client.resource import Resource
+
+if TYPE_CHECKING:
+  from types import ModuleType
 
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 
@@ -48,7 +51,8 @@ def _load(path: Path) -> ModuleType:
     The imported module.
   """
   spec = importlib.util.spec_from_file_location(f"_example_{path.stem}", path)
-  assert spec is not None and spec.loader is not None
+  assert spec is not None
+  assert spec.loader is not None
   module = importlib.util.module_from_spec(spec)
   spec.loader.exec_module(module)
   return module

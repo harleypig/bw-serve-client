@@ -6,6 +6,8 @@ import logging
 from ._generated import models as _models
 from ._generated.models import *  # noqa: F401,F403 - models.__all__ is the list, so it is never kept by hand.
 from .api_client import ApiClient
+from .attachments import Attachments
+from .device_approval import DeviceApproval
 from .errors import BitwardenError
 from .errors import DefaultErrorHandler
 from .errors import ErrorHandler
@@ -15,6 +17,13 @@ from .errors import UserError
 from .errors import ValidationError
 from .folders import Folder
 from .folders import Folders
+from .item_fields import ItemFields
+from .org_collections import OrgCollections
+from .organizations import Organizations
+from .sends import Sends
+from .utilities import Utilities
+from .vault_control import VaultControl
+from .vault_items import VaultItems
 
 __version__ = "0.1.1"
 # The documented surface: what a caller constructs, injects, catches and
@@ -31,6 +40,15 @@ __all__ = [
   "InternalError",
   "Folders",
   "Folder",
+  "VaultItems",
+  "Attachments",
+  "ItemFields",
+  "Sends",
+  "VaultControl",
+  "Utilities",
+  "Organizations",
+  "OrgCollections",
+  "DeviceApproval",
 ]
 __all__ += _models.__all__
 

@@ -316,7 +316,9 @@ class ApiClient:
         response: Response object to deserialize
 
     Returns:
-        Deserialized data
+        The parsed JSON for a JSON response, the raw ``bytes`` for an
+        ``application/octet-stream`` one (a downloaded file), and the
+        text for anything else.
     """
     content_type = response.headers.get('content-type', '').lower()
 
@@ -327,6 +329,9 @@ class ApiClient:
       except json.JSONDecodeError as e:
         self.logger.warning(f"Failed to parse JSON response: {e}")
         return response.text
+
+    elif _media_type(content_type) == 'application/octet-stream':
+      return response.content
 
     else:
       return response.text
@@ -390,7 +395,7 @@ class ApiClient:
         params: Query parameters
 
     Returns:
-        Deserialized response data
+        Deserialized response data; ``bytes`` for a downloaded file.
     """
     return self._make_request_and_deserialize('GET', endpoint, params=params)
 

@@ -200,8 +200,7 @@ class ErrorHandler(Protocol):
     Args:
       category: The failure's category, a :class:`BitwardenError` subclass.
       message: Human-readable description of the failure.
-      level: Severity as a stdlib ``logging`` level; ``None`` means the
-        category's ``default_level``.
+      level: Severity as a stdlib ``logging`` level; ``None`` means the category's ``default_level``.
       status_code: HTTP status, or ``None`` when there was no response.
       cause: The exception that triggered the failure, if any.
     """

@@ -5,6 +5,7 @@ DO NOT EDIT MANUALLY.
 """
 
 from .models import ArchiveObjectIdPostParameters
+from .models import AttachmentIdSchema
 from .models import AttachmentPostParameters
 from .models import AttachmentRequestSchema
 from .models import AttachmentSchema
@@ -17,13 +18,14 @@ from .models import CollectionResponseSchema
 from .models import CollectionSchema
 from .models import CollectionSuccessSchema
 from .models import ConfirmOrgMemberIdPostParameters
-from .models import DeviceApprovalListSchema
 from .models import DeviceApprovalOrganizationIdApproveAllPostParameters
 from .models import DeviceApprovalOrganizationIdApproveRequestIdPostParameters
 from .models import DeviceApprovalOrganizationIdDenyAllPostParameters
 from .models import DeviceApprovalOrganizationIdDenyRequestIdPostParameters
 from .models import DeviceApprovalOrganizationIdGetParameters
 from .models import DeviceApprovalPropertiesSchema
+from .models import DeviceApprovalRequestListSchema
+from .models import DeviceApprovalRequestListSuccessSchema
 from .models import DriversLicenseResponseSchema
 from .models import Fido2CredentialResponseSchema
 from .models import Fido2CredentialSchema
@@ -165,7 +167,7 @@ __all__ = [
   "UnlockPostRequestSchema", "IdSchema", "ObjectItemIdPutParameters", "ObjectItemIdGetParameters", "ObjectItemIdDeleteParameters",
   "ObjectItemCollectionsIdGetParameters", "ObjectItemCollectionsIdPutParameters", "ObjectItemCollectionsIdPutRequest",
   "RestoreItemIdPostParameters", "ArchiveObjectIdPostParameters", "OrganizationIdSchema1", "SearchSchema",
-  "ListObjectItemsGetParameters", "ItemIdSchema", "AttachmentPostParameters", "AttachmentRequestSchema",
+  "ListObjectItemsGetParameters", "ItemIdSchema", "AttachmentPostParameters", "AttachmentRequestSchema", "AttachmentIdSchema",
   "ObjectAttachmentIdGetParameters", "ObjectAttachmentIdDeleteParameters", "ObjectUsernameIdGetParameters",
   "ObjectPasswordIdGetParameters", "ObjectUriIdGetParameters", "ObjectTotpIdGetParameters", "ObjectNotesIdGetParameters",
   "ObjectExposedIdGetParameters", "ObjectFolderIdPutParameters", "ObjectFolderIdGetParameters", "ObjectFolderIdDeleteParameters",
@@ -179,5 +181,6 @@ __all__ = [
   "DeviceApprovalOrganizationIdApproveRequestIdPostParameters", "DeviceApprovalOrganizationIdApproveAllPostParameters",
   "DeviceApprovalOrganizationIdDenyRequestIdPostParameters", "DeviceApprovalOrganizationIdDenyAllPostParameters",
   "SyncPostParameters", "GenerateGetParameters", "TypeSchema", "ObjectTemplateTypeGetParameters", "ItemLoginSchema",
-  "SendTemplateSchema", "CollectionSchema", "DeviceApprovalListSchema", "ItemTemplateSchema", "Parameter", "Route", "ROUTES"
+  "SendTemplateSchema", "CollectionSchema", "DeviceApprovalRequestListSchema", "DeviceApprovalRequestListSuccessSchema",
+  "ItemTemplateSchema", "Parameter", "Route", "ROUTES"
 ]

@@ -6,7 +6,7 @@ with the Bitwarden Vault Management API via the 'bw serve' command.
 
 import json
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
@@ -18,7 +18,7 @@ from .errors import InternalError
 from .errors import ValidationError
 
 # Type aliases for complex types
-RequestData = Optional[Union[Dict[str, Any], str]]
+RequestData = Optional[Union[Dict[str, Any], List[Any], str]]
 QueryParams = Optional[Dict[str, Any]]
 
 UNIX_SCHEME = "unix://"

@@ -104,6 +104,8 @@ class TestStrictness:
       "CollectionResponseSchema",
       "CollectionSuccessSchema",
       "DeviceApprovalPropertiesSchema",
+      "DeviceApprovalRequestListSchema",
+      "DeviceApprovalRequestListSuccessSchema",
       "DriversLicenseResponseSchema",
       "Fido2CredentialResponseSchema",
       "FieldResponseSchema",

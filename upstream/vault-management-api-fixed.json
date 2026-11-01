@@ -1045,8 +1045,8 @@
             "description": "Unique identifier of the attachment.",
             "schema": {
               "type": "string",
-              "format": "uuid",
-              "title": "IdSchema"
+              "title": "AttachmentIdSchema",
+              "pattern": "^[A-Za-z0-9-]+$"
             }
           },
           {
@@ -1090,8 +1090,8 @@
             "description": "Unique identifier of the attachment.",
             "schema": {
               "type": "string",
-              "format": "uuid",
-              "title": "IdSchema"
+              "title": "AttachmentIdSchema",
+              "pattern": "^[A-Za-z0-9-]+$"
             }
           },
           {
@@ -2954,20 +2954,27 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/deviceapprovallist"
+                  "$ref": "#/components/schemas/response.envelope.DeviceApprovalRequestList"
                 },
-                "example": [
-                  {
-                    "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
-                    "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
-                    "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
-                    "email": "orguser@bitwarden.com",
-                    "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
-                    "requestDeviceType": "Chrome",
-                    "requestIpAddress": "130.6.255.219",
-                    "creationDate": "2024-06-09T17:52:10.775Z"
+                "example": {
+                  "success": true,
+                  "data": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
+                        "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+                        "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+                        "email": "orguser@bitwarden.com",
+                        "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
+                        "requestDeviceType": "Chrome",
+                        "requestIpAddress": "130.6.255.219",
+                        "creationDate": "2024-06-09T17:52:10.775Z",
+                        "fingerprintPhrase": "alarm-unfold-steering-deftly-pretext"
+                      }
+                    ]
                   }
-                ]
+                }
               }
             }
           },
@@ -3401,7 +3408,7 @@
           {
             "name": "ambiguous",
             "in": "query",
-            "description": "Include ambiguous characters in the **password** or **passphrase**.",
+            "description": "Avoid ambiguous characters (I, O, l, 0 and 1) in the **password** or **passphrase**.",
             "schema": {
               "type": "boolean",
               "title": "AmbiguousSchema"
@@ -3832,6 +3839,11 @@
             ],
             "description": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)",
             "title": "FieldTypeSchema"
+          },
+          "linkedId": {
+            "type": "integer",
+            "title": "FieldLinkedIdSchema",
+            "description": "For a linked field (type 3), the item property it shows: 100-101 a login's, 300-305 a card's, 400-418 an identity's"
           }
         },
         "description": "Custom field schema for vault items",
@@ -4095,6 +4107,9 @@
             "type": "string"
           },
           "organizationUserId": {
+            "type": "string"
+          },
+          "fingerprintPhrase": {
             "type": "string"
           }
         },
@@ -5502,6 +5517,35 @@
           },
           "data": {
             "$ref": "#/components/schemas/response.message"
+          }
+        }
+      },
+      "response.list.DeviceApproval": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSchema",
+        "description": "A list of pending device approval requests",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/deviceapprovallist"
+          }
+        }
+      },
+      "response.envelope.DeviceApprovalRequestList": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSuccessSchema",
+        "description": "Success response carrying DeviceApprovalRequestList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.DeviceApproval"
           }
         }
       }

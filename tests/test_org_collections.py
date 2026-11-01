@@ -291,7 +291,7 @@ class TestOrgCollectionsMove:
     """Every collection id is validated, and the failure names its position."""
     collections = OrgCollections(make_client())
 
-    with pytest.raises(ValidationError, match=r"invalid body .*collection_ids\.1"):
+    with pytest.raises(ValidationError, match=r"invalid body .*: 1: "):
       collections.move(ITEM_ID, ORG_ID, [COLLECTION_ID, "not-a-uuid"])
 
     assert sent == []
@@ -321,7 +321,7 @@ class TestOrgCollectionsModifyItemCollections:
     """A malformed collection id is refused before sending."""
     collections = OrgCollections(make_client())
 
-    with pytest.raises(ValidationError, match=r"invalid body .*collection_ids\.0"):
+    with pytest.raises(ValidationError, match=r"invalid body .*: 0: "):
       collections.modify_item_collections(ITEM_ID, ["not-a-uuid"])
 
     assert sent == []

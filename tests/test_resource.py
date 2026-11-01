@@ -12,6 +12,7 @@ import pytest
 
 from bw_serve_client._generated.models import FolderSchema
 from bw_serve_client._generated.models import ListObjectFoldersGetParameters
+from bw_serve_client._generated.models import MoveItemRequestSchema
 from bw_serve_client._generated.models import ObjectFolderIdGetParameters
 from bw_serve_client.errors import DefaultErrorHandler
 from bw_serve_client.errors import ExternalServiceError
@@ -189,6 +190,27 @@ class TestRequestBody:
     assert b'name="name"' in request.content
     assert b'filename="a.txt"' in request.content
 
+  def test_root_model_body_is_sent_as_the_bare_array(
+    self: TestRequestBody, make_client: MakeClient, sent: list[httpx.Request]
+  ) -> None:
+    """A RootModel body takes its root value and sends it as is."""
+    resource = Resource(make_client(json_body=_ok(None)))
+
+    resource._request("POST", "/move/x/y", body=(MoveItemRequestSchema, [FOLDER_ID]))  # act
+
+    [request] = sent
+    assert request.headers["Content-Type"] == "application/json"
+    assert json.loads(request.content) == [FOLDER_ID]
+
+  def test_root_model_body_is_validated(self: TestRequestBody, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """Each element of a RootModel body is validated, and a failure names its position."""
+    resource = Resource(make_client(json_body=_ok(None)))
+
+    with pytest.raises(ValidationError, match=r"invalid body for POST /move/x/y: 1: "):
+      resource._request("POST", "/move/x/y", body=(MoveItemRequestSchema, [FOLDER_ID, "not-a-uuid"]))
+
+    assert sent == []
+
   def test_no_body_sends_nothing(self: TestRequestBody, make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Without a body, the request has none."""
     resource = Resource(make_client(json_body=_ok(None)))
@@ -219,6 +241,14 @@ class TestResponseParsing:
     result = resource._request("GET", "/things", response_type=list[Thing])  # act
 
     assert result == [Thing(id="1", name="a"), Thing(id="2", name="b")]
+
+  def test_bytes_returns_the_raw_body(self: TestResponseParsing, make_client: MakeClient) -> None:
+    """A bytes response type returns the body itself, with no envelope."""
+    resource = Resource(make_client(text_body="file content, not an envelope"))
+
+    result = resource._request("GET", "/object/attachment/x", response_type=bytes)  # act
+
+    assert result == b"file content, not an envelope"
 
   def test_no_response_type_returns_none(self: TestResponseParsing, make_client: MakeClient) -> None:
     """Without a response type the body is not read."""
@@ -268,6 +298,24 @@ class TestResponseParsing:
     [(category, _, _, cause)] = returning_handler.calls
     assert category is ExternalServiceError
     assert cause is None
+
+
+# -----------------------------------------------------------------------------
+class TestMember:
+  """_member takes one member of a parsed response and passes anything else through."""
+
+  def test_returns_the_member_of_the_model(self: TestMember) -> None:
+    """A parsed response yields the named member."""
+    result = Resource._member(Thing(id="1", name="Notes"), Thing, "name")  # act
+
+    assert result == "Notes"
+
+  @pytest.mark.parametrize("handled", [None, "handled", {"name": "not a Thing"}])
+  def test_passes_a_handler_value_through(self: TestMember, handled: Any) -> None:
+    """Whatever the error handler returned comes back untouched."""
+    result = Resource._member(handled, Thing, "name")  # act
+
+    assert result is handled
 
 
 # -----------------------------------------------------------------------------

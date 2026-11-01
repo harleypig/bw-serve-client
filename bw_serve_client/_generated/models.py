@@ -130,6 +130,14 @@ class FieldSchema(BaseModel):
   value: Annotated[str | None, Field(description='Value of the custom field', title='FieldValueSchema')] = None
   type: Annotated[FieldTypeSchema | None,
                   Field(description='Field type (0=text, 1=hidden, 2=boolean, 3=linked)', title='FieldTypeSchema')] = None
+  linked_id: Annotated[
+    int | None,
+    Field(
+      alias='linkedId',
+      description=
+      "For a linked field (type 3), the item property it shows: 100-101 a login's, 300-305 a card's, 400-418 an identity's",
+      title='FieldLinkedIdSchema'
+    )] = None
 
 
 class FolderSchema(BaseModel):
@@ -254,6 +262,7 @@ class DeviceApprovalPropertiesSchema(BaseModel):
   request_ip_address: Annotated[str | None, Field(alias='requestIpAddress')] = None
   creation_date: Annotated[str | None, Field(alias='creationDate')] = None
   organization_user_id: Annotated[str | None, Field(alias='organizationUserId')] = None
+  fingerprint_phrase: Annotated[str | None, Field(alias='fingerprintPhrase')] = None
 
 
 class PasswordHistorySchema(BaseModel):
@@ -1092,12 +1101,16 @@ class AttachmentRequestSchema(BaseModel):
   file: bytes | None = None
 
 
+class AttachmentIdSchema(RootModel[str]):
+  root: Annotated[str, Field(pattern='^[A-Za-z0-9-]+$', title='AttachmentIdSchema')]
+
+
 class ObjectAttachmentIdGetParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  id: Annotated[UUID, Field(title='IdSchema')]
+  id: Annotated[str, Field(pattern='^[A-Za-z0-9-]+$', title='AttachmentIdSchema')]
   itemid: Annotated[UUID, Field(title='ItemIdSchema')]
 
 
@@ -1372,10 +1385,26 @@ class CollectionSchema(BaseModel):
   users: Sequence[GroupSchema] | None = None
 
 
-class DeviceApprovalListSchema(RootModel[Sequence[DeviceApprovalPropertiesSchema]]):
-  """Device approval list schema for organization management."""
-  root: Annotated[Sequence[DeviceApprovalPropertiesSchema],
-                  Field(description='Device approval list schema for organization management', title='DeviceApprovalListSchema')]
+class DeviceApprovalRequestListSchema(BaseModel):
+  """A list of pending device approval requests."""
+  model_config = ConfigDict(
+    extra='ignore',
+    populate_by_name=True,
+  )
+  object: Literal['list'] | None = None
+  data: Annotated[
+    Sequence[DeviceApprovalPropertiesSchema] | None,
+    Field(description='Device approval list schema for organization management', title='DeviceApprovalListSchema')] = None
+
+
+class DeviceApprovalRequestListSuccessSchema(BaseModel):
+  """Success response carrying DeviceApprovalRequestList data."""
+  model_config = ConfigDict(
+    extra='ignore',
+    populate_by_name=True,
+  )
+  success: bool | None = None
+  data: DeviceApprovalRequestListSchema | None = None
 
 
 class ItemTemplateSchema(BaseModel):
@@ -1437,7 +1466,7 @@ __all__ = [
   "UnlockPostRequestSchema", "IdSchema", "ObjectItemIdPutParameters", "ObjectItemIdGetParameters", "ObjectItemIdDeleteParameters",
   "ObjectItemCollectionsIdGetParameters", "ObjectItemCollectionsIdPutParameters", "ObjectItemCollectionsIdPutRequest",
   "RestoreItemIdPostParameters", "ArchiveObjectIdPostParameters", "OrganizationIdSchema1", "SearchSchema",
-  "ListObjectItemsGetParameters", "ItemIdSchema", "AttachmentPostParameters", "AttachmentRequestSchema",
+  "ListObjectItemsGetParameters", "ItemIdSchema", "AttachmentPostParameters", "AttachmentRequestSchema", "AttachmentIdSchema",
   "ObjectAttachmentIdGetParameters", "ObjectAttachmentIdDeleteParameters", "ObjectUsernameIdGetParameters",
   "ObjectPasswordIdGetParameters", "ObjectUriIdGetParameters", "ObjectTotpIdGetParameters", "ObjectNotesIdGetParameters",
   "ObjectExposedIdGetParameters", "ObjectFolderIdPutParameters", "ObjectFolderIdGetParameters", "ObjectFolderIdDeleteParameters",
@@ -1451,5 +1480,6 @@ __all__ = [
   "DeviceApprovalOrganizationIdApproveRequestIdPostParameters", "DeviceApprovalOrganizationIdApproveAllPostParameters",
   "DeviceApprovalOrganizationIdDenyRequestIdPostParameters", "DeviceApprovalOrganizationIdDenyAllPostParameters",
   "SyncPostParameters", "GenerateGetParameters", "TypeSchema", "ObjectTemplateTypeGetParameters", "ItemLoginSchema",
-  "SendTemplateSchema", "CollectionSchema", "DeviceApprovalListSchema", "ItemTemplateSchema"
+  "SendTemplateSchema", "CollectionSchema", "DeviceApprovalRequestListSchema", "DeviceApprovalRequestListSuccessSchema",
+  "ItemTemplateSchema"
 ]

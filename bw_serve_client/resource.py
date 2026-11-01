@@ -5,20 +5,22 @@ route coverage and docstring tests find it, and names its models;
 ``Resource._request()`` does the rest -- validates the path, query and
 body against their pydantic models, sends the body as JSON (or multipart
 when there are files), unwraps ``bw serve``'s response envelope and
-parses the payload into the response type. Every failure along the way
+parses the payload into the response type, or returns the raw body for a
+download. Every failure along the way
 goes to the error handler, and when the handler returns instead of
 raising, its value is what the resource method returns.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 import functools
 import logging
-from typing import Any, NamedTuple, Optional, Tuple, Type, TYPE_CHECKING, TypeVar
+from typing import Any, NamedTuple, Optional, Tuple, Type, TYPE_CHECKING, TypeVar, Union
 
 import httpx
 from pydantic import BaseModel
+from pydantic import RootModel
 from pydantic import SecretStr
 from pydantic import TypeAdapter
 from pydantic import ValidationError as PydanticValidationError
@@ -32,8 +34,9 @@ if TYPE_CHECKING:
   from .errors import BitwardenError
   from .errors import ErrorHandler
 
-#: Raw input and the pydantic model it must validate against.
-Unvalidated = Tuple[Type[BaseModel], Mapping[str, Any]]
+#: Raw input and the pydantic model it must validate against: a mapping of
+#: fields, or for a ``RootModel`` (a bare JSON array body) its root value.
+Unvalidated = Tuple[Type[BaseModel], Union[Mapping[str, Any], Sequence[Any]]]
 
 _Method = TypeVar("_Method", bound=Callable[..., Any])
 
@@ -216,6 +219,22 @@ class Resource:
     return self.error_handler.handle(category, message, status_code=status_code, cause=cause)
 
   # ---------------------------------------------------------------------------
+  @staticmethod
+  def _member(result: Any, model: type[BaseModel], name: str) -> Any:
+    """Take one member of a parsed response, passing a handler's value through.
+
+    Args:
+      result: ``_request``'s return: the parsed model, or a handler's value.
+      model: The response type ``_request`` was given.
+      name: The member to return.
+
+    Returns:
+      The member when ``result`` is a ``model``; otherwise ``result``,
+      untouched.
+    """
+    return getattr(result, name) if isinstance(result, model) else result
+
+  # ---------------------------------------------------------------------------
   def _request(
     self: Resource,
     method: str,
@@ -232,11 +251,13 @@ class Resource:
     ``path`` is a template such as ``/object/folder/{id}``, filled from the
     validated ``path_params``. Query fields that are ``None`` are left
     out. ``body`` is sent as JSON, or as multipart form fields beside
-    ``files`` when there are any.
+    ``files`` when there are any; a ``RootModel`` body takes its root value
+    as given, such as a list of ids, and is sent as that bare value.
 
     The response's ``data`` member is parsed into ``response_type``; a
     list envelope (``{"object": "list", "data": [...]}``) is unwrapped to
-    its items first. With no ``response_type`` the body is not read.
+    its items first. ``bytes`` returns the body itself, unparsed. With no
+    ``response_type`` the body is not read.
 
     Args:
       method: HTTP method.
@@ -245,12 +266,12 @@ class Resource:
       query: Query parameters and their model.
       body: Request body fields and their model.
       files: Files to upload as multipart.
-      response_type: A model or ``list[Model]`` for ``data``; ``None`` returns ``None``.
+      response_type: A model or ``list[Model]`` for ``data``, or ``bytes``.
 
     Returns:
       The parsed response, or the error handler's return value.
     """
-    validated: dict[str, dict[str, Any]] = {}
+    validated: dict[str, Any] = {}
 
     for name, unvalidated in (("path", path_params), ("query", query), ("body", body)):
       if unvalidated is None:
@@ -261,7 +282,8 @@ class Resource:
       # The failure is reported outside the except block, so the pydantic
       # error, which holds the input, is neither the cause nor the context.
       try:
-        dumped = model.model_validate(dict(fields)).model_dump(by_alias=True, exclude_none=True)
+        raw = fields if issubclass(model, RootModel) else dict(fields)
+        dumped = model.model_validate(raw).model_dump(by_alias=True, exclude_none=True)
         validated[name] = to_jsonable_python(_reveal(dumped))
         continue
 
@@ -295,13 +317,20 @@ class Resource:
   def _parse(self: Resource, response: httpx.Response, response_type: Any) -> Any:
     """Parse a 2xx response's ``data`` into ``response_type``.
 
+    A ``bytes`` response is a download: the body is the file, whatever its
+    content type, and is returned raw, since decoding it as text would
+    corrupt anything that is not UTF-8.
+
     Args:
       response: A successful response.
-      response_type: What ``data`` parses into.
+      response_type: What ``data`` parses into, or ``bytes``.
 
     Returns:
       The parsed payload, or the error handler's return value.
     """
+    if response_type is bytes:
+      return response.content
+
     payload = self.client._deserialize_data(response)
 
     # The body itself stays out of the message: on /unlock it holds the

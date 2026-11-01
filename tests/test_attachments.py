@@ -295,7 +295,7 @@ class TestAttachmentsGet:
     """An item id that is not a UUID raises ValidationError before sending."""
     attachments = Attachments(_file_client(sent, b"x"))
 
-    with pytest.raises(ValidationError, match="invalid query"):
+    with pytest.raises(ValidationError, match=r"invalid path .*: itemid: "):
       attachments.get(ATTACHMENT_ID, "not-a-uuid")
 
     assert sent == []
@@ -354,7 +354,7 @@ class TestAttachmentsDelete:
     """An item id that is not a UUID raises ValidationError before sending."""
     attachments = Attachments(make_client())
 
-    with pytest.raises(ValidationError, match="invalid query"):
+    with pytest.raises(ValidationError, match=r"invalid path .*: itemid: "):
       attachments.delete(ATTACHMENT_ID, "not-a-uuid")
 
     assert sent == []

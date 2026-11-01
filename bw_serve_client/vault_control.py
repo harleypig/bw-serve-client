@@ -105,4 +105,4 @@ class VaultControl(Resource):
     """
     result = self._request("GET", "/status", response_type=StatusDataSchema)
 
-    return result.template if isinstance(result, StatusDataSchema) else result
+    return self._member(result, StatusDataSchema, "template")

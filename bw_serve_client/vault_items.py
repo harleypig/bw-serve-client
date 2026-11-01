@@ -99,8 +99,8 @@ def _request_fields(model: type[BaseModel], data: Mapping[str, Any]) -> dict[str
 
   The response models carry what the request models forbid -- ``id`` and
   ``revisionDate`` on the item, ``passwordRevisionDate`` on its login,
-  ``uriChecksum`` on a URI, ``linkedId`` on a field -- so the set is
-  read from the request model rather than listed here.
+  ``uriChecksum`` on a URI -- so the set is read from the request model
+  rather than listed here.
 
   Args:
       model: The request model.
@@ -258,9 +258,8 @@ class VaultItems(Resource):
 
     The usual edit is get, change, modify: pass the fetched item, changed
     with ``model_copy(update=...)``, and its server-side fields are
-    dropped while its secrets go out intact. A custom field's
-    ``linkedId`` is among what is dropped, because the request model has
-    no such field.
+    dropped while its secrets go out intact, and a linked custom field
+    keeps its ``linkedId``.
 
     Args:
         item_id: Unique identifier of the item to edit.

@@ -62,7 +62,7 @@ class Utilities(Resource):
       response_type=TemplateResponseSchema
     )
 
-    return result.template if isinstance(result, TemplateResponseSchema) else result
+    return self._member(result, TemplateResponseSchema, "template")
 
   # ---------------------------------------------------------------------------
   @route("GET", "/object/fingerprint/me")
@@ -74,7 +74,7 @@ class Utilities(Resource):
     """
     result = self._request("GET", "/object/fingerprint/me", response_type=StringResponseSchema)
 
-    return result.data if isinstance(result, StringResponseSchema) else result
+    return self._member(result, StringResponseSchema, "data")
 
   # ---------------------------------------------------------------------------
   @route("GET", "/generate")
@@ -109,9 +109,7 @@ class Utilities(Resource):
 
     ``avoid_ambiguous`` leaves out the characters easily mistaken for one
     another -- ``I``, ``O``, ``l``, ``0`` and ``1``. It is sent as the
-    spec's ``ambiguous``, whose spec description ("Include ambiguous
-    characters") has it the wrong way round: bw serve avoids them when
-    ``ambiguous`` is true.
+    spec's ``ambiguous``, which avoids them when true.
 
     Args:
         length: Number of characters in the password.
@@ -149,4 +147,4 @@ class Utilities(Resource):
 
     result = self._request("GET", "/generate", query=(GenerateGetParameters, query), response_type=SecretStringResponseSchema)
 
-    return result.data if isinstance(result, SecretStringResponseSchema) else result
+    return self._member(result, SecretStringResponseSchema, "data")

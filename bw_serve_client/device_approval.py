@@ -143,11 +143,10 @@ class DeviceApproval(Resource):
 
     Returns:
         The pending requests, as :class:`DeviceApprovalPropertiesSchema`
-        (empty if there are none).
+        (empty if there are none). Each carries the requesting device's
+        ``fingerprint_phrase``, to compare with the user's before
+        approving.
     """
-    # The spec shows a bare array here, but the licensed CLI's list
-    # command answers with the same list envelope as every other list
-    # route, which _request unwraps.
     return self._request(
       "GET",
       "/device-approval/{organizationId}",

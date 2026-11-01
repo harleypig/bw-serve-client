@@ -25,9 +25,6 @@ from collections.abc import Mapping, Sequence
 from typing import Any, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel
-from pydantic import model_serializer
-
 from ._generated.models import CollectionResponseSchema
 from ._generated.models import CollectionSchema
 from ._generated.models import GroupSchema
@@ -60,50 +57,6 @@ CollectionAccess = Union[GroupSchema, Mapping[str, Any]]
 # organizationId query in one model, so they validate the path and this
 # model, which holds only organizationId, validates the query.
 _OrganizationQuery = ObjectOrgCollectionPostParameters
-
-
-class _IdArrayBody(BaseModel):
-  """A body that is a bare JSON array of collection ids.
-
-  ``Resource._request`` validates a body from a mapping, so the array is
-  passed in as ``collection_ids`` and dumped back out as the array alone.
-  A subclass types ``collection_ids`` with its route's generated model.
-
-  Attributes:
-      collection_ids: The ids; a generated root model, in a subclass.
-  """
-
-  collection_ids: Any
-
-  # ---------------------------------------------------------------------------
-  @model_serializer
-  def _as_array(self: _IdArrayBody) -> Any:
-    """Dump the body as the array of ids, without the field around it.
-
-    Returns:
-        The validated collection ids.
-    """
-    return self.collection_ids.root
-
-
-class _MoveBody(_IdArrayBody):
-  """The body of ``POST /move/{itemid}/{organizationId}``.
-
-  Attributes:
-      collection_ids: The collections to put the item in.
-  """
-
-  collection_ids: MoveItemRequestSchema
-
-
-class _ItemCollectionsBody(_IdArrayBody):
-  """The body of ``PUT /object/item-collections/{id}``.
-
-  Attributes:
-      collection_ids: The collections the item will belong to.
-  """
-
-  collection_ids: ObjectItemCollectionsIdPutRequest
 
 
 class OrgCollections(Resource):
@@ -329,9 +282,7 @@ class OrgCollections(Resource):
         "itemid": item_id,
         "organizationId": organization_id
       }),
-      body=(_MoveBody, {
-        "collection_ids": collection_ids
-      }),
+      body=(MoveItemRequestSchema, collection_ids),
       response_type=ItemSchema,
     )
 
@@ -359,9 +310,7 @@ class OrgCollections(Resource):
       path_params=(ObjectItemCollectionsIdPutParameters, {
         "id": item_id
       }),
-      body=(_ItemCollectionsBody, {
-        "collection_ids": collection_ids
-      }),
+      body=(ObjectItemCollectionsIdPutRequest, collection_ids),
       response_type=ItemSchema,
     )
 

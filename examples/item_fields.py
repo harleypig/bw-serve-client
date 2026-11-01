@@ -58,8 +58,12 @@ def main() -> int:
     print(f"Password: {password} ({len(password.get_secret_value())} characters)")
     print(f"Exposed in {fields.exposed(item_id)} known breaches")
 
-    # bw serve answers with a 400 when a field is empty, which by default
-    # raises ValidationError.
+    # bw serve answers an empty field with a 400 ("Not found."): the CLI's
+    # lookup skips an item whose field is empty, and bw serve sends every
+    # failure as a 400 (bitwarden/clients cli-v2026.10.1, getCipher in
+    # apps/cli/src/commands/get.command.ts, processResponse in
+    # apps/cli/src/oss-serve-configurator.ts). By default that raises
+    # ValidationError.
     for name, getter in (("URI", fields.uri), ("Notes", fields.notes), ("TOTP code", fields.totp)):
       try:
         print(f"{name}: {getter(item_id)}")

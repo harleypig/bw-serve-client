@@ -251,7 +251,7 @@
         "schema",
         "title"
       ],
-      "value": "IdSchema"
+      "value": "AttachmentIdSchema"
     },
     {
       "op": "add",
@@ -283,7 +283,7 @@
         "schema",
         "title"
       ],
-      "value": "IdSchema"
+      "value": "AttachmentIdSchema"
     },
     {
       "op": "add",
@@ -5853,6 +5853,233 @@
         }
       },
       "why": "The example's list ends with a stray empty array after the one member; bw serve lists only org-member objects (recorded: org-members-list). Removed (#100)."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "get",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "format"
+      ],
+      "from": "uuid",
+      "why": "The attachment id is not a UUID: Vaultwarden's are 20 hex characters (recorded: attachment-create, `6e30f37acb730272aa86`) and the spec's own example is `o4lrz575u84koanvu9f5gqv9a9ab92gf`; bw serve matches it as a string against the item's attachment ids (bitwarden/clients cli-v2026.10.1, apps/cli/src/commands/get.command.ts getAttachment, apps/cli/src/vault/delete.command.ts deleteAttachment)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "get",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "pattern"
+      ],
+      "value": "^[A-Za-z0-9-]+$",
+      "why": "Letters, digits and hyphens only: the id is put into the path unescaped, so anything else could change which route a request reaches."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "delete",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "format"
+      ],
+      "from": "uuid",
+      "why": "The attachment id is not a UUID: Vaultwarden's are 20 hex characters (recorded: attachment-create, `6e30f37acb730272aa86`) and the spec's own example is `o4lrz575u84koanvu9f5gqv9a9ab92gf`; bw serve matches it as a string against the item's attachment ids (bitwarden/clients cli-v2026.10.1, apps/cli/src/commands/get.command.ts getAttachment, apps/cli/src/vault/delete.command.ts deleteAttachment)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "delete",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "pattern"
+      ],
+      "value": "^[A-Za-z0-9-]+$",
+      "why": "Letters, digits and hyphens only: the id is put into the path unescaped, so anything else could change which route a request reaches."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "field",
+        "properties",
+        "linkedId"
+      ],
+      "value": {
+        "type": "integer",
+        "title": "FieldLinkedIdSchema",
+        "description": "For a linked field (type 3), the item property it shows: 100-101 a login's, 300-305 a card's, 400-418 an identity's"
+      },
+      "why": "A linked custom field names the property it shows in linkedId, which bw serve reads back on create and edit (FieldExport.toView, bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/field.export.ts; values from libs/common/src/vault/enums/linked-id-type.enum.ts). Without it a fetched linked field loses its link on modify."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/generate",
+        "get",
+        "parameters",
+        {
+          "in": "query",
+          "name": "ambiguous"
+        },
+        "description"
+      ],
+      "from": "Include ambiguous characters in the **password** or **passphrase**.",
+      "value": "Avoid ambiguous characters (I, O, l, 0 and 1) in the **password** or **passphrase**.",
+      "why": "Backwards upstream: bw serve passes `!ambiguous` to a generator whose own option means \"may include ambiguous characters\", so ambiguous=true avoids them (bitwarden/clients cli-v2026.10.1, apps/cli/src/tools/generate.command.ts; recorded: generate-minimums)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "deviceapprovalproperties",
+        "properties",
+        "fingerprintPhrase"
+      ],
+      "value": {
+        "type": "string"
+      },
+      "why": "PendingAuthRequestResponse sends the requesting device's fingerprintPhrase, which an admin compares before approving (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/pending-auth-request.response.ts), but the schema omits it, so the response model dropped it."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.DeviceApproval"
+      ],
+      "value": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSchema",
+        "description": "A list of pending device approval requests",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/deviceapprovallist"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns: the list command wraps the requests in a ListResponse (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/list.command.ts; apps/cli/src/models/response/list.response.ts)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.DeviceApprovalRequestList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSuccessSchema",
+        "description": "Success response carrying DeviceApprovalRequestList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.DeviceApproval"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives a bare array."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "from": {
+        "$ref": "#/components/schemas/deviceapprovallist"
+      },
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.DeviceApprovalRequestList"
+      },
+      "why": "bw serve sends the list envelope, {\"success\": true, \"data\": {\"object\": \"list\", \"data\": [...]}}, not a bare array (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/list.command.ts)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "example"
+      ],
+      "from": [
+        {
+          "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
+          "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+          "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+          "email": "orguser@bitwarden.com",
+          "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
+          "requestDeviceType": "Chrome",
+          "requestIpAddress": "130.6.255.219",
+          "creationDate": "2024-06-09T17:52:10.775Z"
+        }
+      ],
+      "value": {
+        "success": true,
+        "data": {
+          "object": "list",
+          "data": [
+            {
+              "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
+              "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+              "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+              "email": "orguser@bitwarden.com",
+              "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
+              "requestDeviceType": "Chrome",
+              "requestIpAddress": "130.6.255.219",
+              "creationDate": "2024-06-09T17:52:10.775Z",
+              "fingerprintPhrase": "alarm-unfold-steering-deftly-pretext"
+            }
+          ]
+        }
+      },
+      "why": "The example is the bare array; wrapped in the list envelope bw serve sends, with the fingerprintPhrase it carries."
     }
   ]
 }

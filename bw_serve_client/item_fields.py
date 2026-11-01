@@ -64,7 +64,7 @@ class ItemFields(Resource):
     """
     result = self._request("GET", path, path_params=(parameters, {"id": item_id}), response_type=response_type)
 
-    return result.data if isinstance(result, response_type) else result
+    return self._member(result, response_type, "data")
 
   # ---------------------------------------------------------------------------
   @route("GET", "/object/username/{id}")

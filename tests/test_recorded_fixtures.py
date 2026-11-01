@@ -20,15 +20,16 @@ off.
 
 from __future__ import annotations
 
-from functools import reduce
 import json
 from pathlib import Path
 import re
-from typing import Any, Callable, cast, Literal, Optional, TYPE_CHECKING, Union
+from typing import Any, Callable, get_args, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 from conftest import load_recorded
 from conftest import RECORDED_DIR
+from pydantic import BaseModel
+from pydantic import SecretStr
 import pytest
 from test_spec_examples import unread_keys
 
@@ -59,7 +60,6 @@ from bw_serve_client.folders import Folders
 if TYPE_CHECKING:
   from conftest import MakeClient
   from conftest import ReturningHandler
-  from pydantic import BaseModel
 
   from bw_serve_client.api_client import ApiClient
   from bw_serve_client.errors import BitwardenError
@@ -203,6 +203,114 @@ def _cases(names: tuple[str, ...] | list[str]) -> list[Any]:
   ]
 
 
+# -----------------------------------------------------------------------------
+# Where a recording may hold a secret, derived from the generated models.
+
+#: A key path from a recording's root, and the value found there.
+Place = tuple[tuple[Union[str, int], ...], Any]
+
+#: The recorder's marker for a value it removed.
+REDACTED = "<redacted>"
+
+#: Secret-typed values the recordings hold in the clear on purpose: no one's
+#: secret, and each one's provenance is known.
+CLEAR_ON_PURPOSE = {
+  # The recorder's item-create login password and its unlock-wrong-password
+  # attempt, both made up by the recorder.
+  "made-up-item-password",
+  "wrong-password",
+  # bw's own sample login in the item.login template.
+  "myp@ssword123",
+  "JBSWY3DPEHPK3PXP",
+}
+
+#: Secret-typed places a recording shows in the clear on purpose, by case:
+#: the TOTP code is from the recorder's made-up seed, which is redacted, and
+#: expired seconds after it was recorded.
+CLEAR_PLACES = {("item-field-totp", ("response", "body", "data", "data"))}
+
+#: Names typed SecretStr that are not a secret wherever they appear: ``data``
+#: is every envelope's member (the secret one is checked by model, below),
+#: and ``message`` holds the session key only inside the unlock text, which
+#: ``test_session_key_is_redacted`` checks.
+NOT_SECRET_BY_NAME = {"data", "message"}
+
+
+def _secret_names() -> set[str]:
+  """Name every member a generated model types ``SecretStr``, as on the wire.
+
+  Returns:
+    The aliases (or field names) of every ``SecretStr`` member.
+  """
+  names: set[str] = set()
+
+  for cls in vars(models).values():
+    if not (isinstance(cls, type) and issubclass(cls, BaseModel)):
+      continue
+
+    for name, field in cls.model_fields.items():
+      if SecretStr in (field.annotation, *get_args(field.annotation)):
+        names.add(field.alias or name)
+
+  return names
+
+
+SECRET_NAMES = _secret_names() - NOT_SECRET_BY_NAME
+
+
+def _secret_places(payload: Payload) -> list[Place]:
+  """Find every place in a recording's bodies that holds a secret.
+
+  A member named in ``SECRET_NAMES``, anywhere in the request or response
+  body, and the ``data`` of a secret-string response.
+
+  Args:
+    payload: One recording.
+
+  Returns:
+    Each place, as its key path from the recording's root, and its value.
+  """
+  found: list[Place] = []
+
+  def walk(node: Any, where: tuple[str | int, ...]) -> None:
+    if isinstance(node, dict):
+      for key, value in node.items():
+        if key in SECRET_NAMES and isinstance(value, str):
+          found.append(((*where, key), value))
+
+        walk(value, (*where, key))
+
+    elif isinstance(node, list):
+      for index, value in enumerate(node):
+        walk(value, (*where, index))
+
+  walk(payload["request"]["body"], ("request", "body"))
+  walk(payload["response"]["body"], ("response", "body"))
+
+  if MODELLED.get(payload["case"]) is SecretStringSuccessSchema:
+    found.append((("response", "body", "data", "data"), payload["response"]["body"]["data"]["data"]))
+
+  return found
+
+
+def _in_the_clear(name: str, value: str) -> bool:
+  """Say whether a secret's value is one a recording may show.
+
+  Args:
+    name: The member's name.
+    value: Its recorded value.
+
+  Returns:
+    True for the marker, an empty value, a made-up value, or a Send's
+    access URL listed without its key (it ends in ``undefined`` where the
+    key would be, so it carries nothing).
+  """
+  if value in {REDACTED, ""} or value in CLEAR_ON_PURPOSE:
+    return False
+
+  return not (name == "accessUrl" and value.endswith("/undefined"))
+
+
 def _route_model(payload: Payload) -> type[BaseModel]:
   """Find the generated model of the 200 response of a recording's route.
 
@@ -297,34 +405,32 @@ class TestRecordings:
     assert result == []
     assert load_recorded("unlock")["response"]["body"]["data"]["raw"] == "<redacted>"
 
-  @pytest.mark.parametrize(
-    ("name", "where"),
-    [
-      ("item-edit", ("request", "body", "login", "password")),
-      ("item-edit", ("request", "body", "login", "totp")),
-      ("item-edit", ("response", "body", "data", "login", "totp")),
-      ("item-field-password", ("response", "body", "data", "data")),
-      ("attachment-create", ("response", "body", "data", "attachments", 0, "url")),
-      ("send-create", ("request", "body", "password")),
-      ("send-create", ("response", "body", "data", "key")),
-      ("send-create", ("response", "body", "data", "accessUrl")),
-      ("generate", ("response", "body", "data", "data")),
-      ("generate-minimums", ("response", "body", "data", "data")),
-      ("generate-passphrase", ("response", "body", "data", "data")),
-    ],
-  )
-  def test_other_secrets_are_redacted(self: TestRecordings, name: str, where: tuple[str | int, ...]) -> None:
-    """Made-up item and Send secrets and the per-case secrets show the marker.
-
-    Goes red if a constant leaves the recorder's secret list or a case loses
-    its ``secret``: the value is then recorded as it came back. A value only
-    redacted where it was read here can still leak elsewhere; the recorder's
-    own check, that no secret survives anywhere, covers that.
-    """
-    result = reduce(lambda node, key: node[key], where, cast("Any", load_recorded(name)))
+  def test_secret_places_are_derived(self: TestRecordings) -> None:
+    """The derivation reaches the known secrets, so the check below is not vacuous."""
+    places = {(name, where) for name in RECORDED for where, _ in _secret_places(load_recorded(name))}
 
     # Assert
-    assert result == "<redacted>"
+    assert {"password", "totp", "key", "accessUrl", "raw", "url"} <= SECRET_NAMES
+    assert ("send-edit", ("response", "body", "data", "key")) in places
+    assert ("send-edit", ("response", "body", "data", "accessUrl")) in places
+    assert ("generate", ("response", "body", "data", "data")) in places
+    assert ("attachment-create", ("response", "body", "data", "attachments", 0, "url")) in places
+
+  @pytest.mark.parametrize("name", RECORDED)
+  def test_other_secrets_are_redacted(self: TestRecordings, name: str) -> None:
+    """Every secret a recording holds shows the marker, unless made up on purpose.
+
+    The places are derived: every member a generated model types
+    ``SecretStr``, wherever it appears in either body, and the payload of
+    a secret-string response. Only the places are reported, never the
+    values.
+    """
+    places = _secret_places(load_recorded(name))
+
+    result = [where for where, value in places if _in_the_clear(str(where[-1]), value) and (name, where) not in CLEAR_PLACES]
+
+    # Assert
+    assert result == []
 
 
 # -----------------------------------------------------------------------------

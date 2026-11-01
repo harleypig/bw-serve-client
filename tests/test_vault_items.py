@@ -205,7 +205,7 @@ class TestModify:
     assert isinstance(result, ItemSchema)
 
   def test_nested_response_fields_are_dropped(self: TestModify, make_client: MakeClient, sent: list[httpx.Request]) -> None:
-    """A URI's checksum and a field's linkedId are not request fields."""
+    """A URI's checksum is dropped; a linked field's linkedId is kept."""
     items = VaultItems(make_client(json_body=_response("item-edit")))
     fetched = ItemSchema.model_validate({
       "id": ITEM_ID,
@@ -230,7 +230,8 @@ class TestModify:
       "type": 1,
       "fields": [{
         "name": "Linked",
-        "type": 3
+        "type": 3,
+        "linkedId": 100
       }],
       "login": {
         "uris": [{

@@ -10,16 +10,13 @@ Mirrors the ``Attachments`` tag in the API spec. One method per route:
 from __future__ import annotations
 
 import os
-from typing import Annotated, Any, BinaryIO, Optional, Union
+from typing import Any, BinaryIO, Optional, Union
 from uuid import UUID
-
-import httpx
-from pydantic import BaseModel
-from pydantic import ConfigDict
-from pydantic import Field
 
 from ._generated.models import AttachmentPostParameters
 from ._generated.models import ItemSchema
+from ._generated.models import ObjectAttachmentIdDeleteParameters
+from ._generated.models import ObjectAttachmentIdGetParameters
 from .errors import ValidationError
 from .resource import Resource
 from .resource import route
@@ -29,25 +26,10 @@ ItemId = Union[UUID, str]
 #: What :meth:`Attachments.add` uploads: a path to read, or the content.
 FileSource = Union[str, os.PathLike[str], bytes, BinaryIO]
 
-# The generated get and delete parameter models type the attachment id as
-# a UUID, which it is not (Vaultwarden's are 20 hex characters, Bitwarden's
-# 32 lower-case alphanumerics). So the path is validated by this model, and
-# the itemid query by the upload's model, which holds that one field.
+# The generated get and delete parameter models hold the path id and the
+# itemid query in one model, so they validate the path and the upload's
+# model, which holds only itemid, validates the query.
 _ItemQuery = AttachmentPostParameters
-
-
-class _AttachmentPath(BaseModel):
-  """The ``{id}`` path parameter of the attachment routes.
-
-  Attributes:
-      id: The attachment id; letters, digits and hyphens only, since it is
-          put into the path unescaped.
-      model_config: Rejects unknown fields.
-  """
-
-  model_config = ConfigDict(extra="forbid")
-
-  id: Annotated[str, Field(pattern=r"^[A-Za-z0-9-]+$")]
 
 
 class Attachments(Resource):
@@ -137,8 +119,9 @@ class Attachments(Resource):
     return self._request(
       "GET",
       "/object/attachment/{id}",
-      path_params=(_AttachmentPath, {
-        "id": attachment_id
+      path_params=(ObjectAttachmentIdGetParameters, {
+        "id": attachment_id,
+        "itemid": item_id
       }),
       query=(_ItemQuery, {
         "itemid": item_id
@@ -161,30 +144,11 @@ class Attachments(Resource):
     return self._request(
       "DELETE",
       "/object/attachment/{id}",
-      path_params=(_AttachmentPath, {
-        "id": attachment_id
+      path_params=(ObjectAttachmentIdDeleteParameters, {
+        "id": attachment_id,
+        "itemid": item_id
       }),
       query=(_ItemQuery, {
         "itemid": item_id
       }),
     )
-
-  # ---------------------------------------------------------------------------
-  def _parse(self: Attachments, response: httpx.Response, response_type: Any) -> Any:
-    """Parse a 2xx response; a download is the body's bytes, not an envelope.
-
-    The body is read raw rather than by content type: the file is the whole
-    body whatever header it carries, and decoding it as text would corrupt
-    anything that is not UTF-8.
-
-    Args:
-        response: A successful response.
-        response_type: ``bytes`` for a download, else a model for ``data``.
-
-    Returns:
-        The file's bytes, or ``Resource._parse``'s result.
-    """
-    if response_type is bytes:
-      return response.content
-
-    return super()._parse(response, response_type)

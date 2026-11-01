@@ -75,16 +75,12 @@ def _spec_example(method: str, path: str) -> Any:
 
 
 def _list_reply() -> dict[str, Any]:
-  """Build the list route's reply from the spec's example.
-
-  The spec shows the requests as a bare array. The licensed CLI's list
-  command answers ``Response.success(new ListResponse(...))``, the
-  envelope every list route has, so the example is wrapped in it.
+  """Return the list route's reply: the spec's example, in its list envelope.
 
   Returns:
     The reply bw serve sends.
   """
-  return {"success": True, "data": {"object": "list", "data": _spec_example("get", "/device-approval/{organizationId}")}}
+  return _spec_example("get", "/device-approval/{organizationId}")
 
 
 # -----------------------------------------------------------------------------
@@ -104,10 +100,11 @@ class TestDeviceApprovalList:
     [pending] = result
     assert isinstance(pending, DeviceApprovalPropertiesSchema)
     assert (pending.id, pending.email, pending.organization_user_id) == (REQUEST_ID, "orguser@bitwarden.com", ORG_ID)
+    assert pending.fingerprint_phrase == "alarm-unfold-steering-deftly-pretext"
 
   def test_bare_array_reply_is_an_external_service_error(self: TestDeviceApprovalList, make_client: MakeClient) -> None:
-    """A reply without the envelope, as the spec draws it, is not accepted."""
-    approvals = DeviceApproval(make_client(json_body=_spec_example("get", "/device-approval/{organizationId}")))
+    """A reply of the requests alone, without the envelope, is not accepted."""
+    approvals = DeviceApproval(make_client(json_body=_list_reply()["data"]["data"]))
 
     with pytest.raises(ExternalServiceError, match="no data member"):
       approvals.list(ORG_ID)

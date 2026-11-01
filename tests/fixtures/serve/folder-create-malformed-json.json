@@ -1,0 +1,18 @@
+{
+  "case": "folder-create-malformed-json",
+  "description": "Create a folder with a body that is not JSON.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": "{not json",
+    "method": "POST",
+    "path": "/object/folder"
+  },
+  "response": {
+    "body": "Bad Request",
+    "status": 400
+  }
+}

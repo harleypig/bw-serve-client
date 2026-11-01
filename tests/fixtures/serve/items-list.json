@@ -1,0 +1,52 @@
+{
+  "case": "items-list",
+  "description": "List items after a sync.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/list/object/items"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": [
+          {
+            "attachments": [],
+            "collectionIds": [],
+            "creationDate": "2026-11-01T00:22:45.512Z",
+            "favorite": false,
+            "fields": [],
+            "folderId": "9725df6a-c6b5-43c8-af66-875309714845",
+            "id": "8bac0a16-5b09-4339-a78f-283b721fa073",
+            "login": {
+              "fido2Credentials": [],
+              "password": "made-up-item-password",
+              "passwordRevisionDate": null,
+              "uris": [
+                {
+                  "uri": "https://example.com/"
+                }
+              ],
+              "username": "someone@example.com"
+            },
+            "name": "Recorded login",
+            "notes": "Made-up item for fixture recording.",
+            "object": "item",
+            "passwordHistory": [],
+            "reprompt": 0,
+            "revisionDate": "2026-11-01T00:22:45.513Z",
+            "type": 1
+          }
+        ],
+        "object": "list"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

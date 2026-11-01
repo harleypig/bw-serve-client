@@ -1,9 +1,11 @@
-"""Shared fixtures for the resource-class tests."""
+"""Shared fixtures for the resource-class tests and the recorded payloads."""
 
 from __future__ import annotations
 
+import json
 import logging
-from typing import Any, Optional, Protocol, TYPE_CHECKING
+from pathlib import Path
+from typing import Any, Callable, Optional, Protocol, TYPE_CHECKING
 
 import httpx
 import pytest
@@ -105,3 +107,28 @@ class ReturningHandler:
 def returning_handler() -> ReturningHandler:
   """Provide a fresh error handler that returns instead of raising."""
   return ReturningHandler()
+
+
+# -----------------------------------------------------------------------------
+#: Where ``tests/fixtures/recorder/record.py`` writes one payload per case.
+RECORDED_DIR = Path(__file__).parent / "fixtures" / "serve"
+
+
+def load_recorded(name: str) -> dict[str, Any]:
+  """Read one recorded bw serve payload.
+
+  Args:
+    name: The case name, which is the file stem under ``RECORDED_DIR``.
+
+  Returns:
+    The payload: ``case``, ``description``, ``recorded`` (CLI version,
+    server image, date), ``request`` (method, path, body) and ``response``
+    (status, body).
+  """
+  return json.loads((RECORDED_DIR / f"{name}.json").read_text())
+
+
+@pytest.fixture
+def recorded() -> Callable[[str], dict[str, Any]]:
+  """Provide ``load_recorded``, so a test reads payloads by case name."""
+  return load_recorded

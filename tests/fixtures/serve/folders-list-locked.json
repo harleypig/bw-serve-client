@@ -1,0 +1,21 @@
+{
+  "case": "folders-list-locked",
+  "description": "A command refused because the vault is locked.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/list/object/folders"
+  },
+  "response": {
+    "body": {
+      "message": "Vault is locked.",
+      "success": false
+    },
+    "status": 400
+  }
+}

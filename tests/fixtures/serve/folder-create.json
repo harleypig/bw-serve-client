@@ -1,0 +1,27 @@
+{
+  "case": "folder-create",
+  "description": "Create a folder.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": {
+      "name": "Recorded folder"
+    },
+    "method": "POST",
+    "path": "/object/folder"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "id": "9725df6a-c6b5-43c8-af66-875309714845",
+        "name": "Recorded folder",
+        "object": "folder"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

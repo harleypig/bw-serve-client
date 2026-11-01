@@ -1,0 +1,18 @@
+{
+  "case": "attachment-no-file",
+  "description": "Add an attachment with no file.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "POST",
+    "path": "/attachment?itemid=8bac0a16-5b09-4339-a78f-283b721fa073"
+  },
+  "response": {
+    "body": "Internal Server Error",
+    "status": 500
+  }
+}

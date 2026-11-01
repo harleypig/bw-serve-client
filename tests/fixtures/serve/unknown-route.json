@@ -1,0 +1,18 @@
+{
+  "case": "unknown-route",
+  "description": "A path bw serve has no route for.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/no/such/route"
+  },
+  "response": {
+    "body": "Not Found",
+    "status": 404
+  }
+}

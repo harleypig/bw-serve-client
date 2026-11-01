@@ -1,0 +1,30 @@
+{
+  "case": "status-unlocked",
+  "description": "Status once unlocked.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/status"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "object": "template",
+        "template": {
+          "lastSync": "2026-11-01T00:22:40.765Z",
+          "serverUrl": "https://bw-recorder-vw-0e353757",
+          "status": "unlocked",
+          "userEmail": "fixture-recorder@example.com",
+          "userId": "577b1fab-a56e-43b1-830b-7812dce126fe"
+        }
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

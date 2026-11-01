@@ -1,0 +1,21 @@
+{
+  "case": "folder-create-no-body",
+  "description": "Create a folder with no body at all.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "POST",
+    "path": "/object/folder"
+  },
+  "response": {
+    "body": {
+      "message": "Error: Folder name is required",
+      "success": false
+    },
+    "status": 400
+  }
+}

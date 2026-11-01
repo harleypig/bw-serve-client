@@ -380,6 +380,11 @@ class ApiClient:
   def get(self: "ApiClient", endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
     """Make a GET request.
 
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
+
     Args:
         endpoint: API endpoint
         params: Query parameters
@@ -391,6 +396,11 @@ class ApiClient:
 
   def post(self: "ApiClient", endpoint: str, data: RequestData = None, files: Optional[Dict[str, Any]] = None) -> Any:
     """Make a POST request.
+
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
 
     Args:
         endpoint: API endpoint
@@ -405,6 +415,11 @@ class ApiClient:
   def put(self: "ApiClient", endpoint: str, data: RequestData = None) -> Any:
     """Make a PUT request.
 
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
+
     Args:
         endpoint: API endpoint
         data: Request body data
@@ -416,6 +431,11 @@ class ApiClient:
 
   def delete(self: "ApiClient", endpoint: str) -> Any:
     """Make a DELETE request.
+
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
 
     Args:
         endpoint: API endpoint

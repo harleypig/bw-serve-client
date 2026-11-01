@@ -3239,6 +3239,9 @@
                 "item.card",
                 "item.identity",
                 "item.securenote",
+                "item.bankaccount",
+                "item.driverslicense",
+                "item.passport",
                 "folder",
                 "collection",
                 "item-collections",
@@ -3346,10 +3349,14 @@
               1,
               2,
               3,
-              4
+              4,
+              5,
+              6,
+              7,
+              8
             ],
             "title": "ItemTypeSchema",
-            "description": "Type of vault item (1=login, 2=note, 3=card, 4=identity)"
+            "description": "Type of vault item (1=login, 2=secure note, 3=card, 4=identity, 5=SSH key, 6=bank account, 7=driver's license, 8=passport)"
           },
           "name": {
             "type": "string",
@@ -3448,10 +3455,7 @@
             "type": "string"
           },
           "brand": {
-            "type": "string",
-            "enum": [
-              "visa"
-            ]
+            "type": "string"
           },
           "number": {
             "type": "string"
@@ -3565,7 +3569,7 @@
             "description": "Value of the custom field"
           },
           "type": {
-            "type": "string",
+            "type": "integer",
             "enum": [
               0,
               1,

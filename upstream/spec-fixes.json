@@ -2561,6 +2561,122 @@
         "type": "string"
       },
       "why": "The device approval example carries organizationUserId, and PendingAuthRequestResponse sends it (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/pending-auth-request.response.ts), but the schema omits it, so the response model dropped it."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "type",
+        "enum"
+      ],
+      "from": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "value": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "why": "The CLI accepts item types 1-8: CipherType is Login=1, SecureNote=2, Card=3, Identity=4, SshKey=5, BankAccount=6, DriversLicense=7, Passport=8 (bitwarden/clients cli-v2026.10.1, libs/common/src/vault/enums/cipher-type.ts; bitwarden/sdk-internal 4a9eb239 (0.2.0-main.1126, the version the CLI pins), crates/bitwarden-vault/src/cipher/cipher.rs). 6-8 are behind a server feature flag, and CreateCommand answers them with a 400 when it is off (apps/cli/src/vault/create.command.ts). Upstream lists only 1-4, so SSH keys and the newer types were refused (#108)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "type",
+        "description"
+      ],
+      "from": "Type of vault item (1=login, 2=note, 3=card, 4=identity)",
+      "value": "Type of vault item (1=login, 2=secure note, 3=card, 4=identity, 5=SSH key, 6=bank account, 7=driver's license, 8=passport)",
+      "why": "Names the item types the enum now allows (#108)."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "components",
+        "schemas",
+        "item.card",
+        "properties",
+        "brand",
+        "enum"
+      ],
+      "from": [
+        "visa"
+      ],
+      "why": "A card's brand is free text: CardExport declares `brand?: string` and encrypts it as-is (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/card.export.ts), and the SDK's Card holds `brand: Option<String>` (bitwarden/sdk-internal 4a9eb239 (0.2.0-main.1126, the version the CLI pins), crates/bitwarden-vault/src/cipher/card.rs). Upstream allows only `visa`, the value in the CLI's own template, so every other brand was refused (#108)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "field",
+        "properties",
+        "type",
+        "type"
+      ],
+      "from": "string",
+      "value": "integer",
+      "why": "A field's type is a number: FieldType is Text=0, Hidden=1, Boolean=2, Linked=3 (bitwarden/clients cli-v2026.10.1, libs/common/src/vault/enums/field-type.enum.ts; bitwarden/sdk-internal 4a9eb239 (0.2.0-main.1126, the version the CLI pins), crates/bitwarden-vault/src/cipher/field.rs, serialized as a u8). Upstream declares it a string with integer values, so the model was a plain Enum rather than an IntEnum (#108)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/object/template/{type}",
+        "get",
+        "parameters",
+        {
+          "in": "path",
+          "name": "type"
+        },
+        "schema",
+        "enum"
+      ],
+      "from": [
+        "item",
+        "item.field",
+        "item.login",
+        "item.login.uri",
+        "item.card",
+        "item.identity",
+        "item.securenote",
+        "folder",
+        "collection",
+        "item-collections",
+        "org-collection"
+      ],
+      "value": [
+        "item",
+        "item.field",
+        "item.login",
+        "item.login.uri",
+        "item.card",
+        "item.identity",
+        "item.securenote",
+        "item.bankaccount",
+        "item.driverslicense",
+        "item.passport",
+        "folder",
+        "collection",
+        "item-collections",
+        "org-collection"
+      ],
+      "why": "GetCommand.getTemplate also answers item.bankaccount, item.driverslicense and item.passport (bitwarden/clients cli-v2026.10.1, apps/cli/src/commands/get.command.ts), with a 400 while the new item types' feature flag is off. Upstream omits them (#108)."
     }
   ]
 }

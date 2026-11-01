@@ -23,11 +23,15 @@ from pydantic import SecretStr
 
 
 class ItemTypeSchema(IntEnum):
-  """Type of vault item (1=login, 2=note, 3=card, 4=identity)."""
+  """Type of vault item (1=login, 2=secure note, 3=card, 4=identity, 5=SSH key, 6=bank account, 7=driver's license, 8=passport)."""
   INTEGER_1 = 1
   INTEGER_2 = 2
   INTEGER_3 = 3
   INTEGER_4 = 4
+  INTEGER_5 = 5
+  INTEGER_6 = 6
+  INTEGER_7 = 7
+  INTEGER_8 = 8
 
 
 class RepromptSchema(IntEnum):
@@ -52,7 +56,7 @@ class ItemCardSchema(BaseModel):
     populate_by_name=True,
   )
   cardholder_name: Annotated[str | None, Field(alias='cardholderName')] = None
-  brand: Literal['visa'] | None = None
+  brand: str | None = None
   number: str | None = None
   exp_month: Annotated[str | None, Field(alias='expMonth')] = None
   exp_year: Annotated[str | None, Field(alias='expYear')] = None
@@ -108,12 +112,12 @@ class UrisSchema(BaseModel):
   uri: Annotated[str | None, Field(description='The URI/URL value')] = None
 
 
-class FieldTypeSchema(Enum):
+class FieldTypeSchema(IntEnum):
   """Field type (0=text, 1=hidden, 2=boolean, 3=linked)."""
-  FIELD_0 = 0
-  FIELD_1 = 1
-  FIELD_2 = 2
-  FIELD_3 = 3
+  INTEGER_0 = 0
+  INTEGER_1 = 1
+  INTEGER_2 = 2
+  INTEGER_3 = 3
 
 
 class FieldSchema(BaseModel):
@@ -569,6 +573,9 @@ class TypeSchema(Enum):
   ITEM_CARD = 'item.card'
   ITEM_IDENTITY = 'item.identity'
   ITEM_SECURENOTE = 'item.securenote'
+  ITEM_BANKACCOUNT = 'item.bankaccount'
+  ITEM_DRIVERSLICENSE = 'item.driverslicense'
+  ITEM_PASSPORT = 'item.passport'
   FOLDER = 'folder'
   COLLECTION = 'collection'
   ITEM_COLLECTIONS = 'item-collections'
@@ -648,8 +655,13 @@ class ItemTemplateSchema(BaseModel):
     Field(alias='collectionIds', description='Array of collection IDs for organization items', title='CollectionIdsSchema')] = None
   folder_id: Annotated[UUID | None,
                        Field(alias='folderId', description='Folder ID for organizing the item', title='FolderIdSchema')] = None
-  type: Annotated[ItemTypeSchema | None,
-                  Field(description='Type of vault item (1=login, 2=note, 3=card, 4=identity)', title='ItemTypeSchema')] = None
+  type: Annotated[
+    ItemTypeSchema | None,
+    Field(
+      description=
+      "Type of vault item (1=login, 2=secure note, 3=card, 4=identity, 5=SSH key, 6=bank account, 7=driver's license, 8=passport)",
+      title='ItemTypeSchema'
+    )] = None
   name: Annotated[str | None, Field(description='Display name of the vault item', title='ItemNameSchema')] = None
   notes: Annotated[str | None, Field(description='Free-form notes associated with the item', title='ItemNotesSchema')] = None
   favorite: Annotated[bool | None, Field(description='Whether the item is marked as a favorite', title='ItemFavoriteSchema')] = None

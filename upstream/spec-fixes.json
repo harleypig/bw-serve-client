@@ -574,6 +574,33 @@
       "value": "OrganizationIdSchema"
     },
     {
+      "op": "set",
+      "path": [
+        "paths",
+        "/move/{itemid}/{organizationId}",
+        "post",
+        "requestBody",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "from": {
+        "properties": {
+          "array": {
+            "type": "array"
+          }
+        }
+      },
+      "value": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "why": "The body is a bare JSON array of collection ids, as the spec's own description and example say: bw serve passes it straight to ShareCommand.run, which iterates it as string[] (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/commands/share.command.ts). Upstream describes it as an object with an `array` property, so the model rejected the example."
+    },
+    {
       "op": "add",
       "path": [
         "paths",
@@ -586,25 +613,6 @@
         "title"
       ],
       "value": "MoveItemRequestSchema"
-    },
-    {
-      "op": "add",
-      "path": [
-        "paths",
-        "/move/{itemid}/{organizationId}",
-        "post",
-        "requestBody",
-        "content",
-        "application/json",
-        "schema",
-        "properties",
-        "array",
-        "items"
-      ],
-      "value": {
-        "type": "string"
-      },
-      "why": "The array of collection ids has no item type upstream, which an array schema needs."
     },
     {
       "op": "add",
@@ -1369,6 +1377,26 @@
         "title"
       ],
       "value": "ItemTemplateSchema"
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "item.login",
+        "properties",
+        "uris"
+      ],
+      "from": {
+        "$ref": "#/components/schemas/uris"
+      },
+      "value": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/uris"
+        }
+      },
+      "why": "A login holds a list of URIs: LoginExport declares `uris?: LoginUriExport[]` (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/login.export.ts), and the spec's own login examples send an array. Upstream refers to a single uri object, so the model rejected the examples."
     },
     {
       "op": "add",
@@ -2459,6 +2487,80 @@
         "format": "password"
       },
       "why": "bw serve returns the session key as `raw` on /unlock (the spec's own example shows it) but the schema does not declare it; declared as a SecretStr. Decided on #30."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "paths",
+        "/object/org-collection",
+        "post",
+        "requestBody",
+        "content",
+        "application/json",
+        "example",
+        "externalid"
+      ],
+      "from": null,
+      "why": "The example spells the field `externalid`; the collection schema and CollectionExport (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/collection.export.ts) spell it `externalId`, so the example was wrong, not the model."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/org-collection",
+        "post",
+        "requestBody",
+        "content",
+        "application/json",
+        "example",
+        "externalId"
+      ],
+      "value": null,
+      "why": "The example spells the field `externalid`; the collection schema and CollectionExport (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/collection.export.ts) spell it `externalId`, so the example was wrong, not the model."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "paths",
+        "/object/org-collection/{id}",
+        "put",
+        "requestBody",
+        "content",
+        "application/json",
+        "example",
+        "externalid"
+      ],
+      "from": null,
+      "why": "The example spells the field `externalid`; the collection schema and CollectionExport (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/collection.export.ts) spell it `externalId`, so the example was wrong, not the model."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/org-collection/{id}",
+        "put",
+        "requestBody",
+        "content",
+        "application/json",
+        "example",
+        "externalId"
+      ],
+      "value": null,
+      "why": "The example spells the field `externalid`; the collection schema and CollectionExport (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/collection.export.ts) spell it `externalId`, so the example was wrong, not the model."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "deviceapprovalproperties",
+        "properties",
+        "organizationUserId"
+      ],
+      "value": {
+        "type": "string"
+      },
+      "why": "The device approval example carries organizationUserId, and PendingAuthRequestResponse sends it (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/pending-auth-request.response.ts), but the schema omits it, so the response model dropped it."
     }
   ]
 }

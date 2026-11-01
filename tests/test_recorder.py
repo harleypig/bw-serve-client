@@ -1,8 +1,8 @@
 """Tests for the fixture recorder's placeholder filling and payload writing.
 
 The recorder itself needs Docker, so only the parts that do not are tested:
-how a case's placeholders are filled from earlier responses, and how a run's
-payloads replace the ones on disk.
+how a case's placeholders are filled from earlier responses, how a run's
+payloads replace the ones on disk, and what the cleanup asks Docker to do.
 """
 
 from __future__ import annotations
@@ -100,3 +100,57 @@ class TestWritePayloads:
 
     assert sorted(p.name for p in tmp_path.iterdir()) == ["README.md", "status-locked.json"]
     assert json.loads((tmp_path / "status-locked.json").read_text()) == payload
+
+
+# -----------------------------------------------------------------------------
+def _not_ready(base: str, container: str) -> None:  # noqa: U100 - stands in for wait_ready; no use for them.
+  """Fail the way a bw serve that never answers does.
+
+  Raises:
+    RuntimeError: Always.
+  """
+  raise RuntimeError("bw serve never answered")
+
+
+# -----------------------------------------------------------------------------
+class _FakeDocker:
+  """Records each docker() call and answers with a made-up container id."""
+
+  def __init__(self: _FakeDocker) -> None:
+    self.calls: list[tuple[str, ...]] = []
+
+  def __call__(self: _FakeDocker, *args: str, **kwargs: object) -> str:  # noqa: U100 - takes docker()'s keywords; no use for them.
+    """Record the call.
+
+    Args:
+      args: The docker arguments.
+      kwargs: docker()'s keyword options, ignored.
+
+    Returns:
+      A made-up container id.
+    """
+    self.calls.append(args)
+
+    return f"container-{len(self.calls)}"
+
+
+# -----------------------------------------------------------------------------
+class TestCleanup:
+  """A run removes its containers together with their anonymous volumes."""
+
+  def test_failed_run_removes_container_volumes(self: TestCleanup, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every container removal passes --volumes, even when the run fails.
+
+    The Vaultwarden image declares ``VOLUME /data``, so a removal without
+    ``--volumes`` leaves one anonymous volume behind per run (#109).
+    """
+    fake = _FakeDocker()
+    monkeypatch.setattr(record, "docker", fake)
+    monkeypatch.setattr(record, "wait_ready", _not_ready)
+
+    with pytest.raises(RuntimeError, match="never answered"):
+      record.record(8087, keep_image=True)  # act
+
+    removals = [c for c in fake.calls if c[0] == "rm"]
+    assert len(removals) == 2
+    assert all("--volumes" in c for c in removals)

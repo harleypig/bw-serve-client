@@ -484,8 +484,10 @@ def record(port: int, keep_image: bool) -> list[str]:
     redacted = [redact(r, secrets) for r in records]
 
   finally:
+    # --volumes: the Vaultwarden image declares VOLUME /data, so each run
+    # gets an anonymous volume that a plain rm would leave behind.
     for container in reversed(started):
-      docker("rm", "--force", container, check=False)
+      docker("rm", "--force", "--volumes", container, check=False)
 
     if network_made:
       docker("network", "rm", network, check=False)

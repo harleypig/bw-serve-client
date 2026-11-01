@@ -248,6 +248,7 @@ class DeviceApprovalPropertiesSchema(BaseModel):
   request_device_type: Annotated[str | None, Field(alias='requestDeviceType')] = None
   request_ip_address: Annotated[str | None, Field(alias='requestIpAddress')] = None
   creation_date: Annotated[str | None, Field(alias='creationDate')] = None
+  organization_user_id: Annotated[str | None, Field(alias='organizationUserId')] = None
 
 
 class UnlockPostRequestSchema(BaseModel):
@@ -441,12 +442,8 @@ class MoveItemidOrganizationIdPostParameters(BaseModel):
   organization_id: Annotated[UUID, Field(alias='organizationId', title='OrganizationIdSchema')]
 
 
-class MoveItemRequestSchema(BaseModel):
-  model_config = ConfigDict(
-    extra='forbid',
-    populate_by_name=True,
-  )
-  array: Sequence[str] | None = None
+class MoveItemRequestSchema(RootModel[Sequence[UUID]]):
+  root: Annotated[Sequence[UUID], Field(title='MoveItemRequestSchema')]
 
 
 class ObjectOrgCollectionPostParameters(BaseModel):
@@ -592,7 +589,7 @@ class ItemLoginSchema(BaseModel):
     extra='forbid',
     populate_by_name=True,
   )
-  uris: Annotated[UrisSchema | None, Field(description='Array of URIs associated with this login')] = None
+  uris: Annotated[Sequence[UrisSchema] | None, Field(description='Array of URIs associated with this login')] = None
   username: Annotated[str | None, Field(description='Username for the login')] = None
   password: Annotated[str | None, Field(description='Password for the login')] = None
   totp: Annotated[str | None, Field(description='TOTP secret for two-factor authentication')] = None

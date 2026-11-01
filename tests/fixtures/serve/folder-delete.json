@@ -1,0 +1,20 @@
+{
+  "case": "folder-delete",
+  "description": "Delete the folder.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "DELETE",
+    "path": "/object/folder/9725df6a-c6b5-43c8-af66-875309714845"
+  },
+  "response": {
+    "body": {
+      "success": true
+    },
+    "status": 200
+  }
+}

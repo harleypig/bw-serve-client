@@ -1,0 +1,35 @@
+{
+  "case": "folders-list",
+  "description": "List folders, which includes the built-in No Folder entry.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/list/object/folders"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": [
+          {
+            "id": "9725df6a-c6b5-43c8-af66-875309714845",
+            "name": "Renamed folder",
+            "object": "folder"
+          },
+          {
+            "id": "",
+            "name": "No Folder",
+            "object": "folder"
+          }
+        ],
+        "object": "list"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

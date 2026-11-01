@@ -1,0 +1,25 @@
+{
+  "case": "folder-get",
+  "description": "Get the folder just created.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/folder/9725df6a-c6b5-43c8-af66-875309714845"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "id": "9725df6a-c6b5-43c8-af66-875309714845",
+        "name": "Recorded folder",
+        "object": "folder"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

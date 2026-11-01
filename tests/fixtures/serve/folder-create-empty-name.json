@@ -1,0 +1,27 @@
+{
+  "case": "folder-create-empty-name",
+  "description": "Create a folder with an empty name.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": {
+      "name": ""
+    },
+    "method": "POST",
+    "path": "/object/folder"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "id": "cc45985c-d1bf-40da-a375-7f0a11033285",
+        "name": "",
+        "object": "folder"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

@@ -1,20 +1,21 @@
 """The common base for resource classes, one per tag of the Vault Management API.
 
-A resource method declares its route and models; ``Resource._request()``
-does the rest -- validates the path, query and body against their pydantic
-models, sends the body as JSON (or multipart when there are files),
-unwraps ``bw serve``'s response envelope and parses the payload into the
-response type. Every failure along the way goes to the error handler, and
-when the handler returns instead of raising, its value is what the
-resource method returns.
+A resource method declares its route with ``@route``, which is how the
+route coverage and docstring tests find it, and names its models;
+``Resource._request()`` does the rest -- validates the path, query and
+body against their pydantic models, sends the body as JSON (or multipart
+when there are files), unwraps ``bw serve``'s response envelope and
+parses the payload into the response type. Every failure along the way
+goes to the error handler, and when the handler returns instead of
+raising, its value is what the resource method returns.
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 import functools
 import logging
-from typing import Any, Optional, Tuple, Type, TYPE_CHECKING
+from typing import Any, NamedTuple, Optional, Tuple, Type, TYPE_CHECKING, TypeVar
 
 import httpx
 from pydantic import BaseModel
@@ -33,6 +34,86 @@ if TYPE_CHECKING:
 
 #: Raw input and the pydantic model it must validate against.
 Unvalidated = Tuple[Type[BaseModel], Mapping[str, Any]]
+
+_Method = TypeVar("_Method", bound=Callable[..., Any])
+
+# Where route() records its declarations on the function.
+_ROUTES_ATTRIBUTE = "_bw_routes"
+
+
+# -----------------------------------------------------------------------------
+class RouteKey(NamedTuple):
+  """One spec operation, as a resource method declares it.
+
+  Attributes:
+    method: The HTTP method, upper case, as the spec spells it.
+    path: The path template, exactly as the spec spells it.
+  """
+
+  method: str
+  path: str
+
+  def __str__(self: RouteKey) -> str:
+    """Spell the route ``METHOD /path``, the form the exclusion list uses.
+
+    Returns:
+      The method and path, separated by a space.
+    """
+    return f"{self.method} {self.path}"
+
+
+# -----------------------------------------------------------------------------
+def route(method: str, path: str) -> Callable[[_Method], _Method]:
+  """Declare the spec route a resource method implements.
+
+  The function is returned unchanged; the declaration is only recorded on
+  it. Stack the decorator when one method dispatches to several routes.
+  Nothing is normalized: ``method`` and ``path`` must match the spec's
+  spelling, or the route coverage test reports the route as unknown.
+
+  Args:
+    method: The HTTP method, upper case.
+    path: The path template, with the spec's ``{name}`` parameters.
+
+  Returns:
+    A decorator that records the route and returns the method.
+  """
+  key = RouteKey(method, path)
+
+  def decorate(func: _Method) -> _Method:
+    setattr(func, _ROUTES_ATTRIBUTE, (key, *declared_routes(func)))
+    return func
+
+  return decorate
+
+
+# -----------------------------------------------------------------------------
+def declared_routes(func: Any) -> Tuple[RouteKey, ...]:
+  """Return the routes ``@route`` recorded on a function.
+
+  Args:
+    func: Any object; a resource method, usually.
+
+  Returns:
+    The declared routes, outermost decorator first; empty when none.
+  """
+  return getattr(func, _ROUTES_ATTRIBUTE, ())
+
+
+# -----------------------------------------------------------------------------
+def routed_methods(resource_class: type) -> dict[str, Tuple[RouteKey, ...]]:
+  """Map each route-declaring method a class defines to its routes.
+
+  Only the class's own namespace is read, so a method inherited from
+  another resource class is reported once, by the class that defines it.
+
+  Args:
+    resource_class: A resource class.
+
+  Returns:
+    Method name to declared routes, for every method that declares any.
+  """
+  return {name: routes for name, value in vars(resource_class).items() if (routes := declared_routes(value))}
 
 
 # -----------------------------------------------------------------------------

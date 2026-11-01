@@ -1,0 +1,29 @@
+{
+  "case": "unlock",
+  "description": "Unlock with the master password; the session key is redacted.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": {
+      "password": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/unlock"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "message": "\nTo unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n$ export BW_SESSION=\"<redacted>\"\n> $env:BW_SESSION=\"<redacted>\"\n\nYou can also pass the session key to any command with the `--session` option. ex:\n$ bw list items --session <redacted>",
+        "noColor": false,
+        "object": "message",
+        "raw": "<redacted>",
+        "title": "Your vault is now unlocked!"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

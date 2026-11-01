@@ -16,14 +16,15 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic import ConfigDict
+from pydantic import field_validator
 
 from ._generated.models import FolderSchema
 from ._generated.models import ListObjectFoldersGetParameters
 from ._generated.models import ObjectFolderIdDeleteParameters
 from ._generated.models import ObjectFolderIdGetParameters
 from ._generated.models import ObjectFolderIdPutParameters
-from .errors import ValidationError
 from .resource import Resource
+from .resource import route
 
 FolderId = Union[UUID, str]
 
@@ -44,10 +45,25 @@ class Folder(BaseModel):
 
   model_config = ConfigDict(populate_by_name=True)
 
-  # bw lists "No Folder" with a null id; it must not fail the whole list.
+  # bw lists "No Folder" with an empty-string id; it must not fail the
+  # whole list, so the empty string is read as no id.
   id: Optional[UUID]
   name: str
   object: str = "folder"
+
+  # ---------------------------------------------------------------------------
+  @field_validator("id", mode="before")
+  @classmethod
+  def _empty_id_is_none(cls: type[Folder], value: Any) -> Any:
+    """Read the empty-string id bw serve gives "No Folder" as ``None``.
+
+    Args:
+        value: The raw id.
+
+    Returns:
+        ``None`` for an empty string, otherwise the value unchanged.
+    """
+    return None if value == "" else value
 
 
 class Folders(Resource):
@@ -59,36 +75,31 @@ class Folders(Resource):
   """
 
   # ---------------------------------------------------------------------------
-  # POST /object/folder
+  @route("POST", "/object/folder")
   def add(self: Folders, name: str) -> Union[Folder, Any]:
     """Add a folder to your vault.
 
     Args:
-        name: Name of the folder to create. Must be non-empty.
+        name: Name of the folder to create. bw serve accepts an empty
+            name, so this does too.
 
     Returns:
         The created :class:`Folder` with its server-assigned id.
     """
-    if not name or not name.strip():
-      return self._fail(ValidationError, "folder name must be non-empty")
-
     return self._request("POST", "/object/folder", body=(FolderSchema, {"name": name}), response_type=Folder)
 
   # ---------------------------------------------------------------------------
-  # PUT /object/folder/{id}
+  @route("PUT", "/object/folder/{id}")
   def modify(self: Folders, folder_id: FolderId, name: str) -> Union[Folder, Any]:
-    """Edit an existing folder.
+    """Edit a folder in your vault.
 
     Args:
         folder_id: Unique identifier of the folder to edit.
-        name: New name for the folder. Must be non-empty.
+        name: New name for the folder; empty or blank is sent as given.
 
     Returns:
         The updated :class:`Folder`.
     """
-    if not name or not name.strip():
-      return self._fail(ValidationError, "folder name must be non-empty")
-
     return self._request(
       "PUT",
       "/object/folder/{id}",
@@ -102,9 +113,9 @@ class Folders(Resource):
     )
 
   # ---------------------------------------------------------------------------
-  # GET /object/folder/{id}
+  @route("GET", "/object/folder/{id}")
   def get(self: Folders, folder_id: FolderId) -> Union[Folder, Any]:
-    """Retrieve a folder by id.
+    """Retrieve a folder from your vault.
 
     Args:
         folder_id: Unique identifier of the folder.
@@ -119,12 +130,12 @@ class Folders(Resource):
     )
 
   # ---------------------------------------------------------------------------
-  # DELETE /object/folder/{id}
+  @route("DELETE", "/object/folder/{id}")
   def delete(self: Folders, folder_id: FolderId) -> Any:
-    """Delete a folder by id.
+    """Delete a folder from your vault.
 
-    Deleting a folder does NOT delete the items in it; the API moves
-    them to "no folder".
+    Deleting a folder will not delete the items in it. bw serve moves
+    them to "No Folder".
 
     Args:
         folder_id: Unique identifier of the folder.
@@ -135,9 +146,11 @@ class Folders(Resource):
     return self._request("DELETE", "/object/folder/{id}", path_params=(ObjectFolderIdDeleteParameters, {"id": folder_id}))
 
   # ---------------------------------------------------------------------------
-  # GET /list/object/folders
+  @route("GET", "/list/object/folders")
   def list(self: Folders, search: Optional[str] = None) -> Union[list[Folder], Any]:
-    """List folders, optionally filtered by a search term.
+    """Retrieve a list of folders in your vault.
+
+    A search term narrows the list to folders whose names match it.
 
     Args:
         search: Substring match against folder names. When ``None`` or

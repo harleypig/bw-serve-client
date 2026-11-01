@@ -2014,13 +2014,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "properties": {
-                  "array": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
                 },
                 "title": "MoveItemRequestSchema"
               },
@@ -2114,14 +2111,14 @@
               "example": {
                 "organizationId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
                 "name": "Shared Logins",
-                "externalid": null,
                 "groups": [
                   {
                     "id": "c4e31257-f3e1-4b13-895a-ae2700f9884e",
                     "readOnly": false,
                     "hidePasswords": false
                   }
-                ]
+                ],
+                "externalId": null
               }
             }
           }
@@ -2204,14 +2201,14 @@
               "example": {
                 "organizationId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
                 "name": "Shared Logins",
-                "externalid": null,
                 "groups": [
                   {
                     "id": "c4e31257-f3e1-4b13-895a-ae2700f9884e",
                     "readOnly": false,
                     "hidePasswords": false
                   }
-                ]
+                ],
+                "externalId": null
               }
             }
           }
@@ -3409,7 +3406,10 @@
       "item.login": {
         "properties": {
           "uris": {
-            "$ref": "#/components/schemas/uris",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/uris"
+            },
             "description": "Array of URIs associated with this login"
           },
           "username": {
@@ -3824,6 +3824,9 @@
             "type": "string"
           },
           "creationDate": {
+            "type": "string"
+          },
+          "organizationUserId": {
             "type": "string"
           }
         },

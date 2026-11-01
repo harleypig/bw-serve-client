@@ -1,0 +1,24 @@
+{
+  "case": "items-list-before-sync",
+  "description": "List items straight after creating one.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/list/object/items"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": [],
+        "object": "list"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

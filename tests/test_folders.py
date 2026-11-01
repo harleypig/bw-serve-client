@@ -16,7 +16,6 @@ from bw_serve_client.folders import Folders
 
 if TYPE_CHECKING:
   from conftest import MakeClient
-  from conftest import ReturningHandler
   import httpx
 
 
@@ -66,6 +65,12 @@ class TestFolderModel:
     assert result.name == "Notes"
     assert result.object == "folder"
 
+  def test_empty_string_id_is_none(self: "TestFolderModel") -> None:
+    """The empty-string id bw serve gives "No Folder" reads as None."""
+    result = Folder.model_validate({"id": "", "name": "No Folder", "object": "folder"})  # act
+
+    assert result.id is None
+
 
 # -----------------------------------------------------------------------------
 class TestFoldersAdd:
@@ -86,34 +91,18 @@ class TestFoldersAdd:
     assert result.id == fake_id
     assert result.name == "Notes"
 
-  def test_rejects_empty_name(self: TestFoldersAdd, make_client: MakeClient, sent: list[httpx.Request]) -> None:
-    """Empty name raises ValidationError before hitting the wire."""
-    folders = Folders(make_client())
+  # bw serve accepts an empty name and creates the folder (the
+  # folder-create-empty-name recording), so add sends it rather than refusing.
+  @pytest.mark.parametrize("name", ["", "   "])
+  def test_sends_empty_name(self: TestFoldersAdd, name: str, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """An empty or blank name is sent as given, not refused client-side."""
+    folders = Folders(make_client(json_body=_folder(uuid4(), name)))
 
-    with pytest.raises(ValidationError, match="non-empty"):
-      folders.add(name="")
+    result = folders.add(name=name)  # act
 
-    assert sent == []
-
-  def test_rejects_whitespace_only_name(self: TestFoldersAdd, make_client: MakeClient, sent: list[httpx.Request]) -> None:
-    """Whitespace-only name raises ValidationError."""
-    folders = Folders(make_client())
-
-    with pytest.raises(ValidationError, match="non-empty"):
-      folders.add(name="   ")
-
-    assert sent == []
-
-  def test_empty_name_with_returning_handler(
-    self: TestFoldersAdd, make_client: MakeClient, sent: list[httpx.Request], returning_handler: ReturningHandler
-  ) -> None:
-    """A returning handler's value comes back from add, and nothing is sent."""
-    folders = Folders(make_client(), error_handler=returning_handler)
-
-    result = folders.add(name="")  # act
-
-    assert result is returning_handler.result
-    assert sent == []
+    [request] = sent
+    assert json.loads(request.content) == {"name": name}
+    assert result.name == name
 
 
 # -----------------------------------------------------------------------------
@@ -155,14 +144,19 @@ class TestFoldersModify:
 
     assert sent == []
 
-  def test_rejects_empty_name(self: TestFoldersModify, make_client: MakeClient, sent: list[httpx.Request]) -> None:
-    """Empty name raises ValidationError before hitting the wire."""
-    folders = Folders(make_client())
+  # Matches add: bw serve accepts an empty name on create, so modify sends
+  # one rather than refusing it client-side.
+  @pytest.mark.parametrize("name", ["", "   "])
+  def test_sends_empty_name(self: TestFoldersModify, name: str, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """An empty or blank name is sent as given, not refused client-side."""
+    fake_id = uuid4()
+    folders = Folders(make_client(json_body=_folder(fake_id, name)))
 
-    with pytest.raises(ValidationError, match="non-empty"):
-      folders.modify(uuid4(), name="")
+    result = folders.modify(fake_id, name=name)  # act
 
-    assert sent == []
+    [request] = sent
+    assert json.loads(request.content) == {"name": name}
+    assert result.name == name
 
 
 # -----------------------------------------------------------------------------
@@ -242,9 +236,9 @@ class TestFoldersList:
     assert {f.name for f in result} == {"Personal", "Personal Notes"}
 
   def test_list_accepts_no_folder_entry(self: TestFoldersList, make_client: MakeClient) -> None:
-    """The "No Folder" entry, whose id is null, parses beside the real folders."""
+    """The "No Folder" entry, whose id is empty, parses beside the real folders."""
     body = _folders("Personal")
-    body["data"]["data"].append({"object": "folder", "id": None, "name": "No Folder"})  # type: ignore[index]
+    body["data"]["data"].append({"object": "folder", "id": "", "name": "No Folder"})  # type: ignore[index]
     folders = Folders(make_client(json_body=body))
 
     result = folders.list()  # act

@@ -1,0 +1,26 @@
+{
+  "case": "template-folder",
+  "description": "The folder template.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/template/folder"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "object": "template",
+        "template": {
+          "name": "Folder name"
+        }
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

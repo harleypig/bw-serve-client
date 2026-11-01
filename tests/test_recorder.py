@@ -85,6 +85,53 @@ class TestFill:
     with pytest.raises(RuntimeError, match=rf"^{name}: no value for {{folder_id}}"):
       record.fill(_case(name), {})
 
+  def test_fills_placeholders_in_array_body(self: TestFill) -> None:
+    """An array body, as the collection-id routes take, is filled per item."""
+    values = {"shared_id": "s", "org_id": "o", "collection_id": "c1", "new_collection_id": "c2"}
+
+    _path, data = record.fill(_case("item-collections-edit"), values)  # act
+
+    assert json.loads(data) == ["c1", "c2"]
+
+
+# -----------------------------------------------------------------------------
+class TestMultipart:
+  """The attachment upload is one well-formed multipart part named file."""
+
+  def test_encodes_one_file_part(self: TestMultipart) -> None:
+    """The part names the field and file, and the body closes the boundary."""
+    result = record.multipart("a.txt", "hello\n", "XYZ")  # act
+
+    assert result == (
+      b'--XYZ\r\nContent-Disposition: form-data; name="file"; filename="a.txt"\r\n'
+      b"Content-Type: text/plain\r\n\r\nhello\n\r\n--XYZ--\r\n"
+    )
+
+
+# -----------------------------------------------------------------------------
+class TestSecretsOf:
+  """A case's secrets are collected from successes only, never empty."""
+
+  def test_collects_named_values(self: TestSecretsOf) -> None:
+    """A Send's key and access URL are both collected."""
+    body = {"data": {"key": "k", "accessUrl": "https://vw/#/send/a/k"}}
+
+    result = record.secrets_of(_case("send-create"), 200, body)  # act
+
+    assert result == ["k", "https://vw/#/send/a/k"]
+
+  def test_failure_holds_none(self: TestSecretsOf) -> None:
+    """A failed case is not read, since its body lacks the members."""
+    result = record.secrets_of(_case("send-create"), 400, {"success": False})  # act
+
+    assert result == []
+
+  def test_drops_empty_value(self: TestSecretsOf) -> None:
+    """An empty value is dropped; redacting it would mark every position."""
+    result = record.secrets_of(_case("generate"), 200, {"data": {"data": ""}})  # act
+
+    assert result == []
+
 
 # -----------------------------------------------------------------------------
 class TestWritePayloads:

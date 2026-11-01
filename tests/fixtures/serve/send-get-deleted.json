@@ -1,0 +1,21 @@
+{
+  "case": "send-get-deleted",
+  "description": "Get the Send just deleted.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/send/e3ddf71c-165d-4175-9d34-39fc88bfe073"
+  },
+  "response": {
+    "body": {
+      "message": "Not found.",
+      "success": false
+    },
+    "status": 400
+  }
+}

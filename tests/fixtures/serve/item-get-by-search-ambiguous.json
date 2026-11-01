@@ -1,0 +1,25 @@
+{
+  "case": "item-get-by-search-ambiguous",
+  "description": "Get an item by a search term that matches two.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/item/Recorded"
+  },
+  "response": {
+    "body": {
+      "data": [
+        "de36398f-6368-411b-979c-32c0a6f911a6",
+        "e8655327-d1a3-465e-8af5-0f8a7a861564"
+      ],
+      "message": "More than one result was found. Try getting a specific object by `id` instead. The following objects were found:\nde36398f-6368-411b-979c-32c0a6f911a6\ne8655327-d1a3-465e-8af5-0f8a7a861564",
+      "success": false
+    },
+    "status": 400
+  }
+}

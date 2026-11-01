@@ -20,8 +20,9 @@ off.
 
 from __future__ import annotations
 
+from functools import reduce
 import re
-from typing import Any, Callable, Optional, TYPE_CHECKING
+from typing import Any, Callable, cast, Optional, TYPE_CHECKING
 from uuid import UUID
 
 from conftest import load_recorded
@@ -51,7 +52,8 @@ RECORDED = sorted(path.stem for path in RECORDED_DIR.glob("*.json"))
 
 # -----------------------------------------------------------------------------
 # What each recording must do in the library. Every recorded case appears in
-# exactly one of the four tables below.
+# exactly one of the five tables below: FAILURES, MODELLED, FOLDER_ROUTES,
+# UNMODELLED and FILES.
 
 #: Failures, and the category the error handler must receive.
 FAILURES: dict[str, type[BitwardenError]] = {
@@ -64,6 +66,19 @@ FAILURES: dict[str, type[BitwardenError]] = {
   "folder-create-malformed-json": ValidationError,
   "unknown-route": ValidationError,
   "attachment-no-file": ExternalServiceError,
+  "item-field-never-existed": ValidationError,
+  # A 400 whose body also carries "data": the ids of every matching item.
+  "item-get-by-search-ambiguous": ValidationError,
+  "item-archive-never-existed": ValidationError,
+  "attachment-get-deleted": ValidationError,
+  # Vaultwarden's 422 for the missing member, relayed as a 400 whose
+  # message is the server's JSON error as a string.
+  "send-create-no-disabled": ValidationError,
+  "send-get-deleted": ValidationError,
+  "org-collections-list-no-org": ValidationError,
+  "org-members-list-unknown-org": ValidationError,
+  "org-member-confirm-unknown": ValidationError,
+  "item-collections-not-in-org": ValidationError,
 }
 
 #: Successes on routes whose spec response is a generated model.
@@ -85,14 +100,83 @@ FOLDER_ROUTES = (
 )
 
 #: Successes on routes the spec gives no response model, so only the
-#: envelope can be checked. Each is a coverage gap, not a pass.
-UNMODELLED = (
-  "sync",
-  "item-create",
-  "item-get",
-  "items-list",
-  "items-list-before-sync",
-)
+#: envelope and the ``object`` of its ``data`` can be checked, or that there
+#: is no ``data`` at all (None). Each is a coverage gap, not a pass.
+UNMODELLED: dict[str, Optional[str]] = {
+  "sync": "message",
+  "item-create": "item",
+  "item-get": "item",
+  "items-list": "list",
+  "items-list-before-sync": "list",
+  "item-edit": "item",
+  "item-field-username": "string",
+  "item-field-password": "string",
+  "item-field-uri": "string",
+  "item-field-totp": "string",
+  "item-field-notes": "string",
+  "item-field-exposed": "string",
+  "item-get-by-search": "item",
+  "item-create-note": "item",
+  "item-archive": None,
+  "items-list-archived": "list",
+  "item-restore-archived": None,
+  "item-delete": None,
+  "items-list-trash": "list",
+  "item-restore": None,
+  "item-delete-permanent": None,
+  "attachment-create": "item",
+  "attachment-delete": None,
+  "send-create": "send",
+  "send-get": "send",
+  "sends-list-object": "list",
+  "sends-list": "list",
+  "send-remove-password": "send",
+  "send-edit": "send",
+  "send-delete": None,
+  "generate": "string",
+  "generate-minimums": "string",
+  "generate-passphrase": "string",
+  "template-item": "template",
+  "template-item-login": "template",
+  "template-folder": "template",
+  "template-org-collection": "template",
+  "template-item-collections": "template",
+  "fingerprint": "string",
+  "organizations-list": "list",
+  "organization-get": "organization",
+  "collections-list": "list",
+  "collection-get": "collection",
+  "org-collections-list": "list",
+  "org-collection-get": "org-collection",
+  "org-collection-create": "org-collection",
+  "org-collection-edit": "org-collection",
+  "org-members-list": "list",
+  "item-create-shared": "item",
+  "item-move": "item",
+  "sync-after-move": "message",
+  "item-collections-edit": "item",
+  "org-collection-delete": None,
+}
+
+#: The ``object`` every member of each unmodelled list must carry.
+LIST_MEMBERS: dict[str, str] = {
+  "items-list": "item",
+  "items-list-before-sync": "item",
+  "items-list-archived": "item",
+  "items-list-trash": "item",
+  "sends-list-object": "send",
+  "sends-list": "send",
+  "organizations-list": "organization",
+  "collections-list": "collection",
+  "org-collections-list": "collection",
+  "org-members-list": "org-member",
+}
+
+#: Successes whose body is a file rather than JSON, with the recording that
+#: uploaded it.
+FILES: dict[str, str] = {
+  "attachment-get": "attachment-create",
+}
 
 #: Recorded behaviour the library or the spec does not match yet, by case
 #: name, with the disagreement as the reason.
@@ -144,7 +228,7 @@ class TestRecordings:
   def test_every_payload_has_an_expectation(self: TestRecordings) -> None:
     """The recorded set and the expectation tables name the same cases."""
     # Arrange
-    expected = set(FAILURES) | set(MODELLED) | set(FOLDER_ROUTES) | set(UNMODELLED)
+    expected = set(FAILURES) | set(MODELLED) | set(FOLDER_ROUTES) | set(UNMODELLED) | set(FILES)
 
     result = set(RECORDED)
 
@@ -180,6 +264,35 @@ class TestRecordings:
     # Assert
     assert result == []
     assert load_recorded("unlock")["response"]["body"]["data"]["raw"] == "<redacted>"
+
+  @pytest.mark.parametrize(
+    ("name", "where"),
+    [
+      ("item-edit", ("request", "body", "login", "password")),
+      ("item-edit", ("request", "body", "login", "totp")),
+      ("item-edit", ("response", "body", "data", "login", "totp")),
+      ("item-field-password", ("response", "body", "data", "data")),
+      ("attachment-create", ("response", "body", "data", "attachments", 0, "url")),
+      ("send-create", ("request", "body", "password")),
+      ("send-create", ("response", "body", "data", "key")),
+      ("send-create", ("response", "body", "data", "accessUrl")),
+      ("generate", ("response", "body", "data", "data")),
+      ("generate-minimums", ("response", "body", "data", "data")),
+      ("generate-passphrase", ("response", "body", "data", "data")),
+    ],
+  )
+  def test_other_secrets_are_redacted(self: TestRecordings, name: str, where: tuple[str | int, ...]) -> None:
+    """Made-up item and Send secrets and the per-case secrets show the marker.
+
+    Goes red if a constant leaves the recorder's secret list or a case loses
+    its ``secret``: the value is then recorded as it came back. A value only
+    redacted where it was read here can still leak elsewhere; the recorder's
+    own check, that no secret survives anywhere, covers that.
+    """
+    result = reduce(lambda node, key: node[key], where, cast("Any", load_recorded(name)))
+
+    # Assert
+    assert result == "<redacted>"
 
 
 # -----------------------------------------------------------------------------
@@ -361,12 +474,59 @@ class TestFolderSuccesses:
 class TestUnmodelledSuccesses:
   """Successes the spec gives no response model: only the envelope is checked."""
 
-  @pytest.mark.parametrize("name", UNMODELLED)
+  @pytest.mark.parametrize("name", _cases(list(UNMODELLED)))
   def test_envelope_is_success(self: TestUnmodelledSuccesses, name: str) -> None:
-    """The body is bw serve's success envelope with a data member."""
-    result = load_recorded(name)["response"]
+    """The body is bw serve's success envelope, its data the expected object.
+
+    A route expected to answer with no data must carry no ``data`` member.
+    """
+    # Arrange
+    response = load_recorded(name)["response"]
+
+    result = response["body"].get("data")
 
     # Assert
-    assert result["status"] == 200
-    assert result["body"]["success"] is True
-    assert "data" in result["body"]
+    assert response["status"] == 200
+    assert response["body"]["success"] is True
+    assert (None if result is None else result["object"]) == UNMODELLED[name]
+
+  @pytest.mark.parametrize("name", _cases(list(LIST_MEMBERS)))
+  def test_list_members_share_the_object(self: TestUnmodelledSuccesses, name: str) -> None:
+    """Every member of a recorded list carries the expected object.
+
+    An empty list passes vacuously. That is deliberate: bw serve's lists
+    lag its own writes (items-list-before-sync, the Send lists), so a
+    re-record can come back empty, and the envelope test above still holds.
+    """
+    # Arrange
+    members = load_recorded(name)["response"]["body"]["data"]["data"]
+
+    result = {member["object"] for member in members}
+
+    # Assert
+    assert result <= {LIST_MEMBERS[name]}
+
+
+# -----------------------------------------------------------------------------
+class TestFileSuccesses:
+  """Successes whose body is a file: the library hands back its text."""
+
+  @pytest.mark.parametrize("name", _cases(list(FILES)))
+  def test_returns_uploaded_text(
+    self: TestFileSuccesses, name: str, make_client: MakeClient, returning_handler: ReturningHandler
+  ) -> None:
+    """The download replays as the text the upload recording sent.
+
+    The recorder keeps no response headers, so the replay carries no
+    content type, as a file download's octet-stream would not be JSON.
+    """
+    # Arrange
+    payload = load_recorded(name)
+    uploaded = load_recorded(FILES[name])["request"]["body"]["file"]["content"]
+    client = _client(make_client, payload, returning_handler)
+
+    result = client.get(payload["request"]["path"])
+
+    # Assert
+    assert returning_handler.calls == []
+    assert result == uploaded

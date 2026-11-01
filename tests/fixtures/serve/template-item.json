@@ -1,0 +1,32 @@
+{
+  "case": "template-item",
+  "description": "The item template.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/template/item"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "object": "template",
+        "template": {
+          "favorite": false,
+          "fields": [],
+          "name": "Item name",
+          "notes": "Some notes about this item.",
+          "passwordHistory": [],
+          "reprompt": 0,
+          "type": 1
+        }
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

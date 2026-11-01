@@ -1,0 +1,54 @@
+{
+  "case": "send-edit",
+  "description": "Rename the Send and hide its text.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": {
+      "deletionDate": "2026-11-08T00:00:00.000Z",
+      "disabled": false,
+      "name": "Renamed send",
+      "password": "<redacted>",
+      "text": {
+        "hidden": true,
+        "text": "Made-up send text."
+      },
+      "type": 0
+    },
+    "method": "PUT",
+    "path": "/object/send/e3ddf71c-165d-4175-9d34-39fc88bfe073"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "accessCount": 0,
+        "accessId": "4933HBZdQXWdNDn8iL_gcw",
+        "accessUrl": "https://bw-recorder-vw-1ab661dd/#/send/4933HBZdQXWdNDn8iL_gcw/7tOyynbeEZoijq7grMm1Jw",
+        "authType": 1,
+        "deletionDate": "2026-11-08T00:00:00.000Z",
+        "disabled": false,
+        "emails": [],
+        "expirationDate": null,
+        "hideEmail": false,
+        "id": "e3ddf71c-165d-4175-9d34-39fc88bfe073",
+        "key": "7tOyynbeEZoijq7grMm1Jw==",
+        "maxAccessCount": null,
+        "name": "Renamed send",
+        "notes": null,
+        "object": "send",
+        "passwordSet": true,
+        "revisionDate": "2026-11-01T21:29:15.811Z",
+        "text": {
+          "hidden": true,
+          "text": "Made-up send text."
+        },
+        "type": 0
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

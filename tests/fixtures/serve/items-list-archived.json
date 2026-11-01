@@ -1,0 +1,44 @@
+{
+  "case": "items-list-archived",
+  "description": "List archived items.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/list/object/items?archived=true"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": [
+          {
+            "archivedDate": "2026-11-01T21:29:14.623Z",
+            "attachments": [],
+            "collectionIds": [],
+            "creationDate": "2026-11-01T21:29:14.490Z",
+            "favorite": false,
+            "fields": [],
+            "id": "e8655327-d1a3-465e-8af5-0f8a7a861564",
+            "name": "Recorded note",
+            "notes": "Made-up note for fixture recording.",
+            "object": "item",
+            "passwordHistory": [],
+            "reprompt": 0,
+            "revisionDate": "2026-11-01T21:29:14.490Z",
+            "secureNote": {
+              "type": 0
+            },
+            "type": 2
+          }
+        ],
+        "object": "list"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

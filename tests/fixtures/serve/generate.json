@@ -1,0 +1,24 @@
+{
+  "case": "generate",
+  "description": "Generate a password with the default options.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/generate"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": "<redacted>",
+        "object": "string"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

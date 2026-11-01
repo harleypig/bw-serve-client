@@ -1,0 +1,30 @@
+{
+  "case": "send-create-no-disabled",
+  "description": "Create a Send without the disabled member Vaultwarden requires.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": {
+      "deletionDate": "2026-11-08T00:00:00.000Z",
+      "name": "Recorded send",
+      "password": "<redacted>",
+      "text": {
+        "hidden": false,
+        "text": "Made-up send text."
+      },
+      "type": 0
+    },
+    "method": "POST",
+    "path": "/object/send"
+  },
+  "response": {
+    "body": {
+      "message": "{\"response\":{\"error\":{\"code\":422,\"reason\":\"Unprocessable Entity\",\"description\":\"The request was well-formed but was unable to be followed due to semantic errors.\"}},\"statusCode\":422}",
+      "success": false
+    },
+    "status": 400
+  }
+}

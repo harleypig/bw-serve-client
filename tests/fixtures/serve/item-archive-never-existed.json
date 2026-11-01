@@ -1,0 +1,21 @@
+{
+  "case": "item-archive-never-existed",
+  "description": "Archive an item the vault never held.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "POST",
+    "path": "/archive/item/7d3c0d52-31a6-4c47-9b0e-0b1d1c5c0a11"
+  },
+  "response": {
+    "body": {
+      "message": "Not found.",
+      "success": false
+    },
+    "status": 400
+  }
+}

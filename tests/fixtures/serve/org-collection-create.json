@@ -1,0 +1,35 @@
+{
+  "case": "org-collection-create",
+  "description": "Create a second collection.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": {
+      "externalId": null,
+      "groups": [],
+      "name": "Second collection",
+      "organizationId": "f64481e2-dc5d-48cf-8db1-e6d5331fe910",
+      "users": []
+    },
+    "method": "POST",
+    "path": "/object/org-collection?organizationId=f64481e2-dc5d-48cf-8db1-e6d5331fe910"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "externalId": null,
+        "groups": [],
+        "id": "3f9b4010-4013-4119-b139-5ccb280339dd",
+        "name": "Second collection",
+        "object": "org-collection",
+        "organizationId": "f64481e2-dc5d-48cf-8db1-e6d5331fe910",
+        "users": []
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

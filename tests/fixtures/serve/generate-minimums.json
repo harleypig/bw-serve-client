@@ -1,0 +1,24 @@
+{
+  "case": "generate-minimums",
+  "description": "Generate a password with minimum digit and special counts, avoiding ambiguous characters.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/generate?length=24&uppercase=true&lowercase=true&number=true&special=true&minNumber=3&minSpecial=3&ambiguous=true"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": "<redacted>",
+        "object": "string"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

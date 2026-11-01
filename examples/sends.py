@@ -4,7 +4,8 @@ The vault must already be unlocked: start ``bw serve`` from a session
 where ``bw unlock`` has run. This script unlocks nothing itself.
 
 Set ``BW_SERVE_URL`` to reach a ``bw serve`` somewhere other than
-``http://localhost:8087``. Run it with::
+``http://localhost:8087``, and ``BW_EXAMPLE_SEND_PASSWORD`` to choose the
+password the example Send is protected with. Run it with::
 
     python examples/sends.py
 """
@@ -31,6 +32,7 @@ def main() -> int:
     The process exit status.
   """
   base_url = os.environ.get("BW_SERVE_URL", "http://localhost:8087")
+  send_password = os.environ.get("BW_EXAMPLE_SEND_PASSWORD", "example password")
   deletion_date = datetime.now(timezone.utc) + timedelta(days=7)
 
   with ApiClient(base_url=base_url) as client:
@@ -49,7 +51,7 @@ def main() -> int:
 
     print(f"{len(existing)} Sends in the vault")
 
-    send = sends.add("Example send", "Shared through bw serve.", password="example password", deletion_date=deletion_date)
+    send = sends.add("Example send", "Shared through bw serve.", password=send_password, deletion_date=deletion_date)
     send_id = send.id
 
     if send_id is None:
@@ -65,7 +67,7 @@ def main() -> int:
       "Example send, renamed",
       "Shared through bw serve.",
       hidden=True,
-      password="example password",
+      password=send_password,
       deletion_date=deletion_date
     )
     print(f"Renamed it to {sends.get(send_id).name!r}")

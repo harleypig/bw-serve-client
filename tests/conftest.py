@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Callable, Optional, Protocol, TYPE_CHECKING
+from typing import Any, Optional, Protocol, TYPE_CHECKING
 
 import httpx
 import pytest
@@ -126,9 +126,3 @@ def load_recorded(name: str) -> dict[str, Any]:
     (status, body).
   """
   return json.loads((RECORDED_DIR / f"{name}.json").read_text())
-
-
-@pytest.fixture
-def recorded() -> Callable[[str], dict[str, Any]]:
-  """Provide ``load_recorded``, so a test reads payloads by case name."""
-  return load_recorded

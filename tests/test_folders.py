@@ -144,14 +144,19 @@ class TestFoldersModify:
 
     assert sent == []
 
-  def test_rejects_empty_name(self: TestFoldersModify, make_client: MakeClient, sent: list[httpx.Request]) -> None:
-    """Empty name raises ValidationError before hitting the wire."""
-    folders = Folders(make_client())
+  # Matches add: bw serve accepts an empty name on create, so modify sends
+  # one rather than refusing it client-side.
+  @pytest.mark.parametrize("name", ["", "   "])
+  def test_sends_empty_name(self: TestFoldersModify, name: str, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """An empty or blank name is sent as given, not refused client-side."""
+    fake_id = uuid4()
+    folders = Folders(make_client(json_body=_folder(fake_id, name)))
 
-    with pytest.raises(ValidationError, match="non-empty"):
-      folders.modify(uuid4(), name="")
+    result = folders.modify(fake_id, name=name)  # act
 
-    assert sent == []
+    [request] = sent
+    assert json.loads(request.content) == {"name": name}
+    assert result.name == name
 
 
 # -----------------------------------------------------------------------------

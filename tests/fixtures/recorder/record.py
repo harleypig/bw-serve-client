@@ -195,6 +195,59 @@ def cli_version() -> str:
 
 
 # -----------------------------------------------------------------------------
+def _fill_value(value: Any, values: dict[str, str]) -> Any:
+  """Fill ``{name}`` placeholders in every string of a JSON value.
+
+  Args:
+    value: A JSON body, or any part of one.
+    values: Placeholders kept from earlier responses.
+
+  Returns:
+    The value with its strings filled.
+  """
+  if isinstance(value, str):
+    return value.format_map(values)
+
+  if isinstance(value, dict):
+    return {key: _fill_value(item, values) for key, item in value.items()}
+
+  if isinstance(value, list):
+    return [_fill_value(item, values) for item in value]
+
+  return value
+
+
+def fill(case: Case, values: dict[str, str]) -> tuple[str, Optional[str]]:
+  """Fill a case's placeholders from the values earlier cases kept.
+
+  Placeholders are ``{name}`` in the path and in any string of the JSON
+  body; a raw body is sent as written.
+
+  Args:
+    case: The request.
+    values: Placeholders kept from earlier responses.
+
+  Returns:
+    The filled path, and the request body to send, or None for no body.
+
+  Raises:
+    RuntimeError: A placeholder has no value, because the case that keeps
+      it failed or has not run. Sending an empty value instead would
+      record a different request than the case describes.
+  """
+  try:
+    path = case.path.format_map(values)
+    body = None if case.body is None else json.dumps(_fill_value(case.body, values))
+
+  except KeyError as e:
+    raise RuntimeError(f"{case.name}: no value for {{{e.args[0]}}}; the case that keeps it failed or has not run") from e
+
+  if case.raw is not None:
+    return path, case.raw
+
+  return path, body
+
+
 def send(base: str, case: Case, values: dict[str, str]) -> tuple[str, Optional[str], int, Any]:
   """Send one case to bw serve.
 
@@ -208,18 +261,10 @@ def send(base: str, case: Case, values: dict[str, str]) -> tuple[str, Optional[s
     body (parsed JSON, or the text when it is not JSON).
 
   Raises:
-    RuntimeError: bw serve closed the connection without answering.
+    RuntimeError: A placeholder has no value, or bw serve closed the
+      connection without answering.
   """
-  path = case.path.format(**values)
-
-  if case.raw is not None:
-    data: Optional[str] = case.raw
-
-  elif case.body is not None:
-    data = json.dumps(case.body).replace("{folder_id}", values.get("folder_id", ""))
-
-  else:
-    data = None
+  path, data = fill(case, values)
 
   request = urllib.request.Request(base + path, method=case.method, data=None if data is None else data.encode())
 
@@ -310,6 +355,27 @@ def redact(record: dict[str, Any], secrets: list[str]) -> dict[str, Any]:
   return json.loads(text)
 
 
+def write_payloads(out: Path, redacted: list[dict[str, Any]]) -> None:
+  """Replace every payload in ``out`` with this run's.
+
+  The old ``*.json`` files go first, so a case renamed or removed since the
+  last run leaves no stale payload behind.
+
+  Args:
+    out: The payload directory.
+    redacted: Every case's payload, already redacted.
+  """
+  texts = {f"{r['case']}.json": json.dumps(r, indent=2, sort_keys=True) + "\n" for r in redacted}
+
+  out.mkdir(exist_ok=True)
+
+  for stale in out.glob("*.json"):
+    stale.unlink()
+
+  for name, text in texts.items():
+    (out / name).write_text(text)
+
+
 # -----------------------------------------------------------------------------
 def record(port: int, keep_image: bool) -> list[str]:
   """Run every case against fresh containers and write the payloads.
@@ -322,7 +388,8 @@ def record(port: int, keep_image: bool) -> list[str]:
     One ``name status`` line per case written.
 
   Raises:
-    RuntimeError: A case got no response; the bw container's log is attached.
+    RuntimeError: A case got no response or lacked a placeholder value; the
+      bw container's log is attached.
   """
   version = cli_version()
   run_id = uuid.uuid4().hex[:8]
@@ -429,10 +496,9 @@ def record(port: int, keep_image: bool) -> list[str]:
     if not keep_image:
       docker("image", "rm", image, check=False)
 
-  OUT.mkdir(exist_ok=True)
-
-  for r in redacted:
-    (OUT / f"{r['case']}.json").write_text(json.dumps(r, indent=2, sort_keys=True) + "\n")
+  # Reached only when every case answered and every payload redacted, so a
+  # failed run never clears the payloads already on disk.
+  write_payloads(OUT, redacted)
 
   return [f"{r['case']} {r['response']['status']}" for r in redacted]
 

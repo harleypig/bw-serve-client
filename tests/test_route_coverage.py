@@ -20,27 +20,20 @@ swapped, since each docstring carries its own route's summary.
 from __future__ import annotations
 
 from collections import defaultdict
-import importlib
 import json
 from pathlib import Path
-import pkgutil
 import re
 from typing import Any, TYPE_CHECKING
 
+from _routes import resource_methods
 import pytest
 
-import bw_serve_client
 from bw_serve_client._generated import routes as routes_module
 from bw_serve_client._generated.routes import Route
-from bw_serve_client.resource import Resource
-from bw_serve_client.resource import routed_methods
 from bw_serve_client.resource import RouteKey
 
 if TYPE_CHECKING:
   from collections.abc import Iterable, Mapping, Sequence
-
-#: One route-declaring method: its class, its name, its routes.
-RoutedMethod = tuple[type[Resource], str, tuple[RouteKey, ...]]
 
 EXCLUSIONS_FILE = Path(__file__).with_name("route_exclusions.json")
 
@@ -58,43 +51,6 @@ FOLDER_ROUTES = {
   RouteKey("DELETE", "/object/folder/{id}"): "Folders.delete",
   RouteKey("GET", "/list/object/folders"): "Folders.list",
 }
-
-
-# -----------------------------------------------------------------------------
-def resource_classes() -> list[type[Resource]]:
-  """Find every resource class in the package.
-
-  Every submodule is imported first, so a class is found whether or not
-  ``__init__`` exports it yet. Only classes defined in the package count,
-  so a test's own stand-in class never does.
-
-  Returns:
-    The classes, sorted by qualified name.
-  """
-  for module in pkgutil.walk_packages(bw_serve_client.__path__, f"{bw_serve_client.__name__}."):
-    importlib.import_module(module.name)
-
-  found: dict[str, type[Resource]] = {}
-  pending: list[type[Resource]] = [Resource]
-
-  while pending:
-    cls = pending.pop()
-    pending.extend(cls.__subclasses__())
-
-    if cls is not Resource and cls.__module__.startswith(f"{bw_serve_client.__name__}."):
-      found[f"{cls.__module__}.{cls.__qualname__}"] = cls
-
-  return [found[name] for name in sorted(found)]
-
-
-# -----------------------------------------------------------------------------
-def resource_methods() -> list[RoutedMethod]:
-  """List every route-declaring method of every resource class.
-
-  Returns:
-    One ``(class, method name, declared routes)`` entry per method.
-  """
-  return [(cls, name, keys) for cls in resource_classes() for name, keys in routed_methods(cls).items()]
 
 
 # -----------------------------------------------------------------------------
@@ -191,7 +147,7 @@ def coverage_problems(
     if not reason.strip():
       problems.append(f"{key}: excluded with no reason")
 
-    elif reason.startswith(NOT_YET) and not re.search(r"#\d+", reason):
+    elif NOT_YET in reason.lower() and not re.search(r"#\d+", reason):
       problems.append(f"{key}: {NOT_YET!r} names no issue")
 
   return problems
@@ -320,6 +276,8 @@ class TestFailurePaths:
       ("", "POST /lock: excluded with no reason"),
       ("   ", "POST /lock: excluded with no reason"),
       (NOT_YET, f"POST /lock: {NOT_YET!r} names no issue"),
+      ("Not Yet Implemented", f"POST /lock: {NOT_YET!r} names no issue"),
+      ("Deferred: not yet implemented upstream", f"POST /lock: {NOT_YET!r} names no issue"),
     ],
   )
   def test_an_unjustified_exclusion_fails(self: TestFailurePaths, reason: str, expected: str) -> None:

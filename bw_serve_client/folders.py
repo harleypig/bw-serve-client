@@ -23,7 +23,6 @@ from ._generated.models import ListObjectFoldersGetParameters
 from ._generated.models import ObjectFolderIdDeleteParameters
 from ._generated.models import ObjectFolderIdGetParameters
 from ._generated.models import ObjectFolderIdPutParameters
-from .errors import ValidationError
 from .resource import Resource
 from .resource import route
 
@@ -96,14 +95,11 @@ class Folders(Resource):
 
     Args:
         folder_id: Unique identifier of the folder to edit.
-        name: New name for the folder. Must be non-empty.
+        name: New name for the folder; empty or blank is sent as given.
 
     Returns:
         The updated :class:`Folder`.
     """
-    if not name or not name.strip():
-      return self._fail(ValidationError, "folder name must be non-empty")
-
     return self._request(
       "PUT",
       "/object/folder/{id}",

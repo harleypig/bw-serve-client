@@ -2,12 +2,12 @@
 
 A resource method declares its route with ``@route``, which is how the
 route coverage and docstring tests find it, and names its models;
-``Resource._request()`` does the rest -- validates the path, query and body against their pydantic
-models, sends the body as JSON (or multipart when there are files),
-unwraps ``bw serve``'s response envelope and parses the payload into the
-response type. Every failure along the way goes to the error handler, and
-when the handler returns instead of raising, its value is what the
-resource method returns.
+``Resource._request()`` does the rest -- validates the path, query and
+body against their pydantic models, sends the body as JSON (or multipart
+when there are files), unwraps ``bw serve``'s response envelope and
+parses the payload into the response type. Every failure along the way
+goes to the error handler, and when the handler returns instead of
+raising, its value is what the resource method returns.
 """
 
 from __future__ import annotations

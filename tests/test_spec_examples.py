@@ -20,22 +20,42 @@ example appears anywhere this module does not read.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import importlib.util
 import json
 from pathlib import Path
 import re
-import sys
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, TYPE_CHECKING
 
 import pytest
 
 from bw_serve_client._generated import models
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "codegen"))
-
-import generate  # noqa: E402 - importable only once codegen/ is on the path.
-
 if TYPE_CHECKING:
+  from types import ModuleType
+
   import pydantic
+
+
+def _load_generate() -> ModuleType:
+  """Load ``codegen/generate.py`` by path, under a name no other module uses.
+
+  Loading by path leaves ``sys.path`` alone, so no bare ``generate`` module
+  becomes importable for the rest of the session.
+
+  Returns:
+    The loaded module.
+  """
+  path = Path(__file__).resolve().parent.parent / "codegen" / "generate.py"
+  spec = importlib.util.spec_from_file_location("_bw_codegen_generate_for_spec_examples", path)
+  assert spec is not None
+  assert spec.loader is not None
+  module = importlib.util.module_from_spec(spec)
+  spec.loader.exec_module(module)
+
+  return module
+
+
+generate = _load_generate()
 
 SPEC: Dict[str, Any] = json.loads(generate.PATCHED_SPEC.read_text(encoding="utf-8"))
 

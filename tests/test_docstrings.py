@@ -31,7 +31,7 @@ import inspect
 import re
 from typing import Any, TYPE_CHECKING
 
-from test_route_coverage import resource_methods
+from _routes import resource_methods
 
 from bw_serve_client._generated import routes as routes_module
 from bw_serve_client._generated.routes import Route

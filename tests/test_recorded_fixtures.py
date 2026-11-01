@@ -21,7 +21,7 @@ off.
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Any, Callable, Optional, TYPE_CHECKING
 from uuid import UUID
 
 from conftest import load_recorded
@@ -258,6 +258,37 @@ FOLDER_CALLS: dict[str, Callable[[Folders, Payload], Any]] = {
   "folders-list": lambda folders, _p: folders.list(),  # noqa: U101 - every call takes the recording; list needs none.
 }
 
+#: A folder reduced to the fields compared: id, name, object.
+FolderFields = tuple[Optional[UUID], str, str]
+
+
+def _raw_fields(item: Payload) -> FolderFields:
+  """Read a folder's fields straight from the recorded JSON.
+
+  Built without :class:`Folder`, so a defect in how the library parses a
+  folder shows as a mismatch instead of being reproduced on both sides.
+
+  Args:
+    item: One folder object from a recorded response body.
+
+  Returns:
+    The id as a UUID (None for the empty id of "No Folder"), the name and
+    the object discriminator.
+  """
+  return (UUID(item["id"]) if item["id"] else None, item["name"], item["object"])
+
+
+def _parsed_fields(folder: Folder) -> FolderFields:
+  """Reduce a parsed folder to the fields compared.
+
+  Args:
+    folder: What a Folders method returned.
+
+  Returns:
+    Its id, name and object.
+  """
+  return (folder.id, folder.name, folder.object)
+
 
 def _expected_folders(payload: Payload) -> Any:
   """Build what a Folders method should return for a recording.
@@ -266,7 +297,7 @@ def _expected_folders(payload: Payload) -> Any:
     payload: One Folders recording.
 
   Returns:
-    A :class:`Folder`, a list of them, or None for a delete.
+    The fields of the folder, a list of them, or None for a delete.
   """
   data = payload["response"]["body"].get("data")
 
@@ -274,9 +305,27 @@ def _expected_folders(payload: Payload) -> Any:
     return None
 
   if data.get("object") == "list":
-    return [Folder.model_validate(item) for item in data["data"]]
+    return [_raw_fields(item) for item in data["data"]]
 
-  return Folder.model_validate(data)
+  return _raw_fields(data)
+
+
+def _returned_folders(result: Any) -> Any:
+  """Reduce what a Folders method returned to the fields compared.
+
+  Args:
+    result: A :class:`Folder`, a list of them, or None.
+
+  Returns:
+    The same shape, with each folder as its fields.
+  """
+  if result is None:
+    return None
+
+  if isinstance(result, list):
+    return [_parsed_fields(folder) for folder in result]
+
+  return _parsed_fields(result)
 
 
 class TestFolderSuccesses:
@@ -295,7 +344,7 @@ class TestFolderSuccesses:
 
     # Assert
     assert returning_handler.calls == []
-    assert result == _expected_folders(payload)
+    assert _returned_folders(result) == _expected_folders(payload)
 
   def test_created_folder_id_is_a_uuid(self: TestFolderSuccesses) -> None:
     """A created folder's recorded id is a UUID, as Folder.id declares."""

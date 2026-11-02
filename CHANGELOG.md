@@ -39,6 +39,12 @@ the `0.0.4a0` tag; this section covers that rebuild.
   registers, and tests replaying payloads recorded from a real `bw serve`.
 - This changelog, with entries drafted by `make update` from the upstream
   change report.
+- `examples/serve_socket.py`: starts `bw serve` on a Unix socket, makes one
+  call through the library and stops the server.
+- Documentation: an API reference built from the docstrings and published
+  at <https://harleypig.github.io/bw-serve-client>, installation and quick
+  start guides, a page on when to use this library and when to call `bw`
+  directly, and a developer guide to the update pipeline.
 
 ### Changed
 

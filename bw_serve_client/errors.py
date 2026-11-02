@@ -33,22 +33,30 @@ How an HTTP outcome maps to a category. ``category_for_status()`` is the
 one implementation of the status rows; the rest are decided where the
 failure happens:
 
-==============================  ==========================
-Outcome                         Category
-==============================  ==========================
-400 saying the vault is locked  ``UserError``
-or no user is logged in, or
-that the master password did
-not decrypt the vault
-400 and other unlisted 4xx      ``ValidationError``
-401, 403                        ``UserError``
-404                             ``ValidationError``
-5xx                             ``ExternalServiceError``
-connection failure, timeout     ``ExternalServiceError``
-a URL httpx cannot build        ``ValidationError``
-2xx body that does not parse    ``ExternalServiceError``
-a bug in this library           ``InternalError``
-==============================  ==========================
++--------------------------------+--------------------------+
+| Outcome                        | Category                 |
++================================+==========================+
+| 400 saying the vault is locked | ``UserError``            |
+| or no user is logged in, or    |                          |
+| that the master password did   |                          |
+| not decrypt the vault          |                          |
++--------------------------------+--------------------------+
+| 400 and other unlisted 4xx     | ``ValidationError``      |
++--------------------------------+--------------------------+
+| 401, 403                       | ``UserError``            |
++--------------------------------+--------------------------+
+| 404                            | ``ValidationError``      |
++--------------------------------+--------------------------+
+| 5xx                            | ``ExternalServiceError`` |
++--------------------------------+--------------------------+
+| connection failure, timeout    | ``ExternalServiceError`` |
++--------------------------------+--------------------------+
+| a URL httpx cannot build       | ``ValidationError``      |
++--------------------------------+--------------------------+
+| 2xx body that does not parse   | ``ExternalServiceError`` |
++--------------------------------+--------------------------+
+| a bug in this library          | ``InternalError``        |
++--------------------------------+--------------------------+
 
 ``bw serve`` answers every failed command with a 400 and a
 ``{"success": false, "message": ...}`` body, a locked vault included, so

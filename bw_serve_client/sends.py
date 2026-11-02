@@ -1,6 +1,6 @@
 """Sends domain class for the Bitwarden Vault Management API.
 
-Mirrors the ``Send`` tag in the API spec. One method per route:
+Mirrors the ``Send`` tag in the API spec. One method per route::
 
   POST   /object/send                - Sends.add
   PUT    /object/send/{id}           - Sends.modify

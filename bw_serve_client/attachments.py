@@ -1,6 +1,6 @@
 """Attachments domain class for the Bitwarden Vault Management API.
 
-Mirrors the ``Attachments`` tag in the API spec. One method per route:
+Mirrors the ``Attachments`` tag in the API spec. One method per route::
 
   POST   /attachment              - Attachments.add
   GET    /object/attachment/{id}  - Attachments.get

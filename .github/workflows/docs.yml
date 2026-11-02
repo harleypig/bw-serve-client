@@ -3,12 +3,20 @@ name: Build and Deploy Documentation
 on:
   push:
     branches: [ master, main ]
+    # The reference is built from the package's docstrings, so a change to
+    # the package, or to the dependencies the build installs, redeploys it.
     paths:
       - 'docs/**'
+      - 'bw_serve_client/**'
+      - 'pyproject.toml'
+      - 'poetry.lock'
   pull_request:
     branches: [ master, main ]
     paths:
       - 'docs/**'
+      - 'bw_serve_client/**'
+      - 'pyproject.toml'
+      - 'poetry.lock'
       # A change to this workflow builds on its PR, without deploying on merge.
       - '.github/workflows/docs.yml'
   workflow_dispatch:
@@ -43,7 +51,7 @@ jobs:
       - name: Build Sphinx documentation
         run: |
           cd docs/html
-          poetry run sphinx-build -b html source _build/html
+          poetry run sphinx-build -W -b html source _build/html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

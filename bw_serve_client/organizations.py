@@ -1,7 +1,7 @@
 """Organizations domain class for the Bitwarden Vault Management API.
 
 Mirrors the organization half of the ``Collections & Organizations`` tag in
-the API spec. One method per route:
+the API spec. One method per route::
 
   GET    /object/organization/{id}   - Organizations.get
   GET    /list/object/org-members    - Organizations.list_members

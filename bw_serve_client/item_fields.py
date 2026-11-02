@@ -1,7 +1,7 @@
 """ItemFields domain class for the Bitwarden Vault Management API.
 
 Single-field getters for a vault item, from the ``Attachments & Fields``
-tag in the API spec. One method per route, named for the field it reads:
+tag in the API spec. One method per route, named for the field it reads::
 
   GET /object/username/{id} - ItemFields.username
   GET /object/password/{id} - ItemFields.password

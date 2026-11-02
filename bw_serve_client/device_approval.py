@@ -1,7 +1,7 @@
 """DeviceApproval domain class for the Bitwarden Vault Management API.
 
 Mirrors the ``Trusted Device Approval`` tag in the API spec. One
-``DeviceApproval`` method per route:
+``DeviceApproval`` method per route::
 
   POST /device-approval/{organizationId}/approve/{request-id} - approve
   POST /device-approval/{organizationId}/approve-all          - approve_all

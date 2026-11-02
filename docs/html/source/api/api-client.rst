@@ -1,43 +1,11 @@
-API Client
+API client
 ==========
 
-The main client class for interacting with the Bitwarden Vault Management API.
+One :class:`ApiClient` connects to one running ``bw serve`` and is shared
+by every resource class. Its ``get``, ``post``, ``put`` and ``delete``
+methods send a request as given, without validation; use a resource class
+where one covers the route.
 
 .. autoclass:: bw_serve_client.api_client.ApiClient
    :members:
-   :undoc-members:
-   :show-inheritance:
-
-   .. automethod:: __init__
-
-   .. automethod:: get
-
-   .. automethod:: post
-
-   .. automethod:: put
-
-   .. automethod:: delete
-
-   .. automethod:: close
-
-   .. automethod:: __enter__
-
-   .. automethod:: __exit__
-
-Private Methods
-~~~~~~~~~~~~~~~
-
-.. automethod:: bw_serve_client.api_client.ApiClient._make_request
-   :noindex:
-
-.. automethod:: bw_serve_client.api_client.ApiClient._serialize_data
-   :noindex:
-
-.. automethod:: bw_serve_client.api_client.ApiClient._deserialize_data
-   :noindex:
-
-.. automethod:: bw_serve_client.api_client.ApiClient._handle_error
-   :noindex:
-
-.. automethod:: bw_serve_client.api_client.ApiClient._setup_default_logger
-   :noindex:
+   :exclude-members: session

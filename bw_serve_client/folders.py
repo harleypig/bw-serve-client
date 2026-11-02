@@ -14,42 +14,32 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel
-from pydantic import ConfigDict
 from pydantic import field_validator
 
+from ._generated.models import FolderResponseSchema
 from ._generated.models import FolderSchema
 from ._generated.models import ListObjectFoldersGetParameters
 from ._generated.models import ObjectFolderIdDeleteParameters
 from ._generated.models import ObjectFolderIdGetParameters
 from ._generated.models import ObjectFolderIdPutParameters
+from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
-FolderId = Union[UUID, str]
+FolderId = ObjectId
 
 
-class Folder(BaseModel):
-  """A folder as returned by the Vault Management API.
+class Folder(FolderResponseSchema):
+  """A folder as bw serve returns it.
 
-  The generated ``FolderSchema`` describes the request body
-  (``{"name": ...}``). The API responds with id + name + object, which
-  the generator does not produce a schema for, so it is modelled here.
+  bw gives the built-in "No Folder" an empty-string id. It is read as
+  ``None``, which is also what an item's ``folderId`` takes for no folder.
 
   Attributes:
-      id: Server-assigned unique identifier; ``None`` for "No Folder".
-      name: Folder name.
-      object: API object discriminator; always ``"folder"``.
-      model_config: Accepts field names as well as aliases.
+    id: The folder's id; ``None`` for "No Folder".
   """
 
-  model_config = ConfigDict(populate_by_name=True)
-
-  # bw lists "No Folder" with an empty-string id; it must not fail the
-  # whole list, so the empty string is read as no id.
-  id: Optional[UUID]
-  name: str
-  object: str = "folder"
+  id: Optional[UUID] = None  # type: ignore[assignment] - narrows the generated UUID | '' | None.
 
   # ---------------------------------------------------------------------------
   @field_validator("id", mode="before")
@@ -58,10 +48,10 @@ class Folder(BaseModel):
     """Read the empty-string id bw serve gives "No Folder" as ``None``.
 
     Args:
-        value: The raw id.
+      value: The raw id.
 
     Returns:
-        ``None`` for an empty string, otherwise the value unchanged.
+      ``None`` for an empty string, otherwise the value unchanged.
     """
     return None if value == "" else value
 

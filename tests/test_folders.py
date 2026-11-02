@@ -8,14 +8,18 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 from uuid import uuid4
 
+from pydantic import ValidationError as PydanticValidationError
 import pytest
 
+from bw_serve_client._generated.models import FolderResponseSchema
+from bw_serve_client.errors import ExternalServiceError
 from bw_serve_client.errors import ValidationError
 from bw_serve_client.folders import Folder
 from bw_serve_client.folders import Folders
 
 if TYPE_CHECKING:
   from conftest import MakeClient
+  from conftest import ReturningHandler
   import httpx
 
 
@@ -66,10 +70,19 @@ class TestFolderModel:
     assert result.object == "folder"
 
   def test_empty_string_id_is_none(self: "TestFolderModel") -> None:
-    """The empty-string id bw serve gives "No Folder" reads as None."""
+    """The empty-string id bw serve gives "No Folder" is read as None."""
     result = Folder.model_validate({"id": "", "name": "No Folder", "object": "folder"})  # act
 
     assert result.id is None
+
+  def test_folder_extends_the_generated_response_model(self: "TestFolderModel") -> None:
+    """The public Folder is the generated folder response model, plus the id rule."""
+    assert issubclass(Folder, FolderResponseSchema)
+
+  def test_rejects_an_id_that_is_neither_a_uuid_nor_empty(self: "TestFolderModel") -> None:
+    """Only a UUID or the empty string is a folder id."""
+    with pytest.raises(PydanticValidationError):
+      Folder.model_validate({"id": "not-a-uuid", "name": "Notes", "object": "folder"})
 
 
 # -----------------------------------------------------------------------------
@@ -255,6 +268,46 @@ class TestFoldersList:
 
     [request] = sent
     assert request.url.query == b""
+
+
+# -----------------------------------------------------------------------------
+class TestFoldersContract:
+  """The parts of the API class contract every Folders method shares."""
+
+  def test_sends_no_authorization_header(self: TestFoldersContract, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """Bw serve has no endpoint auth, so no Authorization header is sent."""
+    folders = Folders(make_client(json_body=_folders()))
+
+    folders.list()  # act
+
+    [request] = sent
+    assert "authorization" not in request.headers
+
+  def test_server_error_raises_external_service_error(self: TestFoldersContract, make_client: MakeClient) -> None:
+    """A 5xx is an ExternalServiceError carrying the status."""
+    folders = Folders(make_client(status=500, text_body="Internal Server Error"))
+
+    with pytest.raises(ExternalServiceError) as exc_info:
+      folders.get(uuid4())
+
+    assert exc_info.value.status_code == 500
+
+  def test_handled_failure_returns_the_handlers_value(
+    self: TestFoldersContract, make_client: MakeClient, returning_handler: ReturningHandler
+  ) -> None:
+    """A handler that returns instead of raising supplies the method's result."""
+    folders = Folders(
+      make_client(status=400, json_body={
+        "success": False,
+        "message": "Not found."
+      }), error_handler=returning_handler
+    )
+
+    result = folders.get(uuid4())  # act
+
+    assert result is returning_handler.result
+    [(category, message, status_code, _cause)] = returning_handler.calls
+    assert (category, message, status_code) == (ValidationError, "Not found.", 400)
 
 
 # -----------------------------------------------------------------------------

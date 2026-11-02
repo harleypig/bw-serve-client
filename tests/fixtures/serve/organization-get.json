@@ -1,0 +1,28 @@
+{
+  "case": "organization-get",
+  "description": "Get the organization.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/organization/f64481e2-dc5d-48cf-8db1-e6d5331fe910"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "enabled": true,
+        "id": "f64481e2-dc5d-48cf-8db1-e6d5331fe910",
+        "name": "Recorded organization",
+        "object": "organization",
+        "status": 2,
+        "type": 0
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

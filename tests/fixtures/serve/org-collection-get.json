@@ -1,0 +1,29 @@
+{
+  "case": "org-collection-get",
+  "description": "Get the collection through the organization route.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/org-collection/b88b7b2c-a25d-40f7-a56f-afb8c03ccb5b?organizationId=f64481e2-dc5d-48cf-8db1-e6d5331fe910"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "externalId": null,
+        "groups": [],
+        "id": "b88b7b2c-a25d-40f7-a56f-afb8c03ccb5b",
+        "name": "Recorded collection",
+        "object": "org-collection",
+        "organizationId": "f64481e2-dc5d-48cf-8db1-e6d5331fe910",
+        "users": []
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "case": "org-members-list",
+  "description": "List the organization's members.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/list/object/org-members?organizationId=f64481e2-dc5d-48cf-8db1-e6d5331fe910"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": [
+          {
+            "email": "fixture-recorder@example.com",
+            "id": "23f4b06b-5074-4694-b240-3d94952ff6b8",
+            "name": "Fixture Recorder",
+            "object": "org-member",
+            "status": 2,
+            "twoFactorEnabled": false,
+            "type": 0
+          }
+        ],
+        "object": "list"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

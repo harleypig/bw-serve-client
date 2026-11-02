@@ -251,7 +251,7 @@
         "schema",
         "title"
       ],
-      "value": "IdSchema"
+      "value": "AttachmentIdSchema"
     },
     {
       "op": "add",
@@ -283,7 +283,7 @@
         "schema",
         "title"
       ],
-      "value": "IdSchema"
+      "value": "AttachmentIdSchema"
     },
     {
       "op": "add",
@@ -2561,6 +2561,3525 @@
         "type": "string"
       },
       "why": "The device approval example carries organizationUserId, and PendingAuthRequestResponse sends it (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/pending-auth-request.response.ts), but the schema omits it, so the response model dropped it."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "type",
+        "enum"
+      ],
+      "from": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "value": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "why": "The CLI accepts item types 1-8: CipherType is Login=1, SecureNote=2, Card=3, Identity=4, SshKey=5, BankAccount=6, DriversLicense=7, Passport=8 (bitwarden/clients cli-v2026.10.1, libs/common/src/vault/enums/cipher-type.ts; bitwarden/sdk-internal 4a9eb239 (0.2.0-main.1126, the version the CLI pins), crates/bitwarden-vault/src/cipher/cipher.rs). 6-8 are behind a server feature flag, and CreateCommand answers them with a 400 when it is off (apps/cli/src/vault/create.command.ts). Upstream lists only 1-4, so SSH keys and the newer types were refused (#108)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "type",
+        "description"
+      ],
+      "from": "Type of vault item (1=login, 2=note, 3=card, 4=identity)",
+      "value": "Type of vault item (1=login, 2=secure note, 3=card, 4=identity, 5=SSH key, 6=bank account, 7=driver's license, 8=passport)",
+      "why": "Names the item types the enum now allows (#108)."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "components",
+        "schemas",
+        "item.card",
+        "properties",
+        "brand",
+        "enum"
+      ],
+      "from": [
+        "visa"
+      ],
+      "why": "A card's brand is free text: CardExport declares `brand?: string` and encrypts it as-is (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/card.export.ts), and the SDK's Card holds `brand: Option<String>` (bitwarden/sdk-internal 4a9eb239 (0.2.0-main.1126, the version the CLI pins), crates/bitwarden-vault/src/cipher/card.rs). Upstream allows only `visa`, the value in the CLI's own template, so every other brand was refused (#108)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "field",
+        "properties",
+        "type",
+        "type"
+      ],
+      "from": "string",
+      "value": "integer",
+      "why": "A field's type is a number: FieldType is Text=0, Hidden=1, Boolean=2, Linked=3 (bitwarden/clients cli-v2026.10.1, libs/common/src/vault/enums/field-type.enum.ts; bitwarden/sdk-internal 4a9eb239 (0.2.0-main.1126, the version the CLI pins), crates/bitwarden-vault/src/cipher/field.rs, serialized as a u8). Upstream declares it a string with integer values, so the model was a plain Enum rather than an IntEnum (#108)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/object/template/{type}",
+        "get",
+        "parameters",
+        {
+          "in": "path",
+          "name": "type"
+        },
+        "schema",
+        "enum"
+      ],
+      "from": [
+        "item",
+        "item.field",
+        "item.login",
+        "item.login.uri",
+        "item.card",
+        "item.identity",
+        "item.securenote",
+        "folder",
+        "collection",
+        "item-collections",
+        "org-collection"
+      ],
+      "value": [
+        "item",
+        "item.field",
+        "item.login",
+        "item.login.uri",
+        "item.card",
+        "item.identity",
+        "item.securenote",
+        "item.bankaccount",
+        "item.driverslicense",
+        "item.passport",
+        "folder",
+        "collection",
+        "item-collections",
+        "org-collection"
+      ],
+      "why": "GetCommand.getTemplate also answers item.bankaccount, item.driverslicense and item.passport (bitwarden/clients cli-v2026.10.1, apps/cli/src/commands/get.command.ts), with a 400 while the new item types' feature flag is off. Upstream omits them (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "passwordHistory"
+      ],
+      "value": {
+        "type": "object",
+        "title": "PasswordHistorySchema",
+        "description": "A password an item used before",
+        "properties": {
+          "lastUsedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "why": "CipherExport takes `passwordHistory?: PasswordHistoryExport[]` (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/cipher.export.ts, password-history.export.ts), and `bw get template item` returns it, so a template posted back was refused (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "fido2Credential"
+      ],
+      "value": {
+        "type": "object",
+        "title": "Fido2CredentialSchema",
+        "description": "A passkey stored on a login",
+        "properties": {
+          "credentialId": {
+            "type": "string"
+          },
+          "keyType": {
+            "type": "string"
+          },
+          "keyAlgorithm": {
+            "type": "string"
+          },
+          "keyCurve": {
+            "type": "string"
+          },
+          "keyValue": {
+            "type": "string",
+            "format": "password"
+          },
+          "rpId": {
+            "type": "string"
+          },
+          "userHandle": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "counter": {
+            "type": "string"
+          },
+          "rpName": {
+            "type": "string"
+          },
+          "userDisplayName": {
+            "type": "string"
+          },
+          "discoverable": {
+            "type": "string"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "why": "LoginExport takes `fido2Credentials?: Fido2CredentialExport[]` (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/login.export.ts, fido2-credential.export.ts), and `bw get template item.login` returns it (#108). keyValue is the private key."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.sshKey"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemSshKeySchema",
+        "description": "SSH key data schema for vault items",
+        "properties": {
+          "privateKey": {
+            "type": "string",
+            "format": "password"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "keyFingerprint": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Type 5 items carry `sshKey` (SshKeyExport, bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/ssh-key.export.ts); without it the item type the enum allows could hold no key (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.bankAccount"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemBankAccountSchema",
+        "description": "Bank account data schema for vault items",
+        "properties": {
+          "bankName": {
+            "type": "string"
+          },
+          "nameOnAccount": {
+            "type": "string"
+          },
+          "accountType": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string",
+            "format": "password"
+          },
+          "routingNumber": {
+            "type": "string"
+          },
+          "branchNumber": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string",
+            "format": "password"
+          },
+          "swiftCode": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string",
+            "format": "password"
+          },
+          "bankContactPhone": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Type 6 items carry `bankAccount` (BankAccountExport, bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/bank-account.export.ts) (#108). Account number, PIN and IBAN are secrets."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.driversLicense"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemDriversLicenseSchema",
+        "description": "Driver's license data schema for vault items",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "licenseNumber": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "issuingState": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "licenseClass": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Type 7 items carry `driversLicense` (DriversLicenseExport, bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/drivers-license.export.ts) (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.passport"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemPassportSchema",
+        "description": "Passport data schema for vault items",
+        "properties": {
+          "surname": {
+            "type": "string"
+          },
+          "givenName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "birthPlace": {
+            "type": "string"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "passportNumber": {
+            "type": "string"
+          },
+          "passportType": {
+            "type": "string"
+          },
+          "nationalIdentificationNumber": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Type 8 items carry `passport` (PassportExport, bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/passport.export.ts) (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "passwordHistory"
+      ],
+      "value": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/passwordHistory"
+        }
+      },
+      "why": "See the passwordHistory component (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "sshKey"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/item.sshKey"
+      },
+      "why": "CipherExport.toView reads `sshKey` for type 5 (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "bankAccount"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/item.bankAccount"
+      },
+      "why": "CipherExport.toView reads `bankAccount` for type 6 (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "driversLicense"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/item.driversLicense"
+      },
+      "why": "CipherExport.toView reads `driversLicense` for type 7 (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "properties",
+        "passport"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/item.passport"
+      },
+      "why": "CipherExport.toView reads `passport` for type 8 (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.template",
+        "required"
+      ],
+      "value": [
+        "type"
+      ],
+      "why": "CipherExport.toView copies `type` unchecked on create and edit (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/cipher.export.ts), so an item without one reaches the SDK with no type, the path where an unknown type takes bw serve down (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.login",
+        "properties",
+        "fido2Credentials"
+      ],
+      "value": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/fido2Credential"
+        }
+      },
+      "why": "See the fido2Credential component (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "collection",
+        "properties",
+        "users"
+      ],
+      "value": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/group"
+        }
+      },
+      "why": "OrganizationCollectionRequest takes `users?: SelectionReadOnly[]` beside groups (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/models/request/organization-collection.request.ts), and `bw get template org-collection` returns it, so a template posted back was refused (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "group",
+        "properties",
+        "manage"
+      ],
+      "value": {
+        "type": "boolean"
+      },
+      "why": "SelectionReadOnly has `manage` beside readOnly and hidePasswords (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/models/selection-read-only.ts), and the org-collection template carries it (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "send.template",
+        "properties",
+        "disabled",
+        "default"
+      ],
+      "value": false,
+      "why": "The CLI copies `disabled` unchecked (SendResponse.toView, bitwarden/clients cli-v2026.10.1, apps/cli/src/tools/send/models/send.response.ts) and Vaultwarden answers a Send without it with 422 (recorded: send-create-no-disabled). False is the CLI's own template value, so it is sent by default rather than required (#108)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.attachment"
+      ],
+      "value": {
+        "type": "object",
+        "title": "AttachmentSchema",
+        "description": "An attachment on a vault item",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The attachment's id: not a UUID."
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sizeName": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/vault/models/attachment.response.ts; the url carries a signed token); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.passwordHistory"
+      ],
+      "value": {
+        "type": "object",
+        "title": "PasswordHistoryResponseSchema",
+        "description": "A password an item used before",
+        "properties": {
+          "lastUsedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/vault/models/password-history.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.fido2Credential"
+      ],
+      "value": {
+        "type": "object",
+        "title": "Fido2CredentialResponseSchema",
+        "description": "A passkey stored on a login",
+        "properties": {
+          "credentialId": {
+            "type": "string"
+          },
+          "keyType": {
+            "type": "string"
+          },
+          "keyAlgorithm": {
+            "type": "string"
+          },
+          "keyCurve": {
+            "type": "string"
+          },
+          "keyValue": {
+            "type": "string",
+            "format": "password"
+          },
+          "rpId": {
+            "type": "string"
+          },
+          "userHandle": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "counter": {
+            "type": "string"
+          },
+          "rpName": {
+            "type": "string"
+          },
+          "userDisplayName": {
+            "type": "string"
+          },
+          "discoverable": {
+            "type": "string"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/fido2-credential.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.uri"
+      ],
+      "value": {
+        "type": "object",
+        "title": "LoginUriResponseSchema",
+        "description": "A URI on a login",
+        "properties": {
+          "uri": {
+            "type": "string"
+          },
+          "uriChecksum": {
+            "type": "string"
+          },
+          "match": {
+            "type": "integer"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/login-uri.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.field"
+      ],
+      "value": {
+        "type": "object",
+        "title": "FieldResponseSchema",
+        "description": "A custom field on a vault item",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "linkedId": {
+            "type": "integer"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/field.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.login"
+      ],
+      "value": {
+        "type": "object",
+        "title": "LoginResponseSchema",
+        "description": "Login data of a vault item",
+        "properties": {
+          "uris": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.uri"
+            }
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "totp": {
+            "type": "string",
+            "format": "password"
+          },
+          "passwordRevisionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fido2Credentials": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.fido2Credential"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/login.response.ts, libs/common/src/models/export/login.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.secureNote"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SecureNoteResponseSchema",
+        "description": "Secure note data of a vault item",
+        "properties": {
+          "type": {
+            "type": "integer"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/secure-note.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.card"
+      ],
+      "value": {
+        "type": "object",
+        "title": "CardResponseSchema",
+        "description": "Card data of a vault item",
+        "properties": {
+          "cardholderName": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string",
+            "format": "password"
+          },
+          "expMonth": {
+            "type": "string"
+          },
+          "expYear": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/card.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.identity"
+      ],
+      "value": {
+        "type": "object",
+        "title": "IdentityResponseSchema",
+        "description": "Identity data of a vault item",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "address1": {
+            "type": "string"
+          },
+          "address2": {
+            "type": "string"
+          },
+          "address3": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "ssn": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "passportNumber": {
+            "type": "string"
+          },
+          "licenseNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/identity.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.sshKey"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SshKeyResponseSchema",
+        "description": "SSH key data of a vault item",
+        "properties": {
+          "privateKey": {
+            "type": "string",
+            "format": "password"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "keyFingerprint": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/ssh-key.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.bankAccount"
+      ],
+      "value": {
+        "type": "object",
+        "title": "BankAccountResponseSchema",
+        "description": "Bank account data of a vault item",
+        "properties": {
+          "bankName": {
+            "type": "string"
+          },
+          "nameOnAccount": {
+            "type": "string"
+          },
+          "accountType": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string",
+            "format": "password"
+          },
+          "routingNumber": {
+            "type": "string"
+          },
+          "branchNumber": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string",
+            "format": "password"
+          },
+          "swiftCode": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string",
+            "format": "password"
+          },
+          "bankContactPhone": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/bank-account.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.driversLicense"
+      ],
+      "value": {
+        "type": "object",
+        "title": "DriversLicenseResponseSchema",
+        "description": "Driver's license data of a vault item",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "licenseNumber": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "issuingState": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "licenseClass": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/drivers-license.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.passport"
+      ],
+      "value": {
+        "type": "object",
+        "title": "PassportResponseSchema",
+        "description": "Passport data of a vault item",
+        "properties": {
+          "surname": {
+            "type": "string"
+          },
+          "givenName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "birthPlace": {
+            "type": "string"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "passportNumber": {
+            "type": "string"
+          },
+          "passportType": {
+            "type": "string"
+          },
+          "nationalIdentificationNumber": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/passport.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.item"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemSchema",
+        "description": "A vault item as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "item"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "type": {
+            "type": "integer"
+          },
+          "reprompt": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "favorite": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.field"
+            }
+          },
+          "login": {
+            "$ref": "#/components/schemas/response.login"
+          },
+          "secureNote": {
+            "$ref": "#/components/schemas/response.secureNote"
+          },
+          "card": {
+            "$ref": "#/components/schemas/response.card"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/response.identity"
+          },
+          "sshKey": {
+            "$ref": "#/components/schemas/response.sshKey"
+          },
+          "bankAccount": {
+            "$ref": "#/components/schemas/response.bankAccount"
+          },
+          "driversLicense": {
+            "$ref": "#/components/schemas/response.driversLicense"
+          },
+          "passport": {
+            "$ref": "#/components/schemas/response.passport"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.attachment"
+            }
+          },
+          "passwordHistory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.passwordHistory"
+            }
+          },
+          "revisionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archivedDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/vault/models/cipher.response.ts, libs/common/src/models/export/cipher-with-ids.export.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.folder"
+      ],
+      "value": {
+        "type": "object",
+        "title": "FolderResponseSchema",
+        "description": "A folder as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "folder"
+            ]
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  ""
+                ]
+              }
+            ],
+            "description": "The folder's id; empty for the built-in No Folder."
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/vault/models/folder.response.ts; the folder list ends with No Folder, whose id is empty); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.sendText"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SendTextResponseSchema",
+        "description": "Text content of a Send",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "hidden": {
+            "type": "boolean"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/tools/send/models/send-text.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.sendFile"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SendFileResponseSchema",
+        "description": "File content of a Send",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sizeName": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/tools/send/models/send-file.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.send"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SendSchema",
+        "description": "A Send as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "send"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accessId": {
+            "type": "string"
+          },
+          "accessUrl": {
+            "type": "string",
+            "format": "password"
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string",
+            "format": "password"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "text": {
+            "$ref": "#/components/schemas/response.sendText"
+          },
+          "file": {
+            "$ref": "#/components/schemas/response.sendFile"
+          },
+          "maxAccessCount": {
+            "type": "integer"
+          },
+          "accessCount": {
+            "type": "integer"
+          },
+          "revisionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "passwordSet": {
+            "type": "boolean"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "hideEmail": {
+            "type": "boolean"
+          },
+          "authType": {
+            "type": "integer"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/tools/send/models/send.response.ts; accessUrl embeds the key); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.organization"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrganizationSchema",
+        "description": "An organization the user belongs to",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "organization"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/models/response/organization.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.collection"
+      ],
+      "value": {
+        "type": "object",
+        "title": "CollectionResponseSchema",
+        "description": "A collection as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "collection"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/models/response/collection.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.collectionAccess"
+      ],
+      "value": {
+        "type": "object",
+        "title": "CollectionAccessSchema",
+        "description": "A group's or user's access to a collection",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "readOnly": {
+            "type": "boolean"
+          },
+          "hidePasswords": {
+            "type": "boolean"
+          },
+          "manage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/models/selection-read-only.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.orgCollection"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrgCollectionSchema",
+        "description": "An organization collection with its access lists",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "org-collection"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.collectionAccess"
+            }
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.collectionAccess"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/models/response/organization-collection.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.orgMember"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrgMemberSchema",
+        "description": "A member of an organization",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "org-member"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/admin-console/models/response/organization-user.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.string"
+      ],
+      "value": {
+        "type": "object",
+        "title": "StringResponseSchema",
+        "description": "A single string value",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "string"
+            ]
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/string.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.secretString"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SecretStringResponseSchema",
+        "description": "A single string value that is a secret",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "string"
+            ]
+          },
+          "data": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/string.response.ts; a password, TOTP code or generated password); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.template"
+      ],
+      "value": {
+        "type": "object",
+        "title": "TemplateResponseSchema",
+        "description": "A template, or the collection ids of an item",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "template"
+            ]
+          },
+          "template": {
+            "description": "An object for most templates; a list for item-collections."
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/template.response.ts; `template` is typed any there); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.message"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SyncMessageSchema",
+        "description": "A message bw serve shows after an action",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "message"
+            ]
+          },
+          "noColor": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/message.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.Item"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemListSchema",
+        "description": "A list of Item objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.item"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/list.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.Folder"
+      ],
+      "value": {
+        "type": "object",
+        "title": "FolderListSchema",
+        "description": "A list of Folder objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.folder"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/list.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.Send"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SendListSchema",
+        "description": "A list of Send objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.send"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/list.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.Organization"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrganizationListSchema",
+        "description": "A list of Organization objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.organization"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/list.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.Collection"
+      ],
+      "value": {
+        "type": "object",
+        "title": "CollectionListSchema",
+        "description": "A list of Collection objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.collection"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/list.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.OrgMember"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrgMemberListSchema",
+        "description": "A list of OrgMember objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.orgMember"
+            }
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response/list.response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.success"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SuccessSchema",
+        "description": "Success response with no data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.Item"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemSuccessSchema",
+        "description": "Success response carrying Item data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.item"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.ItemList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "ItemListSuccessSchema",
+        "description": "Success response carrying ItemList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Item"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.String"
+      ],
+      "value": {
+        "type": "object",
+        "title": "StringSuccessSchema",
+        "description": "Success response carrying String data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.string"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.SecretString"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SecretStringSuccessSchema",
+        "description": "Success response carrying SecretString data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.secretString"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.Folder"
+      ],
+      "value": {
+        "type": "object",
+        "title": "FolderSuccessSchema",
+        "description": "Success response carrying Folder data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.folder"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.FolderList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "FolderListSuccessSchema",
+        "description": "Success response carrying FolderList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Folder"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.Send"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SendSuccessSchema",
+        "description": "Success response carrying Send data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.send"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.SendList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SendListSuccessSchema",
+        "description": "Success response carrying SendList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Send"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.Organization"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrganizationSuccessSchema",
+        "description": "Success response carrying Organization data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.organization"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.OrganizationList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrganizationListSuccessSchema",
+        "description": "Success response carrying OrganizationList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Organization"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.Collection"
+      ],
+      "value": {
+        "type": "object",
+        "title": "CollectionSuccessSchema",
+        "description": "Success response carrying Collection data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.collection"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.CollectionList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "CollectionListSuccessSchema",
+        "description": "Success response carrying CollectionList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Collection"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.OrgCollection"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrgCollectionSuccessSchema",
+        "description": "Success response carrying OrgCollection data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.orgCollection"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.OrgMemberList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "OrgMemberListSuccessSchema",
+        "description": "Success response carrying OrgMemberList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.OrgMember"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.Template"
+      ],
+      "value": {
+        "type": "object",
+        "title": "TemplateSuccessSchema",
+        "description": "Success response carrying Template data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.template"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.SyncMessage"
+      ],
+      "value": {
+        "type": "object",
+        "title": "SyncMessageSuccessSchema",
+        "description": "Success response carrying SyncMessage data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.message"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives none (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/item",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Item"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/item/{id}",
+        "put",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Item"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/item/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Item"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/item/{id}",
+        "delete",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/item-collections/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Template"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/item-collections/{id}",
+        "put",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Item"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/restore/item/{id}",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/archive/{object}/{id}",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/list/object/items",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.ItemList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/attachment",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Item"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "delete",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/username/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.String"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/password/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.SecretString"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/uri/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.String"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/totp/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.SecretString"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/notes/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.String"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/exposed/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.String"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/folder",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Folder"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/folder/{id}",
+        "put",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Folder"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/folder/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Folder"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/folder/{id}",
+        "delete",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/list/object/folders",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.FolderList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/send",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Send"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/send/{id}",
+        "put",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Send"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/send/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Send"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/send/{id}",
+        "delete",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/list/object/send",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.SendList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/send/list",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.SendList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/send/{id}/remove-password",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Send"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/move/{itemid}/{organizationId}",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Item"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/org-collection",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.OrgCollection"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/org-collection/{id}",
+        "put",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.OrgCollection"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/org-collection/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.OrgCollection"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/org-collection/{id}",
+        "delete",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/list/object/org-collections",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.CollectionList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/list/object/collections",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.CollectionList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/list/object/organizations",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.OrganizationList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/list/object/org-members",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.OrgMemberList"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/collection/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Collection"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/organization/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Organization"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/confirm/org-member/{id}",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}/approve/{request-id}",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}/approve-all",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}/deny/{request-id}",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}/deny-all",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.success"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/sync",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.SyncMessage"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/generate",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.SecretString"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/template/{type}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.Template"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/fingerprint/me",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.String"
+      },
+      "why": "Names the response model (#100)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/object/item",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "example"
+      ],
+      "from": {
+        "success": true,
+        "data": [],
+        "revisionDate": "2022-03-07T20:13:51.536Z",
+        "deleteDate": null
+      },
+      "value": {
+        "success": true,
+        "data": {
+          "object": "item",
+          "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+          "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+          "folderId": null,
+          "type": 1,
+          "reprompt": 0,
+          "name": "My Shared Login",
+          "notes": null,
+          "favorite": false,
+          "login": {
+            "uris": [],
+            "username": "my_username",
+            "password": "my_password",
+            "totp": null,
+            "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+          },
+          "collectionIds": [
+            "75bb2724-abed-4f1f-aa4a-ae530106c958",
+            "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+          ],
+          "revisionDate": "2022-03-09T17:02:29.853Z",
+          "deletedDate": null,
+          "passwordHistory": [
+            {
+              "lastUsedDate": "2022-03-07T20:36:30.103Z",
+              "password": "my_password"
+            }
+          ]
+        }
+      },
+      "why": "The example's data is an empty array beside revisionDate and deleteDate; bw serve returns the item itself (recorded: item-create, item-get, item-edit). Replaced with the spec's own item example from /move (#100)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/object/item/{id}",
+        "put",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "example"
+      ],
+      "from": {
+        "success": true,
+        "data": [],
+        "revisionDate": "2022-03-07T20:13:51.536Z",
+        "deleteDate": null
+      },
+      "value": {
+        "success": true,
+        "data": {
+          "object": "item",
+          "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+          "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+          "folderId": null,
+          "type": 1,
+          "reprompt": 0,
+          "name": "My Shared Login",
+          "notes": null,
+          "favorite": false,
+          "login": {
+            "uris": [],
+            "username": "my_username",
+            "password": "my_password",
+            "totp": null,
+            "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+          },
+          "collectionIds": [
+            "75bb2724-abed-4f1f-aa4a-ae530106c958",
+            "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+          ],
+          "revisionDate": "2022-03-09T17:02:29.853Z",
+          "deletedDate": null,
+          "passwordHistory": [
+            {
+              "lastUsedDate": "2022-03-07T20:36:30.103Z",
+              "password": "my_password"
+            }
+          ]
+        }
+      },
+      "why": "The example's data is an empty array beside revisionDate and deleteDate; bw serve returns the item itself (recorded: item-create, item-get, item-edit). Replaced with the spec's own item example from /move (#100)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/object/item/{id}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "example"
+      ],
+      "from": {
+        "success": true,
+        "data": [],
+        "revisionDate": "2022-03-07T20:13:51.536Z",
+        "deleteDate": null
+      },
+      "value": {
+        "success": true,
+        "data": {
+          "object": "item",
+          "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+          "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+          "folderId": null,
+          "type": 1,
+          "reprompt": 0,
+          "name": "My Shared Login",
+          "notes": null,
+          "favorite": false,
+          "login": {
+            "uris": [],
+            "username": "my_username",
+            "password": "my_password",
+            "totp": null,
+            "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+          },
+          "collectionIds": [
+            "75bb2724-abed-4f1f-aa4a-ae530106c958",
+            "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+          ],
+          "revisionDate": "2022-03-09T17:02:29.853Z",
+          "deletedDate": null,
+          "passwordHistory": [
+            {
+              "lastUsedDate": "2022-03-07T20:36:30.103Z",
+              "password": "my_password"
+            }
+          ]
+        }
+      },
+      "why": "The example's data is an empty array beside revisionDate and deleteDate; bw serve returns the item itself (recorded: item-create, item-get, item-edit). Replaced with the spec's own item example from /move (#100)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/move/{itemid}/{organizationId}",
+        "post",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "example"
+      ],
+      "from": {
+        "success": true,
+        "data": {
+          "object": "item",
+          "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+          "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+          "folderId": null,
+          "type": 1,
+          "reprompt": 0,
+          "name": "My Shared Login",
+          "notes": null,
+          "favorite": false,
+          "login": {
+            "uris": [],
+            "username": "my_username",
+            "password": "my_password",
+            "totp": null,
+            "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+          },
+          "collectionIds": [
+            "75bb2724-abed-4f1f-aa4a-ae530106c958",
+            "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+          ],
+          "revisionDate": "2022-03-09T17:02:29.853Z",
+          "deletedDate": null,
+          "passwordHistory": [
+            {
+              "lastUsedDate": "2022-03-07T20.36.30.103Z",
+              "password": "my_password"
+            }
+          ]
+        }
+      },
+      "value": {
+        "success": true,
+        "data": {
+          "object": "item",
+          "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+          "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+          "folderId": null,
+          "type": 1,
+          "reprompt": 0,
+          "name": "My Shared Login",
+          "notes": null,
+          "favorite": false,
+          "login": {
+            "uris": [],
+            "username": "my_username",
+            "password": "my_password",
+            "totp": null,
+            "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+          },
+          "collectionIds": [
+            "75bb2724-abed-4f1f-aa4a-ae530106c958",
+            "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+          ],
+          "revisionDate": "2022-03-09T17:02:29.853Z",
+          "deletedDate": null,
+          "passwordHistory": [
+            {
+              "lastUsedDate": "2022-03-07T20:36:30.103Z",
+              "password": "my_password"
+            }
+          ]
+        }
+      },
+      "why": "The example's passwordHistory lastUsedDate is `2022-03-07T20.36.30.103Z`, dots for colons, which no date-time parser reads; corrected (#100)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/list/object/org-members",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "example"
+      ],
+      "from": {
+        "success": true,
+        "data": {
+          "object": "list",
+          "data": [
+            {
+              "object": "org-member",
+              "email": "user@email.com",
+              "name": "John Doe",
+              "id": "94833c6a-9078-4516-ba3c-acd40147547c",
+              "status": 2,
+              "type": 0,
+              "twoFactorEnabled": true
+            },
+            []
+          ]
+        }
+      },
+      "value": {
+        "success": true,
+        "data": {
+          "object": "list",
+          "data": [
+            {
+              "object": "org-member",
+              "email": "user@email.com",
+              "name": "John Doe",
+              "id": "94833c6a-9078-4516-ba3c-acd40147547c",
+              "status": 2,
+              "type": 0,
+              "twoFactorEnabled": true
+            }
+          ]
+        }
+      },
+      "why": "The example's list ends with a stray empty array after the one member; bw serve lists only org-member objects (recorded: org-members-list). Removed (#100)."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "get",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "format"
+      ],
+      "from": "uuid",
+      "why": "The attachment id is not a UUID: Vaultwarden's are 20 hex characters (recorded: attachment-create, `6e30f37acb730272aa86`) and the spec's own example is `o4lrz575u84koanvu9f5gqv9a9ab92gf`; bw serve matches it as a string against the item's attachment ids (bitwarden/clients cli-v2026.10.1, apps/cli/src/commands/get.command.ts getAttachment, apps/cli/src/vault/delete.command.ts deleteAttachment)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "get",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "pattern"
+      ],
+      "value": "^[A-Za-z0-9-]+$",
+      "why": "Letters, digits and hyphens only: the id is put into the path unescaped, so anything else could change which route a request reaches."
+    },
+    {
+      "op": "delete",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "delete",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "format"
+      ],
+      "from": "uuid",
+      "why": "The attachment id is not a UUID: Vaultwarden's are 20 hex characters (recorded: attachment-create, `6e30f37acb730272aa86`) and the spec's own example is `o4lrz575u84koanvu9f5gqv9a9ab92gf`; bw serve matches it as a string against the item's attachment ids (bitwarden/clients cli-v2026.10.1, apps/cli/src/commands/get.command.ts getAttachment, apps/cli/src/vault/delete.command.ts deleteAttachment)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "paths",
+        "/object/attachment/{id}",
+        "delete",
+        "parameters",
+        {
+          "in": "path",
+          "name": "id"
+        },
+        "schema",
+        "pattern"
+      ],
+      "value": "^[A-Za-z0-9-]+$",
+      "why": "Letters, digits and hyphens only: the id is put into the path unescaped, so anything else could change which route a request reaches."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "field",
+        "properties",
+        "linkedId"
+      ],
+      "value": {
+        "type": "integer",
+        "title": "FieldLinkedIdSchema",
+        "description": "For a linked field (type 3), the item property it shows: 100-101 a login's, 300-305 a card's, 400-418 an identity's"
+      },
+      "why": "A linked custom field names the property it shows in linkedId, which bw serve reads back on create and edit (FieldExport.toView, bitwarden/clients cli-v2026.10.1, libs/common/src/models/export/field.export.ts; values from libs/common/src/vault/enums/linked-id-type.enum.ts). Without it a fetched linked field loses its link on modify."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/generate",
+        "get",
+        "parameters",
+        {
+          "in": "query",
+          "name": "ambiguous"
+        },
+        "description"
+      ],
+      "from": "Include ambiguous characters in the **password** or **passphrase**.",
+      "value": "Avoid ambiguous characters (I, O, l, 0 and 1) in the **password** or **passphrase**.",
+      "why": "Backwards upstream: bw serve passes `!ambiguous` to a generator whose own option means \"may include ambiguous characters\", so ambiguous=true avoids them (bitwarden/clients cli-v2026.10.1, apps/cli/src/tools/generate.command.ts; recorded: generate-minimums)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "deviceapprovalproperties",
+        "properties",
+        "fingerprintPhrase"
+      ],
+      "value": {
+        "type": "string"
+      },
+      "why": "PendingAuthRequestResponse sends the requesting device's fingerprintPhrase, which an admin compares before approving (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/pending-auth-request.response.ts), but the schema omits it, so the response model dropped it."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.list.DeviceApproval"
+      ],
+      "value": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSchema",
+        "description": "A list of pending device approval requests",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/deviceapprovallist"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns: the list command wraps the requests in a ListResponse (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/list.command.ts; apps/cli/src/models/response/list.response.ts)."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "response.envelope.DeviceApprovalRequestList"
+      ],
+      "value": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSuccessSchema",
+        "description": "Success response carrying DeviceApprovalRequestList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.DeviceApproval"
+          }
+        }
+      },
+      "why": "Response schema for what bw serve returns (bitwarden/clients cli-v2026.10.1, apps/cli/src/models/response.ts); the spec gives a bare array."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "schema"
+      ],
+      "from": {
+        "$ref": "#/components/schemas/deviceapprovallist"
+      },
+      "value": {
+        "$ref": "#/components/schemas/response.envelope.DeviceApprovalRequestList"
+      },
+      "why": "bw serve sends the list envelope, {\"success\": true, \"data\": {\"object\": \"list\", \"data\": [...]}}, not a bare array (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/list.command.ts)."
+    },
+    {
+      "op": "set",
+      "path": [
+        "paths",
+        "/device-approval/{organizationId}",
+        "get",
+        "responses",
+        "200",
+        "content",
+        "application/json",
+        "example"
+      ],
+      "from": [
+        {
+          "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
+          "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+          "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+          "email": "orguser@bitwarden.com",
+          "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
+          "requestDeviceType": "Chrome",
+          "requestIpAddress": "130.6.255.219",
+          "creationDate": "2024-06-09T17:52:10.775Z"
+        }
+      ],
+      "value": {
+        "success": true,
+        "data": {
+          "object": "list",
+          "data": [
+            {
+              "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
+              "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+              "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+              "email": "orguser@bitwarden.com",
+              "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
+              "requestDeviceType": "Chrome",
+              "requestIpAddress": "130.6.255.219",
+              "creationDate": "2024-06-09T17:52:10.775Z",
+              "fingerprintPhrase": "alarm-unfold-steering-deftly-pretext"
+            }
+          ]
+        }
+      },
+      "why": "The example is the bare array; wrapped in the list envelope bw serve sends, with the fingerprintPhrase it carries."
     }
   ]
 }

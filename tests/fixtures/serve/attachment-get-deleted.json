@@ -1,0 +1,21 @@
+{
+  "case": "attachment-get-deleted",
+  "description": "Download the attachment just deleted.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/attachment/6e30f37acb730272aa86?itemid=de36398f-6368-411b-979c-32c0a6f911a6"
+  },
+  "response": {
+    "body": {
+      "message": "No attachments available for this item.",
+      "success": false
+    },
+    "status": 400
+  }
+}

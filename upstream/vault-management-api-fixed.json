@@ -242,9 +242,39 @@
               "application/json": {
                 "example": {
                   "success": true,
-                  "data": [],
-                  "revisionDate": "2022-03-07T20:13:51.536Z",
-                  "deleteDate": null
+                  "data": {
+                    "object": "item",
+                    "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+                    "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+                    "folderId": null,
+                    "type": 1,
+                    "reprompt": 0,
+                    "name": "My Shared Login",
+                    "notes": null,
+                    "favorite": false,
+                    "login": {
+                      "uris": [],
+                      "username": "my_username",
+                      "password": "my_password",
+                      "totp": null,
+                      "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+                    },
+                    "collectionIds": [
+                      "75bb2724-abed-4f1f-aa4a-ae530106c958",
+                      "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+                    ],
+                    "revisionDate": "2022-03-09T17:02:29.853Z",
+                    "deletedDate": null,
+                    "passwordHistory": [
+                      {
+                        "lastUsedDate": "2022-03-07T20:36:30.103Z",
+                        "password": "my_password"
+                      }
+                    ]
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Item"
                 }
               }
             }
@@ -405,9 +435,39 @@
               "application/json": {
                 "example": {
                   "success": true,
-                  "data": [],
-                  "revisionDate": "2022-03-07T20:13:51.536Z",
-                  "deleteDate": null
+                  "data": {
+                    "object": "item",
+                    "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+                    "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+                    "folderId": null,
+                    "type": 1,
+                    "reprompt": 0,
+                    "name": "My Shared Login",
+                    "notes": null,
+                    "favorite": false,
+                    "login": {
+                      "uris": [],
+                      "username": "my_username",
+                      "password": "my_password",
+                      "totp": null,
+                      "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+                    },
+                    "collectionIds": [
+                      "75bb2724-abed-4f1f-aa4a-ae530106c958",
+                      "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+                    ],
+                    "revisionDate": "2022-03-09T17:02:29.853Z",
+                    "deletedDate": null,
+                    "passwordHistory": [
+                      {
+                        "lastUsedDate": "2022-03-07T20:36:30.103Z",
+                        "password": "my_password"
+                      }
+                    ]
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Item"
                 }
               }
             }
@@ -449,9 +509,39 @@
               "application/json": {
                 "example": {
                   "success": true,
-                  "data": [],
-                  "revisionDate": "2022-03-07T20:13:51.536Z",
-                  "deleteDate": null
+                  "data": {
+                    "object": "item",
+                    "id": "88aed7f0-0378-4c68-b415-ae5101519054",
+                    "organizationId": "1f1d79f5-992f-42b1-abfd-acd40147547a",
+                    "folderId": null,
+                    "type": 1,
+                    "reprompt": 0,
+                    "name": "My Shared Login",
+                    "notes": null,
+                    "favorite": false,
+                    "login": {
+                      "uris": [],
+                      "username": "my_username",
+                      "password": "my_password",
+                      "totp": null,
+                      "passwordRevisionDate": "2022-03-07T20:36:30.103Z"
+                    },
+                    "collectionIds": [
+                      "75bb2724-abed-4f1f-aa4a-ae530106c958",
+                      "b64d6e40-adf2-4f46-b4d2-acd40147548a"
+                    ],
+                    "revisionDate": "2022-03-09T17:02:29.853Z",
+                    "deletedDate": null,
+                    "passwordHistory": [
+                      {
+                        "lastUsedDate": "2022-03-07T20:36:30.103Z",
+                        "password": "my_password"
+                      }
+                    ]
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Item"
                 }
               }
             }
@@ -502,6 +592,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -554,6 +647,9 @@
                       ]
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Template"
                 }
               }
             }
@@ -614,6 +710,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Item"
                 }
               }
             }
@@ -657,6 +756,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -713,6 +815,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -816,6 +921,9 @@
                     "object": "list",
                     "data": []
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.ItemList"
                 }
               }
             }
@@ -903,6 +1011,9 @@
                     "revisionDate": "2021-12-16T14:14:40.138Z",
                     "deletedDate": null
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Item"
                 }
               }
             }
@@ -934,8 +1045,8 @@
             "description": "Unique identifier of the attachment.",
             "schema": {
               "type": "string",
-              "format": "uuid",
-              "title": "IdSchema"
+              "title": "AttachmentIdSchema",
+              "pattern": "^[A-Za-z0-9-]+$"
             }
           },
           {
@@ -979,8 +1090,8 @@
             "description": "Unique identifier of the attachment.",
             "schema": {
               "type": "string",
-              "format": "uuid",
-              "title": "IdSchema"
+              "title": "AttachmentIdSchema",
+              "pattern": "^[A-Za-z0-9-]+$"
             }
           },
           {
@@ -1002,6 +1113,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -1049,6 +1163,9 @@
                     "object": "string",
                     "data": "my_username"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.String"
                 }
               }
             }
@@ -1096,6 +1213,9 @@
                     "object": "string",
                     "data": "p@$$w0rD"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.SecretString"
                 }
               }
             }
@@ -1143,6 +1263,9 @@
                     "object": "string",
                     "data": "https://google.com"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.String"
                 }
               }
             }
@@ -1190,6 +1313,9 @@
                     "object": "string",
                     "data": "836471"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.SecretString"
                 }
               }
             }
@@ -1237,6 +1363,9 @@
                     "object": "string",
                     "data": "This is note text."
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.String"
                 }
               }
             }
@@ -1284,6 +1413,9 @@
                     "object": "string",
                     "data": "12"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.String"
                 }
               }
             }
@@ -1333,6 +1465,9 @@
                     "id": "a0663107-6e57-401f-9e22-ae51015bb2cf",
                     "name": "My Folder"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Folder"
                 }
               }
             }
@@ -1394,6 +1529,9 @@
                     "id": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
                     "name": "My Folder's New Name"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Folder"
                 }
               }
             }
@@ -1440,6 +1578,9 @@
                     "id": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
                     "name": "My Folder"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Folder"
                 }
               }
             }
@@ -1481,6 +1622,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -1526,6 +1670,9 @@
                     "object": "list",
                     "data": []
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.FolderList"
                 }
               }
             }
@@ -1607,6 +1754,9 @@
                       "hidden": true
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Send"
                 }
               }
             }
@@ -1700,6 +1850,9 @@
                       "hidden": true
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Send"
                 }
               }
             }
@@ -1764,6 +1917,9 @@
                       "hidden": true
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Send"
                 }
               }
             }
@@ -1805,6 +1961,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -1850,6 +2009,9 @@
                     "object": "list",
                     "data": []
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.SendList"
                 }
               }
             }
@@ -1895,6 +2057,9 @@
                     "object": "list",
                     "data": []
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.SendList"
                 }
               }
             }
@@ -1961,6 +2126,9 @@
                       "hidden": true
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Send"
                 }
               }
             }
@@ -2060,11 +2228,14 @@
                     "deletedDate": null,
                     "passwordHistory": [
                       {
-                        "lastUsedDate": "2022-03-07T20.36.30.103Z",
+                        "lastUsedDate": "2022-03-07T20:36:30.103Z",
                         "password": "my_password"
                       }
                     ]
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Item"
                 }
               }
             }
@@ -2144,6 +2315,9 @@
                       }
                     ]
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.OrgCollection"
                 }
               }
             }
@@ -2233,6 +2407,9 @@
                       }
                     ]
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.OrgCollection"
                 }
               }
             }
@@ -2298,6 +2475,9 @@
                       }
                     ]
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.OrgCollection"
                 }
               }
             }
@@ -2350,6 +2530,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -2406,6 +2589,9 @@
                     "object": "list",
                     "data": []
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.CollectionList"
                 }
               }
             }
@@ -2451,6 +2637,9 @@
                     "object": "list",
                     "data": []
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.CollectionList"
                 }
               }
             }
@@ -2496,6 +2685,9 @@
                     "object": "list",
                     "data": []
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.OrganizationList"
                 }
               }
             }
@@ -2550,10 +2742,12 @@
                         "status": 2,
                         "type": 0,
                         "twoFactorEnabled": true
-                      },
-                      []
+                      }
                     ]
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.OrgMemberList"
                 }
               }
             }
@@ -2604,6 +2798,9 @@
                     "name": "Shared Logins",
                     "externalId": null
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Collection"
                 }
               }
             }
@@ -2655,6 +2852,9 @@
                     "type": 0,
                     "enabled": true
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Organization"
                 }
               }
             }
@@ -2709,6 +2909,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -2751,20 +2954,27 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/deviceapprovallist"
+                  "$ref": "#/components/schemas/response.envelope.DeviceApprovalRequestList"
                 },
-                "example": [
-                  {
-                    "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
-                    "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
-                    "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
-                    "email": "orguser@bitwarden.com",
-                    "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
-                    "requestDeviceType": "Chrome",
-                    "requestIpAddress": "130.6.255.219",
-                    "creationDate": "2024-06-09T17:52:10.775Z"
+                "example": {
+                  "success": true,
+                  "data": {
+                    "object": "list",
+                    "data": [
+                      {
+                        "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
+                        "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
+                        "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
+                        "email": "orguser@bitwarden.com",
+                        "requestDeviceIdentifier": "75bb2724-abed-4f1f-aa4a-ae530106c958",
+                        "requestDeviceType": "Chrome",
+                        "requestIpAddress": "130.6.255.219",
+                        "creationDate": "2024-06-09T17:52:10.775Z",
+                        "fingerprintPhrase": "alarm-unfold-steering-deftly-pretext"
+                      }
+                    ]
                   }
-                ]
+                }
               }
             }
           },
@@ -2818,6 +3028,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -2861,6 +3074,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -2915,6 +3131,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -2958,6 +3177,9 @@
               "application/json": {
                 "example": {
                   "success": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
                 }
               }
             }
@@ -2994,6 +3216,9 @@
                     "title": "Syncing complete.",
                     "message": null
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.SyncMessage"
                 }
               }
             }
@@ -3183,7 +3408,7 @@
           {
             "name": "ambiguous",
             "in": "query",
-            "description": "Include ambiguous characters in the **password** or **passphrase**.",
+            "description": "Avoid ambiguous characters (I, O, l, 0 and 1) in the **password** or **passphrase**.",
             "schema": {
               "type": "boolean",
               "title": "AmbiguousSchema"
@@ -3201,6 +3426,9 @@
                     "object": "string",
                     "data": "tJCxG4TABk3P9M"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.SecretString"
                 }
               }
             }
@@ -3239,6 +3467,9 @@
                 "item.card",
                 "item.identity",
                 "item.securenote",
+                "item.bankaccount",
+                "item.driverslicense",
+                "item.passport",
                 "folder",
                 "collection",
                 "item-collections",
@@ -3264,6 +3495,9 @@
                       "totp": "JBSWY3DPEHPK3PXP"
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.Template"
                 }
               }
             }
@@ -3298,6 +3532,9 @@
                     "object": "string",
                     "data": "magician-fruit-justify-tactfulness-cornflake"
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/response.envelope.String"
                 }
               }
             }
@@ -3346,10 +3583,14 @@
               1,
               2,
               3,
-              4
+              4,
+              5,
+              6,
+              7,
+              8
             ],
             "title": "ItemTypeSchema",
-            "description": "Type of vault item (1=login, 2=note, 3=card, 4=identity)"
+            "description": "Type of vault item (1=login, 2=secure note, 3=card, 4=identity, 5=SSH key, 6=bank account, 7=driver's license, 8=passport)"
           },
           "name": {
             "type": "string",
@@ -3398,10 +3639,31 @@
             ],
             "title": "RepromptSchema",
             "description": "Master password re-prompt requirement (0=none, 1=required)"
+          },
+          "passwordHistory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/passwordHistory"
+            }
+          },
+          "sshKey": {
+            "$ref": "#/components/schemas/item.sshKey"
+          },
+          "bankAccount": {
+            "$ref": "#/components/schemas/item.bankAccount"
+          },
+          "driversLicense": {
+            "$ref": "#/components/schemas/item.driversLicense"
+          },
+          "passport": {
+            "$ref": "#/components/schemas/item.passport"
           }
         },
         "description": "Template schema for vault items with all possible fields",
-        "title": "ItemTemplateSchema"
+        "title": "ItemTemplateSchema",
+        "required": [
+          "type"
+        ]
       },
       "item.login": {
         "properties": {
@@ -3423,6 +3685,12 @@
           "totp": {
             "type": "string",
             "description": "TOTP secret for two-factor authentication"
+          },
+          "fido2Credentials": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/fido2Credential"
+            }
           }
         },
         "description": "Login-specific data schema for vault items",
@@ -3448,10 +3716,7 @@
             "type": "string"
           },
           "brand": {
-            "type": "string",
-            "enum": [
-              "visa"
-            ]
+            "type": "string"
           },
           "number": {
             "type": "string"
@@ -3565,7 +3830,7 @@
             "description": "Value of the custom field"
           },
           "type": {
-            "type": "string",
+            "type": "integer",
             "enum": [
               0,
               1,
@@ -3574,6 +3839,11 @@
             ],
             "description": "Field type (0=text, 1=hidden, 2=boolean, 3=linked)",
             "title": "FieldTypeSchema"
+          },
+          "linkedId": {
+            "type": "integer",
+            "title": "FieldLinkedIdSchema",
+            "description": "For a linked field (type 3), the item property it shows: 100-101 a login's, 300-305 a card's, 400-418 an identity's"
           }
         },
         "description": "Custom field schema for vault items",
@@ -3644,7 +3914,8 @@
           },
           "disabled": {
             "type": "boolean",
-            "title": "SendDisabledSchema"
+            "title": "SendDisabledSchema",
+            "default": false
           },
           "hideEmail": {
             "type": "boolean",
@@ -3685,6 +3956,12 @@
             "items": {
               "$ref": "#/components/schemas/group"
             }
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/group"
+            }
           }
         },
         "description": "Collection schema for organizing vault items",
@@ -3700,6 +3977,9 @@
             "type": "boolean"
           },
           "hidePasswords": {
+            "type": "boolean"
+          },
+          "manage": {
             "type": "boolean"
           }
         },
@@ -3828,10 +4108,1446 @@
           },
           "organizationUserId": {
             "type": "string"
+          },
+          "fingerprintPhrase": {
+            "type": "string"
           }
         },
         "description": "Device approval properties schema for organization management",
         "title": "DeviceApprovalPropertiesSchema"
+      },
+      "passwordHistory": {
+        "type": "object",
+        "title": "PasswordHistorySchema",
+        "description": "A password an item used before",
+        "properties": {
+          "lastUsedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "fido2Credential": {
+        "type": "object",
+        "title": "Fido2CredentialSchema",
+        "description": "A passkey stored on a login",
+        "properties": {
+          "credentialId": {
+            "type": "string"
+          },
+          "keyType": {
+            "type": "string"
+          },
+          "keyAlgorithm": {
+            "type": "string"
+          },
+          "keyCurve": {
+            "type": "string"
+          },
+          "keyValue": {
+            "type": "string",
+            "format": "password"
+          },
+          "rpId": {
+            "type": "string"
+          },
+          "userHandle": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "counter": {
+            "type": "string"
+          },
+          "rpName": {
+            "type": "string"
+          },
+          "userDisplayName": {
+            "type": "string"
+          },
+          "discoverable": {
+            "type": "string"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "item.sshKey": {
+        "type": "object",
+        "title": "ItemSshKeySchema",
+        "description": "SSH key data schema for vault items",
+        "properties": {
+          "privateKey": {
+            "type": "string",
+            "format": "password"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "keyFingerprint": {
+            "type": "string"
+          }
+        }
+      },
+      "item.bankAccount": {
+        "type": "object",
+        "title": "ItemBankAccountSchema",
+        "description": "Bank account data schema for vault items",
+        "properties": {
+          "bankName": {
+            "type": "string"
+          },
+          "nameOnAccount": {
+            "type": "string"
+          },
+          "accountType": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string",
+            "format": "password"
+          },
+          "routingNumber": {
+            "type": "string"
+          },
+          "branchNumber": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string",
+            "format": "password"
+          },
+          "swiftCode": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string",
+            "format": "password"
+          },
+          "bankContactPhone": {
+            "type": "string"
+          }
+        }
+      },
+      "item.driversLicense": {
+        "type": "object",
+        "title": "ItemDriversLicenseSchema",
+        "description": "Driver's license data schema for vault items",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "licenseNumber": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "issuingState": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "licenseClass": {
+            "type": "string"
+          }
+        }
+      },
+      "item.passport": {
+        "type": "object",
+        "title": "ItemPassportSchema",
+        "description": "Passport data schema for vault items",
+        "properties": {
+          "surname": {
+            "type": "string"
+          },
+          "givenName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "birthPlace": {
+            "type": "string"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "passportNumber": {
+            "type": "string"
+          },
+          "passportType": {
+            "type": "string"
+          },
+          "nationalIdentificationNumber": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          }
+        }
+      },
+      "response.attachment": {
+        "type": "object",
+        "title": "AttachmentSchema",
+        "description": "An attachment on a vault item",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The attachment's id: not a UUID."
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sizeName": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "response.passwordHistory": {
+        "type": "object",
+        "title": "PasswordHistoryResponseSchema",
+        "description": "A password an item used before",
+        "properties": {
+          "lastUsedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "response.fido2Credential": {
+        "type": "object",
+        "title": "Fido2CredentialResponseSchema",
+        "description": "A passkey stored on a login",
+        "properties": {
+          "credentialId": {
+            "type": "string"
+          },
+          "keyType": {
+            "type": "string"
+          },
+          "keyAlgorithm": {
+            "type": "string"
+          },
+          "keyCurve": {
+            "type": "string"
+          },
+          "keyValue": {
+            "type": "string",
+            "format": "password"
+          },
+          "rpId": {
+            "type": "string"
+          },
+          "userHandle": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "counter": {
+            "type": "string"
+          },
+          "rpName": {
+            "type": "string"
+          },
+          "userDisplayName": {
+            "type": "string"
+          },
+          "discoverable": {
+            "type": "string"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "response.uri": {
+        "type": "object",
+        "title": "LoginUriResponseSchema",
+        "description": "A URI on a login",
+        "properties": {
+          "uri": {
+            "type": "string"
+          },
+          "uriChecksum": {
+            "type": "string"
+          },
+          "match": {
+            "type": "integer"
+          }
+        }
+      },
+      "response.field": {
+        "type": "object",
+        "title": "FieldResponseSchema",
+        "description": "A custom field on a vault item",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "linkedId": {
+            "type": "integer"
+          }
+        }
+      },
+      "response.login": {
+        "type": "object",
+        "title": "LoginResponseSchema",
+        "description": "Login data of a vault item",
+        "properties": {
+          "uris": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.uri"
+            }
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "totp": {
+            "type": "string",
+            "format": "password"
+          },
+          "passwordRevisionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fido2Credentials": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.fido2Credential"
+            }
+          }
+        }
+      },
+      "response.secureNote": {
+        "type": "object",
+        "title": "SecureNoteResponseSchema",
+        "description": "Secure note data of a vault item",
+        "properties": {
+          "type": {
+            "type": "integer"
+          }
+        }
+      },
+      "response.card": {
+        "type": "object",
+        "title": "CardResponseSchema",
+        "description": "Card data of a vault item",
+        "properties": {
+          "cardholderName": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string",
+            "format": "password"
+          },
+          "expMonth": {
+            "type": "string"
+          },
+          "expYear": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "response.identity": {
+        "type": "object",
+        "title": "IdentityResponseSchema",
+        "description": "Identity data of a vault item",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "address1": {
+            "type": "string"
+          },
+          "address2": {
+            "type": "string"
+          },
+          "address3": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "ssn": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "passportNumber": {
+            "type": "string"
+          },
+          "licenseNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "response.sshKey": {
+        "type": "object",
+        "title": "SshKeyResponseSchema",
+        "description": "SSH key data of a vault item",
+        "properties": {
+          "privateKey": {
+            "type": "string",
+            "format": "password"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "keyFingerprint": {
+            "type": "string"
+          }
+        }
+      },
+      "response.bankAccount": {
+        "type": "object",
+        "title": "BankAccountResponseSchema",
+        "description": "Bank account data of a vault item",
+        "properties": {
+          "bankName": {
+            "type": "string"
+          },
+          "nameOnAccount": {
+            "type": "string"
+          },
+          "accountType": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string",
+            "format": "password"
+          },
+          "routingNumber": {
+            "type": "string"
+          },
+          "branchNumber": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string",
+            "format": "password"
+          },
+          "swiftCode": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string",
+            "format": "password"
+          },
+          "bankContactPhone": {
+            "type": "string"
+          }
+        }
+      },
+      "response.driversLicense": {
+        "type": "object",
+        "title": "DriversLicenseResponseSchema",
+        "description": "Driver's license data of a vault item",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "licenseNumber": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "issuingState": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "licenseClass": {
+            "type": "string"
+          }
+        }
+      },
+      "response.passport": {
+        "type": "object",
+        "title": "PassportResponseSchema",
+        "description": "Passport data of a vault item",
+        "properties": {
+          "surname": {
+            "type": "string"
+          },
+          "givenName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "birthPlace": {
+            "type": "string"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "issuingCountry": {
+            "type": "string"
+          },
+          "passportNumber": {
+            "type": "string"
+          },
+          "passportType": {
+            "type": "string"
+          },
+          "nationalIdentificationNumber": {
+            "type": "string"
+          },
+          "issuingAuthority": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "expirationDate": {
+            "type": "string"
+          }
+        }
+      },
+      "response.item": {
+        "type": "object",
+        "title": "ItemSchema",
+        "description": "A vault item as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "item"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "type": {
+            "type": "integer"
+          },
+          "reprompt": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "favorite": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.field"
+            }
+          },
+          "login": {
+            "$ref": "#/components/schemas/response.login"
+          },
+          "secureNote": {
+            "$ref": "#/components/schemas/response.secureNote"
+          },
+          "card": {
+            "$ref": "#/components/schemas/response.card"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/response.identity"
+          },
+          "sshKey": {
+            "$ref": "#/components/schemas/response.sshKey"
+          },
+          "bankAccount": {
+            "$ref": "#/components/schemas/response.bankAccount"
+          },
+          "driversLicense": {
+            "$ref": "#/components/schemas/response.driversLicense"
+          },
+          "passport": {
+            "$ref": "#/components/schemas/response.passport"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.attachment"
+            }
+          },
+          "passwordHistory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.passwordHistory"
+            }
+          },
+          "revisionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archivedDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "response.folder": {
+        "type": "object",
+        "title": "FolderResponseSchema",
+        "description": "A folder as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "folder"
+            ]
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  ""
+                ]
+              }
+            ],
+            "description": "The folder's id; empty for the built-in No Folder."
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "response.sendText": {
+        "type": "object",
+        "title": "SendTextResponseSchema",
+        "description": "Text content of a Send",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "hidden": {
+            "type": "boolean"
+          }
+        }
+      },
+      "response.sendFile": {
+        "type": "object",
+        "title": "SendFileResponseSchema",
+        "description": "File content of a Send",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sizeName": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          }
+        }
+      },
+      "response.send": {
+        "type": "object",
+        "title": "SendSchema",
+        "description": "A Send as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "send"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accessId": {
+            "type": "string"
+          },
+          "accessUrl": {
+            "type": "string",
+            "format": "password"
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string",
+            "format": "password"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "text": {
+            "$ref": "#/components/schemas/response.sendText"
+          },
+          "file": {
+            "$ref": "#/components/schemas/response.sendFile"
+          },
+          "maxAccessCount": {
+            "type": "integer"
+          },
+          "accessCount": {
+            "type": "integer"
+          },
+          "revisionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "passwordSet": {
+            "type": "boolean"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "hideEmail": {
+            "type": "boolean"
+          },
+          "authType": {
+            "type": "integer"
+          }
+        }
+      },
+      "response.organization": {
+        "type": "object",
+        "title": "OrganizationSchema",
+        "description": "An organization the user belongs to",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "organization"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "response.collection": {
+        "type": "object",
+        "title": "CollectionResponseSchema",
+        "description": "A collection as bw serve returns it",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "collection"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          }
+        }
+      },
+      "response.collectionAccess": {
+        "type": "object",
+        "title": "CollectionAccessSchema",
+        "description": "A group's or user's access to a collection",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "readOnly": {
+            "type": "boolean"
+          },
+          "hidePasswords": {
+            "type": "boolean"
+          },
+          "manage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "response.orgCollection": {
+        "type": "object",
+        "title": "OrgCollectionSchema",
+        "description": "An organization collection with its access lists",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "org-collection"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.collectionAccess"
+            }
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.collectionAccess"
+            }
+          }
+        }
+      },
+      "response.orgMember": {
+        "type": "object",
+        "title": "OrgMemberSchema",
+        "description": "A member of an organization",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "org-member"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "response.string": {
+        "type": "object",
+        "title": "StringResponseSchema",
+        "description": "A single string value",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "string"
+            ]
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "response.secretString": {
+        "type": "object",
+        "title": "SecretStringResponseSchema",
+        "description": "A single string value that is a secret",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "string"
+            ]
+          },
+          "data": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "response.template": {
+        "type": "object",
+        "title": "TemplateResponseSchema",
+        "description": "A template, or the collection ids of an item",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "template"
+            ]
+          },
+          "template": {
+            "description": "An object for most templates; a list for item-collections."
+          }
+        }
+      },
+      "response.message": {
+        "type": "object",
+        "title": "SyncMessageSchema",
+        "description": "A message bw serve shows after an action",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "message"
+            ]
+          },
+          "noColor": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "response.list.Item": {
+        "type": "object",
+        "title": "ItemListSchema",
+        "description": "A list of Item objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.item"
+            }
+          }
+        }
+      },
+      "response.list.Folder": {
+        "type": "object",
+        "title": "FolderListSchema",
+        "description": "A list of Folder objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.folder"
+            }
+          }
+        }
+      },
+      "response.list.Send": {
+        "type": "object",
+        "title": "SendListSchema",
+        "description": "A list of Send objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.send"
+            }
+          }
+        }
+      },
+      "response.list.Organization": {
+        "type": "object",
+        "title": "OrganizationListSchema",
+        "description": "A list of Organization objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.organization"
+            }
+          }
+        }
+      },
+      "response.list.Collection": {
+        "type": "object",
+        "title": "CollectionListSchema",
+        "description": "A list of Collection objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.collection"
+            }
+          }
+        }
+      },
+      "response.list.OrgMember": {
+        "type": "object",
+        "title": "OrgMemberListSchema",
+        "description": "A list of OrgMember objects",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/response.orgMember"
+            }
+          }
+        }
+      },
+      "response.success": {
+        "type": "object",
+        "title": "SuccessSchema",
+        "description": "Success response with no data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "response.envelope.Item": {
+        "type": "object",
+        "title": "ItemSuccessSchema",
+        "description": "Success response carrying Item data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.item"
+          }
+        }
+      },
+      "response.envelope.ItemList": {
+        "type": "object",
+        "title": "ItemListSuccessSchema",
+        "description": "Success response carrying ItemList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Item"
+          }
+        }
+      },
+      "response.envelope.String": {
+        "type": "object",
+        "title": "StringSuccessSchema",
+        "description": "Success response carrying String data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.string"
+          }
+        }
+      },
+      "response.envelope.SecretString": {
+        "type": "object",
+        "title": "SecretStringSuccessSchema",
+        "description": "Success response carrying SecretString data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.secretString"
+          }
+        }
+      },
+      "response.envelope.Folder": {
+        "type": "object",
+        "title": "FolderSuccessSchema",
+        "description": "Success response carrying Folder data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.folder"
+          }
+        }
+      },
+      "response.envelope.FolderList": {
+        "type": "object",
+        "title": "FolderListSuccessSchema",
+        "description": "Success response carrying FolderList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Folder"
+          }
+        }
+      },
+      "response.envelope.Send": {
+        "type": "object",
+        "title": "SendSuccessSchema",
+        "description": "Success response carrying Send data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.send"
+          }
+        }
+      },
+      "response.envelope.SendList": {
+        "type": "object",
+        "title": "SendListSuccessSchema",
+        "description": "Success response carrying SendList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Send"
+          }
+        }
+      },
+      "response.envelope.Organization": {
+        "type": "object",
+        "title": "OrganizationSuccessSchema",
+        "description": "Success response carrying Organization data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.organization"
+          }
+        }
+      },
+      "response.envelope.OrganizationList": {
+        "type": "object",
+        "title": "OrganizationListSuccessSchema",
+        "description": "Success response carrying OrganizationList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Organization"
+          }
+        }
+      },
+      "response.envelope.Collection": {
+        "type": "object",
+        "title": "CollectionSuccessSchema",
+        "description": "Success response carrying Collection data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.collection"
+          }
+        }
+      },
+      "response.envelope.CollectionList": {
+        "type": "object",
+        "title": "CollectionListSuccessSchema",
+        "description": "Success response carrying CollectionList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.Collection"
+          }
+        }
+      },
+      "response.envelope.OrgCollection": {
+        "type": "object",
+        "title": "OrgCollectionSuccessSchema",
+        "description": "Success response carrying OrgCollection data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.orgCollection"
+          }
+        }
+      },
+      "response.envelope.OrgMemberList": {
+        "type": "object",
+        "title": "OrgMemberListSuccessSchema",
+        "description": "Success response carrying OrgMemberList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.OrgMember"
+          }
+        }
+      },
+      "response.envelope.Template": {
+        "type": "object",
+        "title": "TemplateSuccessSchema",
+        "description": "Success response carrying Template data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.template"
+          }
+        }
+      },
+      "response.envelope.SyncMessage": {
+        "type": "object",
+        "title": "SyncMessageSuccessSchema",
+        "description": "Success response carrying SyncMessage data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.message"
+          }
+        }
+      },
+      "response.list.DeviceApproval": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSchema",
+        "description": "A list of pending device approval requests",
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/deviceapprovallist"
+          }
+        }
+      },
+      "response.envelope.DeviceApprovalRequestList": {
+        "type": "object",
+        "title": "DeviceApprovalRequestListSuccessSchema",
+        "description": "Success response carrying DeviceApprovalRequestList data",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/response.list.DeviceApproval"
+          }
+        }
       }
     }
   }

@@ -1,0 +1,43 @@
+{
+  "case": "item-move",
+  "description": "Move the note into the organization's collection.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": [
+      "b88b7b2c-a25d-40f7-a56f-afb8c03ccb5b"
+    ],
+    "method": "POST",
+    "path": "/move/8d798b38-2862-4b02-9071-f717ac34a7a7/f64481e2-dc5d-48cf-8db1-e6d5331fe910"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "attachments": [],
+        "collectionIds": [
+          "b88b7b2c-a25d-40f7-a56f-afb8c03ccb5b"
+        ],
+        "creationDate": "2026-11-01T21:29:16.161Z",
+        "favorite": false,
+        "fields": [],
+        "id": "8d798b38-2862-4b02-9071-f717ac34a7a7",
+        "name": "Shared note",
+        "notes": "Made-up note for fixture recording.",
+        "object": "item",
+        "organizationId": "f64481e2-dc5d-48cf-8db1-e6d5331fe910",
+        "passwordHistory": [],
+        "reprompt": 0,
+        "revisionDate": "2026-11-01T21:29:16.290Z",
+        "secureNote": {
+          "type": 0
+        },
+        "type": 2
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

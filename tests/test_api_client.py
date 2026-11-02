@@ -436,6 +436,28 @@ class TestApiClient:
 
     assert result == "<root><item>value</item></root>"
 
+  # bw serve sends a downloaded attachment as application/octet-stream;
+  # decoding it as text replaces every byte that is not valid UTF-8.
+  def test_deserialize_data_octet_stream_is_raw_bytes(self: "TestApiClient") -> None:
+    """An application/octet-stream body comes back as its exact bytes."""
+    client = ApiClient()
+    payload = b"\x89PNG\r\n\x1a\n\xff\xfe\x00"
+    response = httpx.Response(200, content=payload, headers={"Content-Type": "application/octet-stream"})
+
+    result = client._deserialize_data(response)  # act
+
+    assert result == payload
+
+  def test_get_returns_downloaded_file_bytes(self: "TestApiClient") -> None:
+    """ApiClient.get hands back a binary download byte for byte."""
+    payload = bytes(range(256))
+    response = httpx.Response(200, content=payload, headers={"Content-Type": "application/octet-stream"})
+    client = ApiClient(transport=httpx.MockTransport(lambda _: response))  # noqa: U101 - every request gets the one answer.
+
+    result = client.get("/object/attachment/abc", params={"itemid": "x"})  # act
+
+    assert result == payload
+
   def test_handle_error_json_decode_error(self: "TestApiClient") -> None:
     """Test error handling with JSON decode error."""
     client = ApiClient()

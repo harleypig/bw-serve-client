@@ -1,0 +1,24 @@
+{
+  "case": "item-field-username",
+  "description": "Read the login's username.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/username/de36398f-6368-411b-979c-32c0a6f911a6"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": "someone@example.com",
+        "object": "string"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "case": "template-item-collections",
+  "description": "The item-collections template.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/template/item-collections"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "object": "template",
+        "template": [
+          "collection-id1",
+          "collection-id2"
+        ]
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

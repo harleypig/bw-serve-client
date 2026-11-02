@@ -1,0 +1,30 @@
+{
+  "case": "template-item-login",
+  "description": "The login template.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/template/item.login"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "object": "template",
+        "template": {
+          "fido2Credentials": [],
+          "password": "myp@ssword123",
+          "totp": "JBSWY3DPEHPK3PXP",
+          "uris": [],
+          "username": "jdoe"
+        }
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

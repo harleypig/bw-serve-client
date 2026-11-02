@@ -6,7 +6,7 @@ with the Bitwarden Vault Management API via the 'bw serve' command.
 
 import json
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
@@ -18,7 +18,7 @@ from .errors import InternalError
 from .errors import ValidationError
 
 # Type aliases for complex types
-RequestData = Optional[Union[Dict[str, Any], str]]
+RequestData = Optional[Union[Dict[str, Any], List[Any], str]]
 QueryParams = Optional[Dict[str, Any]]
 
 UNIX_SCHEME = "unix://"
@@ -316,7 +316,9 @@ class ApiClient:
         response: Response object to deserialize
 
     Returns:
-        Deserialized data
+        The parsed JSON for a JSON response, the raw ``bytes`` for an
+        ``application/octet-stream`` one (a downloaded file), and the
+        text for anything else.
     """
     content_type = response.headers.get('content-type', '').lower()
 
@@ -327,6 +329,9 @@ class ApiClient:
       except json.JSONDecodeError as e:
         self.logger.warning(f"Failed to parse JSON response: {e}")
         return response.text
+
+    elif _media_type(content_type) == 'application/octet-stream':
+      return response.content
 
     else:
       return response.text
@@ -380,17 +385,27 @@ class ApiClient:
   def get(self: "ApiClient", endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
     """Make a GET request.
 
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
+
     Args:
         endpoint: API endpoint
         params: Query parameters
 
     Returns:
-        Deserialized response data
+        Deserialized response data; ``bytes`` for an ``application/octet-stream`` body, which is how bw serve sends a file.
     """
     return self._make_request_and_deserialize('GET', endpoint, params=params)
 
   def post(self: "ApiClient", endpoint: str, data: RequestData = None, files: Optional[Dict[str, Any]] = None) -> Any:
     """Make a POST request.
+
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
 
     Args:
         endpoint: API endpoint
@@ -405,6 +420,11 @@ class ApiClient:
   def put(self: "ApiClient", endpoint: str, data: RequestData = None) -> Any:
     """Make a PUT request.
 
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
+
     Args:
         endpoint: API endpoint
         data: Request body data
@@ -416,6 +436,11 @@ class ApiClient:
 
   def delete(self: "ApiClient", endpoint: str) -> Any:
     """Make a DELETE request.
+
+    Unvalidated: what is passed goes to ``bw serve`` as given, without the
+    model checks a resource class makes first. ``bw serve`` can crash, or
+    store the wrong thing, on a value it does not expect, so use a resource
+    class where one covers the route.
 
     Args:
         endpoint: API endpoint

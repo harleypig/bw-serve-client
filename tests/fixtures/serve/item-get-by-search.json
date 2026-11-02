@@ -1,0 +1,53 @@
+{
+  "case": "item-get-by-search",
+  "description": "Get an item by a search term that matches one item.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/item/Recorded%20login"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "attachments": [],
+        "collectionIds": [],
+        "creationDate": "2026-11-01T21:29:12.305Z",
+        "favorite": false,
+        "fields": [],
+        "folderId": "d5acd5f0-f674-4efa-95fe-133bea4de8a8",
+        "id": "de36398f-6368-411b-979c-32c0a6f911a6",
+        "login": {
+          "fido2Credentials": [],
+          "password": "<redacted>",
+          "passwordRevisionDate": "2026-11-01T21:29:14.233Z",
+          "totp": "<redacted>",
+          "uris": [
+            {
+              "uri": "https://example.com/"
+            }
+          ],
+          "username": "someone@example.com"
+        },
+        "name": "Recorded login",
+        "notes": "Made-up item for fixture recording.",
+        "object": "item",
+        "passwordHistory": [
+          {
+            "lastUsedDate": "2026-11-01T21:29:14.233Z",
+            "password": "made-up-item-password"
+          }
+        ],
+        "reprompt": 0,
+        "revisionDate": "2026-11-01T21:29:14.236Z",
+        "type": 1
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

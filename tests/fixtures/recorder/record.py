@@ -7,9 +7,11 @@ containers, sends each case over HTTP, and removes the containers, the
 network and (unless ``--keep-image``) the image again, whatever happens.
 
 The account is made up and lives only inside the Vaultwarden container.
-Before anything is written, the master password and the session key are
-replaced with ``<redacted>`` wherever they appear, and a payload that still
-holds either is refused.
+Before anything is written, every secret -- the master password, the
+session key, the made-up item and Send passwords and TOTP seed, and the
+values a case names with ``Case.secret`` (generated passwords, Send keys and
+access URLs, attachment download URLs) -- is replaced with ``<redacted>``
+wherever it appears, and a payload that still holds one is refused.
 
 Usage, from the repository root::
 
@@ -29,7 +31,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
-from typing import Any, NamedTuple, Optional
+from typing import Any, NamedTuple, Optional, Union
 import urllib.error
 import urllib.request
 import uuid
@@ -45,6 +47,16 @@ VAULTWARDEN_IMAGE = "vaultwarden/server:1.37.4"
 EMAIL = "fixture-recorder@example.com"
 PASSWORD = "not-a-real-password-0f6c2d"
 
+# The item the field routes read, and the Send, carry made-up secrets of
+# their own. They are redacted like the master password, so a fixture never
+# shows the value even though no real vault ever held it.
+FIELD_PASSWORD = "made-up-field-password-7c1e9a"
+TOTP_SEED = "JBSWY3DPEHPK3PXPMADEUP7Q"
+SEND_PASSWORD = "made-up-send-password-4b2d"
+
+#: The file the attachment cases upload: name and text content.
+ATTACHMENT = ("recorded-attachment.txt", "Made-up attachment for fixture recording.\n")
+
 REDACTED = "<redacted>"
 
 # Registration and login each run 600,000 PBKDF2 rounds before bw serve
@@ -57,6 +69,12 @@ BUILD_TIMEOUT = 900
 
 #: Pulls placeholder values out of a response body.
 Keep = Callable[[Any], dict[str, str]]
+
+#: Pulls values to redact out of a successful response body.
+Secret = Callable[[Any], list[str]]
+
+#: A JSON request body: an object, or an array (the collection-id routes).
+Body = Union[dict[str, Any], list[Any]]
 
 
 # -----------------------------------------------------------------------------
@@ -71,15 +89,19 @@ class Case(NamedTuple):
     body: JSON request body, or None.
     raw: A raw request body sent instead of ``body``, or None.
     keep: Pulls a value out of the response body to fill later paths.
+    file: ``(filename, text)`` sent as the multipart ``file`` field.
+    secret: Pulls values to redact out of a successful response body.
   """
 
   name: str
   description: str
   method: str
   path: str
-  body: Optional[dict[str, Any]] = None
+  body: Optional[Body] = None
   raw: Optional[str] = None
   keep: Optional[Keep] = None
+  file: Optional[tuple[str, str]] = None
+  secret: Optional[Secret] = None
 
 
 def _data_id(key: str) -> Keep:
@@ -94,14 +116,98 @@ def _data_id(key: str) -> Keep:
   return lambda body: {key: body["data"]["id"]}
 
 
-# A random id no vault holds, for the never-existed lookup.
+def _data_list_id(key: str) -> Keep:
+  """Keep the id of the first entry of a list response under ``key``.
+
+  Args:
+    key: Placeholder name later paths use.
+
+  Returns:
+    A ``Case.keep`` callable.
+  """
+  return lambda body: {key: body["data"]["data"][0]["id"]}
+
+
+def _data_fields(*names: str) -> Secret:
+  """Redact the named members of a response's ``data``.
+
+  Args:
+    names: Members of ``data`` holding a secret.
+
+  Returns:
+    A ``Case.secret`` callable.
+  """
+  return lambda body: [body["data"][name] for name in names]
+
+
+def _attachment_urls(body: Any) -> list[str]:
+  """Redact every attachment download URL of an item response.
+
+  Each URL carries a signed download token, short-lived but still a
+  credential to the server that issued it.
+
+  Args:
+    body: The response body of a request that returns an item.
+
+  Returns:
+    The URLs.
+  """
+  return [attachment["url"] for attachment in body["data"]["attachments"]]
+
+
+# A random id no vault holds, for the never-existed lookups.
 NEVER_EXISTED = "7d3c0d52-31a6-4c47-9b0e-0b1d1c5c0a11"
+
+#: The login the field routes read: the existing item, edited to carry a
+#: made-up password and TOTP seed.
+EDITED_LOGIN = {
+  "type": 1,
+  "name": "Recorded login",
+  "folderId": "{folder_id}",
+  "notes": "Made-up item for fixture recording.",
+  "login": {
+    "username": "someone@example.com",
+    "password": FIELD_PASSWORD,
+    "totp": TOTP_SEED,
+    "uris": [{
+      "match": None,
+      "uri": "https://example.com/"
+    }],
+  },
+}
+
+#: A secure note, the simplest item, for the cases that only need one more.
+SECURE_NOTE = {"type": 2, "notes": "Made-up note for fixture recording.", "secureNote": {"type": 0}}
+
+#: A text Send. ``disabled`` is sent because Vaultwarden refuses a Send
+#: without it (the send-create-no-disabled case); ``{deletion_date}`` is a
+#: week from the run, inside the 31 days a server allows.
+SEND = {
+  "name": "Recorded send",
+  "type": 0,
+  "text": {
+    "text": "Made-up send text.",
+    "hidden": False
+  },
+  "deletionDate": "{deletion_date}",
+  "password": SEND_PASSWORD,
+  "disabled": False,
+}
+
+#: A collection in the organization register.js creates.
+ORG_COLLECTION = {"organizationId": "{org_id}", "name": "Second collection", "externalId": None, "groups": [], "users": []}
 
 CASES = (
   Case("status-locked", "Status while the vault is locked.", "GET", "/status"),
   Case("folders-list-locked", "A command refused because the vault is locked.", "GET", "/list/object/folders"),
   Case("unlock-wrong-password", "Unlock with the wrong master password.", "POST", "/unlock", {"password": "wrong-password"}),
-  Case("unlock", "Unlock with the master password; the session key is redacted.", "POST", "/unlock", {"password": PASSWORD}),
+  Case(
+    "unlock",
+    "Unlock with the master password; the session key is redacted.",
+    "POST",
+    "/unlock", {"password": PASSWORD},
+    secret=_data_fields("raw")
+  ),
   Case("status-unlocked", "Status once unlocked.", "GET", "/status"),
   Case("folder-create", "Create a folder.", "POST", "/object/folder", {"name": "Recorded folder"}, keep=_data_id("folder_id")),
   Case("folder-get", "Get the folder just created.", "GET", "/object/folder/{folder_id}"),
@@ -132,6 +238,181 @@ CASES = (
   Case("sync", "Sync the vault with the server.", "POST", "/sync"),
   Case("items-list", "List items after a sync.", "GET", "/list/object/items"),
   Case("item-get", "Get the item just created.", "GET", "/object/item/{item_id}"),
+  # Items, and the single-field reads of the login.
+  Case("item-edit", "Edit the login to carry a password and a TOTP seed.", "PUT", "/object/item/{item_id}", EDITED_LOGIN),
+  Case("item-field-username", "Read the login's username.", "GET", "/object/username/{item_id}"),
+  Case("item-field-password", "Read the login's password; the value is redacted.", "GET", "/object/password/{item_id}"),
+  Case("item-field-uri", "Read the login's first URI.", "GET", "/object/uri/{item_id}"),
+  Case("item-field-totp", "Read the login's current TOTP code, which changes every run.", "GET", "/object/totp/{item_id}"),
+  Case("item-field-notes", "Read the item's notes.", "GET", "/object/notes/{item_id}"),
+  # bw asks the Have I Been Pwned range API, so this one needs the internet.
+  Case("item-field-exposed", "How often the login's password appears in known breaches.", "GET", "/object/exposed/{item_id}"),
+  Case("item-field-never-existed", "Read a field of an item the vault never held.", "GET", f"/object/password/{NEVER_EXISTED}"),
+  Case("item-get-by-search", "Get an item by a search term that matches one item.", "GET", "/object/item/Recorded%20login"),
+  Case(
+    "item-create-note",
+    "Create a secure note.",
+    "POST",
+    "/object/item", {
+      **SECURE_NOTE, "name": "Recorded note"
+    },
+    keep=_data_id("note_id")
+  ),
+  Case("item-get-by-search-ambiguous", "Get an item by a search term that matches two.", "GET", "/object/item/Recorded"),
+  # Archive and restore.
+  Case("item-archive", "Archive the note.", "POST", "/archive/item/{note_id}"),
+  Case("items-list-archived", "List archived items.", "GET", "/list/object/items?archived=true"),
+  # bw serve has no unarchive route. Restoring an archived item answered
+  # 200 here, but 400 "Cipher is not in trash." when sent straight after the
+  # archive with no request between, so the list above stays before it.
+  Case("item-restore-archived", "Restore an item that is archived, not in the trash.", "POST", "/restore/item/{note_id}"),
+  Case("item-archive-never-existed", "Archive an item the vault never held.", "POST", f"/archive/item/{NEVER_EXISTED}"),
+  Case("item-delete", "Delete the note, which moves it to the trash.", "DELETE", "/object/item/{note_id}"),
+  Case("items-list-trash", "List the items in the trash.", "GET", "/list/object/items?trash=true"),
+  Case("item-restore", "Restore the note from the trash.", "POST", "/restore/item/{note_id}"),
+  Case("item-delete-permanent", "Delete the note permanently.", "DELETE", "/object/item/{note_id}?permanent=true"),
+  # Attachments. The create response is the item, whose attachment URL
+  # carries a download token.
+  Case(
+    "attachment-create",
+    "Attach a small text file to the login, as multipart form data.",
+    "POST",
+    "/attachment?itemid={item_id}",
+    keep=lambda body: {"attachment_id": body["data"]["attachments"][0]["id"]},
+    file=ATTACHMENT,
+    secret=_attachment_urls,
+  ),
+  Case(
+    "attachment-get", "Download the attachment; the body is the file.", "GET", "/object/attachment/{attachment_id}?itemid={item_id}"
+  ),
+  Case("attachment-delete", "Delete the attachment.", "DELETE", "/object/attachment/{attachment_id}?itemid={item_id}"),
+  Case(
+    "attachment-get-deleted", "Download the attachment just deleted.", "GET", "/object/attachment/{attachment_id}?itemid={item_id}"
+  ),
+  # Send. The key and access URL are a Send's secret, so every payload
+  # holding them is redacted.
+  Case(
+    "send-create-no-disabled", "Create a Send without the disabled member Vaultwarden requires.", "POST", "/object/send", {
+      key: value
+      for key, value in SEND.items()
+      if key != "disabled"
+    }
+  ),
+  Case(
+    "send-create",
+    "Create a password-protected text Send.",
+    "POST",
+    "/object/send",
+    SEND,
+    keep=_data_id("send_id"),
+    secret=_data_fields("key", "accessUrl"),
+  ),
+  Case("send-get", "Get the Send just created.", "GET", "/object/send/{send_id}"),
+  Case("sends-list-object", "List Sends through the object route.", "GET", "/list/object/send"),
+  Case("sends-list", "List Sends through the send route.", "GET", "/send/list"),
+  Case("send-remove-password", "Remove the Send's password.", "POST", "/send/{send_id}/remove-password"),
+  Case(
+    "send-edit",
+    "Rename the Send and hide its text.",
+    "PUT",
+    "/object/send/{send_id}",
+    {
+      **SEND, "name": "Renamed send",
+      "text": {
+        "text": "Made-up send text.",
+        "hidden": True
+      }
+    },
+    # The edit hands back a new key, which send-create's secret never saw.
+    secret=_data_fields("key", "accessUrl"),
+  ),
+  Case("send-delete", "Delete the Send.", "DELETE", "/object/send/{send_id}"),
+  Case("send-get-deleted", "Get the Send just deleted.", "GET", "/object/send/{send_id}"),
+  # Utilities. A generated password or passphrase is a secret.
+  Case("generate", "Generate a password with the default options.", "GET", "/generate", secret=_data_fields("data")),
+  Case(
+    "generate-minimums",
+    "Generate a password with minimum digit and special counts, avoiding ambiguous characters.",
+    "GET",
+    "/generate?length=24&uppercase=true&lowercase=true&number=true&special=true&minNumber=3&minSpecial=3&ambiguous=true",
+    secret=_data_fields("data"),
+  ),
+  Case(
+    "generate-passphrase",
+    "Generate a passphrase.",
+    "GET",
+    "/generate?passphrase=true&words=4&separator=-&capitalize=true&includeNumber=true",
+    secret=_data_fields("data"),
+  ),
+  Case("template-item", "The item template.", "GET", "/object/template/item"),
+  Case("template-item-login", "The login template.", "GET", "/object/template/item.login"),
+  Case("template-folder", "The folder template.", "GET", "/object/template/folder"),
+  Case("template-org-collection", "The organization collection template.", "GET", "/object/template/org-collection"),
+  Case("template-item-collections", "The item-collections template.", "GET", "/object/template/item-collections"),
+  Case("fingerprint", "The account's fingerprint phrase.", "GET", "/object/fingerprint/me"),
+  # Organizations and collections. register.js creates the organization,
+  # with one collection, before bw logs in.
+  Case("organizations-list", "List organizations.", "GET", "/list/object/organizations", keep=_data_list_id("org_id")),
+  Case("organization-get", "Get the organization.", "GET", "/object/organization/{org_id}"),
+  Case("collections-list", "List collections.", "GET", "/list/object/collections", keep=_data_list_id("collection_id")),
+  Case("collection-get", "Get the collection.", "GET", "/object/collection/{collection_id}"),
+  Case(
+    "org-collections-list", "List the organization's collections.", "GET", "/list/object/org-collections?organizationId={org_id}"
+  ),
+  Case("org-collections-list-no-org", "List organization collections without naming one.", "GET", "/list/object/org-collections"),
+  Case(
+    "org-collection-get", "Get the collection through the organization route.", "GET",
+    "/object/org-collection/{collection_id}?organizationId={org_id}"
+  ),
+  Case(
+    "org-collection-create",
+    "Create a second collection.",
+    "POST",
+    "/object/org-collection?organizationId={org_id}",
+    ORG_COLLECTION,
+    keep=_data_id("new_collection_id"),
+  ),
+  Case(
+    "org-collection-edit", "Rename the second collection.", "PUT",
+    "/object/org-collection/{new_collection_id}?organizationId={org_id}", {
+      **ORG_COLLECTION, "name": "Renamed collection"
+    }
+  ),
+  Case("org-members-list", "List the organization's members.", "GET", "/list/object/org-members?organizationId={org_id}"),
+  Case(
+    "org-members-list-unknown-org", "List the members of an organization the account is not in.", "GET",
+    f"/list/object/org-members?organizationId={NEVER_EXISTED}"
+  ),
+  Case(
+    "org-member-confirm-unknown", "Confirm a member the organization does not have.", "POST",
+    f"/confirm/org-member/{NEVER_EXISTED}?organizationId={{org_id}}"
+  ),
+  Case(
+    "item-create-shared",
+    "Create a note to move into the organization.",
+    "POST",
+    "/object/item", {
+      **SECURE_NOTE, "name": "Shared note"
+    },
+    keep=_data_id("shared_id")
+  ),
+  Case("item-move", "Move the note into the organization's collection.", "POST", "/move/{shared_id}/{org_id}", ["{collection_id}"]),
+  # bw serve's local vault can lag the move: once its response came back
+  # with no organizationId, and the item-collections edit was refused as
+  # outside any organization. The sync makes the edit deterministic.
+  Case("sync-after-move", "Sync, so the local vault holds the moved note.", "POST", "/sync"),
+  Case(
+    "item-collections-edit", "Put the moved note in both collections.", "PUT", "/object/item-collections/{shared_id}",
+    ["{collection_id}", "{new_collection_id}"]
+  ),
+  Case(
+    "item-collections-not-in-org", "Set collections on an item outside any organization.", "PUT",
+    "/object/item-collections/{item_id}", ["{collection_id}"]
+  ),
+  Case(
+    "org-collection-delete", "Delete the second collection.", "DELETE",
+    "/object/org-collection/{new_collection_id}?organizationId={org_id}"
+  ),
   # An attempt at a 5xx, kept as recorded whatever comes back. Not a case:
   # POST /object/item with "type": 99, which kills bw serve 2026.10.1
   # outright ("invalid value: 99, expected one of: 1, ..., 8") so there is
@@ -248,6 +529,23 @@ def fill(case: Case, values: dict[str, str]) -> tuple[str, Optional[str]]:
   return path, body
 
 
+def multipart(filename: str, text: str, boundary: str) -> bytes:
+  """Encode one file as a ``multipart/form-data`` body, field ``file``.
+
+  Args:
+    filename: The file name the part declares.
+    text: The file's content.
+    boundary: The part boundary, which must not occur in ``text``.
+
+  Returns:
+    The body.
+  """
+  disposition = 'form-data; name="file"; filename="' + filename + '"'
+  head = f"--{boundary}\r\nContent-Disposition: {disposition}\r\nContent-Type: text/plain\r\n\r\n"
+
+  return (head + text + f"\r\n--{boundary}--\r\n").encode()
+
+
 def send(base: str, case: Case, values: dict[str, str]) -> tuple[str, Optional[str], int, Any]:
   """Send one case to bw serve.
 
@@ -266,10 +564,16 @@ def send(base: str, case: Case, values: dict[str, str]) -> tuple[str, Optional[s
   """
   path, data = fill(case, values)
 
-  request = urllib.request.Request(base + path, method=case.method, data=None if data is None else data.encode())
+  if case.file is not None:
+    boundary = f"bw-recorder-{uuid.uuid4().hex}"
+    request = urllib.request.Request(base + path, method=case.method, data=multipart(*case.file, boundary))
+    request.add_header("Content-Type", f"multipart/form-data; boundary={boundary}")
 
-  if data is not None:
-    request.add_header("Content-Type", "application/json")
+  else:
+    request = urllib.request.Request(base + path, method=case.method, data=None if data is None else data.encode())
+
+    if data is not None:
+      request.add_header("Content-Type", "application/json")
 
   try:
     with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310 - fixed http://127.0.0.1 base.
@@ -328,6 +632,25 @@ def wait_ready(base: str, container: str) -> None:
       time.sleep(2)
 
   raise RuntimeError(f"bw serve did not answer within {READY_TIMEOUT}s")
+
+
+def secrets_of(case: Case, status: int, body: Any) -> list[str]:
+  """Collect the values a case's response holds that must be redacted.
+
+  Args:
+    case: The request.
+    status: The response status.
+    body: The parsed response body.
+
+  Returns:
+    The non-empty values ``case.secret`` names, or none when the case names
+    none or failed. An empty string is dropped: replacing it would put the
+    marker between every character of every payload.
+  """
+  if case.secret is None or status != 200:
+    return []
+
+  return [value for value in case.secret(body) if value]
 
 
 def redact(record: dict[str, Any], secrets: list[str]) -> dict[str, Any]:
@@ -447,8 +770,9 @@ def record(port: int, keep_image: bool) -> list[str]:
       "server": VAULTWARDEN_IMAGE,
       "date": datetime.date.today().isoformat(),
     }
-    values: dict[str, str] = {}
-    secrets = [PASSWORD]
+    week_ahead = datetime.date.today() + datetime.timedelta(days=7)
+    values = {"deletion_date": f"{week_ahead.isoformat()}T00:00:00.000Z"}
+    secrets = [PASSWORD, FIELD_PASSWORD, TOTP_SEED, SEND_PASSWORD]
     records = []
 
     for case in CASES:
@@ -458,21 +782,26 @@ def record(port: int, keep_image: bool) -> list[str]:
       except RuntimeError as e:
         raise RuntimeError(f"{e}\nbw container log:\n{container_logs(started[-1])}") from e
 
-      if case.name == "unlock" and status == 200:
-        secrets.append(body["data"]["raw"])
+      secrets.extend(secrets_of(case, status, body))
 
       if case.keep is not None and status == 200:
         values.update(case.keep(body))
+
+      request: dict[str, Any] = {
+        "method": case.method,
+        "path": path,
+        "body": data if data is None or case.raw is not None else json.loads(data),
+      }
+
+      if case.file is not None:
+        request["content_type"] = "multipart/form-data"
+        request["body"] = {"file": {"filename": case.file[0], "content": case.file[1]}}
 
       records.append({
         "case": case.name,
         "description": case.description,
         "recorded": recorded,
-        "request": {
-          "method": case.method,
-          "path": path,
-          "body": data if data is None or case.raw is not None else json.loads(data),
-        },
+        "request": request,
         "response": {
           "status": status,
           "body": body

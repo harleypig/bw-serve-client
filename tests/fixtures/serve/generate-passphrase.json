@@ -1,0 +1,24 @@
+{
+  "case": "generate-passphrase",
+  "description": "Generate a passphrase.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/generate?passphrase=true&words=4&separator=-&capitalize=true&includeNumber=true"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": "<redacted>",
+        "object": "string"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

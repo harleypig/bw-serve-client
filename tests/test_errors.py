@@ -23,6 +23,10 @@ if TYPE_CHECKING:
   from collections.abc import Callable
 
 CATEGORIES = [ValidationError, UserError, ExternalServiceError, InternalError]
+# The request or the vault state is the caller's to correct.
+WARNING_CATEGORIES = [ValidationError, UserError]
+# bw serve failed, or this library has a bug.
+ERROR_CATEGORIES = [ExternalServiceError, InternalError]
 
 
 # -----------------------------------------------------------------------------
@@ -53,12 +57,26 @@ class TestErrorTypes:
     assert error.level == logging.WARNING
     assert error.status_code == 401
 
-  def test_defaults_to_error_level_and_no_status(self: TestErrorTypes) -> None:
-    """Level defaults to ERROR and status to None."""
-    error = InternalError("bug")
+  @pytest.mark.parametrize(
+    ("category", "level"),
+    [
+      (ValidationError, logging.WARNING),
+      (UserError, logging.WARNING),
+      (ExternalServiceError, logging.ERROR),
+      (InternalError, logging.ERROR),
+    ],
+  )
+  def test_defaults_to_category_level_and_no_status(self: TestErrorTypes, category: type[BitwardenError], level: int) -> None:
+    """Level defaults to the category's severity and status to None."""
+    error = category("boom")
 
-    assert error.level == logging.ERROR
+    assert error.level == level
     assert error.status_code is None
+
+  @pytest.mark.parametrize("category", CATEGORIES)
+  def test_explicit_level_overrides_category_default(self: TestErrorTypes, category: type[BitwardenError]) -> None:
+    """A level passed in wins over the category's default."""
+    assert category("boom", level=logging.CRITICAL).level == logging.CRITICAL
 
   # The pickle round-trip reads only bytes this test just wrote, never
   # untrusted data, so the unsafe-load rules do not apply.
@@ -148,16 +166,40 @@ class TestDefaultErrorHandler:
     with pytest.raises(ValidationError):
       handler.handle(ValidationError, "bad id", level=logging.ERROR)
 
-  def test_default_error_level_raises_errors(self: TestDefaultErrorHandler) -> None:
-    """By default an ERROR-level failure raises."""
-    with pytest.raises(ExternalServiceError):
-      DefaultErrorHandler().handle(ExternalServiceError, "down")
+  def test_default_error_level_is_warning(self: TestDefaultErrorHandler) -> None:
+    """The default threshold is WARNING."""
+    assert DefaultErrorHandler().error_level == logging.WARNING
 
-  def test_default_error_level_returns_warnings(self: TestDefaultErrorHandler) -> None:
-    """By default a WARNING-level failure is returned."""
-    error = DefaultErrorHandler().handle(ValidationError, "bad id", level=logging.WARNING)
+  @pytest.mark.parametrize("category", CATEGORIES)
+  def test_default_error_level_raises_every_category(self: TestDefaultErrorHandler, category: type[BitwardenError]) -> None:
+    """Out of the box every category raises at its own default level."""
+    with pytest.raises(category):
+      DefaultErrorHandler().handle(category, "boom")
 
-    assert isinstance(error, ValidationError)
+  @pytest.mark.parametrize("category", WARNING_CATEGORIES)
+  def test_error_threshold_returns_validation_and_user_errors(
+    self: TestDefaultErrorHandler, category: type[BitwardenError]
+  ) -> None:
+    """At an ERROR threshold, validation and user errors are returned."""
+    error = DefaultErrorHandler(error_level=logging.ERROR).handle(category, "boom")
+
+    assert type(error) is category
+    assert error.level == logging.WARNING
+
+  @pytest.mark.parametrize("category", ERROR_CATEGORIES)
+  def test_error_threshold_raises_service_and_internal_errors(
+    self: TestDefaultErrorHandler, category: type[BitwardenError]
+  ) -> None:
+    """At an ERROR threshold, service failures and bugs still raise."""
+    with pytest.raises(category):
+      DefaultErrorHandler(error_level=logging.ERROR).handle(category, "boom")
+
+  def test_explicit_level_overrides_category_default(self: TestDefaultErrorHandler) -> None:
+    """A level passed to handle wins over the category's default."""
+    with pytest.raises(ValidationError) as excinfo:
+      DefaultErrorHandler(error_level=logging.ERROR).handle(ValidationError, "bad id", level=logging.ERROR)
+
+    assert excinfo.value.level == logging.ERROR
 
   def test_returned_error_keeps_cause(self: TestDefaultErrorHandler) -> None:
     """A returned error carries the triggering exception."""
@@ -207,6 +249,25 @@ class TestDefaultErrorHandlerLogging:
 
     assert caplog.record_tuples == [(errors.__name__, logging.ERROR, "InternalError: bug")]
 
+  def test_logs_at_category_default_level(self: TestDefaultErrorHandlerLogging, caplog: pytest.LogCaptureFixture) -> None:
+    """With no level given, the record carries the category's severity."""
+    handler = DefaultErrorHandler(error_level=logging.CRITICAL)
+
+    with caplog.at_level(logging.DEBUG, logger=errors.__name__):
+      handler.handle(ValidationError, "bad id")
+
+    assert caplog.record_tuples == [(errors.__name__, logging.WARNING, "ValidationError: bad id")]
+
+  def test_log_threshold_skips_warning_categories(self: TestDefaultErrorHandlerLogging, caplog: pytest.LogCaptureFixture) -> None:
+    """A log level of ERROR skips a validation error at its default level."""
+    handler = DefaultErrorHandler(error_level=logging.CRITICAL, log_level=logging.ERROR)
+
+    with caplog.at_level(logging.DEBUG, logger=errors.__name__):
+      handler.handle(UserError, "vault is locked")
+      handler.handle(ExternalServiceError, "down")
+
+    assert caplog.record_tuples == [(errors.__name__, logging.ERROR, "ExternalServiceError: down")]
+
   def test_default_logger_is_module_logger(self: TestDefaultErrorHandlerLogging) -> None:
     """Without an injected logger the module logger is used."""
     assert DefaultErrorHandler().logger is logging.getLogger("bw_serve_client.errors")
@@ -247,7 +308,7 @@ class _CollectingHandler:
     category: type[BitwardenError],
     message: str,
     *,
-    level: int = logging.ERROR,
+    level: int | None = None,
     status_code: int | None = None,
     cause: BaseException | None = None,
   ) -> object:

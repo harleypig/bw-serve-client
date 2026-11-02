@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from pydantic import SecretStr
 import pytest
 
+from bw_serve_client._generated import models
 from bw_serve_client._generated.models import LockUnlockDataSchema
 from bw_serve_client._generated.models import UnlockPostRequestSchema
 from bw_serve_client.api_client import ApiClient
@@ -306,3 +307,47 @@ class TestSecretBodies:
 
     [request] = sent
     assert json.loads(request.content) == {"keys": [PASSWORD, SESSION]}
+
+
+# -----------------------------------------------------------------------------
+#: Every field that holds a secret, by model and python field name (#100,
+#: #108). Each is ``format: password`` in the patched spec.
+SECRET_FIELDS = [
+  ("LoginResponseSchema", "password"),
+  ("LoginResponseSchema", "totp"),
+  ("CardResponseSchema", "number"),
+  ("CardResponseSchema", "code"),
+  ("PasswordHistoryResponseSchema", "password"),
+  ("Fido2CredentialResponseSchema", "key_value"),
+  ("SshKeyResponseSchema", "private_key"),
+  ("BankAccountResponseSchema", "account_number"),
+  ("BankAccountResponseSchema", "pin"),
+  ("BankAccountResponseSchema", "iban"),
+  ("AttachmentSchema", "url"),
+  ("SendSchema", "key"),
+  ("SendSchema", "access_url"),
+  ("SendSchema", "password"),
+  ("SecretStringResponseSchema", "data"),
+  ("LockUnlockDataSchema", "raw"),
+  ("PasswordHistorySchema", "password"),
+  ("Fido2CredentialSchema", "key_value"),
+  ("ItemSshKeySchema", "private_key"),
+  ("ItemBankAccountSchema", "account_number"),
+  ("ItemBankAccountSchema", "pin"),
+  ("ItemBankAccountSchema", "iban"),
+]
+
+
+class TestSecretFields:
+  """Secret fields are SecretStr, so a model's repr never shows them."""
+
+  @pytest.mark.parametrize(("model", "field"), SECRET_FIELDS)
+  def test_value_is_hidden(self: TestSecretFields, model: str, field: str) -> None:
+    """The field holds a SecretStr, and the model's repr does not show it."""
+    cls: type[BaseModel] = getattr(models, model)
+
+    parsed = cls.model_validate({cls.model_fields[field].alias or field: PASSWORD})  # act
+
+    assert isinstance(getattr(parsed, field), SecretStr)
+    assert PASSWORD not in repr(parsed)
+    assert PASSWORD not in str(parsed)

@@ -1,0 +1,21 @@
+{
+  "case": "org-collections-list-no-org",
+  "description": "List organization collections without naming one.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/list/object/org-collections"
+  },
+  "response": {
+    "body": {
+      "message": "`organizationid` option is required.",
+      "success": false
+    },
+    "status": 400
+  }
+}

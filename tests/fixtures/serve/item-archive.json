@@ -1,0 +1,20 @@
+{
+  "case": "item-archive",
+  "description": "Archive the note.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "POST",
+    "path": "/archive/item/e8655327-d1a3-465e-8af5-0f8a7a861564"
+  },
+  "response": {
+    "body": {
+      "success": true
+    },
+    "status": 200
+  }
+}

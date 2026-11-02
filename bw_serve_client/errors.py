@@ -21,6 +21,14 @@ raises it if its level clears the error-level threshold, otherwise returns
 it. Both thresholds are stdlib ``logging`` levels, so one scale serves
 both.
 
+Each category carries a default severity, its ``default_level``:
+``ValidationError`` and ``UserError`` are ``WARNING``, since the caller can
+correct the request or the vault state; ``ExternalServiceError`` and
+``InternalError`` are ``ERROR``. The default error-level threshold is
+``WARNING``, so every error raises out of the box; a caller that passes
+``error_level=logging.ERROR`` gets validation and user errors returned
+instead, while service failures and bugs still raise.
+
 How an HTTP outcome maps to a category. ``category_for_status()`` is the
 one implementation of the status rows; the rest are decided where the
 failure happens:
@@ -67,16 +75,25 @@ class BitwardenError(Exception):
   """Base of every error this library builds.
 
   ``level`` is a stdlib ``logging`` level, which the handler compares
-  against its thresholds. ``status_code`` is ``None`` when there was no
-  HTTP response, as with a connection failure or a bug.
+  against its thresholds; when not given it is the class's
+  ``default_level``. ``status_code`` is ``None`` when there was no HTTP
+  response, as with a connection failure or a bug.
 
   Args:
     message: Human-readable description of the failure.
-    level: Severity as a stdlib ``logging`` level.
+    level: Severity as a ``logging`` level, or ``None`` for ``default_level``.
     status_code: HTTP status of the response, or ``None``.
+
+  Attributes:
+    default_level: Severity used when no ``level`` is given.
   """
 
-  def __init__(self: BitwardenError, message: str, level: int = logging.ERROR, status_code: int | None = None) -> None:
+  default_level: int = logging.ERROR
+
+  def __init__(self: BitwardenError, message: str, level: int | None = None, status_code: int | None = None) -> None:
+    if level is None:
+      level = self.default_level
+
     # pickle and copy rebuild an exception as cls(*args), so args must
     # match this signature positionally.
     super().__init__(message, level, status_code)
@@ -94,11 +111,23 @@ class BitwardenError(Exception):
 
 
 class ValidationError(BitwardenError):
-  """The request was invalid: parameters, body, or an id naming nothing."""
+  """The request was invalid: parameters, body, or an id naming nothing.
+
+  Attributes:
+    default_level: ``WARNING``; the caller can correct the request.
+  """
+
+  default_level = logging.WARNING
 
 
 class UserError(BitwardenError):
-  """The user's side blocks the request: locked vault, wrong password."""
+  """The user's side blocks the request: locked vault, wrong password.
+
+  Attributes:
+    default_level: ``WARNING``; the caller can correct the vault state.
+  """
+
+  default_level = logging.WARNING
 
 
 class ExternalServiceError(BitwardenError):
@@ -149,7 +178,10 @@ class ErrorHandler(Protocol):
   """What an injected error handler must provide.
 
   An implementation may return any object, including one of its own error
-  types; raising instead of returning is equally valid.
+  types; raising instead of returning is equally valid. The library calls
+  ``handle`` without ``level``; an implementation that compares severities
+  should read ``None`` as the category's ``default_level``, as
+  :class:`DefaultErrorHandler` does.
   """
 
   # A Protocol stub declares the parameters for implementers; its body
@@ -159,7 +191,7 @@ class ErrorHandler(Protocol):
     category: type[BitwardenError],  # noqa: U100
     message: str,  # noqa: U100
     *,
-    level: int = logging.ERROR,  # noqa: U100
+    level: int | None = None,  # noqa: U100
     status_code: int | None = None,  # noqa: U100
     cause: BaseException | None = None,  # noqa: U100
   ) -> object:
@@ -168,7 +200,7 @@ class ErrorHandler(Protocol):
     Args:
       category: The failure's category, a :class:`BitwardenError` subclass.
       message: Human-readable description of the failure.
-      level: Severity as a stdlib ``logging`` level.
+      level: Severity as a stdlib ``logging`` level; ``None`` means the category's ``default_level``.
       status_code: HTTP status, or ``None`` when there was no response.
       cause: The exception that triggered the failure, if any.
     """
@@ -182,7 +214,9 @@ class DefaultErrorHandler:
   The logger defaults to ``default_logger``; an injected logger's own
   level and handlers are never changed. Errors at or above
   ``error_level`` are raised and those below it returned; errors at or
-  above ``log_level`` are logged first.
+  above ``log_level`` are logged first. With the default ``error_level``
+  of ``WARNING`` every category raises; ``error_level=logging.ERROR``
+  returns validation and user errors.
 
   Args:
     logger: Where handled errors are logged.
@@ -193,7 +227,7 @@ class DefaultErrorHandler:
   def __init__(
     self: DefaultErrorHandler,
     logger: logging.Logger | None = None,
-    error_level: int = logging.ERROR,
+    error_level: int = logging.WARNING,
     log_level: int = logging.WARNING,
   ) -> None:
     self.logger = logger if logger is not None else default_logger
@@ -205,7 +239,7 @@ class DefaultErrorHandler:
     category: type[BitwardenError],
     message: str,
     *,
-    level: int = logging.ERROR,
+    level: int | None = None,
     status_code: int | None = None,
     cause: BaseException | None = None,
   ) -> BitwardenError:
@@ -214,23 +248,23 @@ class DefaultErrorHandler:
     Args:
       category: The failure's category, a :class:`BitwardenError` subclass.
       message: Human-readable description of the failure.
-      level: Severity as a stdlib ``logging`` level.
+      level: ``logging`` level; ``None`` takes the category's ``default_level``.
       status_code: HTTP status, or ``None`` when there was no response.
       cause: The triggering exception, kept as the error's ``__cause__``.
 
     Returns:
-      The built error, when ``level`` is below ``error_level``.
+      The built error, when its level is below ``error_level``.
 
     Raises:
-      error: The built error, when ``level`` reaches ``error_level``.
+      error: The built error, when its level reaches ``error_level``.
     """
     error = category(message, level=level, status_code=status_code)
     error.__cause__ = cause
 
-    if level >= self.log_level:
-      self.logger.log(level, "%s: %s", category.__name__, message)
+    if error.level >= self.log_level:
+      self.logger.log(error.level, "%s: %s", category.__name__, message)
 
-    if level >= self.error_level:
+    if error.level >= self.error_level:
       raise error
 
     return error

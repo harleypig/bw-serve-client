@@ -1,0 +1,24 @@
+{
+  "case": "fingerprint",
+  "description": "The account's fingerprint phrase.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/fingerprint/me"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "data": "perjury-manor-both-deputy-shaking",
+        "object": "string"
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

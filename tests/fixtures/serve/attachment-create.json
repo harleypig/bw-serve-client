@@ -1,0 +1,67 @@
+{
+  "case": "attachment-create",
+  "description": "Attach a small text file to the login, as multipart form data.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": {
+      "file": {
+        "content": "Made-up attachment for fixture recording.\n",
+        "filename": "recorded-attachment.txt"
+      }
+    },
+    "content_type": "multipart/form-data",
+    "method": "POST",
+    "path": "/attachment?itemid=de36398f-6368-411b-979c-32c0a6f911a6"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "attachments": [
+          {
+            "fileName": "recorded-attachment.txt",
+            "id": "6e30f37acb730272aa86",
+            "size": "97",
+            "sizeName": "97.00 bytes",
+            "url": "<redacted>"
+          }
+        ],
+        "collectionIds": [],
+        "creationDate": "2026-11-01T21:29:12.305Z",
+        "favorite": false,
+        "fields": [],
+        "folderId": "d5acd5f0-f674-4efa-95fe-133bea4de8a8",
+        "id": "de36398f-6368-411b-979c-32c0a6f911a6",
+        "login": {
+          "fido2Credentials": [],
+          "password": "<redacted>",
+          "passwordRevisionDate": "2026-11-01T21:29:14.233Z",
+          "totp": "<redacted>",
+          "uris": [
+            {
+              "uri": "https://example.com/"
+            }
+          ],
+          "username": "someone@example.com"
+        },
+        "name": "Recorded login",
+        "notes": "Made-up item for fixture recording.",
+        "object": "item",
+        "passwordHistory": [
+          {
+            "lastUsedDate": "2026-11-01T21:29:14.233Z",
+            "password": "made-up-item-password"
+          }
+        ],
+        "reprompt": 0,
+        "revisionDate": "2026-11-01T21:29:14.236Z",
+        "type": 1
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

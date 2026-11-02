@@ -1,0 +1,21 @@
+{
+  "case": "org-member-confirm-unknown",
+  "description": "Confirm a member the organization does not have.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "POST",
+    "path": "/confirm/org-member/7d3c0d52-31a6-4c47-9b0e-0b1d1c5c0a11?organizationId=f64481e2-dc5d-48cf-8db1-e6d5331fe910"
+  },
+  "response": {
+    "body": {
+      "message": "The specified user isn't a member of the organization",
+      "success": false
+    },
+    "status": 400
+  }
+}

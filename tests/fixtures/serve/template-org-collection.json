@@ -1,0 +1,56 @@
+{
+  "case": "template-org-collection",
+  "description": "The organization collection template.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "GET",
+    "path": "/object/template/org-collection"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "object": "template",
+        "template": {
+          "externalId": null,
+          "groups": [
+            {
+              "hidePasswords": false,
+              "id": "00000000-0000-0000-0000-000000000000",
+              "manage": false,
+              "readOnly": false
+            },
+            {
+              "hidePasswords": false,
+              "id": "00000000-0000-0000-0000-000000000000",
+              "manage": false,
+              "readOnly": false
+            }
+          ],
+          "name": "Collection name",
+          "organizationId": "00000000-0000-0000-0000-000000000000",
+          "users": [
+            {
+              "hidePasswords": false,
+              "id": "00000000-0000-0000-0000-000000000000",
+              "manage": false,
+              "readOnly": false
+            },
+            {
+              "hidePasswords": false,
+              "id": "00000000-0000-0000-0000-000000000000",
+              "manage": false,
+              "readOnly": false
+            }
+          ]
+        }
+      },
+      "success": true
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "case": "org-collection-delete",
+  "description": "Delete the second collection.",
+  "recorded": {
+    "cli": "2026.10.1",
+    "date": "2026-11-01",
+    "server": "vaultwarden/server:1.37.4"
+  },
+  "request": {
+    "body": null,
+    "method": "DELETE",
+    "path": "/object/org-collection/3f9b4010-4013-4119-b139-5ccb280339dd?organizationId=f64481e2-dc5d-48cf-8db1-e6d5331fe910"
+  },
+  "response": {
+    "body": {
+      "success": true
+    },
+    "status": 200
+  }
+}

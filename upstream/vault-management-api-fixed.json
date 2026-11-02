@@ -3680,11 +3680,13 @@
           },
           "password": {
             "type": "string",
-            "description": "Password for the login"
+            "description": "Password for the login",
+            "format": "password"
           },
           "totp": {
             "type": "string",
-            "description": "TOTP secret for two-factor authentication"
+            "description": "TOTP secret for two-factor authentication",
+            "format": "password"
           },
           "fido2Credentials": {
             "type": "array",
@@ -3719,7 +3721,8 @@
             "type": "string"
           },
           "number": {
-            "type": "string"
+            "type": "string",
+            "format": "password"
           },
           "expMonth": {
             "type": "string"
@@ -3728,7 +3731,8 @@
             "type": "string"
           },
           "code": {
-            "type": "string"
+            "type": "string",
+            "format": "password"
           }
         },
         "description": "Credit card data schema for vault items",

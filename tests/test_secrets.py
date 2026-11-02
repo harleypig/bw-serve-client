@@ -28,6 +28,7 @@ from bw_serve_client.errors import ExternalServiceError
 from bw_serve_client.errors import ValidationError
 from bw_serve_client.resource import Resource
 from bw_serve_client.vault_control import VaultControl
+from bw_serve_client.vault_items import VaultItems
 
 # Made-up values, distinctive enough that a partial match cannot be chance.
 PASSWORD = "made-up-master-pw-7Qx4"
@@ -337,6 +338,10 @@ SECRET_FIELDS = [
   ("ItemBankAccountSchema", "account_number"),
   ("ItemBankAccountSchema", "pin"),
   ("ItemBankAccountSchema", "iban"),
+  ("ItemLoginSchema", "password"),
+  ("ItemLoginSchema", "totp"),
+  ("ItemCardSchema", "number"),
+  ("ItemCardSchema", "code"),
 ]
 
 
@@ -353,6 +358,79 @@ class TestSecretFields:
     assert isinstance(getattr(parsed, field), SecretStr)
     assert PASSWORD not in repr(parsed)
     assert PASSWORD not in str(parsed)
+
+
+# -----------------------------------------------------------------------------
+ITEM_ID = "11111111-2222-3333-4444-555555555555"
+
+#: Made-up item secrets (#94), one per field the round trip carries.
+ITEM_SECRETS = {
+  "password": "made-up-login-pw-K3v8",
+  "totp": "MADEUPTOTPSEED7W2Q",
+  "number": "4111000011112222",
+  "code": "made-up-cvv-918",
+}
+
+ITEMS = [
+  {
+    "type": 1,
+    "name": "Login",
+    "login": {
+      "username": "someone@example.com",
+      "password": ITEM_SECRETS["password"],
+      "totp": ITEM_SECRETS["totp"],
+    },
+  },
+  {
+    "type": 3,
+    "name": "Card",
+    "card": {
+      "cardholderName": "Someone",
+      "number": ITEM_SECRETS["number"],
+      "code": ITEM_SECRETS["code"],
+    },
+  },
+]
+
+
+def _echo(sent: list[httpx.Request]) -> ApiClient:
+  """Build a client whose server stores each item it is sent and returns it.
+
+  Args:
+    sent: Gets every request, in order.
+
+  Returns:
+    The client.
+  """
+
+  def handler(request: httpx.Request) -> httpx.Response:
+    sent.append(request)
+
+    item = json.loads(request.content) | {"object": "item", "id": ITEM_ID}
+
+    return httpx.Response(200, json={"success": True, "data": item})
+
+  return ApiClient(transport=httpx.MockTransport(handler))
+
+
+# -----------------------------------------------------------------------------
+class TestItemRoundTrip:
+  """An item's secrets reach the server, and nothing else shows them."""
+
+  @pytest.mark.parametrize("fields", ITEMS, ids=["login", "card"])
+  def test_add_then_modify(self: TestItemRoundTrip, debug: pytest.LogCaptureFixture, fields: dict[str, Any]) -> None:
+    """Add an item, then modify what came back; no repr or log shows a secret."""
+    sent: list[httpx.Request] = []
+    items = VaultItems(_echo(sent))
+    template = models.ItemTemplateSchema.model_validate(fields)
+    added = items.add(template)
+
+    modified = items.modify(ITEM_ID, added)  # act
+
+    assert [json.loads(request.content) for request in sent] == [fields, fields]
+    assert debug.records
+    text = _exposed(debug.records, None, template, added, modified)
+    assert not [secret for secret in ITEM_SECRETS.values() if secret in text]
 
 
 # -----------------------------------------------------------------------------

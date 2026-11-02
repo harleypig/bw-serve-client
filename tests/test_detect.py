@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import errno
+import io
 import json
+import os
 from pathlib import Path
 import sys
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import pytest
 import requests
@@ -204,6 +207,85 @@ def snapshot(repo: Path) -> Dict[str, bytes]:
       Dict[str, bytes]: Each file's content, by name.
   """
   return {path.name: path.read_bytes() for path in sorted(repo.iterdir())}
+
+
+class Interrupted(BaseException):
+  """Stands in for a signal arriving mid-run, as KeyboardInterrupt would."""
+
+
+def fail_writing(monkeypatch: pytest.MonkeyPatch, name: str, error: BaseException) -> None:
+  """Make any attempt to write a file called ``name`` raise ``error``.
+
+  Both ways detect could write it are caught: opening the file itself, and
+  creating a temporary file beside it to rename over it.
+
+  Arguments:
+      monkeypatch: The fixture that undoes the patch.
+      name: The file name that cannot be written.
+      error: What the write raises.
+  """
+
+  def guard(target: Any, flags_or_mode: Any) -> None:
+    if not isinstance(target, (str, os.PathLike)):
+      return
+
+    written = isinstance(flags_or_mode, int) and flags_or_mode & (os.O_WRONLY | os.O_RDWR)
+    written = written or (isinstance(flags_or_mode, str) and any(c in flags_or_mode for c in "wax+"))
+    base = Path(target).name
+    if written and (base == name or base.startswith(f".{name}.")):
+      raise error
+
+  def wrap(real: Callable[..., Any]) -> Callable[..., Any]:
+
+    def opener(target: Any, flags_or_mode: Any = "r", *args: Any, **kwargs: Any) -> Any:
+      guard(target, flags_or_mode)
+      return real(target, flags_or_mode, *args, **kwargs)
+
+    return opener
+
+  monkeypatch.setattr(os, "open", wrap(os.open))
+  monkeypatch.setattr(io, "open", wrap(io.open))
+
+
+# The two ways a run stops short: a signal, and a write that fails.
+STOPS = [Interrupted(), OSError(errno.ENOSPC, "No space left on device")]
+
+
+def older_upstream(repo: Path) -> None:
+  """Record an upstream whose spec still has a route the current one dropped.
+
+  Arguments:
+      repo: The temporary upstream directory.
+  """
+  run(repo, upstream_routes())
+  old = fixture_spec()
+  old["paths"]["/legacy"] = {"get": {"summary": "Old"}}
+  (repo / "vault-management-api-original.json").write_text(json.dumps(old), encoding="utf-8")
+  lock = json.loads((repo / "lock.json").read_text(encoding="utf-8"))
+  lock["spec"]["sha256"] = detect.canonical_sha256(old)
+  (repo / "lock.json").write_text(json.dumps(lock), encoding="utf-8")
+
+
+def stopped_run(repo: Path, error: BaseException) -> None:
+  """Run detection with the lock file's write failing, and expect it to stop.
+
+  Arguments:
+      repo: The temporary upstream directory.
+      error: What writing the lock raises.
+  """
+  with pytest.MonkeyPatch.context() as patch:
+    fail_writing(patch, "lock.json", error)
+
+    with pytest.raises(type(error)):
+      run(repo, upstream_routes())
+
+
+@pytest.fixture
+def _umask_022() -> Iterator[None]:
+  """Run the test under umask 022, restoring the caller's afterwards."""
+  previous = os.umask(0o022)
+  yield
+  os.umask(previous)
 
 
 class TestExtractSpec:
@@ -710,3 +792,37 @@ class TestRun:
     assert "fix 1 (set paths › /legacy › get › summary): key '/legacy' not found" in report
     assert "## Regenerated" in report
     assert "## Work created" in report
+
+  @pytest.mark.parametrize("error", STOPS, ids=["interrupt", "disk-full"])
+  def test_run_stopped_at_the_lock_changes_nothing(
+    self: TestRun, repo: Path, monkeypatch: pytest.MonkeyPatch, error: BaseException
+  ) -> None:
+    """A run stopped while writing the lock leaves every recorded file as it was."""
+    older_upstream(repo)
+    before = snapshot(repo)
+    fail_writing(monkeypatch, "lock.json", error)
+
+    with pytest.raises(type(error)):
+      run(repo, upstream_routes())
+
+    assert snapshot(repo) == before
+
+  @pytest.mark.parametrize("error", STOPS, ids=["interrupt", "disk-full"])
+  def test_run_after_a_stopped_one_reports_the_spec_diff(self: TestRun, repo: Path, error: BaseException) -> None:
+    """The run after one stopped while writing the lock still has the full spec diff."""
+    older_upstream(repo)
+    stopped_run(repo, error)
+
+    code = run(repo, upstream_routes())
+
+    assert code == 2
+    assert "Route removed: `GET /legacy`" in (repo / "change-report.md").read_text(encoding="utf-8")
+
+  @pytest.mark.usefixtures("_umask_022")
+  def test_written_files_get_the_usual_permissions(self: TestRun, repo: Path) -> None:
+    """Files renamed into place keep the mode a plain write would give them."""
+    run(repo, upstream_routes())
+
+    result = {path.name: path.stat().st_mode & 0o777 for path in repo.iterdir() if path.name in ("lock.json", "change-report.md")}
+
+    assert result == {"lock.json": 0o644, "change-report.md": 0o644}

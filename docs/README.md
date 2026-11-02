@@ -1,55 +1,41 @@
-# Documentation Index
+# Documentation
 
-This directory contains comprehensive documentation for the `bw-serve-client` library.
+The written docs for `bw-serve-client`, a Python client for the HTTP API
+that the Bitwarden CLI's `bw serve` provides. The API reference, generated
+from the docstrings, is published at
+[harleypig.github.io/bw-serve-client][pages].
 
-## 📚 Documentation Structure
+## Using the library
 
-### Documentation For Users
+- [When to use it][when] — whether this library fits what you are building.
+- [Installation][install] — the package from git, and a running `bw serve`.
+- [Quick start][quick] — reading and writing the vault, and handling
+  errors.
+- [Examples][examples] — one runnable script per resource class.
+- [API architecture][arch] — every resource class, its methods and the
+  routes they call.
 
-- **[API Reference](user/api-reference/)** - Complete API documentation
-- **[User Guides](user/guides/)** - Step-by-step guides for common tasks
-- **[Tutorials](user/tutorials/)** - Learning tutorials and examples
+## Working on the library
 
-### Documentation For Developers
+- [Development setup][dev] — install, test, lint and build the docs.
+- [Contributing][contrib] — issues, pull requests and releases.
+- [Update pipeline][pipeline] — how `pipeline.py` detects upstream
+  changes and regenerates the models.
 
-- **[Contributing Guide](developer/contributing/)** - How to contribute to the project
-- **[Testing Guide](developer/testing/)** - Testing strategies and guidelines
-- **[Architecture](developer/architecture/)** - Code structure and design decisions
-- **[Setup Guide](developer/setup/)** - Development environment setup
+## Bitwarden
 
-### Formats
+- [Bitwarden CLI][cli] — installing `bw`, logging in, and `bw serve`.
+- [Vault Management API][vm-api] — Bitwarden's reference for the routes
+  `bw serve` exposes.
 
-- **Markdown** - For GitHub repository viewing
-- **HTML** - For GitHub Pages deployment
-- **Sphinx** - Auto-generated from docstrings
-
-## 🚀 Quick Start
-
-### Quick Start For Users
-
-1. Start with [Installation Guide](user/guides/installation.md)
-2. Follow the [Quick Start Tutorial](user/tutorials/quick-start.md)
-3. Explore the [API Reference](user/api-reference/)
-
-### Quick Start For Developers
-
-1. Read the [Development Setup](developer/setup/development-environment.md)
-2. Review the [Architecture Overview](developer/architecture/overview.md)
-3. Check the [Contributing Guidelines](developer/contributing/README.md)
-
-## 📖 Additional Resources
-
-- [Examples](examples/) - Code examples and snippets
-- [API Architecture](api-architecture.md) - High-level API design
-- [Development Notes](development.md) - Development process documentation
-- [Version Management](version_management.md) - Versioning strategy
-
-## 🔗 External Links
-
-- [Bitwarden Vault Management API](https://bitwarden.com/help/vault-management-api/)
-- [Source Swagger File](vault-management-api.json)
-- [GitHub Repository](https://github.com/harleypig/bw-serve-client)
-
----
-
-*This documentation is generated from the source code and maintained alongside the library development.*
+[arch]: api-architecture.md
+[cli]: https://bitwarden.com/help/cli/
+[contrib]: developer/contributing.md
+[dev]: development.md
+[examples]: https://github.com/harleypig/bw-serve-client/tree/master/examples
+[install]: user/installation.md
+[pipeline]: developer/update-pipeline.md
+[pages]: https://harleypig.github.io/bw-serve-client/
+[quick]: user/quick-start.md
+[vm-api]: https://bitwarden.com/help/vault-management-api/
+[when]: when-to-use.md

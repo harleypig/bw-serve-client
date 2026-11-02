@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Iterator, Optional
+import types
+from typing import Any, Callable, Iterator, Optional
 
 import httpx
 from pydantic import BaseModel
@@ -26,6 +27,7 @@ from bw_serve_client.errors import BitwardenError
 from bw_serve_client.errors import ExternalServiceError
 from bw_serve_client.errors import ValidationError
 from bw_serve_client.resource import Resource
+from bw_serve_client.vault_control import VaultControl
 
 # Made-up values, distinctive enough that a partial match cannot be chance.
 PASSWORD = "made-up-master-pw-7Qx4"
@@ -351,3 +353,176 @@ class TestSecretFields:
     assert isinstance(getattr(parsed, field), SecretStr)
     assert PASSWORD not in repr(parsed)
     assert PASSWORD not in str(parsed)
+
+
+# -----------------------------------------------------------------------------
+#: How far ``_holds`` follows references out of one local.
+_REACH = 6
+
+
+def _holds(value: object, depth: int = 0, seen: Optional[set[int]] = None) -> bool:
+  """Say whether the password is reachable from a value.
+
+  Follows containers and instance attributes, the way a reporter that
+  serializes locals might, but stops at a ``SecretStr``: a reporter shows
+  that as its mask.
+
+  Args:
+    value: A frame local, or something reachable from one.
+    depth: References followed so far.
+    seen: Ids already searched.
+
+  Returns:
+    True when the password, as text or bytes, is reachable.
+  """
+  if isinstance(value, str):
+    return PASSWORD in value
+
+  if isinstance(value, (bytes, bytearray)):
+    return PASSWORD.encode() in value
+
+  seen = set() if seen is None else seen
+
+  if isinstance(value, SecretStr) or depth > _REACH or id(value) in seen:
+    return False
+
+  seen.add(id(value))
+
+  if isinstance(value, dict):
+    children: list[object] = [*value.keys(), *value.values()]
+
+  elif isinstance(value, (list, tuple, set, frozenset)):
+    children = list(value)
+
+  elif isinstance(value, (type, types.ModuleType, types.FunctionType, types.MethodType)):
+    return False
+
+  else:
+    children = list(getattr(value, "__dict__", {}).values())
+
+  return any(_holds(child, depth + 1, seen) for child in children)
+
+
+def _leaking_frames(error: BaseException) -> list[str]:
+  """Name every traceback frame whose locals reach the password.
+
+  Every exception linked to ``error`` is walked, since a reporter shows the
+  frames of the whole chain.
+
+  Args:
+    error: The raised error.
+
+  Returns:
+    ``function:local`` for each local that reaches the password.
+  """
+  leaks = []
+
+  for link in _chain(error):
+    tb = link.__traceback__
+
+    while tb is not None:
+      frame = tb.tb_frame
+      leaks += [
+        f"{frame.f_code.co_name}:{name}" for name, value in frame.f_locals.items() if _holds(value) or PASSWORD in repr(value)
+      ]
+      tb = tb.tb_next
+
+  return leaks
+
+
+def _answer_400(request: httpx.Request) -> httpx.Response:  # noqa: U100
+  """Reject the password the way bw serve does.
+
+  Returns:
+    A 400 response.
+  """
+  return httpx.Response(400, json={"success": False, "message": "Invalid master password."})
+
+
+class _HeldStream(httpx.SyncByteStream):
+  """A response stream that keeps its request, as httpx's own transport does.
+
+  Args:
+    request: The request the response answers.
+    content: The response body.
+  """
+
+  def __init__(self: _HeldStream, request: httpx.Request, content: bytes) -> None:
+    self.request = request
+    self.content = content
+
+  def __iter__(self: _HeldStream) -> Iterator[bytes]:
+    """Yield the body in one chunk.
+
+    Yields:
+      The response body.
+    """
+    yield self.content
+
+
+def _answer_400_streamed(request: httpx.Request) -> httpx.Response:
+  """Reject the password with a response whose stream reaches the request.
+
+  Returns:
+    A 400 response.
+  """
+  body = json.dumps({"success": False, "message": "Invalid master password."}).encode()
+
+  return httpx.Response(400, headers={"Content-Type": "application/json"}, stream=_HeldStream(request, body))
+
+
+def _refuse(request: httpx.Request) -> httpx.Response:
+  """Fail the way a refused connection does.
+
+  Raises:
+    ConnectError: Always.
+  """
+  raise httpx.ConnectError("Connection refused", request=request)
+
+
+def _break_mid_write(request: httpx.Request) -> httpx.Response:
+  """Fail while writing the body, the way httpcore does on a dropped socket.
+
+  The body is in a local of the frame the cause is raised in, as httpcore's
+  write buffer is.
+
+  Raises:
+    OSError: Always, caught here and kept as the cause.
+    WriteError: Always, from the ``OSError``.
+  """
+  chunk = request.read()
+
+  try:
+    raise OSError(f"Broken pipe after {len(chunk)} bytes")
+
+  except OSError as e:
+    raise httpx.WriteError("Broken pipe", request=request) from e
+
+
+class TestTracebackLocals:
+  """No frame on a failure's traceback holds the plaintext password (#97)."""
+
+  @pytest.mark.parametrize(
+    "answer",
+    [_answer_400, _answer_400_streamed, _refuse, _break_mid_write],
+    ids=["rejected", "rejected-streamed", "refused", "write-failed"],
+  )
+  def test_password_is_in_no_frame(self: TestTracebackLocals, answer: Callable[[httpx.Request], httpx.Response]) -> None:
+    """Every frame of the raised error, and of its chain, is free of the password."""
+    vault = VaultControl(ApiClient(transport=httpx.MockTransport(answer)))
+
+    with pytest.raises(BitwardenError) as exc_info:  # act
+      vault.unlock(SecretStr(PASSWORD))
+
+    assert _leaking_frames(exc_info.value) == []
+
+  def test_check_sees_a_plaintext_local(self: TestTracebackLocals) -> None:
+    """The walk finds a password held in a local, so a clean result means something."""
+
+    def hold(body: dict[str, Any]) -> None:  # noqa: U100
+      raise RuntimeError("held")
+
+    with pytest.raises(RuntimeError) as exc_info:  # act
+      hold({"password": SecretStr(PASSWORD).get_secret_value()})
+
+    assert _leaking_frames(exc_info.value) == ["hold:body"]

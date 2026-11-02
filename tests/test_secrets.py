@@ -438,8 +438,8 @@ class TestItemRoundTrip:
 _REACH = 6
 
 
-def _holds(value: object, depth: int = 0, seen: Optional[set[int]] = None) -> bool:
-  """Say whether the password is reachable from a value.
+def _holds(value: object, depth: int = 0, seen: Optional[set[int]] = None, secrets: tuple[str, ...] = (PASSWORD,)) -> bool:
+  """Say whether a secret is reachable from a value.
 
   Follows containers and instance attributes, the way a reporter that
   serializes locals might, but stops at a ``SecretStr``: a reporter shows
@@ -449,15 +449,16 @@ def _holds(value: object, depth: int = 0, seen: Optional[set[int]] = None) -> bo
     value: A frame local, or something reachable from one.
     depth: References followed so far.
     seen: Ids already searched.
+    secrets: The plaintext values to look for.
 
   Returns:
-    True when the password, as text or bytes, is reachable.
+    True when a secret, as text or bytes, is reachable.
   """
   if isinstance(value, str):
-    return PASSWORD in value
+    return any(secret in value for secret in secrets)
 
   if isinstance(value, (bytes, bytearray)):
-    return PASSWORD.encode() in value
+    return any(secret.encode() in value for secret in secrets)
 
   seen = set() if seen is None else seen
 
@@ -478,20 +479,21 @@ def _holds(value: object, depth: int = 0, seen: Optional[set[int]] = None) -> bo
   else:
     children = list(getattr(value, "__dict__", {}).values())
 
-  return any(_holds(child, depth + 1, seen) for child in children)
+  return any(_holds(child, depth + 1, seen, secrets) for child in children)
 
 
-def _leaking_frames(error: BaseException) -> list[str]:
-  """Name every traceback frame whose locals reach the password.
+def _leaking_frames(error: BaseException, secrets: tuple[str, ...] = (PASSWORD,)) -> list[str]:
+  """Name every traceback frame whose locals reach a secret.
 
   Every exception linked to ``error`` is walked, since a reporter shows the
   frames of the whole chain.
 
   Args:
     error: The raised error.
+    secrets: The plaintext values to look for.
 
   Returns:
-    ``function:local`` for each local that reaches the password.
+    ``function:local`` for each local that reaches a secret.
   """
   leaks = []
 
@@ -501,7 +503,8 @@ def _leaking_frames(error: BaseException) -> list[str]:
     while tb is not None:
       frame = tb.tb_frame
       leaks += [
-        f"{frame.f_code.co_name}:{name}" for name, value in frame.f_locals.items() if _holds(value) or PASSWORD in repr(value)
+        f"{frame.f_code.co_name}:{name}" for name, value in frame.f_locals.items()
+        if _holds(value, secrets=secrets) or any(secret in repr(value) for secret in secrets)
       ]
       tb = tb.tb_next
 
@@ -604,3 +607,46 @@ class TestTracebackLocals:
       hold({"password": SecretStr(PASSWORD).get_secret_value()})
 
     assert _leaking_frames(exc_info.value) == ["hold:body"]
+
+  @pytest.mark.parametrize("fields", ITEMS, ids=["login", "card"])
+  @pytest.mark.parametrize("given", ["template", "fetched"])
+  @pytest.mark.parametrize("method", ["add", "modify"])
+  def test_item_secrets_are_in_no_frame(self: TestTracebackLocals, method: str, given: str, fields: dict[str, Any]) -> None:
+    """A rejected add or modify of a model item leaves its secrets in no frame (#126)."""
+    fetched = models.ItemSchema.model_validate(fields | {"object": "item", "id": ITEM_ID})
+    item = fetched if given == "fetched" else models.ItemTemplateSchema.model_validate(fields)
+
+    error = _reject_item(method, item)  # act
+
+    assert _leaking_frames(error, tuple(ITEM_SECRETS.values())) == []
+
+
+def _reject_item(method: str, item: models.ItemSchema | models.ItemTemplateSchema) -> BitwardenError:
+  """Send an item to a server that rejects it, and catch the error here.
+
+  Catching it here keeps the calling test's frame, which holds the
+  plaintext fixture, off the traceback that is searched.
+
+  Args:
+    method: ``add`` or ``modify``.
+    item: The item to send.
+
+  Returns:
+    The error the rejection raised.
+
+  Raises:
+    AssertionError: When nothing was raised.
+  """
+  items = VaultItems(ApiClient(transport=httpx.MockTransport(_answer_400)))
+
+  try:
+    if method == "add":
+      items.add(item)
+
+    else:
+      items.modify(ITEM_ID, item)
+
+  except BitwardenError as e:
+    return e
+
+  raise AssertionError("the rejected item raised nothing")

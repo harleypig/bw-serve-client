@@ -29,7 +29,6 @@ from ._generated.models import ObjectItemIdGetParameters
 from ._generated.models import ObjectItemIdPutParameters
 from ._generated.models import RestoreItemIdPostParameters
 from .errors import ValidationError
-from .resource import _reveal
 from .resource import ObjectId
 from .resource import Resource
 from .resource import route
@@ -134,9 +133,11 @@ def _request_fields(model: type[BaseModel], data: Mapping[str, Any]) -> dict[str
 def _request_body(item: ItemInput) -> Mapping[str, Any]:
   """Turn what ``add`` or ``modify`` was given into request fields.
 
-  Secrets are revealed; ``_request`` validates the result, which masks
-  them again, and sends it. Only a fetched item is pruned: unknown keys
-  in a mapping are the caller's, and validation refuses them.
+  Secrets stay ``SecretStr``: revealing them here would leave the
+  plaintext in ``_request``'s locals, where a reporter that records
+  traceback frames would show it. ``ApiClient`` reveals them as it sends.
+  Only a fetched item is pruned: unknown keys in a mapping are the
+  caller's, and validation refuses them.
 
   Args:
       item: Request fields, a request model, or a fetched item.
@@ -145,10 +146,10 @@ def _request_body(item: ItemInput) -> Mapping[str, Any]:
       Fields for ``ItemTemplateSchema``.
   """
   if isinstance(item, ItemSchema):
-    return _request_fields(ItemTemplateSchema, _reveal(item.model_dump(exclude_none=True)))
+    return _request_fields(ItemTemplateSchema, item.model_dump(exclude_none=True))
 
   if isinstance(item, ItemTemplateSchema):
-    return _reveal(item.model_dump(exclude_none=True))
+    return item.model_dump(exclude_none=True)
 
   return item
 

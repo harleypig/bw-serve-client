@@ -39,6 +39,7 @@ import os
 from pathlib import Path
 import re
 import sys
+import tempfile
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import requests
@@ -945,14 +946,51 @@ def render_report(changes: Changes, lock: Dict[str, Any]) -> str:
 
 
 # -----------------------------------------------------------------------------
-def write_json(path: Path, data: Any) -> None:
-  """Write JSON the way the committed files are formatted.
+def json_text(data: Any) -> str:
+  """Format JSON the way the committed files are formatted.
 
   Arguments:
-      path: The file to write.
-      data: The value to write.
+      data: The value to format.
+
+  Returns:
+      str: The JSON text, with a trailing newline.
   """
-  path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+  return json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+
+
+# -----------------------------------------------------------------------------
+def write_files(files: List[Tuple[Path, str]]) -> None:
+  """Write files so that a failure part-way leaves every target untouched.
+
+  Each file's text goes to a temporary file beside it, and only once all of
+  them are written are they renamed into place, in the order given. A
+  failure while writing changes no target, and a rename within one
+  directory is atomic, so no target is ever half-written. The renames are
+  not one step together: only a stop between two of them can leave a later
+  target old beside an earlier one already new.
+
+  Arguments:
+      files: Each target path and its full content, in rename order.
+  """
+  # NamedTemporaryFile creates 0600; give the targets what write_text would.
+  umask = os.umask(0)
+  os.umask(umask)
+  staged: List[Tuple[Path, Path]] = []
+
+  try:
+    for path, text in files:
+      with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp",
+                                       delete=False) as handle:
+        staged.append((Path(handle.name), path))
+        os.fchmod(handle.fileno(), 0o666 & ~umask)
+        handle.write(text)
+
+    for temp, path in staged:
+      os.replace(temp, path)
+
+  finally:
+    for temp, _ in staged:
+      temp.unlink(missing_ok=True)
 
 
 # -----------------------------------------------------------------------------
@@ -997,7 +1035,7 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
     upstream = fetch_all(session, watch)
 
   except (FetchError, spec_fixes.FixError, OSError, ValueError, AttributeError) as exc:
-    report_path.write_text(render_error_report(str(exc).splitlines()), encoding="utf-8")
+    write_files([(report_path, render_error_report(str(exc).splitlines()))])
     print(f"detect: error:\n{exc}", file=sys.stderr)
     return 1
 
@@ -1012,12 +1050,18 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
 
   # Bitwarden can reorder keys without changing content; rewriting the file
   # then would leave a diff behind a run that reports no change.
-  if canonical_sha256(old_spec) != canonical_sha256(upstream.spec):
-    write_json(SPEC_SNAPSHOT, upstream.spec)
+  files: List[Tuple[Path, str]] = []
 
-  ROUTES_SNAPSHOT.write_text("".join(f"{route}\n" for route in upstream.routes), encoding="utf-8")
-  write_json(LOCK_FILE, new_lock)
-  report_path.write_text(render_report(changes, new_lock), encoding="utf-8")
+  if canonical_sha256(old_spec) != canonical_sha256(upstream.spec):
+    files.append((SPEC_SNAPSHOT, json_text(upstream.spec)))
+
+  # The lock goes last. A run stopped before it lands leaves the old lock,
+  # so the next run reports the change again; one that left a new snapshot
+  # beside the old lock would diff the new spec against itself instead.
+  files.append((ROUTES_SNAPSHOT, "".join(f"{route}\n" for route in upstream.routes)))
+  files.append((report_path, render_report(changes, new_lock)))
+  files.append((LOCK_FILE, json_text(new_lock)))
+  write_files(files)
 
   if changes.changed:
     print(f"detect: {len(changes.sources)} source(s) changed; see {report_path}")

@@ -31,12 +31,21 @@ the `0.0.4a0` tag; this section covers that rebuild.
   master password), `ExternalServiceError` and `InternalError`. Validation
   and user errors default to WARNING and the others to ERROR, and
   `DefaultErrorHandler` raises them all unless you raise its threshold.
-- Secrets such as the master password and the session key are `SecretStr`
-  and are kept out of errors, logs and reprs.
+- Secrets are `SecretStr` and are kept out of errors, logs and reprs. This
+  covers the master password and the session key, plus a login's password
+  and TOTP and a card's number and code, in both the item templates you
+  build and the items you read back. To read one, call
+  `get_secret_value()`. A secret is revealed only as its request is sent,
+  so error reporters that record traceback frame locals (Sentry, rich)
+  cannot show it. `ApiClient.post()` and `put()` accept `SecretStr` values
+  in `data` and reveal them the same way.
 - For maintainers: upstream change detection and the update pipeline
   (`make detect`, `build`, `check`, `update`), name-keyed fixes to the
   upstream spec, a comparison of the spec's routes with the ones `bw serve`
   registers, and tests replaying payloads recorded from a real `bw serve`.
+  Detection writes every file before renaming any into place, lock file
+  last. An interrupted or failed run therefore leaves the snapshots and
+  the lock in step, and the next run reports the whole change.
 - This changelog, with entries drafted by `make update` from the upstream
   change report.
 - `examples/serve_socket.py`: starts `bw serve` on a Unix socket, makes one

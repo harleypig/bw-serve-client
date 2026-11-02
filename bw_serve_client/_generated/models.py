@@ -57,10 +57,10 @@ class ItemCardSchema(BaseModel):
   )
   cardholder_name: Annotated[str | None, Field(alias='cardholderName')] = None
   brand: str | None = None
-  number: str | None = None
+  number: SecretStr | None = None
   exp_month: Annotated[str | None, Field(alias='expMonth')] = None
   exp_year: Annotated[str | None, Field(alias='expYear')] = None
-  code: str | None = None
+  code: SecretStr | None = None
 
 
 class ItemIdentitySchema(BaseModel):
@@ -1347,8 +1347,8 @@ class ItemLoginSchema(BaseModel):
   )
   uris: Annotated[Sequence[UrisSchema] | None, Field(description='Array of URIs associated with this login')] = None
   username: Annotated[str | None, Field(description='Username for the login')] = None
-  password: Annotated[str | None, Field(description='Password for the login')] = None
-  totp: Annotated[str | None, Field(description='TOTP secret for two-factor authentication')] = None
+  password: Annotated[SecretStr | None, Field(description='Password for the login')] = None
+  totp: Annotated[SecretStr | None, Field(description='TOTP secret for two-factor authentication')] = None
   fido2_credentials: Annotated[Sequence[Fido2CredentialSchema] | None, Field(alias='fido2Credentials')] = None
 
 

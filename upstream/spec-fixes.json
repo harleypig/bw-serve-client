@@ -2489,6 +2489,58 @@
       "why": "bw serve returns the session key as `raw` on /unlock (the spec's own example shows it) but the schema does not declare it; declared as a SecretStr. Decided on #30."
     },
     {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.login",
+        "properties",
+        "password",
+        "format"
+      ],
+      "value": "password",
+      "why": "A login's password is a secret; `password` format makes its request model field a SecretStr, as the response model's already is, so it never shows in a repr. Decided on #94."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.login",
+        "properties",
+        "totp",
+        "format"
+      ],
+      "value": "password",
+      "why": "A login's TOTP seed is a secret; `password` format makes it a SecretStr. Decided on #94."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.card",
+        "properties",
+        "number",
+        "format"
+      ],
+      "value": "password",
+      "why": "A card's number is a secret; `password` format makes it a SecretStr. Decided on #94."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "item.card",
+        "properties",
+        "code",
+        "format"
+      ],
+      "value": "password",
+      "why": "A card's security code is a secret; `password` format makes it a SecretStr. Decided on #94."
+    },
+    {
       "op": "delete",
       "path": [
         "paths",

@@ -1,7 +1,7 @@
 """VaultControl domain class for the Bitwarden Vault Management API.
 
 Mirrors the ``Lock & Unlock`` and ``Miscellaneous`` vault routes in the API
-spec. One method per route:
+spec. One method per route::
 
   POST /lock   - VaultControl.lock
   POST /unlock - VaultControl.unlock

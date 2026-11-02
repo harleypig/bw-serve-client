@@ -1,16 +1,27 @@
 # Bitwarden CLI Vault Management API
 
-This module supports the [Bitwarden CLI Vault Management
-API](https://bitwarden.com/help/vault-management-api/), available via
-Bitwarden CLI's `bw serve` command.
+A Python client for the [Bitwarden Vault Management API][vm-api], the HTTP
+API that the Bitwarden CLI serves with `bw serve`.
 
-If you're looking for Bitwarden's public api (for organizational tools and
-stuff) that API is [available here](https://bitwarden.com/help/api/).
+If you're looking for Bitwarden's public API, for organization management,
+that is the [Bitwarden Public API][public-api], a different thing.
 
-This library focuses on providing a clean Python interface to the Bitwarden
-Vault Management API. It does not handle authentication or login processes -
-users must manage their own Bitwarden CLI authentication and provide the
-necessary session keys to the library.
+The library talks to a `bw serve` that is already running. It does not log
+in, start `bw serve`, or hold a session key: the session lives in the
+`bw serve` process, and no request this library sends carries a key or a
+token. See [Starting `bw serve`](#starting-bw-serve).
+
+[public-api]: https://bitwarden.com/help/api/
+
+## Use this library, or call `bw` directly?
+
+Not every job needs a server. A shell script that reads one password is
+shorter and simpler with `bw get password`; a program that makes many calls,
+in Python, gains from one unlocked `bw serve` and typed results. Both sides,
+each point checked against the CLI, are in
+[When to use this library][when-to-use].
+
+[when-to-use]: docs/when-to-use.md
 
 ## Generated Code
 
@@ -38,7 +49,9 @@ poetry run python pipeline.py update   # or detect, build, check
 Each stage exits 0 when nothing changed, 1 on an error, and 2 when something
 changed and there is work to do. `make detect`, `make build`, `make check`
 and `make update` run the same stages, but make exits 2 for every failure, so
-call `pipeline.py` directly when the exit code matters.
+call `pipeline.py` directly when the exit code matters. The [update pipeline
+guide][pipeline-guide] walks through a run and what to do with each kind of
+change.
 
 | Path | What it holds |
 |------|---------------|
@@ -46,6 +59,7 @@ call `pipeline.py` directly when the exit code matters.
 | `upstream/` | The committed Bitwarden spec and the other upstream snapshots, the lock file, the local fixes, the patched spec, and the detection and spec tools. See `upstream/README.md`. |
 | `codegen/` | Inputs to model generation. See `codegen/README.md`. |
 
+[pipeline-guide]: docs/developer/update-pipeline.md
 [vm-api]: https://bitwarden.com/help/vault-management-api/
 [project]: https://github.com/users/harleypig/projects/3
 
@@ -53,156 +67,234 @@ call `pipeline.py` directly when the exit code matters.
 
 * Python 3.10+
 
-* [Bitwarden
-    CLI](https://bitwarden.com/download/#downloads-command-line-interface)
-  - Instructions can be found
-    [in the official documentation](https://bitwarden.com/help/cli/#download-and-install)
+* The [Bitwarden CLI][cli-download], to run `bw serve`. It need not be on
+  the machine running your Python, as long as your code can reach the
+  server. Installation is covered in the
+  [CLI documentation][cli-install].
 
-## Prerequisites
+[cli-download]: https://bitwarden.com/download/#downloads-command-line-interface
+[cli-install]: https://bitwarden.com/help/cli/#download-and-install
 
-### Bitwarden CLI Setup
+## Starting `bw serve`
 
-This library requires the [Bitwarden CLI](https://bitwarden.com/download/#downloads-command-line-interface)
-to be installed and configured. The CLI must be authenticated and the vault
-unlocked before using this library.
+The library needs three things done outside it, all with the `bw` CLI.
 
-#### Bitwarden CLI Installation
-
-Follow the [official installation guide](https://bitwarden.com/help/cli/#download-and-install)
-for your operating system.
-
-#### Authentication
-
-The Bitwarden CLI must be authenticated before using this library. This
-typically involves:
-
-1. **Login** (one-time setup):
+1. **Log in**, once per device. `bw serve` refuses to start for a logged-out
+   CLI.
 
    ```bash
-   bw login
-   # or with API key:
-   bw login --apikey
+   bw login                # email and master password, prompted
+   bw login --apikey       # or with a personal API key
    ```
 
-2. **Unlock** (required each session):
+2. **Unlock**, so `bw serve` starts with an unlocked vault. `bw unlock`
+   prints a session key; export it as `BW_SESSION` in the shell that starts
+   the server.
 
    ```bash
-   bw unlock
-   # or with environment variable:
-   bw unlock --passwordenv BW_PASSWORD
-   # or with password file:
-   bw unlock --passwordfile /path/to/password.txt
+   export BW_SESSION="$(bw unlock --raw)"
    ```
 
-3. **Start the API server**:
+   You can skip this step and start the server locked instead: every vault
+   call then fails with a `UserError` until something unlocks it over HTTP,
+   which [`VaultControl.unlock`](#unlocking-over-http) does.
+
+3. **Start the server.** It listens on `localhost:8087` by default.
 
    ```bash
-   bw serve
-   # or with custom port:
-   bw serve --port 8080
+   bw serve                                # http://localhost:8087
+   bw serve --port 8088                    # another port
+   bw serve --hostname unix:///run/user/1000/bw.sock   # a Unix socket
    ```
 
-#### Session Key
+**The session key goes to `bw serve`, never to this library.** `bw unlock`
+generates the key that decrypts the vault, and `bw` commands read it from
+`BW_SESSION` or `--session` ([CLI: Using a session key][cli-session]).
+`bw serve` is one of those commands, so it holds the key for as long as it
+runs, and no endpoint asks a client for one. The key is valid until `bw lock`
+or `bw logout`, or `POST /lock` (`VaultControl.lock`), invalidates it.
 
-After unlocking, the CLI returns a session key that must be provided to this
-library for API authentication. You can capture it like this:
+While the server runs, anything that can reach it can read the vault. It
+binds to `localhost` unless told otherwise, and `--hostname all` exposes it
+to the network ([CLI: serve][cli-serve]). A Unix socket, readable only by
+its owner, is the tighter choice on a shared machine.
 
-```bash
-# Get session key only (raw output)
-BW_SESSION="$(bw unlock --raw)"
-
-# Or check if already unlocked
-bw status
-```
-
-The session key is then passed to the library's client constructor.
-
-### Library Authentication
-
-This library does **not** handle Bitwarden CLI authentication or login
-processes. It expects:
-
-1. The `bw serve` server to be running and accessible
-2. A valid session key to be provided for API authentication
-3. The vault to be unlocked (session key valid)
-
-The library focuses on providing a clean Python interface to the API endpoints
-once authentication is handled externally.
+[cli-session]: https://bitwarden.com/help/cli/#using-a-session-key
+[cli-serve]: https://bitwarden.com/help/cli/#serve
 
 ## Installation
 
-### pip install
-
-If the python package is hosted on a repository, you can install directly using:
+The package is not on PyPI yet. Install it from the repository:
 
 ```sh
 pip install git+https://github.com/harleypig/bw-serve-client.git
 ```
 
-(you may need to run `pip` with root permission: `sudo pip install
-git+https://github.com/harleypig/bw-serve-client.git`)
+or, in a Poetry project:
 
-Then import the package:
-
-```python
-import bw_serve_client
+```sh
+poetry add git+https://github.com/harleypig/bw-serve-client.git
 ```
 
-### Tests
+To work on the library itself, see [Development Setup][development].
 
-Execute `pytest` to run the tests.
+[development]: docs/development.md
 
-## Getting Started
+## Usage
 
-### Basic Usage
+The examples below need a running `bw serve`, unlocked except in
+[Unlocking over HTTP](#unlocking-over-http). A snippet that only builds an
+`ApiClient` makes no request, and runs without one.
 
-```python
-import bw_serve_client
+### Connecting
 
-# Initialize client with session key
-client = bw_serve_client.Client(
-    base_url="http://localhost:8087",  # Default bw serve URL
-    session_key="your_session_key_here"
-)
-
-# List vault items
-items = client.list_items()
-
-# Get a specific item
-item = client.get_item("item-id-here")
-
-# Create a new folder
-folder = client.create_folder({"name": "My New Folder"})
-```
-
-### Session Key Management
-
-The library requires a valid session key for all API operations. You can
-obtain this from the Bitwarden CLI:
+`ApiClient` holds the connection. Each group of routes is a resource class
+built from it: `Folders`, `VaultItems`, `Attachments`, `ItemFields`, `Sends`,
+`VaultControl`, `Utilities`, `Organizations`, `OrgCollections` and
+`DeviceApproval`.
 
 ```python
-import subprocess
-import bw_serve_client
+from bw_serve_client import ApiClient, VaultControl
 
-# Get session key from CLI
-result = subprocess.run(
-    ["bw", "unlock", "--raw"],
-    capture_output=True,
-    text=True
-)
-session_key = result.stdout.strip()
-
-# Initialize client
-client = bw_serve_client.Client(session_key=session_key)
+with ApiClient(base_url="http://localhost:8087") as client:
+  status = VaultControl(client).status()
+  print(status.status.value)  # "unlocked", "locked" or "unauthenticated"
 ```
 
-**Note**: Session keys expire when the vault is locked or after a period of
-inactivity. You may need to refresh the session key periodically.
+`ApiClient()` with no arguments connects to `http://localhost:8087`. For a
+server on a Unix socket, pass the socket as the URL:
 
-## Documentation for API Endpoints
+```python
+from bw_serve_client import ApiClient
 
-XXX: TBD
+client = ApiClient(base_url="unix:///run/user/1000/bw.sock")
+```
 
-## Documentation For Models
+The client sends `Host: localhost:8087` over a socket, because `bw serve`
+refuses requests whose `Host` it does not expect. If the server was started
+with `--port`, pass the same `port=` to `ApiClient`.
+[`examples/serve_socket.py`][serve-socket] starts `bw serve` on a socket,
+makes one call through it and stops the server.
 
-XXX: TBD
+### Reading and writing
+
+Results come back as pydantic models, and secrets as `SecretStr`, which
+stays hidden in a `repr`, a log record or an error message until you call
+`get_secret_value()`.
+
+```python
+from bw_serve_client import ApiClient, Folders, ItemFields, VaultItems
+
+with ApiClient() as client:
+  items = VaultItems(client)
+
+  for item in items.list(search="github"):
+    print(item.id, item.name)
+
+  login = items.get(search="GitHub")  # one match, or a ValidationError
+  password = ItemFields(client).password(login.id)
+  print(password)  # **********
+
+  folder = Folders(client).add("Projects")
+  print(folder.id, folder.name)
+```
+
+### Seeing your own writes
+
+`bw serve` can answer a read from local state that does not yet include a
+write it just made: a `list` straight after an `add` can come back without
+the new item. When the next read must see the write, sync in between.
+
+```python
+from bw_serve_client import ApiClient, VaultControl, VaultItems
+
+with ApiClient() as client:
+  items = VaultItems(client)
+  note = items.add({"type": 2, "name": "Example note", "secureNote": {"type": 0}})
+
+  VaultControl(client).sync()
+  print(note.id in [item.id for item in items.list()])  # True
+```
+
+An empty item list can also come back right after a sync, reported upstream
+as [bitwarden/clients#23283][bw-23283] (open).
+
+[bw-23283]: https://github.com/bitwarden/clients/issues/23283
+
+### Handling errors
+
+Every failure raises a subclass of `BitwardenError`: `ValidationError` for a
+bad request or an id that names nothing, `UserError` for a locked vault or a
+wrong password, `ExternalServiceError` when `bw serve` fails or cannot be
+reached, and `InternalError` for a bug in this library. Each carries the
+HTTP `status_code`, or `None` when there was no response.
+
+```python
+from bw_serve_client import ApiClient, UserError, ValidationError, VaultItems
+
+with ApiClient() as client:
+  try:
+    item = VaultItems(client).get("00000000-0000-0000-0000-000000000000")
+
+  except UserError:
+    print("The vault is locked")
+
+  except ValidationError as error:
+    print(f"No such item: {error} (HTTP {error.status_code})")
+```
+
+To get validation and user errors back as values instead of exceptions,
+raise the handler's threshold. A method then returns the error in place of
+its result. Any object that implements `ErrorHandler` can replace the
+default handler the same way.
+
+```python
+import logging
+
+from bw_serve_client import ApiClient, DefaultErrorHandler
+
+app_log = logging.getLogger("myapp.bitwarden")
+
+client = ApiClient(logger=app_log, error_handler=DefaultErrorHandler(error_level=logging.ERROR, logger=app_log))
+```
+
+The client's `logger` receives its request and response records. A handler
+you construct logs errors to its own `logger`, so give it the same one; only
+the default handler is wired to the client's logger for you.
+
+A resource class takes `error_handler=` to override the client's for that
+class alone. Its `logger=` receives only the class's one-line request trace;
+request and response records still go to the client's logger, and errors to
+the error handler.
+
+### Unlocking over HTTP
+
+A server started locked can be unlocked through the library. The method
+sends the master password to `bw serve` and returns the session key as a
+`SecretStr`; nothing in this library needs it afterwards, since `bw serve`
+keeps the session.
+
+```python
+from getpass import getpass
+
+from bw_serve_client import ApiClient, VaultControl
+
+with ApiClient() as client:
+  VaultControl(client).unlock(getpass("Master password: "))
+```
+
+## Reference
+
+* [API architecture][api-architecture] lists every resource class, its
+  methods and the route each one calls.
+* [`examples/`][examples] has a runnable script for each resource class.
+  Each needs a running, unlocked `bw serve`, and reads `BW_SERVE_URL` for
+  its address, except `serve_socket.py`, which starts its own `bw serve` on
+  a Unix socket.
+* The [documentation site][docs-site] has the API reference built from the
+  docstrings.
+
+[api-architecture]: docs/api-architecture.md
+[examples]: examples/
+[serve-socket]: examples/serve_socket.py
+[docs-site]: https://harleypig.github.io/bw-serve-client

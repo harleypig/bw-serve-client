@@ -33,6 +33,7 @@ Homepage = "https://github.com/harleypig/bw-serve-client"
 Repository = "https://github.com/harleypig/bw-serve-client"
 Documentation = "https://harleypig.github.io/bw-serve-client"
 "Bug Tracker" = "https://github.com/harleypig/bw-serve-client/issues"
+Changelog = "https://github.com/harleypig/bw-serve-client/blob/master/CHANGELOG.md"
 
 [build-system]
 requires = ["poetry-core"]

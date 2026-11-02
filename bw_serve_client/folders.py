@@ -1,6 +1,6 @@
 """Folders domain class for the Bitwarden Vault Management API.
 
-Mirrors the ``Folders`` tag in the API spec. One method per route:
+Mirrors the ``Folders`` tag in the API spec. One method per route::
 
   POST   /object/folder       - Folders.add
   PUT    /object/folder/{id}  - Folders.modify

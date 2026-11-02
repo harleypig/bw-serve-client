@@ -1,7 +1,7 @@
 """Utilities domain class for the Bitwarden Vault Management API.
 
 The generator, template and fingerprint routes of the ``Miscellaneous``
-tag in the API spec. One method per route:
+tag in the API spec. One method per route::
 
   GET /object/template/{type} - Utilities.template
   GET /object/fingerprint/me  - Utilities.fingerprint

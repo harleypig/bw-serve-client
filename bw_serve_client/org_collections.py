@@ -2,7 +2,7 @@
 
 Mirrors the collection half of the ``Collections & Organizations`` tag in
 the API spec, plus the one ``Vault Items`` route that sets an item's
-collections. One ``OrgCollections`` method per route:
+collections. One ``OrgCollections`` method per route::
 
   POST   /object/org-collection          - add
   PUT    /object/org-collection/{id}     - modify

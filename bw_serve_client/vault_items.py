@@ -1,6 +1,6 @@
 """Vault items domain class for the Bitwarden Vault Management API.
 
-Mirrors the ``Vault Items`` tag in the API spec. One method per route:
+Mirrors the ``Vault Items`` tag in the API spec. One method per route::
 
   GET    /list/object/items      - VaultItems.list
   POST   /object/item            - VaultItems.add

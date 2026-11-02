@@ -10,6 +10,9 @@ from typing import List, TYPE_CHECKING
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "upstream"))
+
+import detect  # noqa: E402 - importable only once upstream/ is on the path.
 
 import pipeline  # noqa: E402 - importable only once the repository root is on the path.
 
@@ -183,6 +186,136 @@ class TestBuild:
 
     with pytest.raises(pipeline.StageError, match="could not format"):
       pipeline.build_steps()
+
+
+CHANGELOG_SEED = """# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Something a person wrote.
+
+## [0.1.0] - 2026-01-01
+
+- Older.
+"""
+
+
+def change_report(changed: bool) -> str:
+  """Render a change report the way detect writes one.
+
+  Arguments:
+      changed: Whether a recorded source changed.
+
+  Returns:
+      str: The report.
+  """
+  changes = detect.Changes(stale_fixes=["a fix"])
+  if changed:
+    changes.sources = [("cli", "2026.10.1", "2026.11.0"), ("spec", "aaaaaaaaaaaa", "bbbbbbbbbbbb")]
+    changes.spec = ["Route added: `GET /new`"]
+    changes.routes = ["Added: `GET /new`"]
+
+  lock = {"cli": {"release": "2026.11.0"}, "spec": {"fetched": "2026-11-02"}}
+  return detect.render_report(changes, lock)
+
+
+class TestChangelogDraft:
+  """Drafting a changelog entry from the change report."""
+
+  @pytest.fixture
+  def changelog(self: TestChangelogDraft, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Point the changelog into a temporary directory, seeded."""
+    path = tmp_path / "CHANGELOG.md"
+    path.write_text(CHANGELOG_SEED, encoding="utf-8")
+    monkeypatch.setattr(pipeline, "CHANGELOG", path)
+    return path
+
+  def test_draft_added_on_change(self: TestChangelogDraft, report: Path, changelog: Path) -> None:
+    """A changed source puts a marked draft directly under Unreleased."""
+    report.write_text(change_report(changed=True), encoding="utf-8")
+
+    pipeline.draft_changelog()
+
+    text = changelog.read_text(encoding="utf-8")
+    block = text.split("## [Unreleased]\n\n", 1)[1].split("\n\n### Added", 1)[0]
+    assert block.startswith("<!-- draft ")
+    assert block.endswith(" -->")
+    assert "<!-- end draft " in block
+    assert "- Upstream `cli`: 2026.10.1 → 2026.11.0" in block
+    assert "`Source`" not in block
+    assert "- Upstream spec: Route added: `GET /new`" in block
+    assert "- bw serve routes: Added: `GET /new`" in block
+    assert "Drafted an entry" in report.read_text(encoding="utf-8")
+
+  def test_human_entries_untouched(self: TestChangelogDraft, report: Path, changelog: Path) -> None:
+    """Removing the inserted block gives back the file exactly as it was."""
+    report.write_text(change_report(changed=True), encoding="utf-8")
+
+    pipeline.draft_changelog()
+
+    text = changelog.read_text(encoding="utf-8")
+    start, end = text.index("<!-- draft "), text.index("<!-- end draft ")
+    end = text.index("-->", end) + len("-->\n\n")
+    assert text[:start] + text[end:] == CHANGELOG_SEED
+
+  def test_idempotent_on_rerun(self: TestChangelogDraft, report: Path, changelog: Path) -> None:
+    """A second run on the same report adds nothing."""
+    report.write_text(change_report(changed=True), encoding="utf-8")
+    pipeline.draft_changelog()
+    once = changelog.read_text(encoding="utf-8")
+
+    pipeline.draft_changelog()
+
+    assert changelog.read_text(encoding="utf-8") == once
+    assert "Already drafted" in report.read_text(encoding="utf-8")
+
+  def test_no_draft_without_change(self: TestChangelogDraft, report: Path, changelog: Path) -> None:
+    """A report with no changed source, a stale fix aside, drafts nothing."""
+    text = change_report(changed=False)
+    report.write_text(text, encoding="utf-8")
+
+    pipeline.draft_changelog()
+
+    assert changelog.read_text(encoding="utf-8") == CHANGELOG_SEED
+    assert report.read_text(encoding="utf-8") == text
+
+  @pytest.mark.usefixtures("report")
+  def test_no_draft_without_report(self: TestChangelogDraft, changelog: Path) -> None:
+    """No report, nothing to draft from."""
+    pipeline.draft_changelog()
+
+    assert changelog.read_text(encoding="utf-8") == CHANGELOG_SEED
+
+  def test_missing_changelog(self: TestChangelogDraft, report: Path, changelog: Path) -> None:
+    """A missing changelog is not created; the report says why."""
+    changelog.unlink()
+    report.write_text(change_report(changed=True), encoding="utf-8")
+
+    pipeline.draft_changelog()
+
+    assert not changelog.exists()
+    assert "No draft: `CHANGELOG.md` is missing." in report.read_text(encoding="utf-8")
+
+  def test_changelog_without_unreleased(self: TestChangelogDraft, report: Path, changelog: Path) -> None:
+    """A changelog with no Unreleased heading is left alone; the report says why."""
+    changelog.write_text("# Changelog\n\n## [0.1.0]\n", encoding="utf-8")
+    report.write_text(change_report(changed=True), encoding="utf-8")
+
+    pipeline.draft_changelog()
+
+    assert changelog.read_text(encoding="utf-8") == "# Changelog\n\n## [0.1.0]\n"
+    assert "has no `## [Unreleased]` heading" in report.read_text(encoding="utf-8")
+
+  @pytest.mark.parametrize(("code", "drafted"), [(0, False), (2, True), (1, False), (-9, False)])
+  def test_detect_drafts_only_on_change(self: TestChangelogDraft, mocker: MockerFixture, code: int, drafted: bool) -> None:
+    """Detect drafts only after a run that reported a change, keeping its exit code."""
+    mocker.patch.object(pipeline.subprocess, "run", return_value=finished(code))
+    draft = mocker.patch.object(pipeline, "draft_changelog")
+
+    assert pipeline.detect() == code
+    assert draft.called is drafted
 
 
 class TestUpdate:

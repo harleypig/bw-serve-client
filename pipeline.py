@@ -7,7 +7,8 @@ Usage: ``python pipeline.py {detect,build,check,update}``
 Stages:
 
 - ``detect``: fetch every upstream source and write the snapshots, the lock
-  file and the change report (``upstream/detect.py``).
+  file and the change report (``upstream/detect.py``). When a recorded
+  source changed, draft a changelog entry from the report (below).
 - ``build``: patch the spec, regenerate ``bw_serve_client/_generated/``, and
   format the result.
 - ``check``: run the test suite.
@@ -25,6 +26,19 @@ exits 2 for every failed recipe, so it cannot tell an error from a change.
 Each stage is idempotent: run again on the same input, it changes nothing
 more. The exit code reflects what is still to do, so detect keeps exiting 2
 while a fix no longer matches, and check while a test fails.
+
+Changelog drafts: when the change report lists changed sources, detect
+inserts a bullet list directly under ``## [Unreleased]`` in
+``CHANGELOG.md``, one bullet per changed source, spec change and route
+change, between a ``<!-- draft <key>`` comment and an
+``<!-- end draft <key> -->`` one. The key is a hash of the bullets, so a
+second run on the same report adds nothing, and nothing outside the
+inserted block is touched. A person edits the bullets, moves them under
+Added, Changed or Fixed, and deletes both comments; by then the lock file
+has moved, so detect drafts nothing more until upstream changes again. A
+missing changelog, or one with no ``## [Unreleased]`` heading, gets no
+draft. The outcome goes in the report's Changelog section and never
+changes the exit code.
 """
 
 import hashlib
@@ -37,6 +51,7 @@ from typing import Callable, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parent
 REPORT = ROOT / "upstream" / "change-report.md"
+CHANGELOG = ROOT / "CHANGELOG.md"
 PATCHED_SPEC = ROOT / "upstream" / "vault-management-api-fixed.json"
 GENERATED = ROOT / "bw_serve_client" / "_generated"
 FORMAT_HOOKS = ("trailing-whitespace", "end-of-file-fixer", "isort", "yapf", "pydocstringformatter")
@@ -102,6 +117,91 @@ def set_report_section(title: str, lines: List[str], empty: str) -> None:
 
 
 # -----------------------------------------------------------------------------
+def report_items(text: str, title: str) -> List[str]:
+  """Return the bullet items of one ``## title`` section of a report.
+
+  Arguments:
+      text: The report.
+      title: The section heading, without the ``##``.
+
+  Returns:
+      List[str]: The items without their bullet; empty when the section is
+      missing or holds only its "None." note.
+  """
+  match = re.search(rf"^## {re.escape(title)}\n(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+  return [line[2:] for line in match.group(1).splitlines() if line.startswith("- ")] if match else []
+
+
+# -----------------------------------------------------------------------------
+def changelog_draft(text: str) -> List[str]:
+  """Turn a change report into draft changelog bullets.
+
+  Only the sources table decides whether there is anything to draft:
+  detect also exits 2 for a stale fix or an undecided route, and neither
+  is a change a user of the library would see.
+
+  Arguments:
+      text: The change report.
+
+  Returns:
+      List[str]: The bullets, or none when no recorded source changed.
+  """
+  # Rows of detect's "| Source | Was | Now |" table, header excluded.
+  rows = re.findall(r"^\| (.+?) \| (.*?) \| (.*?) \|$", text, re.MULTILINE)
+  sources = [f"Upstream `{name}`: {was} → {now}" for name, was, now in rows if name != "Source"]
+  if not sources:
+    return []
+
+  return [
+    *sources,
+    *(f"Upstream spec: {line}" for line in report_items(text, "Spec changes")),
+    *(f"bw serve routes: {line}" for line in report_items(text, "Routes bw serve registers")),
+  ]
+
+
+# -----------------------------------------------------------------------------
+def draft_changelog() -> None:
+  """Draft a changelog entry from the change report, once per report.
+
+  Inserts only the marked block under ``## [Unreleased]``; see the module
+  docstring for the format. The outcome goes in the report.
+  """
+  bullets = changelog_draft(REPORT.read_text(encoding="utf-8")) if REPORT.exists() else []
+  if not bullets:
+    return
+
+  key = hashlib.sha256("\n".join(bullets).encode("utf-8")).hexdigest()[:12]
+  text = CHANGELOG.read_text(encoding="utf-8") if CHANGELOG.exists() else None
+  heading = re.search(r"^## \[Unreleased\][^\n]*\n", text, re.MULTILINE) if text is not None else None
+
+  if text is None:
+    outcome = f"No draft: `{CHANGELOG.name}` is missing."
+
+  elif heading is None:
+    outcome = f"No draft: `{CHANGELOG.name}` has no `## [Unreleased]` heading."
+
+  elif f"<!-- draft {key}" in text:
+    outcome = f"Already drafted in `{CHANGELOG.name}` (draft {key}); nothing added."
+
+  else:
+    block = "\n".join([
+      f"<!-- draft {key}: written by the update pipeline from the change report.",
+      "Edit these, move them under Added, Changed or Fixed, then delete both",
+      "draft comments. -->",
+      "",
+      *(f"- {bullet}" for bullet in bullets),
+      "",
+      f"<!-- end draft {key} -->",
+      "",
+    ])
+    CHANGELOG.write_text(f"{text[:heading.end()]}\n{block}{text[heading.end():]}", encoding="utf-8")
+    outcome = f"Drafted an entry under `## [Unreleased]` in `{CHANGELOG.name}` (draft {key}); edit it and delete its draft comments."
+
+  set_report_section("Changelog", [outcome], "")
+  print(f"detect: {outcome}")
+
+
+# -----------------------------------------------------------------------------
 def build_outputs() -> "tuple[Path, ...]":
   """List the files build writes, as they are on disk now.
 
@@ -129,13 +229,20 @@ def checksums(paths: "tuple[Path, ...]") -> Dict[Path, Optional[str]]:
 
 # -----------------------------------------------------------------------------
 def detect() -> int:
-  """Run upstream detection.
+  """Run upstream detection, then draft a changelog entry from its report.
+
+  The draft is written here rather than in ``update`` because detect moves
+  the lock file: a draft skipped on this run would never be offered again.
 
   Returns:
       int: detect's own exit code, which follows the same contract.
   """
   command = [sys.executable, str(ROOT / "upstream" / "detect.py")]
-  return subprocess.run(command, cwd=ROOT, check=False).returncode  # noqa: S603 - fixed arguments. # nosec B603
+  code = subprocess.run(command, cwd=ROOT, check=False).returncode  # noqa: S603 - fixed arguments. # nosec B603
+  if code != ERROR:
+    draft_changelog()
+
+  return code
 
 
 # -----------------------------------------------------------------------------

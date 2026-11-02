@@ -134,10 +134,9 @@ def _request_fields(model: type[BaseModel], data: Mapping[str, Any]) -> dict[str
 def _request_body(item: ItemInput) -> Mapping[str, Any]:
   """Turn what ``add`` or ``modify`` was given into request fields.
 
-  Secrets are revealed, because the request model types a login's
-  password and a card's number as plain strings; ``_request`` validates
-  the result and sends it. Only a fetched item is pruned: unknown keys in
-  a mapping are the caller's, and validation refuses them.
+  Secrets are revealed; ``_request`` validates the result, which masks
+  them again, and sends it. Only a fetched item is pruned: unknown keys
+  in a mapping are the caller's, and validation refuses them.
 
   Args:
       item: Request fields, a request model, or a fetched item.

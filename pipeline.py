@@ -90,6 +90,21 @@ def run_tool(args: List[str]) -> "subprocess.CompletedProcess[str]":
 
 
 # -----------------------------------------------------------------------------
+def section_pattern(title: str) -> "re.Pattern[str]":
+  """Match one ``## title`` section of the change report, up to the next.
+
+  Group 1 is the section's body, below its heading.
+
+  Arguments:
+      title: The section heading, without the ``##``.
+
+  Returns:
+      re.Pattern[str]: The compiled pattern.
+  """
+  return re.compile(rf"^## {re.escape(title)}\n(.*?)(?=^## |\Z)", re.MULTILINE | re.DOTALL)
+
+
+# -----------------------------------------------------------------------------
 def set_report_section(title: str, lines: List[str], empty: str) -> None:
   """Replace one ``## title`` section of the change report, or add it.
 
@@ -105,8 +120,8 @@ def set_report_section(title: str, lines: List[str], empty: str) -> None:
   body = "\n".join(f"- {line}" for line in lines) if lines else empty
   section = f"## {title}\n\n{body}\n"
 
-  pattern = re.compile(rf"^## {re.escape(title)}\n.*?(?=^## |\Z)", re.MULTILINE | re.DOTALL)
-  match = pattern.search(text)
+  match = section_pattern(title).search(text)
+
   if match:
     text = f"{text[:match.start()]}{section}\n{text[match.end():]}".rstrip("\n") + "\n"
 
@@ -128,7 +143,8 @@ def report_items(text: str, title: str) -> List[str]:
       List[str]: The items without their bullet; empty when the section is
       missing or holds only its "None." note.
   """
-  match = re.search(rf"^## {re.escape(title)}\n(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+  match = section_pattern(title).search(text)
+
   return [line[2:] for line in match.group(1).splitlines() if line.startswith("- ")] if match else []
 
 
@@ -149,6 +165,7 @@ def changelog_draft(text: str) -> List[str]:
   # Rows of detect's "| Source | Was | Now |" table, header excluded.
   rows = re.findall(r"^\| (.+?) \| (.*?) \| (.*?) \|$", text, re.MULTILINE)
   sources = [f"Upstream `{name}`: {was} → {now}" for name, was, now in rows if name != "Source"]
+
   if not sources:
     return []
 
@@ -167,6 +184,7 @@ def draft_changelog() -> None:
   docstring for the format. The outcome goes in the report.
   """
   bullets = changelog_draft(REPORT.read_text(encoding="utf-8")) if REPORT.exists() else []
+
   if not bullets:
     return
 
@@ -233,13 +251,16 @@ def detect() -> int:
 
   The draft is written here rather than in ``update`` because detect moves
   the lock file: a draft skipped on this run would never be offered again.
+  Only a run that reports a change drafts: any other exit code, a killed
+  run included, may have left an older report on disk.
 
   Returns:
       int: detect's own exit code, which follows the same contract.
   """
   command = [sys.executable, str(ROOT / "upstream" / "detect.py")]
   code = subprocess.run(command, cwd=ROOT, check=False).returncode  # noqa: S603 - fixed arguments. # nosec B603
-  if code != ERROR:
+
+  if code == CHANGE:
     draft_changelog()
 
   return code

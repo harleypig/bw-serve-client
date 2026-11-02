@@ -113,8 +113,7 @@ changes the API can break it until the library catches up.
 
 ### The library is young
 
-It is at version 0.1.1, classed as beta, and not on PyPI. Its interface may
-still change.
+It is classed as beta and not on PyPI. Its interface may still change.
 
 ### Machine secrets: Secrets Manager
 

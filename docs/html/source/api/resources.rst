@@ -10,9 +10,10 @@ Every class is built on a shared client::
        folders = Folders(client)
 
 The constructor also takes ``logger`` and ``error_handler``; either
-defaults to the client's, so both can be set once on the
-:class:`~bw_serve_client.api_client.ApiClient` and overridden per
-resource.
+defaults to the client's. An ``error_handler`` given here handles that
+class's failures. A ``logger`` given here receives only the class's
+one-line request trace: request and response records still go to the
+client's logger, and errors to the error handler.
 
 A method validates its arguments against the generated models before it
 sends anything, and parses the response into a model. When the error

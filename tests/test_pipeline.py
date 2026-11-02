@@ -308,9 +308,9 @@ class TestChangelogDraft:
     assert changelog.read_text(encoding="utf-8") == "# Changelog\n\n## [0.1.0]\n"
     assert "has no `## [Unreleased]` heading" in report.read_text(encoding="utf-8")
 
-  @pytest.mark.parametrize(("code", "drafted"), [(0, True), (2, True), (1, False)])
-  def test_detect_drafts_unless_it_failed(self: TestChangelogDraft, mocker: MockerFixture, code: int, drafted: bool) -> None:
-    """Detect drafts after any run that wrote a report, keeping its exit code."""
+  @pytest.mark.parametrize(("code", "drafted"), [(0, False), (2, True), (1, False), (-9, False)])
+  def test_detect_drafts_only_on_change(self: TestChangelogDraft, mocker: MockerFixture, code: int, drafted: bool) -> None:
+    """Detect drafts only after a run that reported a change, keeping its exit code."""
     mocker.patch.object(pipeline.subprocess, "run", return_value=finished(code))
     draft = mocker.patch.object(pipeline, "draft_changelog")
 

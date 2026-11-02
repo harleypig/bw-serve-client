@@ -72,7 +72,10 @@ CI runs on every pull request:
 - the pre-commit check config (`tox -e lint`), and
 - a rebuild of the generated code, which must leave the tree unchanged.
 
-A pull request that touches `docs/` also builds the Sphinx docs.
+A pull request that touches `docs/`, `bw_serve_client/`, `pyproject.toml`,
+`poetry.lock` or the docs workflow also builds the Sphinx docs, with
+warnings as errors: a docstring that doesn't render, or a public name with
+no page, fails it.
 
 ## Release
 

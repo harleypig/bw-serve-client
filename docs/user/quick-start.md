@@ -79,8 +79,9 @@ with ApiClient(base_url="http://localhost:8087") as client:
 To have validation and user errors returned instead of raised, pass
 `error_handler=DefaultErrorHandler(error_level=logging.ERROR)` to
 `ApiClient`; service failures and bugs still raise. Any object that
-implements the `ErrorHandler` protocol can replace the default, and a
-`logger` argument replaces the default logger.
+implements the `ErrorHandler` protocol can replace the default. A `logger`
+passed to `ApiClient` receives the request and response records; a handler
+you construct logs errors to its own `logger`, so pass it the same one.
 
 ## Connect another way
 

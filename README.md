@@ -173,6 +173,8 @@ client = ApiClient(base_url="unix:///run/user/1000/bw.sock")
 The client sends `Host: localhost:8087` over a socket, because `bw serve`
 refuses requests whose `Host` it does not expect. If the server was started
 with `--port`, pass the same `port=` to `ApiClient`.
+[`examples/serve_socket.py`][serve-socket] starts `bw serve` on a socket,
+makes one call through it and stops the server.
 
 ### Reading and writing
 
@@ -243,19 +245,27 @@ with ApiClient() as client:
 
 To get validation and user errors back as values instead of exceptions,
 raise the handler's threshold. A method then returns the error in place of
-its result. Pass your own `logger`, or an `error_handler` of your own that
-implements `ErrorHandler`, the same way.
+its result. Any object that implements `ErrorHandler` can replace the
+default handler the same way.
 
 ```python
 import logging
 
 from bw_serve_client import ApiClient, DefaultErrorHandler
 
-client = ApiClient(error_handler=DefaultErrorHandler(error_level=logging.ERROR))
+app_log = logging.getLogger("myapp.bitwarden")
+
+client = ApiClient(logger=app_log, error_handler=DefaultErrorHandler(error_level=logging.ERROR, logger=app_log))
 ```
 
-A resource class takes the same `logger=` and `error_handler=` arguments, to
-override the client's for that class alone.
+The client's `logger` receives its request and response records. A handler
+you construct logs errors to its own `logger`, so give it the same one; only
+the default handler is wired to the client's logger for you.
+
+A resource class takes `error_handler=` to override the client's for that
+class alone. Its `logger=` receives only the class's one-line request trace;
+request and response records still go to the client's logger, and errors to
+the error handler.
 
 ### Unlocking over HTTP
 
@@ -279,10 +289,12 @@ with ApiClient() as client:
   methods and the route each one calls.
 * [`examples/`][examples] has a runnable script for each resource class.
   Each needs a running, unlocked `bw serve`, and reads `BW_SERVE_URL` for
-  its address.
+  its address, except `serve_socket.py`, which starts its own `bw serve` on
+  a Unix socket.
 * The [documentation site][docs-site] has the API reference built from the
   docstrings.
 
 [api-architecture]: docs/api-architecture.md
 [examples]: examples/
+[serve-socket]: examples/serve_socket.py
 [docs-site]: https://harleypig.github.io/bw-serve-client

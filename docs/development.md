@@ -110,7 +110,7 @@ The Sphinx docs live in `docs/html/` and deploy to GitHub Pages from CI:
 
 ```bash
 cd docs/html
-poetry run sphinx-build -b html source _build/html
+poetry run sphinx-build -W -b html source _build/html
 ```
 
 Open `docs/html/_build/html/index.html` to read the result.

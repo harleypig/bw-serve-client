@@ -9,6 +9,7 @@ import logging
 from typing import Any, Dict, List, Optional, Union
 
 import httpx
+from pydantic import SecretStr
 
 from .errors import category_for_status
 from .errors import DefaultErrorHandler
@@ -35,6 +36,28 @@ def _media_type(content_type: str) -> str:
       The media type, lower case, without parameters.
   """
   return content_type.split(';', 1)[0].strip().lower()
+
+
+# -----------------------------------------------------------------------------
+def _reveal(value: Any) -> Any:
+  """Replace every ``SecretStr`` in a request body with its value.
+
+  Args:
+      value: A body, or any part of one.
+
+  Returns:
+      The same structure, with secrets in the clear for sending.
+  """
+  if isinstance(value, SecretStr):
+    return value.get_secret_value()
+
+  if isinstance(value, dict):
+    return {key: _reveal(item) for key, item in value.items()}
+
+  if isinstance(value, list):
+    return [_reveal(item) for item in value]
+
+  return value
 
 
 class ApiClient:
@@ -259,11 +282,15 @@ class ApiClient:
   def _send(self: "ApiClient", method: str, url: str, **kwargs: Any) -> Union[httpx.Response, httpx.RequestError, httpx.InvalidURL]:
     """Send one request, returning a failure rather than raising it.
 
-    A transport failure, or a URL httpx cannot build, comes back as a copy
-    of httpx's error without its request, which holds the body -- the
-    master password, on ``/unlock``. Returning it, rather than handling it
-    in the ``except`` block, keeps the original from becoming the
-    ``__context__`` of whatever the error handler raises.
+    Secrets in the body are revealed here and nowhere earlier, and the
+    plaintext is gone by the time this returns, so a reporter that records
+    every traceback frame's locals never sees the master password (#97).
+    The response keeps its content but not its request's body. A
+    transport failure, or a URL httpx cannot build, comes back as a copy
+    of httpx's error without its request, and with no traceback left on
+    its cause chain, whose frames held the body. Returning it, rather than
+    handling it in the ``except`` block, keeps the original from becoming
+    the ``__context__`` of whatever the error handler raises.
 
     Args:
         method: HTTP method, upper case.
@@ -274,12 +301,32 @@ class ApiClient:
         The response, or the failure.
     """
     try:
-      return self.session.request(method=method, url=url, **kwargs)
+      response = self.session.request(
+        method=method, url=url, **{
+          name: _reveal(value) if name in ('json', 'data') else value
+          for name, value in kwargs.items()
+        }
+      )
 
     except (httpx.RequestError, httpx.InvalidURL) as e:
       failure = type(e)(str(e))
       failure.__cause__ = e.__cause__
+
+      link = e.__cause__
+
+      while link is not None:
+        link.__traceback__ = None
+        link = link.__cause__ or link.__context__
+
       return failure
+
+    # The response is read in full by now, and its stream, as httpx's own
+    # transport builds it, still reaches the request.
+    sent = response.request
+    response.request = httpx.Request(sent.method, sent.url, headers=sent.headers)
+    response.stream = httpx.ByteStream(response.content)
+
+    return response
 
   def _serialize_data(self: "ApiClient", data: Any, content_type: str = "application/json") -> Any:
     """Serialize data for API requests.

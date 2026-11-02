@@ -28,6 +28,7 @@ from pydantic import TypeAdapter
 from pydantic import ValidationError as PydanticValidationError
 from pydantic_core import to_jsonable_python
 
+from .api_client import _reveal
 from .errors import ExternalServiceError
 from .errors import ValidationError
 
@@ -140,25 +141,25 @@ def _adapter(response_type: Any) -> TypeAdapter[Any]:
 
 
 # -----------------------------------------------------------------------------
-def _reveal(value: Any) -> Any:
-  """Replace every ``SecretStr`` in a dumped model with its value.
+def _jsonable(value: Any) -> Any:
+  """Make a dumped model JSON-compatible, leaving each ``SecretStr`` wrapped.
 
   Args:
     value: A model dumped in python mode, or any part of one.
 
   Returns:
-    The same structure, with secrets in the clear for sending.
+    The same structure in JSON types, secrets still masked.
   """
   if isinstance(value, SecretStr):
-    return value.get_secret_value()
+    return value
 
   if isinstance(value, dict):
-    return {key: _reveal(item) for key, item in value.items()}
+    return {to_jsonable_python(key): _jsonable(item) for key, item in value.items()}
 
-  if isinstance(value, list):
-    return [_reveal(item) for item in value]
+  if isinstance(value, (list, tuple)):
+    return [_jsonable(item) for item in value]
 
-  return value
+  return to_jsonable_python(value)
 
 
 # -----------------------------------------------------------------------------
@@ -289,8 +290,11 @@ class Resource:
       # error, which holds the input, is neither the cause nor the context.
       try:
         raw = fields if issubclass(model, RootModel) else dict(fields)
-        dumped = model.model_validate(raw).model_dump(by_alias=True, exclude_none=True)
-        validated[name] = to_jsonable_python(_reveal(dumped))
+        dumped = _jsonable(model.model_validate(raw).model_dump(by_alias=True, exclude_none=True))
+
+        # The client reveals the body's secrets only as it sends, so no
+        # frame on the stack when a failure is reported holds them (#97).
+        validated[name] = dumped if name == "body" else _reveal(dumped)
         continue
 
       except PydanticValidationError as e:

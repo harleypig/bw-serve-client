@@ -159,8 +159,11 @@ repos:
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.6
     hooks:
+      # bandit 1.8.6 raises on every file under Python 3.14 and still exits
+      # 0, so the hook runs on 3.12, as CI's lint env does.
       - id: bandit
         description: Security linter for Python
+        language_version: python3.12
         args:
           - '--configfile'
           - 'pyproject.toml'

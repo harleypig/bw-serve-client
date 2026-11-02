@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-import subprocess
+import subprocess  # nosec B404 - runs only the bw CLI, with fixed arguments.
 import sys
 import tempfile
 import time
@@ -46,7 +46,8 @@ def cli_problem() -> str | None:
     Why it cannot, or None when it can.
   """
   try:
-    output = subprocess.run(["bw", "--version"], capture_output=True, text=True, check=True, timeout=30).stdout
+    # bw is found on PATH on purpose, as a shell would; the arguments are fixed.
+    output = subprocess.run(["bw", "--version"], capture_output=True, text=True, check=True, timeout=30).stdout  # nosec B603 B607
     version = tuple(int(part) for part in output.strip().split("."))
 
   except FileNotFoundError:
@@ -116,7 +117,8 @@ def serve_and_ask() -> int:
   # also clears the socket file a stopped server leaves behind.
   with tempfile.TemporaryDirectory(prefix="bw-serve-") as directory:
     socket_path = Path(directory) / "bw.sock"
-    server = subprocess.Popen(["bw", "serve", "--hostname", f"unix://{socket_path}", "--port", str(PORT)])
+    # bw from PATH again; the only variable argument is our own socket path.
+    server = subprocess.Popen(["bw", "serve", "--hostname", f"unix://{socket_path}", "--port", str(PORT)])  # nosec B603 B607
 
     try:
       if not wait_for_socket(server, socket_path):

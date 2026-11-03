@@ -243,7 +243,13 @@ CASES = (
   Case("item-field-username", "Read the login's username.", "GET", "/object/username/{item_id}"),
   Case("item-field-password", "Read the login's password; the value is redacted.", "GET", "/object/password/{item_id}"),
   Case("item-field-uri", "Read the login's first URI.", "GET", "/object/uri/{item_id}"),
-  Case("item-field-totp", "Read the login's current TOTP code, which changes every run.", "GET", "/object/totp/{item_id}"),
+  Case(
+    "item-field-totp",
+    "Read the login's current TOTP code, which changes every run; the code is redacted.",
+    "GET",
+    "/object/totp/{item_id}",
+    secret=_data_fields("data"),
+  ),
   Case("item-field-notes", "Read the item's notes.", "GET", "/object/notes/{item_id}"),
   # bw asks the Have I Been Pwned range API, so this one needs the internet.
   Case("item-field-exposed", "How often the login's password appears in known breaches.", "GET", "/object/exposed/{item_id}"),

@@ -1,6 +1,6 @@
 {
   "case": "item-field-totp",
-  "description": "Read the login's current TOTP code, which changes every run.",
+  "description": "Read the login's current TOTP code, which changes every run; the code is redacted.",
   "recorded": {
     "cli": "2026.10.1",
     "date": "2026-11-01",
@@ -14,7 +14,7 @@
   "response": {
     "body": {
       "data": {
-        "data": "453216",
+        "data": "<redacted>",
         "object": "string"
       },
       "success": true

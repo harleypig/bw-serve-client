@@ -120,6 +120,12 @@ class TestSecretsOf:
 
     assert result == ["k", "https://vw/#/send/a/k"]
 
+  def test_collects_totp_code(self: TestSecretsOf) -> None:
+    """The TOTP code is collected, though it expires seconds after recording."""
+    result = record.secrets_of(_case("item-field-totp"), 200, {"data": {"object": "string", "data": "123456"}})  # act
+
+    assert result == ["123456"]
+
   def test_failure_holds_none(self: TestSecretsOf) -> None:
     """A failed case is not read, since its body lacks the members."""
     result = record.secrets_of(_case("send-create"), 400, {"success": False})  # act

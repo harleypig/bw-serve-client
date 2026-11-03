@@ -224,11 +224,6 @@ CLEAR_ON_PURPOSE = {
   "JBSWY3DPEHPK3PXP",
 }
 
-#: Secret-typed places a recording shows in the clear on purpose, by case:
-#: the TOTP code is from the recorder's made-up seed, which is redacted, and
-#: expired seconds after it was recorded.
-CLEAR_PLACES = {("item-field-totp", ("response", "body", "data", "data"))}
-
 #: Names typed SecretStr that are not a secret wherever they appear: ``data``
 #: is every envelope's member (the secret one is checked by model, below),
 #: and ``message`` holds the session key only inside the unlock text, which
@@ -414,6 +409,7 @@ class TestRecordings:
     assert ("send-edit", ("response", "body", "data", "key")) in places
     assert ("send-edit", ("response", "body", "data", "accessUrl")) in places
     assert ("generate", ("response", "body", "data", "data")) in places
+    assert ("item-field-totp", ("response", "body", "data", "data")) in places
     assert ("attachment-create", ("response", "body", "data", "attachments", 0, "url")) in places
 
   @pytest.mark.parametrize("name", RECORDED)
@@ -427,7 +423,7 @@ class TestRecordings:
     """
     places = _secret_places(load_recorded(name))
 
-    result = [where for where, value in places if _in_the_clear(str(where[-1]), value) and (name, where) not in CLEAR_PLACES]
+    result = [where for where, value in places if _in_the_clear(str(where[-1]), value)]
 
     # Assert
     assert result == []

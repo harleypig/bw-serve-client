@@ -19,9 +19,16 @@ Markup is compared away on both sides: HTML tags and entities, ``**``
 emphasis and backticks are dropped, en and em dashes read as ``--``, and
 whitespace runs collapse, so a docstring may wrap and use RST literals.
 
-What it does not check: the spec's tags. ``Route`` carries none, so a class
-name cannot be compared with its tag. A route the spec does not have is
-skipped here; the route coverage test reports it.
+Tags are carried one level up, by the module. A resource class groups
+routes, so a tag belongs to the class rather than to each method, and a
+class may span tags (``OrgCollections`` takes one ``Vault Items`` route) as
+a tag may span classes (``Attachments & Fields`` feeds ``Attachments`` and
+``ItemFields``). So the docstring of a resource class's module must name
+every tag of every route the class declares, as an RST literal --
+````Folders```` -- matched exactly.
+
+A route the spec does not have is skipped here; the route coverage test
+reports it.
 """
 
 from __future__ import annotations
@@ -29,18 +36,22 @@ from __future__ import annotations
 import html
 import inspect
 import re
+import sys
 from typing import Any, TYPE_CHECKING
 
+from _routes import resource_classes
 from _routes import resource_methods
 
 from bw_serve_client._generated import routes as routes_module
 from bw_serve_client._generated.routes import Route
+from bw_serve_client.org_collections import OrgCollections
 from bw_serve_client.resource import declared_routes
 from bw_serve_client.resource import route
+from bw_serve_client.resource import routed_methods
 from bw_serve_client.resource import RouteKey
 
 if TYPE_CHECKING:
-  from collections.abc import Callable, Sequence
+  from collections.abc import Callable, Iterable, Sequence
 
 BREAK = re.compile(r"(?:\s*<br\s*/?>\s*)+", re.IGNORECASE)
 
@@ -112,6 +123,26 @@ def docstring_problems(name: str, func: Callable[..., Any], spec: Sequence[Route
 
 
 # -----------------------------------------------------------------------------
+def tag_problems(name: str, doc: str, keys: Iterable[RouteKey], spec: Sequence[Route]) -> list[str]:
+  """Check a module docstring names the tags of a class's routes.
+
+  Args:
+    name: The class's name, for the messages.
+    doc: The docstring of the module defining the class.
+    keys: Every route the class declares.
+    spec: The spec's routes.
+
+  Returns:
+    One message per tag the docstring does not name as ````tag````.
+  """
+  by_key = {RouteKey(r.method, r.path): r for r in spec}
+  tags = dict.fromkeys(tag for key in keys if key in by_key for tag in by_key[key].tags)
+  text = " ".join(doc.split())
+
+  return [f"{name}: module docstring does not name the tag ``{tag}``" for tag in tags if f"``{tag}``" not in text]
+
+
+# -----------------------------------------------------------------------------
 class TestResourceDocstrings:
   """The real resource methods."""
 
@@ -137,6 +168,32 @@ class TestResourceDocstrings:
       next(r for r in routes_module.ROUTES if (r.method, r.path) == ("DELETE", "/object/folder/{id}")).description
     )
 
+  def test_every_module_docstring_names_its_tags(self: TestResourceDocstrings) -> None:
+    """Each resource class's module names the tags of the routes it declares."""
+    problems = [
+      problem for cls in resource_classes() for problem in tag_problems(
+        cls.__name__,
+        sys.modules[cls.__module__].__doc__ or "",
+        (key for keys in routed_methods(cls).values() for key in keys),
+        routes_module.ROUTES,
+      )
+    ]  # act
+
+    assert problems == []
+
+  def test_routes_carry_the_tags_a_class_spans(self: TestResourceDocstrings) -> None:
+    """The OrgCollections routes span two tags, so the check above has both.
+
+    Without this, a spec or generator that dropped tags would leave every
+    ``Route.tags`` empty and the check above would pass on nothing.
+    """
+    keys = [key for keys in routed_methods(OrgCollections).values() for key in keys]
+    by_key = {RouteKey(r.method, r.path): r for r in routes_module.ROUTES}
+
+    tags = {tag for key in keys for tag in by_key[key].tags}  # act
+
+    assert tags == {"Collections & Organizations", "Vault Items"}
+
 
 # -----------------------------------------------------------------------------
 SPEC = (
@@ -146,9 +203,17 @@ SPEC = (
     parameters=(),
     summary="Delete a thing.",
     description="Delete a thing by id in the path.<br><br>Deleting a thing **will not** delete its parts &ndash; ever.",
+    tags=("Things",),
   ),
-  Route(method="GET", path="/list/object/things", parameters=(), summary="List things.", description="List things."),
-  Route(method="GET", path="/things", parameters=(), summary="List things (alias).", description="An alias."),
+  Route(
+    method="GET",
+    path="/list/object/things",
+    parameters=(),
+    summary="List things.",
+    description="List things.",
+    tags=("Things", "Lists & Indexes"),
+  ),
+  Route(method="GET", path="/things", parameters=(), summary="List things (alias).", description="An alias.", tags=()),
 )
 
 
@@ -271,3 +336,38 @@ class TestDocstringRules:
   def test_first_description_paragraph_is_exempt(self: TestDocstringRules) -> None:
     """Only the paragraphs after the first are required."""
     assert required_paragraphs(SPEC[0].description) == ["Deleting a thing will not delete its parts -- ever."]
+
+
+# -----------------------------------------------------------------------------
+THINGS = (RouteKey("DELETE", "/object/thing/{id}"), RouteKey("GET", "/list/object/things"))
+
+
+class TestTagRule:
+  """The tag rule passes a module naming every tag and fails one that does not."""
+
+  def test_every_tag_named_passes(self: TestTagRule) -> None:
+    """Both tags as literals, one wrapped across a line: no problems."""
+    doc = "Mirrors the ``Things`` tag, plus the ``Lists &\n  Indexes`` route."
+
+    assert tag_problems("S", doc, THINGS, SPEC) == []
+
+  def test_missing_tag_fails(self: TestTagRule) -> None:
+    """A tag the docstring does not name is reported, once."""
+    problems = tag_problems("S", "Mirrors the ``Things`` tag.", THINGS, SPEC)  # act
+
+    assert problems == ["S: module docstring does not name the tag ``Lists & Indexes``"]
+
+  def test_tag_must_match_exactly(self: TestTagRule) -> None:
+    """A shortened tag, or the tag outside a literal, does not count."""
+    problems = tag_problems("S", "Mirrors the ``Lists`` and Things tags.", THINGS, SPEC)  # act
+
+    assert problems == [
+      "S: module docstring does not name the tag ``Things``",
+      "S: module docstring does not name the tag ``Lists & Indexes``",
+    ]
+
+  def test_untagged_and_unknown_routes_need_nothing(self: TestTagRule) -> None:
+    """A route with no tags, or one the spec lacks, adds no requirement."""
+    keys = (RouteKey("GET", "/things"), RouteKey("GET", "/not/in/spec"))
+
+    assert tag_problems("S", "", keys, SPEC) == []

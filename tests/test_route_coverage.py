@@ -221,7 +221,7 @@ class TestFailurePaths:
 
   def test_an_added_spec_route_fails(self: TestFailurePaths, monkeypatch: pytest.MonkeyPatch) -> None:
     """A new upstream route, neither declared nor excluded, is reported."""
-    added = Route(method="GET", path="/object/new-thing/{id}", parameters=(), summary="New.", description="")
+    added = Route(method="GET", path="/object/new-thing/{id}", parameters=(), summary="New.", description="", tags=())
     monkeypatch.setattr(routes_module, "ROUTES", (*routes_module.ROUTES, added))
 
     problems = added_problems()  # act

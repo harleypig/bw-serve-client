@@ -56,7 +56,9 @@ Each API class generated from a route MUST:
 - Handle HTTP status codes appropriately and translate failures into
   domain errors.
 - Carry over `summary`, `description`, and `tags` from the API
-  definition into docstrings; create them if missing.
+  definition into docstrings; create them if missing. The summary and
+  description go in the method's docstring; the tags go in the module's
+  docstring, since a class groups routes and may span tags.
 - Be accompanied by a unit test in `tests/` (use `pytest-mock` for any
   external call) and a usage example in `examples/`.
 

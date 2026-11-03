@@ -386,7 +386,8 @@ use-type-checking = true
 # Docstring customization
 
 # OpenAPI options
-include-path-parameters = true
-openapi-scopes = ["schemas","paths","parameters"]
+# No "parameters" scope: codegen/generate.py adds a schema per route for its
+# path and its query parameters, since the generator would mix them (#112).
+openapi-scopes = ["schemas","paths"]
 strict-nullable = true
 #use-operation-id-as-name = true

@@ -20,14 +20,15 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
 
-from ._generated.models import ArchiveObjectIdPostParameters
+from ._generated.models import ArchiveObjectIdPostPathParameters
 from ._generated.models import ItemSchema
 from ._generated.models import ItemTemplateSchema
-from ._generated.models import ListObjectItemsGetParameters
-from ._generated.models import ObjectItemIdDeleteParameters
-from ._generated.models import ObjectItemIdGetParameters
-from ._generated.models import ObjectItemIdPutParameters
-from ._generated.models import RestoreItemIdPostParameters
+from ._generated.models import ListObjectItemsGetQueryParameters
+from ._generated.models import ObjectItemIdDeletePathParameters
+from ._generated.models import ObjectItemIdDeleteQueryParameters
+from ._generated.models import ObjectItemIdGetPathParameters
+from ._generated.models import ObjectItemIdPutPathParameters
+from ._generated.models import RestoreItemIdPostPathParameters
 from .errors import ValidationError
 from .resource import ObjectId
 from .resource import Resource
@@ -52,23 +53,6 @@ class _SearchPath(BaseModel):
 
   # An empty term would leave ``/object/item/``, which is not a route.
   id: Annotated[str, Field(min_length=1)]
-
-
-class _DeleteQuery(BaseModel):
-  """The query of a delete.
-
-  The generated ``ObjectItemIdDeleteParameters`` holds the path ``id``
-  and the query ``permanent`` in one model, so it validates the path and
-  this model validates the query.
-
-  Attributes:
-      permanent: Delete permanently rather than move to the trash.
-      model_config: Refuses unknown fields.
-  """
-
-  model_config = ConfigDict(extra="forbid")
-
-  permanent: Optional[bool] = None
 
 
 # -----------------------------------------------------------------------------
@@ -208,7 +192,9 @@ class VaultItems(Resource):
       "search": search or None,
     }
 
-    return self._request("GET", "/list/object/items", query=(ListObjectItemsGetParameters, fields), response_type=list[ItemSchema])
+    return self._request(
+      "GET", "/list/object/items", query=(ListObjectItemsGetQueryParameters, fields), response_type=list[ItemSchema]
+    )
 
   # ---------------------------------------------------------------------------
   @route("POST", "/object/item")
@@ -270,7 +256,7 @@ class VaultItems(Resource):
     return self._request(
       "PUT",
       "/object/item/{id}",
-      path_params=(ObjectItemIdPutParameters, {
+      path_params=(ObjectItemIdPutPathParameters, {
         "id": item_id
       }),
       body=(ItemTemplateSchema, _request_body(item)),
@@ -306,7 +292,7 @@ class VaultItems(Resource):
       path_params = (_SearchPath, {"id": search})
 
     else:
-      path_params = (ObjectItemIdGetParameters, {"id": item_id})
+      path_params = (ObjectItemIdGetPathParameters, {"id": item_id})
 
     return self._request("GET", "/object/item/{id}", path_params=path_params, response_type=ItemSchema)
 
@@ -328,10 +314,10 @@ class VaultItems(Resource):
     return self._request(
       "DELETE",
       "/object/item/{id}",
-      path_params=(ObjectItemIdDeleteParameters, {
+      path_params=(ObjectItemIdDeletePathParameters, {
         "id": item_id
       }),
-      query=(_DeleteQuery, {
+      query=(ObjectItemIdDeleteQueryParameters, {
         "permanent": permanent or None
       }),
     )
@@ -350,7 +336,7 @@ class VaultItems(Resource):
     Returns:
         ``None``, or the error handler's return value.
     """
-    return self._request("POST", "/restore/item/{id}", path_params=(RestoreItemIdPostParameters, {"id": item_id}))
+    return self._request("POST", "/restore/item/{id}", path_params=(RestoreItemIdPostPathParameters, {"id": item_id}))
 
   # ---------------------------------------------------------------------------
   @route("POST", "/archive/{object}/{id}")
@@ -371,7 +357,7 @@ class VaultItems(Resource):
     return self._request(
       "POST",
       "/archive/{object}/{id}",
-      path_params=(ArchiveObjectIdPostParameters, {
+      path_params=(ArchiveObjectIdPostPathParameters, {
         "object": "item",
         "id": item_id
       }),

@@ -13,10 +13,12 @@ from __future__ import annotations
 import os
 from typing import Any, BinaryIO, Optional, Union
 
-from ._generated.models import AttachmentPostParameters
+from ._generated.models import AttachmentPostQueryParameters
 from ._generated.models import ItemSchema
-from ._generated.models import ObjectAttachmentIdDeleteParameters
-from ._generated.models import ObjectAttachmentIdGetParameters
+from ._generated.models import ObjectAttachmentIdDeletePathParameters
+from ._generated.models import ObjectAttachmentIdDeleteQueryParameters
+from ._generated.models import ObjectAttachmentIdGetPathParameters
+from ._generated.models import ObjectAttachmentIdGetQueryParameters
 from .errors import ValidationError
 from .resource import ObjectId
 from .resource import Resource
@@ -26,11 +28,6 @@ ItemId = ObjectId
 
 #: What :meth:`Attachments.add` uploads: a path to read, or the content.
 FileSource = Union[str, os.PathLike[str], bytes, BinaryIO]
-
-# The generated get and delete parameter models hold the path id and the
-# itemid query in one model, so they validate the path and the upload's
-# model, which holds only itemid, validates the query.
-_ItemQuery = AttachmentPostParameters
 
 
 class Attachments(Resource):
@@ -91,7 +88,7 @@ class Attachments(Resource):
     return self._request(
       "POST",
       "/attachment",
-      query=(_ItemQuery, {
+      query=(AttachmentPostQueryParameters, {
         "itemid": item_id
       }),
       files={"file": (file_name, content)},
@@ -120,11 +117,10 @@ class Attachments(Resource):
     return self._request(
       "GET",
       "/object/attachment/{id}",
-      path_params=(ObjectAttachmentIdGetParameters, {
-        "id": attachment_id,
-        "itemid": item_id
+      path_params=(ObjectAttachmentIdGetPathParameters, {
+        "id": attachment_id
       }),
-      query=(_ItemQuery, {
+      query=(ObjectAttachmentIdGetQueryParameters, {
         "itemid": item_id
       }),
       response_type=bytes,
@@ -145,11 +141,10 @@ class Attachments(Resource):
     return self._request(
       "DELETE",
       "/object/attachment/{id}",
-      path_params=(ObjectAttachmentIdDeleteParameters, {
-        "id": attachment_id,
-        "itemid": item_id
+      path_params=(ObjectAttachmentIdDeletePathParameters, {
+        "id": attachment_id
       }),
-      query=(_ItemQuery, {
+      query=(ObjectAttachmentIdDeleteQueryParameters, {
         "itemid": item_id
       }),
     )

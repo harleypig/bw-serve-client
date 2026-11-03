@@ -13,10 +13,11 @@ from __future__ import annotations
 
 from typing import Any, Optional, Union
 
-from ._generated.models import ConfirmOrgMemberIdPostParameters
-from ._generated.models import ListObjectOrganizationsGetParameters
-from ._generated.models import ListObjectOrgMembersGetParameters
-from ._generated.models import ObjectOrganizationIdGetParameters
+from ._generated.models import ConfirmOrgMemberIdPostPathParameters
+from ._generated.models import ConfirmOrgMemberIdPostQueryParameters
+from ._generated.models import ListObjectOrganizationsGetQueryParameters
+from ._generated.models import ListObjectOrgMembersGetQueryParameters
+from ._generated.models import ObjectOrganizationIdGetPathParameters
 from ._generated.models import OrganizationSchema
 from ._generated.models import OrgMemberSchema
 from .resource import ObjectId
@@ -25,11 +26,6 @@ from .resource import route
 
 OrganizationId = ObjectId
 MemberId = ObjectId
-
-# The generated confirm model holds the path id and the organizationId
-# query in one model, so it validates the path and this model, which holds
-# only organizationId, validates the query.
-_OrganizationQuery = ListObjectOrgMembersGetParameters
 
 
 class Organizations(Resource):
@@ -56,7 +52,7 @@ class Organizations(Resource):
     return self._request(
       "GET",
       "/object/organization/{id}",
-      path_params=(ObjectOrganizationIdGetParameters, {
+      path_params=(ObjectOrganizationIdGetPathParameters, {
         "id": organization_id
       }),
       response_type=OrganizationSchema,
@@ -76,7 +72,7 @@ class Organizations(Resource):
     return self._request(
       "GET",
       "/list/object/org-members",
-      query=(ListObjectOrgMembersGetParameters, {
+      query=(ListObjectOrgMembersGetQueryParameters, {
         "organizationId": organization_id
       }),
       response_type=list[OrgMemberSchema],
@@ -98,11 +94,10 @@ class Organizations(Resource):
     return self._request(
       "POST",
       "/confirm/org-member/{id}",
-      path_params=(ConfirmOrgMemberIdPostParameters, {
-        "id": member_id,
-        "organizationId": organization_id
+      path_params=(ConfirmOrgMemberIdPostPathParameters, {
+        "id": member_id
       }),
-      query=(_OrganizationQuery, {
+      query=(ConfirmOrgMemberIdPostQueryParameters, {
         "organizationId": organization_id
       }),
     )
@@ -120,6 +115,6 @@ class Organizations(Resource):
         The matching organizations, as :class:`OrganizationSchema`
         (empty if none match).
     """
-    query = (ListObjectOrganizationsGetParameters, {"search": search or None})
+    query = (ListObjectOrganizationsGetQueryParameters, {"search": search or None})
 
     return self._request("GET", "/list/object/organizations", query=query, response_type=list[OrganizationSchema])

@@ -28,17 +28,20 @@ from ._generated.models import CollectionResponseSchema
 from ._generated.models import CollectionSchema
 from ._generated.models import GroupSchema
 from ._generated.models import ItemSchema
-from ._generated.models import ListObjectCollectionsGetParameters
-from ._generated.models import ListObjectOrgCollectionsGetParameters
-from ._generated.models import MoveItemidOrganizationIdPostParameters
+from ._generated.models import ListObjectCollectionsGetQueryParameters
+from ._generated.models import ListObjectOrgCollectionsGetQueryParameters
+from ._generated.models import MoveItemidOrganizationIdPostPathParameters
 from ._generated.models import MoveItemRequestSchema
-from ._generated.models import ObjectCollectionIdGetParameters
-from ._generated.models import ObjectItemCollectionsIdPutParameters
+from ._generated.models import ObjectCollectionIdGetPathParameters
+from ._generated.models import ObjectItemCollectionsIdPutPathParameters
 from ._generated.models import ObjectItemCollectionsIdPutRequest
-from ._generated.models import ObjectOrgCollectionIdDeleteParameters
-from ._generated.models import ObjectOrgCollectionIdGetParameters
-from ._generated.models import ObjectOrgCollectionIdPutParameters
-from ._generated.models import ObjectOrgCollectionPostParameters
+from ._generated.models import ObjectOrgCollectionIdDeletePathParameters
+from ._generated.models import ObjectOrgCollectionIdDeleteQueryParameters
+from ._generated.models import ObjectOrgCollectionIdGetPathParameters
+from ._generated.models import ObjectOrgCollectionIdGetQueryParameters
+from ._generated.models import ObjectOrgCollectionIdPutPathParameters
+from ._generated.models import ObjectOrgCollectionIdPutQueryParameters
+from ._generated.models import ObjectOrgCollectionPostQueryParameters
 from ._generated.models import OrgCollectionSchema
 from .errors import ValidationError
 from .resource import ObjectId
@@ -53,11 +56,6 @@ ItemId = ObjectId
 #: a mapping of its fields (``id``, ``readOnly``, ``hidePasswords``,
 #: ``manage``).
 CollectionAccess = Union[GroupSchema, Mapping[str, Any]]
-
-# The generated org-collection models hold the path id and the
-# organizationId query in one model, so they validate the path and this
-# model, which holds only organizationId, validates the query.
-_OrganizationQuery = ObjectOrgCollectionPostParameters
 
 
 class OrgCollections(Resource):
@@ -135,7 +133,7 @@ class OrgCollections(Resource):
     return self._request(
       "POST",
       "/object/org-collection",
-      query=(ObjectOrgCollectionPostParameters, {
+      query=(ObjectOrgCollectionPostQueryParameters, {
         "organizationId": organization_id
       }),
       body=self._collection_body(organization_id, name, external_id, groups, users),
@@ -170,11 +168,10 @@ class OrgCollections(Resource):
     return self._request(
       "PUT",
       "/object/org-collection/{id}",
-      path_params=(ObjectOrgCollectionIdPutParameters, {
-        "id": collection_id,
-        "organizationId": organization_id
+      path_params=(ObjectOrgCollectionIdPutPathParameters, {
+        "id": collection_id
       }),
-      query=(_OrganizationQuery, {
+      query=(ObjectOrgCollectionIdPutQueryParameters, {
         "organizationId": organization_id
       }),
       body=self._collection_body(organization_id, name, external_id, groups, users),
@@ -196,11 +193,10 @@ class OrgCollections(Resource):
     return self._request(
       "GET",
       "/object/org-collection/{id}",
-      path_params=(ObjectOrgCollectionIdGetParameters, {
-        "id": collection_id,
-        "organizationId": organization_id
+      path_params=(ObjectOrgCollectionIdGetPathParameters, {
+        "id": collection_id
       }),
-      query=(_OrganizationQuery, {
+      query=(ObjectOrgCollectionIdGetQueryParameters, {
         "organizationId": organization_id
       }),
       response_type=OrgCollectionSchema,
@@ -223,11 +219,10 @@ class OrgCollections(Resource):
     return self._request(
       "DELETE",
       "/object/org-collection/{id}",
-      path_params=(ObjectOrgCollectionIdDeleteParameters, {
-        "id": collection_id,
-        "organizationId": organization_id
+      path_params=(ObjectOrgCollectionIdDeletePathParameters, {
+        "id": collection_id
       }),
-      query=(_OrganizationQuery, {
+      query=(ObjectOrgCollectionIdDeleteQueryParameters, {
         "organizationId": organization_id
       }),
     )
@@ -250,7 +245,7 @@ class OrgCollections(Resource):
     return self._request(
       "GET",
       "/object/collection/{id}",
-      path_params=(ObjectCollectionIdGetParameters, {
+      path_params=(ObjectCollectionIdGetPathParameters, {
         "id": collection_id
       }),
       response_type=CollectionResponseSchema,
@@ -284,7 +279,7 @@ class OrgCollections(Resource):
     return self._request(
       "POST",
       "/move/{itemid}/{organizationId}",
-      path_params=(MoveItemidOrganizationIdPostParameters, {
+      path_params=(MoveItemidOrganizationIdPostPathParameters, {
         "itemid": item_id,
         "organizationId": organization_id
       }),
@@ -317,7 +312,7 @@ class OrgCollections(Resource):
     return self._request(
       "PUT",
       "/object/item-collections/{id}",
-      path_params=(ObjectItemCollectionsIdPutParameters, {
+      path_params=(ObjectItemCollectionsIdPutPathParameters, {
         "id": item_id
       }),
       body=(ObjectItemCollectionsIdPutRequest, collection_ids),
@@ -342,7 +337,7 @@ class OrgCollections(Resource):
         The matching collections, as :class:`CollectionResponseSchema`
         (empty if none match).
     """
-    query = (ListObjectCollectionsGetParameters, {"search": search or None})
+    query = (ListObjectCollectionsGetQueryParameters, {"search": search or None})
 
     return self._request("GET", "/list/object/collections", query=query, response_type=list[CollectionResponseSchema])
 
@@ -370,7 +365,7 @@ class OrgCollections(Resource):
     return self._request(
       "GET",
       "/list/object/org-collections",
-      query=(ListObjectOrgCollectionsGetParameters, {
+      query=(ListObjectOrgCollectionsGetQueryParameters, {
         "organizationId": organization_id,
         "search": search or None
       }),

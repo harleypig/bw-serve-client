@@ -70,7 +70,7 @@ update them when the public API changes.
 
 - **Tests**: `tox -e py` on each of Python 3.10–3.14.
 - **Lint and type check**: `tox -e lint`, which runs the pre-commit check
-  config (flake8, pyright and the rest).
+  config (flake8, pyright, bandit and the rest).
 - **Generated code is current**: `python pipeline.py build` must regenerate
   nothing and leave the tree clean, so `bw_serve_client/_generated/` never
   drifts from the patched spec and the generator.
@@ -78,4 +78,20 @@ update them when the public API changes.
 Coverage prints in the test log for reading; there is no threshold.
 `pyright` is the only type checker. A `mypy` second pass is not run.
 
+`security.yml` runs on every pull request, every push to `master` and
+weekly:
+
+- **Dependency audit**: `pip-audit` over every dependency group as exported
+  from `poetry.lock`, on each of Python 3.10–3.14, since the lock pins
+  different releases for different Pythons. A known vulnerability fails the
+  job; an advisory with no fix for a supported Python is ignored by ID in
+  the workflow, with the reason beside it.
+
+Dependabot (`.github/dependabot.yml`) opens weekly update pull requests for
+the Poetry dependencies, the workflow actions and the recorder image.
+
 `docs.yml` builds and deploys the Sphinx docs separately.
+
+`detect.yml` runs `python pipeline.py detect` weekly and on demand: exit 2
+opens or updates one *Upstream change detected* issue, exit 1 fails the
+run. `docs/developer/update-pipeline.md` describes it.

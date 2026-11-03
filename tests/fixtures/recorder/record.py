@@ -243,7 +243,13 @@ CASES = (
   Case("item-field-username", "Read the login's username.", "GET", "/object/username/{item_id}"),
   Case("item-field-password", "Read the login's password; the value is redacted.", "GET", "/object/password/{item_id}"),
   Case("item-field-uri", "Read the login's first URI.", "GET", "/object/uri/{item_id}"),
-  Case("item-field-totp", "Read the login's current TOTP code, which changes every run.", "GET", "/object/totp/{item_id}"),
+  Case(
+    "item-field-totp",
+    "Read the login's current TOTP code, which changes every run; the code is redacted.",
+    "GET",
+    "/object/totp/{item_id}",
+    secret=_data_fields("data"),
+  ),
   Case("item-field-notes", "Read the item's notes.", "GET", "/object/notes/{item_id}"),
   # bw asks the Have I Been Pwned range API, so this one needs the internet.
   Case("item-field-exposed", "How often the login's password appears in known breaches.", "GET", "/object/exposed/{item_id}"),
@@ -646,11 +652,22 @@ def secrets_of(case: Case, status: int, body: Any) -> list[str]:
     The non-empty values ``case.secret`` names, or none when the case names
     none or failed. An empty string is dropped: replacing it would put the
     marker between every character of every payload.
+
+  Raises:
+    RuntimeError: A successful body lacks a member ``case.secret`` reads,
+      so the secret may sit somewhere redaction would not look.
   """
   if case.secret is None or status != 200:
     return []
 
-  return [value for value in case.secret(body) if value]
+  # The body is not in the message: it holds the secret being looked for.
+  try:
+    values = case.secret(body)
+
+  except (KeyError, IndexError, TypeError) as e:
+    raise RuntimeError(f"{case.name}: the response lacks a member to redact ({type(e).__name__}: {e})") from None
+
+  return [value for value in values if value]
 
 
 def redact(record: dict[str, Any], secrets: list[str]) -> dict[str, Any]:

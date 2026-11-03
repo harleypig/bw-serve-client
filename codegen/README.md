@@ -7,7 +7,13 @@ edited by hand.
 | File | What it is |
 |------|------------|
 | `generate.py` | Writes the three generated modules, below. |
-| `generated-header.txt` | The module docstring placed at the top of the generated models. |
+| `snippets/` | The fixed text written into them, read at run time. |
+
+| Snippet | What it is |
+|---------|------------|
+| `header.txt` | The module docstring every generated module opens with: as is for `models.py` (`custom-file-header-path`), with its first line swapped for the module's summary elsewhere. |
+| `route-types.txt` | The imports and the `Parameter` and `Route` dataclasses at the top of `routes.py`. |
+| `route.txt` | One `Route(...)` entry in `ROUTES`, with a `{name}` slot per field. |
 
 | Generated module | What it holds |
 |------------------|---------------|

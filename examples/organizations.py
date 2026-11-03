@@ -14,12 +14,18 @@ from __future__ import annotations
 
 import os
 import sys
+from typing import Optional
 
 from bw_serve_client import ApiClient
 from bw_serve_client import ExternalServiceError
 from bw_serve_client import Organizations
 from bw_serve_client import UserError
 from bw_serve_client import ValidationError
+
+# The spec types a member's status as a bare integer. These are the
+# server's OrganizationUserStatusType values; any other is printed as is.
+# https://github.com/bitwarden/server/blob/926a5c657f8be1265193c8dd4bea4c9423a64c4d/src/Core/AdminConsole/Enums/OrganizationUserStatusType.cs
+MEMBER_STATUS: dict[Optional[int], str] = {-1: "revoked", 0: "invited", 1: "accepted", 2: "confirmed", 3: "staged"}
 
 
 def main() -> int:
@@ -65,7 +71,7 @@ def main() -> int:
         continue
 
       for member in members:
-        print(f"  {member.name} <{member.email}>, status {member.status}")
+        print(f"  {member.name} <{member.email}>, status {MEMBER_STATUS.get(member.status, member.status)}")
 
   return 0
 

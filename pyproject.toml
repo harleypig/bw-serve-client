@@ -47,6 +47,18 @@ exclude = ["upstream/**", "codegen/**"]
 bandit = ">=1.7.5,<2.0.0"
 datamodel-code-generator = { version = ">=0.87.0,<0.88.0", extras = ["isort"] }
 dlint = "^0.16.0"
+# Security floors on transitive deps, not direct ones. Their fixed releases
+# need Python 3.11, and without this split Poetry locks the release 3.10
+# can install for 3.11-3.13 as well. The audit in security.yml ignores the
+# advisories 3.10 is left with.
+dnspython = [
+    { version = ">=2.9.0", python = ">=3.11" },
+    { version = "*", python = "<3.11" },
+]
+filelock = [
+    { version = ">=4.2.1", python = ">=3.11" },
+    { version = "*", python = "<3.11" },
+]
 flake8 = ">=4.0.0"
 flake8-aaa = "^0.17.0"
 flake8-annotations = "^3.2.0"
@@ -363,7 +375,7 @@ use-schema-description = true
 use-title-as-name = true
 
 # Template Customization
-custom-file-header-path = "codegen/generated-header.txt"
+custom-file-header-path = "codegen/snippets/header.txt"
 encoding = "utf8"
 use-double-quotes = true
 wrap-string-literal = true

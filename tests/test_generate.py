@@ -8,12 +8,13 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, Set, TYPE_CHECKING
 
 from _loader import load_tool
 import pytest
 
 generate = load_tool("codegen/generate.py", "_bw_test_generate_generate")
+GENERATE_SOURCE = generate.ROOT / "codegen" / "generate.py"
 
 if TYPE_CHECKING:
   from pytest_mock import MockerFixture
@@ -318,3 +319,84 @@ class TestMain:
 
     assert generate.main() == 1
     assert "generate: error:" in capsys.readouterr().err
+
+
+def _docstrings(tree: ast.Module) -> Set[int]:
+  """Collect the ids of the module, class and function docstring nodes.
+
+  Arguments:
+      tree: The parsed module.
+
+  Returns:
+      Set[int]: The ``id`` of each docstring's constant node.
+  """
+  found: Set[int] = set()
+
+  for node in [tree, *ast.walk(tree)]:
+    if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and node.body:
+      first = node.body[0]
+      if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str):
+        found.add(id(first.value))
+
+  return found
+
+
+def _header_rest(source: str) -> str:
+  """Drop a module's first line, its docstring summary, and keep the docstring's rest.
+
+  Arguments:
+      source: The module's source.
+
+  Returns:
+      str: Everything after the summary line, up to and including the closing quotes.
+  """
+  rest = source.split("\n", 1)[1]
+  return rest[:rest.index('"""') + 3]
+
+
+class TestSnippets:
+  """The fixed text generate.py writes lives in codegen/snippets/ (#91)."""
+
+  def test_no_multiline_literal_in_generate(self: TestSnippets) -> None:
+    """Any multi-line text to write belongs in a snippet file; docstrings are not written."""
+    tree = ast.parse(GENERATE_SOURCE.read_text(encoding="utf-8"))
+    docstrings = _docstrings(tree)
+
+    multiline = [
+      node.lineno
+      for node in ast.walk(tree)
+      if (isinstance(node, ast.JoinedStr) or isinstance(node, ast.Constant) and isinstance(node.value, str)) and
+      id(node) not in docstrings and node.end_lineno != node.lineno
+    ]
+
+    assert multiline == []
+
+  def test_every_snippet_is_used(self: TestSnippets) -> None:
+    """Each snippet file is read by generate.py or named in pyproject.toml, so none goes stale unused."""
+    users = GENERATE_SOURCE.read_text(encoding="utf-8") + (generate.ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    snippets = sorted(path.name for path in generate.SNIPPETS.iterdir() if path.is_file())
+
+    assert snippets
+    assert [name for name in snippets if name not in users] == []
+
+  def test_generated_modules_share_the_header(self: TestSnippets) -> None:
+    """All three committed modules carry header.txt's wording below their own summary."""
+    expected = _header_rest(generate.snippet("header.txt"))
+
+    for module in (generate.MODELS, generate.ROUTES, generate.INIT):
+      assert _header_rest(module.read_text(encoding="utf-8")) == expected, module.name
+
+  def test_header_swaps_the_summary(self: TestSnippets) -> None:
+    """The rendered header is a docstring opening with the given summary."""
+    rendered = generate.header("A summary.")
+
+    assert rendered.startswith('"""A summary.\n\n')
+    assert ast.literal_eval(rendered).startswith("A summary.")
+
+  def test_header_without_a_docstring_stops_generation(self: TestSnippets, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A header file that does not open a docstring is a named error."""
+    (tmp_path / "header.txt").write_text("# not a docstring\n", encoding="utf-8")
+    monkeypatch.setattr(generate, "SNIPPETS", tmp_path)
+
+    with pytest.raises(generate.GenerateError, match="header.txt"):
+      generate.header("A summary.")

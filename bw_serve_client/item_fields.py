@@ -13,7 +13,9 @@ tag in the API spec. One method per route, named for the field it reads::
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING, Union
+from typing import Any, Literal, Optional, TYPE_CHECKING, Union
+
+from pydantic import BaseModel
 
 from ._generated.models import ObjectExposedIdGetParameters
 from ._generated.models import ObjectNotesIdGetParameters
@@ -23,16 +25,31 @@ from ._generated.models import ObjectUriIdGetParameters
 from ._generated.models import ObjectUsernameIdGetParameters
 from ._generated.models import SecretStringResponseSchema
 from ._generated.models import StringResponseSchema
-from .errors import ExternalServiceError
 from .resource import ObjectId
 from .resource import Resource
 from .resource import route
 
 if TYPE_CHECKING:
-  from pydantic import BaseModel
   from pydantic import SecretStr
 
 ItemId = ObjectId
+
+
+# -----------------------------------------------------------------------------
+class _ExposedCount(BaseModel):
+  """``StringResponseSchema`` with ``data`` read as the integer it holds.
+
+  Parsing the count here, rather than after ``_request`` returns, puts a
+  non-integer through ``Resource._parse``, which reports it with the
+  response's status like every other malformed response.
+
+  Attributes:
+    object: The envelope's type tag, ``"string"``.
+    data: The exposure count.
+  """
+
+  object: Optional[Literal["string"]] = None
+  data: int
 
 
 class ItemFields(Resource):
@@ -144,20 +161,7 @@ class ItemFields(Resource):
     Returns:
         How many known breaches the login's password appears in.
     """
-    result = self._request(
-      "GET",
-      "/object/exposed/{id}",
-      path_params=(ObjectExposedIdGetParameters, {
-        "id": item_id
-      }),
-      response_type=StringResponseSchema
-    )
+    path_params = (ObjectExposedIdGetParameters, {"id": item_id})
+    result = self._request("GET", "/object/exposed/{id}", path_params=path_params, response_type=_ExposedCount)
 
-    if not isinstance(result, StringResponseSchema):
-      return result
-
-    try:
-      return int(result.data or "")
-
-    except ValueError:
-      return self._fail(ExternalServiceError, f"exposed count is not an integer: {result.data!r}")
+    return self._member(result, _ExposedCount, "data")

@@ -296,6 +296,15 @@ class TestOrgCollectionsMove:
 
     assert sent == []
 
+  def test_rejects_no_collection_ids(self: TestOrgCollectionsMove, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """The spec asks for one or more collection ids, so none is refused before sending."""
+    collections = OrgCollections(make_client())
+
+    with pytest.raises(ValidationError, match="needs one or more collection ids"):
+      collections.move(ITEM_ID, ORG_ID, [])
+
+    assert sent == []
+
 
 # -----------------------------------------------------------------------------
 class TestOrgCollectionsModifyItemCollections:
@@ -323,6 +332,17 @@ class TestOrgCollectionsModifyItemCollections:
 
     with pytest.raises(ValidationError, match=r"invalid body .*: 0: "):
       collections.modify_item_collections(ITEM_ID, ["not-a-uuid"])
+
+    assert sent == []
+
+  def test_rejects_no_collection_ids(
+    self: TestOrgCollectionsModifyItemCollections, make_client: MakeClient, sent: list[httpx.Request]
+  ) -> None:
+    """The spec asks for one or more collection ids, so none is refused before sending."""
+    collections = OrgCollections(make_client())
+
+    with pytest.raises(ValidationError, match="needs one or more collection ids"):
+      collections.modify_item_collections(ITEM_ID, [])
 
     assert sent == []
 

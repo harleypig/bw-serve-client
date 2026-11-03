@@ -1,0 +1,5 @@
+"""The pydantic models for the Bitwarden Vault Management API.
+
+Generated from the patched OpenAPI spec by ``codegen/generate.py``.
+DO NOT EDIT MANUALLY.
+"""

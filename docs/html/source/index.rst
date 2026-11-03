@@ -8,7 +8,8 @@ parsed, with pydantic models generated from Bitwarden's OpenAPI spec.
 
 Installing it, starting ``bw serve`` and the update pipeline are in the
 `README`_; a runnable script for each resource class is in `examples`_.
-This site is the API reference.
+This site holds two tutorials, a troubleshooting guide and the API
+reference.
 
 .. code-block:: python
 
@@ -65,6 +66,16 @@ one of the :doc:`error classes <api/errors>`: ``ValidationError``,
 ``InternalError``, all under ``BitwardenError``. Pass your own handler, or
 a :class:`~bw_serve_client.errors.DefaultErrorHandler` with a different
 ``error_level``, to have some of them returned instead.
+
+Guides
+------
+
+.. toctree::
+   :maxdepth: 1
+
+   guides/organise-items
+   guides/script-over-socket
+   guides/troubleshooting
 
 API reference
 -------------

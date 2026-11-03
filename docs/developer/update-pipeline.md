@@ -263,8 +263,8 @@ watching. `upstream/watch.json` is edited by hand.
 
 ## The changelog draft
 
-When the report has a sources table, `detect` drafts an entry directly
-under `## [Unreleased]` in `CHANGELOG.md`:
+When a recorded source changed, `detect` drafts an entry directly under
+`## [Unreleased]` in `CHANGELOG.md`:
 
 ```markdown
 <!-- draft 486a9ee9ea20: written by the update pipeline from the change report.
@@ -278,10 +278,13 @@ draft comments. -->
 ```
 
 One bullet per changed source, then one per *Spec changes* bullet and one
-per *Routes bw serve registers* bullet. The key is a hash of the bullets,
-so a second run on the same report adds nothing, and nothing outside the
-block is touched. The outcome is the report's *Changelog* section; it
-never changes the exit code.
+per *Routes bw serve registers* bullet. A watched issue or package is a
+changed source, so it gets one bullet, not a second from *Watched items*.
+The bullets come from data detect hands the pipeline directly, not from
+the report, so the report's layout can change without losing the draft.
+The key is a hash of the bullets, so a second run on the same change adds
+nothing, and nothing outside the block is touched. The outcome is the
+report's *Changelog* section; it never changes the exit code.
 
 Nothing is drafted when detect failed, when no source changed (a stale fix
 or an undecided route alone is no change a user sees), or when

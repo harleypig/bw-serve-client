@@ -31,6 +31,10 @@ release. That never changes the exit code: a pin that moves makes every
 payload stale at once, and the pipeline must not stop until someone
 re-records them.
 
+``--draft-data PATH`` also writes, to PATH, the changed sources, spec
+changes and route changes as JSON (``render_draft_data``), so the update
+pipeline drafts a changelog entry from them rather than from the report.
+
 Set ``GITHUB_TOKEN`` to raise the GitHub API rate limit; it is optional.
 """
 
@@ -1014,6 +1018,33 @@ def render_report(changes: Changes, lock: Dict[str, Any]) -> str:
 
 
 # -----------------------------------------------------------------------------
+def render_draft_data(changes: Changes) -> str:
+  """Render what the changelog draft is made from, as JSON.
+
+  The update pipeline reads this rather than the report, so the report's
+  layout can change without breaking the draft. Watched items are left
+  out: each one is already a changed source.
+
+  Arguments:
+      changes: What changed.
+
+  Returns:
+      str: A JSON object: ``sources``, a list of ``{"source", "was",
+      "now"}`` objects, empty when no recorded source changed; ``spec`` and
+      ``routes``, the report's bullets for those two sections.
+  """
+  return json_text({
+    "sources": [{
+      "source": name,
+      "was": was,
+      "now": now
+    } for name, was, now in changes.sources],
+    "spec": changes.spec,
+    "routes": changes.routes,
+  })
+
+
+# -----------------------------------------------------------------------------
 def json_text(data: Any) -> str:
   """Format JSON the way the committed files are formatted.
 
@@ -1103,13 +1134,15 @@ def fail(report_path: Path, exc: Exception) -> int:
 
 
 # -----------------------------------------------------------------------------
-def run(session: requests.Session, report_path: Path, today: str) -> int:
+def run(session: requests.Session, report_path: Path, today: str, draft_path: Optional[Path] = None) -> int:
   """Run detection once.
 
   Arguments:
       session: The HTTP session to fetch with.
       report_path: Where to write the change report.
       today: Today's date, ISO formatted.
+      draft_path: Where to write the changelog draft's data, if anywhere.
+      Written only by a run that writes the lock file.
 
   Returns:
       int: The exit code: 0 no change, 1 error, 2 a change, a fix that no
@@ -1151,6 +1184,10 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
   # beside the old lock would diff the new spec against itself instead.
   files.append((ROUTES_SNAPSHOT, "".join(f"{route}\n" for route in upstream.routes)))
   files.append((report_path, render_report(changes, new_lock)))
+
+  if draft_path is not None:
+    files.append((draft_path, render_draft_data(changes)))
+
   files.append((LOCK_FILE, json_text(new_lock)))
 
   try:
@@ -1191,11 +1228,12 @@ def main(argv: Optional[List[str]] = None) -> int:
   """
   parser = argparse.ArgumentParser(description="Report whether Bitwarden changed anything this library depends on.")
   parser.add_argument("--report", type=Path, default=REPORT_FILE, help=f"where to write the report (default {REPORT_FILE.name})")
+  parser.add_argument("--draft-data", type=Path, help="where to write the changelog draft's data as JSON (default: not written)")
   args = parser.parse_args(argv)
 
   with requests.Session() as session:
     session.headers["User-Agent"] = "bw-serve-client-detect"
-    return run(session, args.report, datetime.datetime.now(datetime.timezone.utc).date().isoformat())
+    return run(session, args.report, datetime.datetime.now(datetime.timezone.utc).date().isoformat(), args.draft_data)
 
 
 if __name__ == "__main__":

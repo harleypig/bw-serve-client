@@ -8,7 +8,7 @@ Stages:
 
 - ``detect``: fetch every upstream source and write the snapshots, the lock
   file and the change report (``upstream/detect.py``). When a recorded
-  source changed, draft a changelog entry from the report (below).
+  source changed, draft a changelog entry from detect's changes (below).
 - ``build``: patch the spec, regenerate ``bw_serve_client/_generated/``, and
   format the result.
 - ``check``: run the test suite.
@@ -27,12 +27,13 @@ Each stage is idempotent: run again on the same input, it changes nothing
 more. The exit code reflects what is still to do, so detect keeps exiting 2
 while a fix no longer matches, and check while a test fails.
 
-Changelog drafts: when the change report lists changed sources, detect
-inserts a bullet list directly under ``## [Unreleased]`` in
-``CHANGELOG.md``, one bullet per changed source, spec change and route
-change, between a ``<!-- draft <key>`` comment and an
-``<!-- end draft <key> -->`` one. The key is a hash of the bullets, so a
-second run on the same report adds nothing, and nothing outside the
+Changelog drafts: when a recorded source changed, detect inserts a bullet
+list directly under ``## [Unreleased]`` in ``CHANGELOG.md``, one bullet per
+changed source, spec change and route change, between a ``<!-- draft <key>``
+comment and an ``<!-- end draft <key> -->`` one. The bullets come from the
+JSON detect writes with ``--draft-data``, never from the rendered report, so
+the report's layout can change freely. The key is a hash of the bullets, so
+a second run on the same changes adds nothing, and nothing outside the
 inserted block is touched. A person edits the bullets, moves them under
 Added, Changed or Fixed, and deletes both comments; by then the lock file
 has moved, so detect drafts nothing more until upstream changes again. A
@@ -42,12 +43,14 @@ changes the exit code.
 """
 
 import hashlib
+import json
 from pathlib import Path
 import re
 import shutil
 import subprocess  # noqa: S404 - runs this repo's own tools with fixed arguments. # nosec B404
 import sys
-from typing import Callable, Dict, List, Optional
+import tempfile
+from typing import Any, Callable, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parent
 REPORT = ROOT / "upstream" / "change-report.md"
@@ -132,58 +135,44 @@ def set_report_section(title: str, lines: List[str], empty: str) -> None:
 
 
 # -----------------------------------------------------------------------------
-def report_items(text: str, title: str) -> List[str]:
-  """Return the bullet items of one ``## title`` section of a report.
+def changelog_draft(data: Dict[str, Any]) -> List[str]:
+  """Turn detect's draft data into draft changelog bullets.
 
-  Arguments:
-      text: The report.
-      title: The section heading, without the ``##``.
-
-  Returns:
-      List[str]: The items without their bullet; empty when the section is
-      missing or holds only its "None." note.
-  """
-  match = section_pattern(title).search(text)
-
-  return [line[2:] for line in match.group(1).splitlines() if line.startswith("- ")] if match else []
-
-
-# -----------------------------------------------------------------------------
-def changelog_draft(text: str) -> List[str]:
-  """Turn a change report into draft changelog bullets.
-
-  Only the sources table decides whether there is anything to draft:
+  Only the changed sources decide whether there is anything to draft:
   detect also exits 2 for a stale fix or an undecided route, and neither
   is a change a user of the library would see.
 
   Arguments:
-      text: The change report.
+      data: The JSON detect writes with ``--draft-data``.
 
   Returns:
       List[str]: The bullets, or none when no recorded source changed.
   """
-  # Rows of detect's "| Source | Was | Now |" table, header excluded.
-  rows = re.findall(r"^\| (.+?) \| (.*?) \| (.*?) \|$", text, re.MULTILINE)
-  sources = [f"Upstream `{name}`: {was} → {now}" for name, was, now in rows if name != "Source"]
+  sources = [f"Upstream `{row['source']}`: {row['was']} → {row['now']}" for row in data.get("sources", [])]
 
   if not sources:
     return []
 
   return [
     *sources,
-    *(f"Upstream spec: {line}" for line in report_items(text, "Spec changes")),
-    *(f"bw serve routes: {line}" for line in report_items(text, "Routes bw serve registers")),
+    *(f"Upstream spec: {line}" for line in data.get("spec", [])),
+    *(f"bw serve routes: {line}" for line in data.get("routes", [])),
   ]
 
 
 # -----------------------------------------------------------------------------
-def draft_changelog() -> None:
-  """Draft a changelog entry from the change report, once per report.
+def draft_changelog(data_path: Path) -> None:
+  """Draft a changelog entry from detect's draft data, once per change.
 
   Inserts only the marked block under ``## [Unreleased]``; see the module
   docstring for the format. The outcome goes in the report.
+
+  Arguments:
+      data_path: The JSON detect wrote with ``--draft-data``; nothing is
+      drafted when it is missing.
   """
-  bullets = changelog_draft(REPORT.read_text(encoding="utf-8")) if REPORT.exists() else []
+  data = json.loads(data_path.read_text(encoding="utf-8")) if data_path.exists() else {}
+  bullets = changelog_draft(data)
 
   if not bullets:
     return
@@ -247,21 +236,23 @@ def checksums(paths: "tuple[Path, ...]") -> Dict[Path, Optional[str]]:
 
 # -----------------------------------------------------------------------------
 def detect() -> int:
-  """Run upstream detection, then draft a changelog entry from its report.
+  """Run upstream detection, then draft a changelog entry from its changes.
 
   The draft is written here rather than in ``update`` because detect moves
   the lock file: a draft skipped on this run would never be offered again.
-  Only a run that reports a change drafts: any other exit code, a killed
-  run included, may have left an older report on disk.
+  Only a run that reports a change drafts. The draft data goes to a fresh
+  temporary directory, so it can only ever be this run's.
 
   Returns:
       int: detect's own exit code, which follows the same contract.
   """
-  command = [sys.executable, str(ROOT / "upstream" / "detect.py")]
-  code = subprocess.run(command, cwd=ROOT, check=False).returncode  # noqa: S603 - fixed arguments. # nosec B603
+  with tempfile.TemporaryDirectory(prefix="bw-serve-client-detect-") as scratch:
+    data_path = Path(scratch) / "draft.json"
+    command = [sys.executable, str(ROOT / "upstream" / "detect.py"), "--draft-data", str(data_path)]
+    code = subprocess.run(command, cwd=ROOT, check=False).returncode  # noqa: S603 - fixed arguments. # nosec B603
 
-  if code == CHANGE:
-    draft_changelog()
+    if code == CHANGE:
+      draft_changelog(data_path)
 
   return code
 

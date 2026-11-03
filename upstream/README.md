@@ -50,7 +50,10 @@ route, parameter and schema changes, the route changes, the watched items
 that changed state, the fixes that no longer match the raw spec, and the
 differences between the spec's routes and the routes `bw serve` registers.
 The build and check stages fill in its *Regenerated* and *Work created*
-sections. The report reflects the latest run only.
+sections. The report reflects the latest run only. With `--draft-data
+PATH`, detection also writes the changed sources, spec changes and route
+changes to PATH as JSON; the update pipeline drafts its changelog entry
+from that file rather than from the report.
 
 Detection applies the fixes to the fetched spec on every run, so a fix that
 no longer matches is reported, and detection exits 2, until it is repaired,

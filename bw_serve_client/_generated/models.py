@@ -1397,7 +1397,7 @@ class SendTemplateSchema(BaseModel):
   max_access_count: Annotated[int | None, Field(alias='maxAccessCount', title='SendMaxAccessCountSchema')] = None
   deletion_date: Annotated[AwareDatetime | None, Field(alias='deletionDate', title='SendDeletionDateSchema')] = None
   expiration_date: Annotated[AwareDatetime | None, Field(alias='expirationDate', title='SendExpirationDateSchema')] = None
-  password: Annotated[str | None, Field(title='SendPasswordSchema')] = None
+  password: Annotated[SecretStr | None, Field(title='SendPasswordSchema')] = None
   emails: Sequence[EmailStr] | None = None
   disabled: Annotated[bool, Field(title='SendDisabledSchema')] = False
   hide_email: Annotated[bool | None, Field(alias='hideEmail', title='SendHideEmailSchema')] = None

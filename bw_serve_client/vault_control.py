@@ -20,6 +20,7 @@ from ._generated.models import SyncPostQueryParameters
 from ._generated.models import TemplateSchema
 from ._generated.models import UnlockPostRequestSchema
 from .errors import ExternalServiceError
+from .resource import _masked
 from .resource import Resource
 from .resource import route
 
@@ -59,11 +60,15 @@ class VaultControl(Resource):
     the ``bw`` CLI (``BW_SESSION``).
 
     Args:
-        password: The master password.
+        password: The master password. A plain ``str`` is wrapped in
+            ``SecretStr`` on entry, but pass a ``SecretStr`` so the
+            calling frame never holds it either.
 
     Returns:
         The session key.
     """
+    password = _masked(password)
+
     result = self._request(
       "POST", "/unlock", body=(UnlockPostRequestSchema, {
         "password": password

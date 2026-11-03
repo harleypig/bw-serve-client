@@ -18,6 +18,7 @@ a feature request; a problem in `bw serve` itself belongs in
 Do not open a public issue for a vulnerability. Report it privately through
 GitHub's [private vulnerability reporting][advisory]. Only the repository's
 maintainers can read the report, so it stays private until a fix ships.
+The [security policy][security] says which versions get fixes.
 
 Each issue carries one `area:` label, chosen by where the fix lands:
 
@@ -130,5 +131,6 @@ would change without making it, run `poetry run bump2version --dry-run
 [kac]: https://keepachangelog.com/en/1.1.0/
 [issues]: https://github.com/harleypig/bw-serve-client/issues
 [project]: https://github.com/users/harleypig/projects/3
+[security]: ../../.github/SECURITY.md
 [tests]: ../../.claude/TESTS.md
 [workflow]: ../../.claude/WORKFLOW.md

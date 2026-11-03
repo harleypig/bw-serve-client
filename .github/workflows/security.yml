@@ -1,0 +1,79 @@
+name: Security
+
+# The schedule catches advisories published against an unchanged lock file.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+# bandit is not here: it is a pre-commit hook, so CI's lint job runs it.
+jobs:
+  audit:
+    name: Dependency audit (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # pip-audit evaluates the lock's environment markers against the
+      # Python it runs on, and the lock pins different releases for
+      # different Pythons, so each supported Python is audited.
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install Poetry and pip-audit
+        shell: bash
+        run: |
+          pipx install poetry==2.5.1
+          pipx inject poetry poetry-plugin-export==1.10.1
+          python -m pip install pip-audit==2.10.1
+
+      # Every group is exported, so the tools CI runs are audited too.
+      - name: Export the locked dependencies
+        run: poetry export --all-groups --output "$RUNNER_TEMP/requirements.txt"
+
+      # --disable-pip audits exactly the locked, hashed pins rather than a
+      # fresh resolve; --strict fails on any pin it could not audit.
+      - name: Audit
+        shell: bash
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          ignore=()
+
+          # dnspython 2.9.0 and filelock 4.2.1, which fix these, need
+          # Python 3.11, so 3.10 keeps the last releases it can install.
+          # Remove when 3.10 support is dropped.
+          if [[ $PYTHON_VERSION == 3.10 ]]; then
+            for id in \
+              CVE-2026-114605 \
+              CVE-2026-112906 CVE-2026-112907 CVE-2026-112908 \
+              CVE-2026-112909 CVE-2026-112910 CVE-2026-112911 \
+              CVE-2026-112912 CVE-2026-112913 CVE-2026-112914 \
+              CVE-2026-112915 CVE-2026-112934 CVE-2026-112935 \
+              CVE-2026-112937 CVE-2026-112938 CVE-2026-112939 \
+              CVE-2026-112940 CVE-2026-112941
+            do
+              ignore+=(--ignore-vuln "$id")
+            done
+          fi
+
+          python -m pip_audit \
+            --requirement "$RUNNER_TEMP/requirements.txt" \
+            --require-hashes --disable-pip --strict \
+            --progress-spinner off \
+            "${ignore[@]}"

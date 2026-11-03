@@ -176,22 +176,25 @@ class TestExposed:
   def test_non_integer_count_is_external_service_error(
     self: TestExposed, value: Any, make_client: MakeClient, returning_handler: ReturningHandler
   ) -> None:
-    """A count that is not an integer is bw serve's failure, handed to the handler."""
+    """A count that is not an integer is bw serve's failure, handed to the handler with the status."""
     fields = ItemFields(make_client(json_body=_string(value)), error_handler=returning_handler)
 
     result = fields.exposed(uuid4())  # act
 
-    [(category, message, _, _)] = returning_handler.calls
+    [(category, message, status_code, _)] = returning_handler.calls
     assert result is returning_handler.result
     assert category is ExternalServiceError
-    assert "not an integer" in message
+    assert "data:" in message
+    assert status_code == 200
 
   def test_non_integer_count_raises_by_default(self: TestExposed, make_client: MakeClient) -> None:
-    """With the default handler a non-integer count raises."""
+    """With the default handler a non-integer count raises, carrying the status."""
     fields = ItemFields(make_client(json_body=_string("twelve")))
 
-    with pytest.raises(ExternalServiceError, match="not an integer"):
+    with pytest.raises(ExternalServiceError, match="data:") as exc_info:
       fields.exposed(uuid4())
+
+    assert exc_info.value.status_code == 200
 
 
 # -----------------------------------------------------------------------------

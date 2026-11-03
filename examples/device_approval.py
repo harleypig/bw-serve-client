@@ -18,6 +18,7 @@ Set ``BW_SERVE_URL`` to reach a ``bw serve`` somewhere other than
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from typing import Optional
@@ -44,8 +45,14 @@ def _unavailable(error: ValidationError) -> Optional[str]:
     return "This bw serve has no device approval routes: its CLI build lacks them"
 
   # bw serve relays a server error as a 400 whose message is the server's
-  # response, statusCode included, as JSON.
-  if '"statusCode":404' in str(error):
+  # response as JSON, with the server's status in statusCode.
+  try:
+    relayed = json.loads(error.message)
+
+  except ValueError:
+    relayed = None
+
+  if isinstance(relayed, dict) and relayed.get("statusCode") == 404:
     return "The server behind this bw serve does not implement device approval"
 
   return None

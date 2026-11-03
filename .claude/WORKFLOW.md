@@ -43,7 +43,8 @@ object or logging implementation:
 
 ## API Class Contract
 
-Each API class generated from a route MUST:
+Each API class, hand-written over the generated models and route list,
+MUST:
 
 - Declare its route with `@route(METHOD, path)`; each public method calls
   one route, named for the operation (`add`, `modify`, `get`, `delete`,
@@ -72,8 +73,9 @@ Two configs at repo root, per the global `pre-commit.md` policy:
 - `.pre-commit-config.yaml` — checks only.
 - `.pre-commit-config-fix.yaml` — auto-fix variant.
 
-Run `pre-commit install` once after cloning. Run
-`pre-commit run --all-files` before pushing.
+pre-commit is a Poetry dev dependency, so prefix it with `poetry run`
+unless the venv is active. Run `poetry run pre-commit install` once after
+cloning. Run `poetry run pre-commit run --all-files` before pushing.
 
 ## Development Environment
 

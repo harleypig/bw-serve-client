@@ -14,13 +14,14 @@ Current state:
 
 ```text
 tests/
+├── conftest.py          # Shared fixtures
+├── fixtures/            # Recorded API payloads and their recorder
 └── test_<module>.py     # One test file per source module
 ```
 
 Each `bw_serve_client/<module>.py` SHOULD have a paired
-`tests/test_<module>.py`. Add `tests/conftest.py` for shared fixtures and
-`tests/fixtures/` for recorded API payloads when the suite outgrows
-ad-hoc fixtures.
+`tests/test_<module>.py`. Shared fixtures go in `tests/conftest.py`;
+recorded API payloads go in `tests/fixtures/`.
 
 ## What to Test
 
@@ -58,11 +59,10 @@ The test envs need Python 3.10–3.14 on `PATH`, and the lint env needs
 
 ## Examples Directory
 
-Each public API surface MUST have a runnable example in `examples/`.
-The directory does not yet exist — create it when the first public API
-ships and add an example in the same PR. Examples are not part of the
-test suite but MUST stay current; update them when the public API
-changes.
+Each public API surface MUST have a runnable example in `examples/`,
+added in the same PR as the API. `tests/test_examples.py` compiles and
+imports each example but never runs it, so examples MUST stay current;
+update them when the public API changes.
 
 ## CI
 

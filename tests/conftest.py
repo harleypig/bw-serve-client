@@ -28,6 +28,7 @@ class MakeClient(Protocol):
     status: int = 200,  # noqa: U100
     json_body: Any = None,  # noqa: U100
     text_body: Optional[str] = None,  # noqa: U100
+    content_type: Optional[str] = None,  # noqa: U100
     **kwargs: Any,  # noqa: U100
   ) -> ApiClient:
     """Build an ApiClient whose transport answers every request alike.
@@ -35,7 +36,8 @@ class MakeClient(Protocol):
     Args:
         status: HTTP status of every response.
         json_body: JSON body of every response.
-        text_body: Plain-text body, used when ``json_body`` is None.
+        text_body: Plain-text body; takes precedence over ``json_body``.
+        content_type: Response Content-Type; overrides the one httpx sets.
         kwargs: Passed on to :class:`ApiClient`.
     """
     ...
@@ -52,18 +54,27 @@ def make_client(sent: list[httpx.Request]) -> MakeClient:
   """Build an ApiClient whose transport records requests into ``sent``.
 
   Every response has the given status and either ``json_body`` as JSON or
-  ``text_body`` as plain text. Extra keyword arguments go to ApiClient.
+  ``text_body`` as plain text, with ``content_type`` replacing the
+  Content-Type httpx picks when it is given. Extra keyword arguments go to
+  ApiClient.
   """
 
-  def make(status: int = 200, json_body: Any = None, text_body: Optional[str] = None, **kwargs: Any) -> ApiClient:
+  def make(
+    status: int = 200,
+    json_body: Any = None,
+    text_body: Optional[str] = None,
+    content_type: Optional[str] = None,
+    **kwargs: Any,
+  ) -> ApiClient:
 
     def handler(request: httpx.Request) -> httpx.Response:
       sent.append(request)
+      headers = {"Content-Type": content_type} if content_type else None
 
       if text_body is not None:
-        return httpx.Response(status, text=text_body)
+        return httpx.Response(status, text=text_body, headers=headers)
 
-      return httpx.Response(status, json=json_body)
+      return httpx.Response(status, json=json_body, headers=headers)
 
     return ApiClient(transport=httpx.MockTransport(handler), **kwargs)
 

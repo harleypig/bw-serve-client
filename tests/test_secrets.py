@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import logging
 import types
-from typing import Any, Callable, Iterator, Optional
+from typing import Any, Callable, Iterator, Optional, Union
 
 import httpx
 from pydantic import BaseModel
@@ -363,13 +363,34 @@ class TestSecretFields:
 # -----------------------------------------------------------------------------
 ITEM_ID = "11111111-2222-3333-4444-555555555555"
 
-#: Made-up item secrets (#94), one per field the round trip carries.
+#: Made-up item secrets (#94, #127), one per field the round trip carries.
 ITEM_SECRETS = {
   "password": "made-up-login-pw-K3v8",
   "totp": "MADEUPTOTPSEED7W2Q",
   "number": "4111000011112222",
   "code": "made-up-cvv-918",
+  "hidden": "made-up-hidden-field-Lq5n",
 }
+
+#: A text custom field's value, which is not a secret and stays a plain str.
+TEXT_VALUE = "made-up-text-field-Pw2c"
+
+#: A hidden custom field and a text one (#127).
+CUSTOM_FIELDS = [
+  {
+    "name": "Recovery code",
+    "value": ITEM_SECRETS["hidden"],
+    "type": 1
+  },
+  {
+    "name": "Note",
+    "value": TEXT_VALUE,
+    "type": 0
+  },
+]
+
+#: The two generated custom-field models.
+FieldModel = Union[type[models.FieldSchema], type[models.FieldResponseSchema]]
 
 ITEMS = [
   {
@@ -380,6 +401,7 @@ ITEMS = [
       "password": ITEM_SECRETS["password"],
       "totp": ITEM_SECRETS["totp"],
     },
+    "fields": CUSTOM_FIELDS,
   },
   {
     "type": 3,
@@ -431,6 +453,46 @@ class TestItemRoundTrip:
     assert debug.records
     text = _exposed(debug.records, None, template, added, modified)
     assert not [secret for secret in ITEM_SECRETS.values() if secret in text]
+
+
+# -----------------------------------------------------------------------------
+class TestHiddenFields:
+  """A hidden custom field's value is a SecretStr; other fields keep a str (#127)."""
+
+  @pytest.mark.parametrize("model", [models.FieldSchema, models.FieldResponseSchema])
+  def test_hidden_value_is_masked(self: TestHiddenFields, model: FieldModel, debug: pytest.LogCaptureFixture) -> None:
+    """The value is a SecretStr, readable, and in no repr, str or log record."""
+    field = model.model_validate({"name": "Recovery code", "value": ITEM_SECRETS["hidden"], "type": 1})
+
+    logging.getLogger(__name__).info("field %s / %r", field, field)  # act
+
+    assert isinstance(field.value, SecretStr)
+    assert field.value.get_secret_value() == ITEM_SECRETS["hidden"]
+    assert debug.records
+    assert ITEM_SECRETS["hidden"] not in _exposed(debug.records, None, field)
+
+  @pytest.mark.parametrize("model", [models.FieldSchema, models.FieldResponseSchema])
+  @pytest.mark.parametrize("kind", [0, 2, 3], ids=["text", "boolean", "linked"])
+  def test_other_values_stay_plain(self: TestHiddenFields, model: FieldModel, kind: int) -> None:
+    """Text, boolean and linked fields keep their value as a str."""
+    field = model.model_validate({"name": "Note", "value": TEXT_VALUE, "type": kind})  # act
+
+    assert field.value == TEXT_VALUE
+    assert TEXT_VALUE in repr(field)
+
+  def test_round_trip_keeps_both_kinds(self: TestHiddenFields) -> None:
+    """After add and modify, the hidden value is masked and the text value plain."""
+    sent: list[httpx.Request] = []
+    items = VaultItems(_echo(sent))
+
+    modified = items.modify(ITEM_ID, items.add(ITEMS[0]))  # act
+
+    assert modified.fields is not None
+    hidden, text = modified.fields
+    assert isinstance(hidden.value, SecretStr)
+    assert hidden.value.get_secret_value() == ITEM_SECRETS["hidden"]
+    assert text.value == TEXT_VALUE
+    assert json.loads(sent[-1].content)["fields"] == CUSTOM_FIELDS
 
 
 # -----------------------------------------------------------------------------

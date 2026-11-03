@@ -21,6 +21,8 @@ from pydantic import Field
 from pydantic import RootModel
 from pydantic import SecretStr
 
+from bw_serve_client._custom_field import CustomField
+
 
 class ItemTypeSchema(IntEnum):
   """Type of vault item (1=login, 2=secure note, 3=card, 4=identity, 5=SSH key, 6=bank account, 7=driver's license, 8=passport)."""
@@ -120,14 +122,18 @@ class FieldTypeSchema(IntEnum):
   INTEGER_3 = 3
 
 
-class FieldSchema(BaseModel):
-  """Custom field schema for vault items."""
+class FieldSchema(CustomField):
+  """Custom field schema for vault items.
+
+  The value of a hidden field (type 1) is a SecretStr; read it with get_secret_value().
+  """
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
   name: Annotated[str | None, Field(description='Name of the custom field', title='FieldNameSchema')] = None
-  value: Annotated[str | None, Field(description='Value of the custom field', title='FieldValueSchema')] = None
+  value: Annotated[str | SecretStr | None,
+                   Field(description='Value of the custom field', title='FieldValueSchema', union_mode='smart')] = None
   type: Annotated[FieldTypeSchema | None,
                   Field(description='Field type (0=text, 1=hidden, 2=boolean, 3=linked)', title='FieldTypeSchema')] = None
   linked_id: Annotated[
@@ -421,14 +427,17 @@ class LoginUriResponseSchema(BaseModel):
   match: int | None = None
 
 
-class FieldResponseSchema(BaseModel):
-  """A custom field on a vault item."""
+class FieldResponseSchema(CustomField):
+  """A custom field on a vault item.
+
+  The value of a hidden field (type 1) is a SecretStr; read it with get_secret_value().
+  """
   model_config = ConfigDict(
     extra='ignore',
     populate_by_name=True,
   )
   name: str | None = None
-  value: str | None = None
+  value: Annotated[str | SecretStr | None, Field(union_mode='smart')] = None
   type: int | None = None
   linked_id: Annotated[int | None, Field(alias='linkedId')] = None
 

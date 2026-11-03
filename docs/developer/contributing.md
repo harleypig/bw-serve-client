@@ -1,14 +1,23 @@
 # Contributing
 
 How a change gets into `bw-serve-client`, from the issue to the release.
-Setting up a checkout to work in is [Development Setup][dev].
+Setting up a checkout to work in is [Development Setup][dev]. Everyone
+taking part follows the [code of conduct][coc].
 
 ## Start from an issue
 
 Work is tracked as [GitHub issues][issues], grouped by milestone on the
 [BW Serve Client Library project][project]. Look there before starting, and
 open an issue for anything larger than a typo so the change has somewhere
-to be discussed.
+to be discussed. [New issue][new-issue] offers two forms, a bug report and
+a feature request; a problem in `bw serve` itself belongs in
+[Bitwarden's tracker][bw-issues] instead.
+
+## Report a security issue
+
+Do not open a public issue for a vulnerability. Report it privately through
+GitHub's [private vulnerability reporting][advisory]. Only the repository's
+maintainers can read the report, so it stays private until a fix ships.
 
 Each issue carries one `area:` label, chosen by where the fix lands:
 
@@ -66,6 +75,12 @@ Push the branch and open a pull request against `master`. Say what changed
 and why, and put `Closes #N` on a line of its own for each issue it
 finishes.
 
+Write each commit summary as a sentence in the imperative that says what
+the change does, with the issue number after it, such as `Fix the
+StatusSchema and UrisSchema descriptions (#89)`. Give the pull request's
+title the same form: pull requests are squash-merged, so the title usually
+becomes the commit on `master`.
+
 CI runs on every pull request:
 
 - the tests on Python 3.10 through 3.14,
@@ -104,7 +119,11 @@ would change without making it, run `poetry run bump2version --dry-run
 --verbose patch`; the dry run refuses a dirty tree too, unless you add
 `--allow-dirty`. The configuration is `.bumpversion.cfg`.
 
+[advisory]: https://github.com/harleypig/bw-serve-client/security/advisories/new
+[bw-issues]: https://github.com/bitwarden/clients/issues
 [changelog]: ../../CHANGELOG.md
+[coc]: ../../CODE_OF_CONDUCT.md
+[new-issue]: https://github.com/harleypig/bw-serve-client/issues/new/choose
 [conventions]: ../../.claude/CONVENTIONS.md
 [dev]: ../development.md
 [examples]: https://github.com/harleypig/bw-serve-client/tree/master/examples

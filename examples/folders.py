@@ -20,6 +20,7 @@ from bw_serve_client import ExternalServiceError
 from bw_serve_client import Folders
 from bw_serve_client import UserError
 from bw_serve_client import ValidationError
+from bw_serve_client import VaultControl
 
 
 def main() -> int:
@@ -32,6 +33,7 @@ def main() -> int:
 
   with ApiClient(base_url=base_url) as client:
     folders = Folders(client)
+    vault = VaultControl(client)
 
     try:
       existing = folders.list()
@@ -57,10 +59,14 @@ def main() -> int:
 
     print(f"Added {folder.name!r} with id {folder_id}")
 
+    # bw serve's local state can lag its own writes, so each read-back
+    # below follows a sync that brings it up to date.
     folders.modify(folder_id, "Example folder, renamed")
+    vault.sync()
     print(f"Renamed it to {folders.get(folder_id).name!r}")
 
     folders.delete(folder_id)
+    vault.sync()
     print("Deleted it")
 
     # By default every failure raises. bw serve answers a get for a

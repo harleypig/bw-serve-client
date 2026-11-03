@@ -343,6 +343,8 @@ output-model-type = "pydantic_v2.BaseModel"
 
 # Typing customization
 base-class = "pydantic.BaseModel"
+# A hidden custom field's value is a SecretStr, set by this base class (#127).
+base-class-map = { FieldSchema = "bw_serve_client._custom_field.CustomField", FieldResponseSchema = "bw_serve_client._custom_field.CustomField" }
 enum-field-as-literal = "one"
 field-constraints = true
 set-default-enum-member = true

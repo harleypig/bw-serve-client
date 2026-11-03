@@ -40,6 +40,7 @@ from ._generated.models import ObjectOrgCollectionIdGetParameters
 from ._generated.models import ObjectOrgCollectionIdPutParameters
 from ._generated.models import ObjectOrgCollectionPostParameters
 from ._generated.models import OrgCollectionSchema
+from .errors import ValidationError
 from .resource import ObjectId
 from .resource import Resource
 from .resource import route
@@ -275,6 +276,11 @@ class OrgCollections(Resource):
         The moved item, as :class:`ItemSchema`, with its
         ``organization_id`` and ``collection_ids`` set.
     """
+    # The spec asks for one or more. bw serve passes an empty list on
+    # unchecked, and what the server then does is unverified.
+    if not collection_ids:
+      return self._fail(ValidationError, "invalid body for POST /move/{itemid}/{organizationId}: needs one or more collection ids")
+
     return self._request(
       "POST",
       "/move/{itemid}/{organizationId}",
@@ -299,11 +305,15 @@ class OrgCollections(Resource):
 
     Args:
         item_id: Unique identifier of the item.
-        collection_ids: All the collections the item is to belong to.
+        collection_ids: All the collections, one or more, it is to be in.
 
     Returns:
         The item, as :class:`ItemSchema`, with its new ``collection_ids``.
     """
+    # As in move(): the spec asks for one or more.
+    if not collection_ids:
+      return self._fail(ValidationError, "invalid body for PUT /object/item-collections/{id}: needs one or more collection ids")
+
     return self._request(
       "PUT",
       "/object/item-collections/{id}",

@@ -3830,7 +3830,15 @@
             "description": "Name of the custom field"
           },
           "value": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string",
+                "format": "password"
+              }
+            ],
             "title": "FieldValueSchema",
             "description": "Value of the custom field"
           },
@@ -3851,7 +3859,7 @@
             "description": "For a linked field (type 3), the item property it shows: 100-101 a login's, 300-305 a card's, 400-418 an identity's"
           }
         },
-        "description": "Custom field schema for vault items",
+        "description": "Custom field schema for vault items. The value of a hidden field (type 1) is a SecretStr; read it with get_secret_value().",
         "title": "FieldSchema"
       },
       "folder": {
@@ -4439,13 +4447,21 @@
       "response.field": {
         "type": "object",
         "title": "FieldResponseSchema",
-        "description": "A custom field on a vault item",
+        "description": "A custom field on a vault item. The value of a hidden field (type 1) is a SecretStr; read it with get_secret_value().",
         "properties": {
           "name": {
             "type": "string"
           },
           "value": {
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string",
+                "format": "password"
+              }
+            ]
           },
           "type": {
             "type": "integer"

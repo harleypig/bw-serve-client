@@ -101,6 +101,27 @@ class TestApiClient:
     # Assert
     assert client.base_url == "http://localhost:8087/api/v2"
 
+  @pytest.mark.parametrize(
+    ("domain", "base_url"),
+    [("::1", "http://[::1]:8087"), ("fe80::1%eth0", "http://[fe80::1%eth0]:8087"), ("[::1]", "http://[::1]:8087"),
+     ("127.0.0.1", "http://127.0.0.1:8087"), ("vault.example", "http://vault.example:8087")],
+  )
+  def test_init_brackets_bare_ipv6_domain(self: "TestApiClient", domain: str, base_url: str) -> None:
+    """A bare IPv6 domain is bracketed; a bracketed one, IPv4 and a hostname are left alone."""
+    client = ApiClient(domain=domain)  # act
+
+    assert client.base_url == base_url
+
+  def test_bare_ipv6_domain_reaches_server(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """A request from a client built with domain="::1" goes to host ::1 on the client's port."""
+    client = make_client(json_body={"ok": True}, domain="::1", port=9000)
+
+    result = client.get("/status")  # act
+
+    [request] = sent
+    assert (request.url.host, request.url.port) == ("::1", 9000)
+    assert result == {"ok": True}
+
   def test_serialize_data_json(self: "TestApiClient") -> None:
     """Test JSON data serialization."""
     # Arrange
@@ -449,6 +470,27 @@ class TestApiClient:
 
     assert result == payload
 
+  def test_deserialize_data_json_media_type_any_case(self: "TestApiClient") -> None:
+    """The application/json media type is parsed whatever its case and parameters."""
+    client = ApiClient()
+    response = httpx.Response(200, content=b'{"key": "value"}', headers={"Content-Type": "Application/JSON; charset=utf-8"})
+
+    result = client._deserialize_data(response)  # act
+
+    assert result == {"key": "value"}
+
+  @pytest.mark.parametrize(
+    "content_type", ["application/json-seq", "application/problem+json", "text/plain; note=application/json"]
+  )
+  def test_deserialize_data_other_type_containing_json_is_text(self: "TestApiClient", content_type: str) -> None:
+    """A Content-Type that contains application/json but is another media type comes back as text."""
+    client = ApiClient()
+    response = httpx.Response(200, content=b'{"key": "value"}', headers={"Content-Type": content_type})
+
+    result = client._deserialize_data(response)  # act
+
+    assert result == '{"key": "value"}'
+
   def test_get_returns_downloaded_file_bytes(self: "TestApiClient") -> None:
     """ApiClient.get hands back a binary download byte for byte."""
     payload = bytes(range(256))
@@ -666,13 +708,17 @@ class TestApiClient:
     assert json.loads(request.content) == {"name": "test", "value": 123}
     assert result == {"processed": True}
 
-  def test_deserialization_error_fallback(self: "TestApiClient", make_client: MakeClient) -> None:
-    """Test deserialization error fallback to text."""
+  # The warning is what shows the JSON branch ran: the plain-text branch
+  # returns the same string.
+  def test_deserialization_error_fallback(self: "TestApiClient", make_client: MakeClient, caplog: pytest.LogCaptureFixture) -> None:
+    """A JSON response that does not parse comes back as its text, with a warning."""
     client = make_client(text_body="Invalid JSON response", content_type="application/json")
+    caplog.set_level(logging.WARNING, logger="bw_serve_client.api_client")
 
     result = client.get("/test")  # act
 
     assert result == "Invalid JSON response"
+    assert any(record.getMessage().startswith("Failed to parse JSON response") for record in caplog.records)
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
   def test_serialize_data_called_in_post(self: "TestApiClient", mock_serialize: Mock, make_client: MakeClient) -> None:

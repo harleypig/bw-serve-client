@@ -23,6 +23,7 @@ from bw_serve_client import ExternalServiceError
 from bw_serve_client import Sends
 from bw_serve_client import UserError
 from bw_serve_client import ValidationError
+from bw_serve_client import VaultControl
 
 
 def main() -> int:
@@ -37,6 +38,7 @@ def main() -> int:
 
   with ApiClient(base_url=base_url) as client:
     sends = Sends(client)
+    vault = VaultControl(client)
 
     try:
       existing = sends.list()
@@ -60,6 +62,9 @@ def main() -> int:
 
     print(f"Added {send.name!r} with id {send_id}, password set: {send.password_set}")
 
+    # bw serve's local state can lag its own writes, so each read-back
+    # below follows a sync that brings it up to date.
+    #
     # A modify replaces the whole Send, so every value to keep is passed
     # again -- the password included.
     sends.modify(
@@ -70,12 +75,14 @@ def main() -> int:
       password=send_password,
       deletion_date=deletion_date
     )
+    vault.sync()
     print(f"Renamed it to {sends.get(send_id).name!r}")
 
     unprotected = sends.remove_password(send_id)
     print(f"Removed its password; password set: {unprotected.password_set}")
 
     sends.delete(send_id)
+    vault.sync()
     print("Deleted it")
 
     try:

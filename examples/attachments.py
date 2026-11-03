@@ -20,6 +20,7 @@ from bw_serve_client import Attachments
 from bw_serve_client import ExternalServiceError
 from bw_serve_client import UserError
 from bw_serve_client import ValidationError
+from bw_serve_client import VaultControl
 
 
 def main() -> int:
@@ -40,6 +41,7 @@ def main() -> int:
 
   with ApiClient(base_url=base_url) as client:
     attachments = Attachments(client)
+    vault = VaultControl(client)
 
     try:
       item = attachments.add(item_id, content, "example-attachment.bin")
@@ -63,10 +65,15 @@ def main() -> int:
     # upload: the server holds the file encrypted.
     print(f"Attached {added[-1].file_name!r} ({added[-1].size_name} on the server) with id {attachment_id}")
 
+    # bw serve's local state can lag its own writes, so each read-back
+    # below follows a sync that brings it up to date.
+    vault.sync()
+
     downloaded = attachments.get(attachment_id, item_id)
     print(f"Downloaded {len(downloaded)} bytes; identical to the upload: {downloaded == content}")
 
     attachments.delete(attachment_id, item_id)
+    vault.sync()
     print("Deleted it")
 
     # By default every failure raises. bw serve answers a download of an

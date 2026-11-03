@@ -78,6 +78,31 @@ longer a change: the sources table is gone, the report says *No upstream
 changes*, and it exits 0. The report reflects the latest run only, and git
 ignores it. Copy it somewhere first if you need to keep it.
 
+## The weekly detection run
+
+The *Detect upstream changes* workflow (`.github/workflows/detect.yml`)
+runs `pipeline.py detect` every Monday at 06:17 UTC, and on demand from the
+Actions tab. It runs only detect, and it commits nothing, so the lock file
+in the repository does not move: a change nobody has acted on is detected
+again the next week.
+
+| Exit | The workflow |
+|------|--------------|
+| 0 | Passes. |
+| 1 | Fails, so the run shows red. The report, with its *Errors* section, is the run's `change-report` artifact. |
+| 2 | Opens an issue, *Upstream change detected*, labelled `area:detect`, holding the report. Later runs update that issue while it is open, commenting when the report changed. |
+
+The issue is where an update starts, not the update itself. Run `make
+update` on a branch as this guide describes, commit the lock file with the
+rest, and close the issue when the change is merged; the next weekly run
+then exits 0. A report longer than an issue can hold is cut short in the
+issue and whole in the artifact, which every run uploads and keeps for 30
+days.
+
+The run passes the workflow's `GITHUB_TOKEN` to detect for the rate limit.
+It is the same detect as a local run, including the changelog draft, which
+is written on the runner and discarded with it.
+
 ## Reading the change report
 
 `upstream/change-report.md` opens with one of three summaries:

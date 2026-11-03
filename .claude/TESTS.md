@@ -79,3 +79,7 @@ Coverage prints in the test log for reading; there is no threshold.
 `pyright` is the only type checker. A `mypy` second pass is not run.
 
 `docs.yml` builds and deploys the Sphinx docs separately.
+
+`detect.yml` runs `python pipeline.py detect` weekly and on demand: exit 2
+opens or updates one *Upstream change detected* issue, exit 1 fails the
+run. `docs/developer/update-pipeline.md` describes it.

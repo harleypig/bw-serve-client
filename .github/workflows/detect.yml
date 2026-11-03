@@ -1,0 +1,130 @@
+name: Detect upstream changes
+
+on:
+  schedule:
+    # Mondays, off the hour: scheduled runs queue up at the top of it.
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: detect
+  cancel-in-progress: false
+
+env:
+  ISSUE_TITLE: Upstream change detected
+  REPORT: upstream/change-report.md
+
+jobs:
+  detect:
+    name: Detect upstream changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install Poetry
+        shell: bash
+        run: |
+          pipx install poetry==2.5.1
+
+      # detect.py needs requests, which is a dev dependency.
+      - name: Install dependencies
+        run: poetry install --only main,dev
+
+      # Run pipeline.py, not make: make exits 2 for every failure, so an
+      # error would read as a change. Nothing here commits, so the lock
+      # file and the changelog draft detect writes die with the runner, and
+      # the same change is reported every week until someone runs the
+      # update and commits it.
+      - name: Run detection
+        id: detect
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          poetry run python pipeline.py detect
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "detect exited $code"
+
+      - name: Upload the change report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: change-report
+          path: ${{ env.REPORT }}
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # One open issue at a time, found by its exact title: a change nobody
+      # has acted on is detected again every week, and its issue is updated
+      # rather than duplicated. A comment marks a report that changed.
+      - name: Open or update the change issue
+        if: steps.detect.outputs.code == '2'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [[ -s $REPORT ]] || { echo "::error::detect exited 2 but wrote no $REPORT"; exit 1; }
+
+          body=$RUNNER_TEMP/issue-body.md
+
+          # An issue body holds at most 65536 characters; the artifact
+          # always has the whole report.
+          {
+            cat <<'EOF'
+          The scheduled detection run found upstream work to do. To act on it, follow
+          *The update pipeline* in the developer docs: run `make update` on a branch,
+          work through the report, and commit. This issue is updated while the change
+          is still detected.
+
+          EOF
+            if (($(wc -c < "$REPORT") > 60000)); then
+              cat <<'EOF'
+          **The report is too long for an issue; the start of it is below, and the
+          whole report is the `change-report` artifact of the latest run.**
+
+          EOF
+              head -c 60000 "$REPORT" | sed '$d'
+
+            else
+              cat "$REPORT"
+            fi
+          } > "$body"
+
+          number=$(gh issue list --state open --search "\"$ISSUE_TITLE\" in:title" --json number,title \
+            --jq "map(select(.title == env.ISSUE_TITLE)) | .[0].number // empty")
+
+          if [[ -z $number ]]; then
+            gh issue create --title "$ISSUE_TITLE" --label area:detect --body-file "$body"
+
+          elif [[ "$(gh issue view "$number" --json body --jq .body)" == "$(< "$body")" ]]; then
+            echo "Issue #$number already carries this report"
+
+          else
+            gh issue edit "$number" --body-file "$body"
+            gh issue comment "$number" --body "The change report changed; updated from $RUN_URL."
+          fi
+
+      - name: Fail on a detection error
+        if: steps.detect.outputs.code != '0' && steps.detect.outputs.code != '2'
+        shell: bash
+        env:
+          CODE: ${{ steps.detect.outputs.code }}
+        run: |
+          echo "::error::detect exited $CODE; the change-report artifact says why"
+          exit 1

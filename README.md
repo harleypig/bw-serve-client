@@ -307,10 +307,16 @@ with ApiClient() as client:
   Each needs a running, unlocked `bw serve`, and reads `BW_SERVE_URL` for
   its address, except `serve_socket.py`, which starts its own `bw serve` on
   a Unix socket.
+* [`examples/cli.py`][cli] is a small command-line app that puts the pieces
+  together: connecting, a few resource classes, masked secrets, an exit
+  status per error and the injected logger and error handler. Its `setup`
+  command prints the steps in [Starting `bw serve`](#starting-bw-serve)
+  and says which one is missing.
 * The [documentation site][docs-site] has the API reference built from the
   docstrings.
 
 [api-architecture]: docs/api-architecture.md
 [examples]: examples/
 [serve-socket]: examples/serve_socket.py
+[cli]: examples/cli.py
 [docs-site]: https://harleypig.github.io/bw-serve-client

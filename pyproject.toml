@@ -45,7 +45,6 @@ exclude = ["upstream/**", "codegen/**"]
 
 [tool.poetry.group.dev.dependencies]
 bandit = ">=1.7.5,<2.0.0"
-bump2version = ">=1.0.1,<2.0.0"
 datamodel-code-generator = { version = ">=0.87.0,<0.88.0", extras = ["isort"] }
 dlint = "^0.16.0"
 # Security floors on transitive deps, not direct ones. Their fixed releases
@@ -101,6 +100,7 @@ yamllint = ">=1.37.1"
 yapf = ">=0.40.2,<1.0.0"
 
 [tool.poetry.group.test.dependencies]
+bump2version = ">=1.0.1,<2.0.0"
 pytest = ">=7.2.1"
 pytest-cov = ">=2.8.1"
 pytest-mock = ">=3.12.0,<4.0.0"

@@ -94,30 +94,10 @@ no page, fails it.
 
 ## Release
 
-The package is not published to PyPI; users install it from this
-repository. A release is a finished changelog and a version bump.
-
-Finish the changelog first. When Bitwarden changes something upstream,
-`make update` drafts entries under `## [Unreleased]` between two `draft`
-comments; edit them, move them under the right heading, and delete both
-comments. Then give the released entries a heading for the new version,
-as [Keep a Changelog][kac] describes.
-
-Bump the version with `bump2version`, through the Makefile:
-
-```bash
-make version-show     # print the current version
-make version-patch    # 0.1.1 -> 0.1.2: fixes
-make version-minor    # 0.1.1 -> 0.2.0: new features, backward compatible
-make version-major    # 0.1.1 -> 1.0.0: breaking changes
-```
-
-Each bump updates the version in `pyproject.toml`,
-`bw_serve_client/__init__.py` and `.bumpversion.cfg`, then commits and tags
-it as `v<version>`, so it needs a clean working tree. To see what a bump
-would change without making it, run `poetry run bump2version --dry-run
---verbose patch`; the dry run refuses a dirty tree too, unless you add
-`--allow-dirty`. The configuration is `.bumpversion.cfg`.
+A release closes the changelog's `## [Unreleased]` section, bumps the
+version and tags it in one commit, with `make release-patch`, `-minor` or
+`-major`; pushing the tag runs the release workflow. The whole procedure,
+and the one-time setup for publishing to PyPI, is [Releasing][releasing].
 
 [advisory]: https://github.com/harleypig/bw-serve-client/security/advisories/new
 [bw-issues]: https://github.com/bitwarden/clients/issues
@@ -127,8 +107,8 @@ would change without making it, run `poetry run bump2version --dry-run
 [conventions]: ../../.claude/CONVENTIONS.md
 [dev]: ../development.md
 [examples]: https://github.com/harleypig/bw-serve-client/tree/master/examples
-[kac]: https://keepachangelog.com/en/1.1.0/
 [issues]: https://github.com/harleypig/bw-serve-client/issues
 [project]: https://github.com/users/harleypig/projects/3
+[releasing]: releasing.md
 [tests]: ../../.claude/TESTS.md
 [workflow]: ../../.claude/WORKFLOW.md

@@ -30,6 +30,7 @@ from ._generated.models import SendIdRemovePasswordPostParameters
 from ._generated.models import SendSchema
 from ._generated.models import SendTemplateSchema
 from ._generated.models import SendTypeSchema
+from .resource import _masked
 from .resource import ObjectId
 from .resource import Resource
 from .resource import route
@@ -61,9 +62,6 @@ def _template(
   Returns:
     The body's fields, keyed by the template's field names.
   """
-  if isinstance(password, SecretStr):
-    password = password.get_secret_value()
-
   return {
     "name": name,
     "type": SendTypeSchema.INTEGER_0,
@@ -137,6 +135,8 @@ class Sends(Resource):
     Returns:
         The created Send, with its server-assigned id and access URL.
     """
+    password = _masked(password)
+
     body = _template(
       name, text, hidden, notes, password, deletion_date, expiration_date, max_access_count, emails, disabled, hide_email
     )
@@ -187,6 +187,8 @@ class Sends(Resource):
     Returns:
         The updated Send.
     """
+    password = _masked(password)
+
     body = _template(
       name, text, hidden, notes, password, deletion_date, expiration_date, max_access_count, emails, disabled, hide_email
     )

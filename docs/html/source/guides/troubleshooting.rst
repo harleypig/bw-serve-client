@@ -125,11 +125,13 @@ or unlock the running server over HTTP:
 
    import getpass
 
+   from pydantic import SecretStr
+
    from bw_serve_client import ApiClient
    from bw_serve_client import VaultControl
 
    with ApiClient() as client:
-     VaultControl(client).unlock(getpass.getpass("Master password: "))
+     VaultControl(client).unlock(SecretStr(getpass.getpass("Master password: ")))
 
 :meth:`VaultControl.status()
 <bw_serve_client.vault_control.VaultControl.status>` works on a locked

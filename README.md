@@ -296,15 +296,18 @@ the error handler.
 A server started locked can be unlocked through the library. The method
 sends the master password to `bw serve` and returns the session key as a
 `SecretStr`; nothing in this library needs it afterwards, since `bw serve`
-keeps the session.
+keeps the session. Pass the password as a `SecretStr` too, so it is masked
+wherever it is held, your own code's frames included.
 
 ```python
 from getpass import getpass
 
+from pydantic import SecretStr
+
 from bw_serve_client import ApiClient, VaultControl
 
 with ApiClient() as client:
-  VaultControl(client).unlock(getpass("Master password: "))
+  VaultControl(client).unlock(SecretStr(getpass("Master password: ")))
 ```
 
 ## Reference

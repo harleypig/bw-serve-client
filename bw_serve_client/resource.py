@@ -141,6 +141,24 @@ def _adapter(response_type: Any) -> TypeAdapter[Any]:
 
 
 # -----------------------------------------------------------------------------
+def _masked(value: Any) -> Any:
+  """Wrap a plain-string secret in ``SecretStr`` as it enters the library.
+
+  A method rebinds its secret argument to the result first thing, so no
+  library frame holds the plain text when a failure's traceback is
+  recorded (#160 - secrets in traceback frames). Anything that is not a
+  ``str`` is returned unchanged, for the route's model to judge.
+
+  Args:
+    value: A secret argument as the caller passed it.
+
+  Returns:
+    ``value`` wrapped when it is a ``str``; otherwise ``value`` itself.
+  """
+  return SecretStr(value) if isinstance(value, str) else value
+
+
+# -----------------------------------------------------------------------------
 def _jsonable(value: Any) -> Any:
   """Make a dumped model JSON-compatible, leaving each ``SecretStr`` wrapped.
 

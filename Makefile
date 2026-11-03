@@ -17,6 +17,13 @@ version-minor:
 version-major:
 	@poetry run bump2version major
 
+# Release: cut the changelog's Unreleased section, bump, commit and tag in
+# one step (release.py). Pushing the tag runs the release workflow.
+.PHONY: release-patch release-minor release-major
+
+release-patch release-minor release-major:
+	@poetry run python release.py prepare $(@:release-%=%)
+
 # Update pipeline. make exits 2 for any failed recipe, so it cannot tell an
 # error from a change: call `python pipeline.py <stage>` directly when the
 # 0 / 1 / 2 exit code matters.

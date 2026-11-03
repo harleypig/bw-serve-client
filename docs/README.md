@@ -21,6 +21,8 @@ from the docstrings, is published at
 - [Contributing][contrib] — issues, pull requests and releases.
 - [Update pipeline][pipeline] — how `pipeline.py` detects upstream
   changes and regenerates the models.
+- [Releasing][releasing] — cutting a version, the release workflow, and
+  publishing to PyPI.
 
 ## Bitwarden
 
@@ -37,5 +39,6 @@ from the docstrings, is published at
 [pipeline]: developer/update-pipeline.md
 [pages]: https://harleypig.github.io/bw-serve-client/
 [quick]: user/quick-start.md
+[releasing]: developer/releasing.md
 [vm-api]: https://bitwarden.com/help/vault-management-api/
 [when]: when-to-use.md

@@ -17,12 +17,12 @@ from typing import Any, Literal, Optional, TYPE_CHECKING, Union
 
 from pydantic import BaseModel
 
-from ._generated.models import ObjectExposedIdGetParameters
-from ._generated.models import ObjectNotesIdGetParameters
-from ._generated.models import ObjectPasswordIdGetParameters
-from ._generated.models import ObjectTotpIdGetParameters
-from ._generated.models import ObjectUriIdGetParameters
-from ._generated.models import ObjectUsernameIdGetParameters
+from ._generated.models import ObjectExposedIdGetPathParameters
+from ._generated.models import ObjectNotesIdGetPathParameters
+from ._generated.models import ObjectPasswordIdGetPathParameters
+from ._generated.models import ObjectTotpIdGetPathParameters
+from ._generated.models import ObjectUriIdGetPathParameters
+from ._generated.models import ObjectUsernameIdGetPathParameters
 from ._generated.models import SecretStringResponseSchema
 from ._generated.models import StringResponseSchema
 from .resource import ObjectId
@@ -94,7 +94,7 @@ class ItemFields(Resource):
     Returns:
         The login's username.
     """
-    return self._field("/object/username/{id}", ObjectUsernameIdGetParameters, item_id, StringResponseSchema)
+    return self._field("/object/username/{id}", ObjectUsernameIdGetPathParameters, item_id, StringResponseSchema)
 
   # ---------------------------------------------------------------------------
   @route("GET", "/object/password/{id}")
@@ -107,7 +107,7 @@ class ItemFields(Resource):
     Returns:
         The login's password; ``get_secret_value()`` reveals it.
     """
-    return self._field("/object/password/{id}", ObjectPasswordIdGetParameters, item_id, SecretStringResponseSchema)
+    return self._field("/object/password/{id}", ObjectPasswordIdGetPathParameters, item_id, SecretStringResponseSchema)
 
   # ---------------------------------------------------------------------------
   @route("GET", "/object/uri/{id}")
@@ -120,7 +120,7 @@ class ItemFields(Resource):
     Returns:
         The login's first URI.
     """
-    return self._field("/object/uri/{id}", ObjectUriIdGetParameters, item_id, StringResponseSchema)
+    return self._field("/object/uri/{id}", ObjectUriIdGetPathParameters, item_id, StringResponseSchema)
 
   # ---------------------------------------------------------------------------
   @route("GET", "/object/totp/{id}")
@@ -133,7 +133,7 @@ class ItemFields(Resource):
     Returns:
         The current TOTP code; ``get_secret_value()`` reveals it.
     """
-    return self._field("/object/totp/{id}", ObjectTotpIdGetParameters, item_id, SecretStringResponseSchema)
+    return self._field("/object/totp/{id}", ObjectTotpIdGetPathParameters, item_id, SecretStringResponseSchema)
 
   # ---------------------------------------------------------------------------
   @route("GET", "/object/notes/{id}")
@@ -146,7 +146,7 @@ class ItemFields(Resource):
     Returns:
         The item's notes.
     """
-    return self._field("/object/notes/{id}", ObjectNotesIdGetParameters, item_id, StringResponseSchema)
+    return self._field("/object/notes/{id}", ObjectNotesIdGetPathParameters, item_id, StringResponseSchema)
 
   # ---------------------------------------------------------------------------
   @route("GET", "/object/exposed/{id}")
@@ -161,7 +161,7 @@ class ItemFields(Resource):
     Returns:
         How many known breaches the login's password appears in.
     """
-    path_params = (ObjectExposedIdGetParameters, {"id": item_id})
+    path_params = (ObjectExposedIdGetPathParameters, {"id": item_id})
     result = self._request("GET", "/object/exposed/{id}", path_params=path_params, response_type=_ExposedCount)
 
     return self._member(result, _ExposedCount, "data")

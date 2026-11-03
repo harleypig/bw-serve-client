@@ -4,9 +4,9 @@ Generated from the patched OpenAPI spec by ``codegen/generate.py``.
 DO NOT EDIT MANUALLY.
 """
 
-from .models import ArchiveObjectIdPostParameters
+from .models import ArchiveObjectIdPostPathParameters
 from .models import AttachmentIdSchema
-from .models import AttachmentPostParameters
+from .models import AttachmentPostQueryParameters
 from .models import AttachmentRequestSchema
 from .models import AttachmentSchema
 from .models import BankAccountResponseSchema
@@ -17,12 +17,13 @@ from .models import CollectionListSuccessSchema
 from .models import CollectionResponseSchema
 from .models import CollectionSchema
 from .models import CollectionSuccessSchema
-from .models import ConfirmOrgMemberIdPostParameters
-from .models import DeviceApprovalOrganizationIdApproveAllPostParameters
-from .models import DeviceApprovalOrganizationIdApproveRequestIdPostParameters
-from .models import DeviceApprovalOrganizationIdDenyAllPostParameters
-from .models import DeviceApprovalOrganizationIdDenyRequestIdPostParameters
-from .models import DeviceApprovalOrganizationIdGetParameters
+from .models import ConfirmOrgMemberIdPostPathParameters
+from .models import ConfirmOrgMemberIdPostQueryParameters
+from .models import DeviceApprovalOrganizationIdApproveAllPostPathParameters
+from .models import DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters
+from .models import DeviceApprovalOrganizationIdDenyAllPostPathParameters
+from .models import DeviceApprovalOrganizationIdDenyRequestIdPostPathParameters
+from .models import DeviceApprovalOrganizationIdGetPathParameters
 from .models import DeviceApprovalPropertiesSchema
 from .models import DeviceApprovalRequestListSchema
 from .models import DeviceApprovalRequestListSuccessSchema
@@ -37,7 +38,7 @@ from .models import FolderListSuccessSchema
 from .models import FolderResponseSchema
 from .models import FolderSchema
 from .models import FolderSuccessSchema
-from .models import GenerateGetParameters
+from .models import GenerateGetQueryParameters
 from .models import GroupSchema
 from .models import IdentityResponseSchema
 from .models import IdSchema
@@ -56,47 +57,53 @@ from .models import ItemSshKeySchema
 from .models import ItemSuccessSchema
 from .models import ItemTemplateSchema
 from .models import ItemTypeSchema
-from .models import ListObjectCollectionsGetParameters
-from .models import ListObjectFoldersGetParameters
-from .models import ListObjectItemsGetParameters
-from .models import ListObjectOrganizationsGetParameters
-from .models import ListObjectOrgCollectionsGetParameters
-from .models import ListObjectOrgMembersGetParameters
-from .models import ListObjectSendGetParameters
+from .models import ListObjectCollectionsGetQueryParameters
+from .models import ListObjectFoldersGetQueryParameters
+from .models import ListObjectItemsGetQueryParameters
+from .models import ListObjectOrganizationsGetQueryParameters
+from .models import ListObjectOrgCollectionsGetQueryParameters
+from .models import ListObjectOrgMembersGetQueryParameters
+from .models import ListObjectSendGetQueryParameters
 from .models import LockUnlockDataSchema
 from .models import LockUnlockSuccessSchema
 from .models import LoginResponseSchema
 from .models import LoginUriResponseSchema
 from .models import MatchSchema
-from .models import MoveItemidOrganizationIdPostParameters
+from .models import MoveItemidOrganizationIdPostPathParameters
 from .models import MoveItemRequestSchema
-from .models import ObjectAttachmentIdDeleteParameters
-from .models import ObjectAttachmentIdGetParameters
-from .models import ObjectCollectionIdGetParameters
-from .models import ObjectExposedIdGetParameters
-from .models import ObjectFolderIdDeleteParameters
-from .models import ObjectFolderIdGetParameters
-from .models import ObjectFolderIdPutParameters
-from .models import ObjectItemCollectionsIdGetParameters
-from .models import ObjectItemCollectionsIdPutParameters
+from .models import ObjectAttachmentIdDeletePathParameters
+from .models import ObjectAttachmentIdDeleteQueryParameters
+from .models import ObjectAttachmentIdGetPathParameters
+from .models import ObjectAttachmentIdGetQueryParameters
+from .models import ObjectCollectionIdGetPathParameters
+from .models import ObjectExposedIdGetPathParameters
+from .models import ObjectFolderIdDeletePathParameters
+from .models import ObjectFolderIdGetPathParameters
+from .models import ObjectFolderIdPutPathParameters
+from .models import ObjectItemCollectionsIdGetPathParameters
+from .models import ObjectItemCollectionsIdPutPathParameters
 from .models import ObjectItemCollectionsIdPutRequest
-from .models import ObjectItemIdDeleteParameters
-from .models import ObjectItemIdGetParameters
-from .models import ObjectItemIdPutParameters
-from .models import ObjectNotesIdGetParameters
-from .models import ObjectOrganizationIdGetParameters
-from .models import ObjectOrgCollectionIdDeleteParameters
-from .models import ObjectOrgCollectionIdGetParameters
-from .models import ObjectOrgCollectionIdPutParameters
-from .models import ObjectOrgCollectionPostParameters
-from .models import ObjectPasswordIdGetParameters
-from .models import ObjectSendIdDeleteParameters
-from .models import ObjectSendIdGetParameters
-from .models import ObjectSendIdPutParameters
-from .models import ObjectTemplateTypeGetParameters
-from .models import ObjectTotpIdGetParameters
-from .models import ObjectUriIdGetParameters
-from .models import ObjectUsernameIdGetParameters
+from .models import ObjectItemIdDeletePathParameters
+from .models import ObjectItemIdDeleteQueryParameters
+from .models import ObjectItemIdGetPathParameters
+from .models import ObjectItemIdPutPathParameters
+from .models import ObjectNotesIdGetPathParameters
+from .models import ObjectOrganizationIdGetPathParameters
+from .models import ObjectOrgCollectionIdDeletePathParameters
+from .models import ObjectOrgCollectionIdDeleteQueryParameters
+from .models import ObjectOrgCollectionIdGetPathParameters
+from .models import ObjectOrgCollectionIdGetQueryParameters
+from .models import ObjectOrgCollectionIdPutPathParameters
+from .models import ObjectOrgCollectionIdPutQueryParameters
+from .models import ObjectOrgCollectionPostQueryParameters
+from .models import ObjectPasswordIdGetPathParameters
+from .models import ObjectSendIdDeletePathParameters
+from .models import ObjectSendIdGetPathParameters
+from .models import ObjectSendIdPutPathParameters
+from .models import ObjectTemplateTypeGetPathParameters
+from .models import ObjectTotpIdGetPathParameters
+from .models import ObjectUriIdGetPathParameters
+from .models import ObjectUsernameIdGetPathParameters
 from .models import OrganizationIdSchema1
 from .models import OrganizationListSchema
 from .models import OrganizationListSuccessSchema
@@ -112,14 +119,14 @@ from .models import PasswordHistoryResponseSchema
 from .models import PasswordHistorySchema
 from .models import RepromptSchema
 from .models import RequestIdSchema
-from .models import RestoreItemIdPostParameters
+from .models import RestoreItemIdPostPathParameters
 from .models import SearchSchema
 from .models import SecretStringResponseSchema
 from .models import SecretStringSuccessSchema
 from .models import SecureNoteResponseSchema
 from .models import SendFileResponseSchema
-from .models import SendIdRemovePasswordPostParameters
-from .models import SendListGetParameters
+from .models import SendIdRemovePasswordPostPathParameters
+from .models import SendListGetQueryParameters
 from .models import SendListSchema
 from .models import SendListSuccessSchema
 from .models import SendSchema
@@ -136,7 +143,7 @@ from .models import StringSuccessSchema
 from .models import SuccessSchema
 from .models import SyncMessageSchema
 from .models import SyncMessageSuccessSchema
-from .models import SyncPostParameters
+from .models import SyncPostQueryParameters
 from .models import TemplateResponseSchema
 from .models import TemplateSchema
 from .models import TemplateStatusSchema
@@ -163,24 +170,28 @@ __all__ = [
   "OrgMemberListSchema", "SuccessSchema", "ItemSuccessSchema", "ItemListSuccessSchema", "StringSuccessSchema",
   "SecretStringSuccessSchema", "FolderSuccessSchema", "FolderListSuccessSchema", "SendSuccessSchema", "SendListSuccessSchema",
   "OrganizationSuccessSchema", "OrganizationListSuccessSchema", "CollectionSuccessSchema", "CollectionListSuccessSchema",
-  "OrgCollectionSuccessSchema", "OrgMemberListSuccessSchema", "TemplateSuccessSchema", "SyncMessageSuccessSchema",
-  "UnlockPostRequestSchema", "IdSchema", "ObjectItemIdPutParameters", "ObjectItemIdGetParameters", "ObjectItemIdDeleteParameters",
-  "ObjectItemCollectionsIdGetParameters", "ObjectItemCollectionsIdPutParameters", "ObjectItemCollectionsIdPutRequest",
-  "RestoreItemIdPostParameters", "ArchiveObjectIdPostParameters", "OrganizationIdSchema1", "SearchSchema",
-  "ListObjectItemsGetParameters", "ItemIdSchema", "AttachmentPostParameters", "AttachmentRequestSchema", "AttachmentIdSchema",
-  "ObjectAttachmentIdGetParameters", "ObjectAttachmentIdDeleteParameters", "ObjectUsernameIdGetParameters",
-  "ObjectPasswordIdGetParameters", "ObjectUriIdGetParameters", "ObjectTotpIdGetParameters", "ObjectNotesIdGetParameters",
-  "ObjectExposedIdGetParameters", "ObjectFolderIdPutParameters", "ObjectFolderIdGetParameters", "ObjectFolderIdDeleteParameters",
-  "ListObjectFoldersGetParameters", "ObjectSendIdPutParameters", "ObjectSendIdGetParameters", "ObjectSendIdDeleteParameters",
-  "ListObjectSendGetParameters", "SendListGetParameters", "SendIdRemovePasswordPostParameters",
-  "MoveItemidOrganizationIdPostParameters", "MoveItemRequestSchema", "ObjectOrgCollectionPostParameters",
-  "ObjectOrgCollectionIdPutParameters", "ObjectOrgCollectionIdGetParameters", "ObjectOrgCollectionIdDeleteParameters",
-  "ListObjectOrgCollectionsGetParameters", "ListObjectCollectionsGetParameters", "ListObjectOrganizationsGetParameters",
-  "ListObjectOrgMembersGetParameters", "ObjectCollectionIdGetParameters", "ObjectOrganizationIdGetParameters",
-  "ConfirmOrgMemberIdPostParameters", "DeviceApprovalOrganizationIdGetParameters", "RequestIdSchema",
-  "DeviceApprovalOrganizationIdApproveRequestIdPostParameters", "DeviceApprovalOrganizationIdApproveAllPostParameters",
-  "DeviceApprovalOrganizationIdDenyRequestIdPostParameters", "DeviceApprovalOrganizationIdDenyAllPostParameters",
-  "SyncPostParameters", "GenerateGetParameters", "TypeSchema", "ObjectTemplateTypeGetParameters", "ItemLoginSchema",
-  "SendTemplateSchema", "CollectionSchema", "DeviceApprovalRequestListSchema", "DeviceApprovalRequestListSuccessSchema",
-  "ItemTemplateSchema", "Parameter", "Route", "ROUTES"
+  "OrgCollectionSuccessSchema", "OrgMemberListSuccessSchema", "TemplateSuccessSchema", "SyncMessageSuccessSchema", "IdSchema",
+  "ObjectItemIdPutPathParameters", "ObjectItemIdGetPathParameters", "ObjectItemIdDeletePathParameters",
+  "ObjectItemIdDeleteQueryParameters", "ObjectItemCollectionsIdGetPathParameters", "ObjectItemCollectionsIdPutPathParameters",
+  "RestoreItemIdPostPathParameters", "ArchiveObjectIdPostPathParameters", "OrganizationIdSchema1", "SearchSchema",
+  "ListObjectItemsGetQueryParameters", "ItemIdSchema", "AttachmentPostQueryParameters", "AttachmentIdSchema",
+  "ObjectAttachmentIdGetPathParameters", "ObjectAttachmentIdGetQueryParameters", "ObjectAttachmentIdDeletePathParameters",
+  "ObjectAttachmentIdDeleteQueryParameters", "ObjectUsernameIdGetPathParameters", "ObjectPasswordIdGetPathParameters",
+  "ObjectUriIdGetPathParameters", "ObjectTotpIdGetPathParameters", "ObjectNotesIdGetPathParameters",
+  "ObjectExposedIdGetPathParameters", "ObjectFolderIdPutPathParameters", "ObjectFolderIdGetPathParameters",
+  "ObjectFolderIdDeletePathParameters", "ListObjectFoldersGetQueryParameters", "ObjectSendIdPutPathParameters",
+  "ObjectSendIdGetPathParameters", "ObjectSendIdDeletePathParameters", "ListObjectSendGetQueryParameters",
+  "SendListGetQueryParameters", "SendIdRemovePasswordPostPathParameters", "MoveItemidOrganizationIdPostPathParameters",
+  "ObjectOrgCollectionPostQueryParameters", "ObjectOrgCollectionIdPutPathParameters", "ObjectOrgCollectionIdPutQueryParameters",
+  "ObjectOrgCollectionIdGetPathParameters", "ObjectOrgCollectionIdGetQueryParameters", "ObjectOrgCollectionIdDeletePathParameters",
+  "ObjectOrgCollectionIdDeleteQueryParameters", "ListObjectOrgCollectionsGetQueryParameters",
+  "ListObjectCollectionsGetQueryParameters", "ListObjectOrganizationsGetQueryParameters", "ListObjectOrgMembersGetQueryParameters",
+  "ObjectCollectionIdGetPathParameters", "ObjectOrganizationIdGetPathParameters", "ConfirmOrgMemberIdPostPathParameters",
+  "ConfirmOrgMemberIdPostQueryParameters", "DeviceApprovalOrganizationIdGetPathParameters", "RequestIdSchema",
+  "DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters", "DeviceApprovalOrganizationIdApproveAllPostPathParameters",
+  "DeviceApprovalOrganizationIdDenyRequestIdPostPathParameters", "DeviceApprovalOrganizationIdDenyAllPostPathParameters",
+  "SyncPostQueryParameters", "GenerateGetQueryParameters", "TypeSchema", "ObjectTemplateTypeGetPathParameters",
+  "UnlockPostRequestSchema", "ObjectItemCollectionsIdPutRequest", "AttachmentRequestSchema", "MoveItemRequestSchema",
+  "ItemLoginSchema", "SendTemplateSchema", "CollectionSchema", "DeviceApprovalRequestListSchema",
+  "DeviceApprovalRequestListSuccessSchema", "ItemTemplateSchema", "Parameter", "Route", "ROUTES"
 ]

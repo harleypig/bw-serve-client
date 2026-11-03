@@ -91,7 +91,7 @@ REQUEST_ENUMS = [
     # it "not yet available" on every server, so it is left out.
   ),
   pytest.param(
-    models.ObjectTemplateTypeGetParameters,
+    models.ObjectTemplateTypeGetPathParameters,
     "type",
     {
       "item",
@@ -113,7 +113,7 @@ REQUEST_ENUMS = [
     # clients apps/cli/src/commands/get.command.ts (getTemplate).
   ),
   pytest.param(
-    models.ArchiveObjectIdPostParameters,
+    models.ArchiveObjectIdPostPathParameters,
     "object",
     {"item"},
     id="archive.object",

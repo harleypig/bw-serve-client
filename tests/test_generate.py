@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -65,10 +66,16 @@ def spec() -> Dict[str, Any]:
           "parameters": [{
             "name": "id",
             "in": "path",
-            "required": True
+            "required": True,
+            "schema": {
+              "type": "string"
+            }
           }, {
             "name": "force",
-            "in": "query"
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }],
           "responses": {
             "200": {
@@ -236,6 +243,74 @@ class TestParameters:
       generate.render_routes(raw)
 
 
+class TestParameterModels:
+  """One path model and one query model per route (#112)."""
+
+  @pytest.mark.parametrize(("method", "path", "expected"), [
+    ("delete", "/object/item/{id}", "ObjectItemIdDeletePathParameters"),
+    (
+      "post", "/device-approval/{organizationId}/approve/{request-id}",
+      "DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters"
+    ),
+    ("get", "/list/object/items", "ListObjectItemsGetPathParameters"),
+  ])
+  def test_model_name_follows_the_generator(self: TestParameterModels, method: str, path: str, expected: str) -> None:
+    """Names camel-case the path's words and keep each word's own capitals."""
+    assert generate.model_name(method, path, "PathParameters") == expected
+
+  def test_route_with_both_kinds_gets_two_models(self: TestParameterModels) -> None:
+    """The path id and the query flag land in separate schemas, each titled with its model name."""
+    built = generate.parameter_schemas(spec())
+
+    assert built == {
+      "ObjectFolderIdDeletePathParameters": {
+        "type": "object",
+        "title": "ObjectFolderIdDeletePathParameters",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+      },
+      "ObjectFolderIdDeleteQueryParameters": {
+        "type": "object",
+        "title": "ObjectFolderIdDeleteQueryParameters",
+        "properties": {
+          "force": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+      },
+    }
+
+  def test_other_locations_get_no_model(self: TestParameterModels) -> None:
+    """A header parameter is in neither model, as the generator left it out."""
+    raw = spec()
+    raw["paths"]["/object/folder/{id}"]["delete"]["parameters"].append({"name": "session", "in": "header", "schema": {}})
+
+    built = generate.parameter_schemas(raw)
+
+    assert all("session" not in schema["properties"] for schema in built.values())
+
+  def test_taken_name_stops_generation(self: TestParameterModels) -> None:
+    """A spec schema already named like a parameter model would be replaced silently."""
+    raw = spec()
+    raw["components"]["schemas"]["ObjectFolderIdDeleteQueryParameters"] = {"type": "object"}
+
+    with pytest.raises(generate.GenerateError, match="ObjectFolderIdDeleteQueryParameters is already taken"):
+      generate.parameter_schemas(raw)
+
+  def test_parameter_without_schema_stops_generation(self: TestParameterModels) -> None:
+    """A parameter typed by content, not schema, is a named error, not a KeyError."""
+    raw = spec()
+    del raw["paths"]["/object/folder/{id}"]["delete"]["parameters"][1]["schema"]
+
+    with pytest.raises(generate.GenerateError, match="a query parameter has no schema"):
+      generate.parameter_schemas(raw)
+
+
 class TestInit:
   """The package's __init__.py."""
 
@@ -276,6 +351,9 @@ class TestGenerateModels:
 
     def run(args: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
       assert kwargs["cwd"] == generate.ROOT
+      handed = json.loads(Path(args[args.index("--input") + 1]).read_text(encoding="utf-8"))
+      assert {"folder", "ObjectFolderIdDeletePathParameters",
+              "ObjectFolderIdDeleteQueryParameters"} <= set(handed["components"]["schemas"])
       template = Path(args[args.index("--extra-template-data") + 1]).read_text(encoding="utf-8")
       models.write_text(f"# {template}\nclass FolderSchema:\n  pass\n\n\nclass StatusSchema:\n  pass\n", encoding="utf-8")
       return subprocess.CompletedProcess(args, code, "", "boom" if code else "")
@@ -286,7 +364,7 @@ class TestGenerateModels:
     """The ignore overrides are passed in, and __all__ lists the classes in order."""
     mocker.patch.object(generate.subprocess, "run", side_effect=self.generator(models))
 
-    names = generate.generate_models(["StatusSchema"])
+    names = generate.generate_models(spec(), ["StatusSchema"])
 
     source = models.read_text(encoding="utf-8")
     assert names == ["FolderSchema", "StatusSchema"]
@@ -298,14 +376,14 @@ class TestGenerateModels:
     mocker.patch.object(generate.subprocess, "run", side_effect=self.generator(models))
 
     with pytest.raises(generate.GenerateError, match="GoneSchema"):
-      generate.generate_models(["GoneSchema"])
+      generate.generate_models(spec(), ["GoneSchema"])
 
   def test_generator_failure_stops_generation(self: TestGenerateModels, models: Path, mocker: MockerFixture) -> None:
     """A failing generator is an error carrying its output."""
     mocker.patch.object(generate.subprocess, "run", side_effect=self.generator(models, code=1))
 
     with pytest.raises(generate.GenerateError, match="exited 1: boom"):
-      generate.generate_models([])
+      generate.generate_models(spec(), [])
 
 
 class TestMain:

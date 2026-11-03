@@ -14,11 +14,11 @@ from __future__ import annotations
 
 from typing import Any, Union
 
-from ._generated.models import DeviceApprovalOrganizationIdApproveAllPostParameters
-from ._generated.models import DeviceApprovalOrganizationIdApproveRequestIdPostParameters
-from ._generated.models import DeviceApprovalOrganizationIdDenyAllPostParameters
-from ._generated.models import DeviceApprovalOrganizationIdDenyRequestIdPostParameters
-from ._generated.models import DeviceApprovalOrganizationIdGetParameters
+from ._generated.models import DeviceApprovalOrganizationIdApproveAllPostPathParameters
+from ._generated.models import DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters
+from ._generated.models import DeviceApprovalOrganizationIdDenyAllPostPathParameters
+from ._generated.models import DeviceApprovalOrganizationIdDenyRequestIdPostPathParameters
+from ._generated.models import DeviceApprovalOrganizationIdGetPathParameters
 from ._generated.models import DeviceApprovalPropertiesSchema
 from .resource import ObjectId
 from .resource import Resource
@@ -65,7 +65,7 @@ class DeviceApproval(Resource):
       "POST",
       "/device-approval/{organizationId}/approve/{request-id}",
       path_params=(
-        DeviceApprovalOrganizationIdApproveRequestIdPostParameters, {
+        DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters, {
           "organizationId": organization_id,
           "request-id": request_id
         }
@@ -86,7 +86,7 @@ class DeviceApproval(Resource):
     return self._request(
       "POST",
       "/device-approval/{organizationId}/approve-all",
-      path_params=(DeviceApprovalOrganizationIdApproveAllPostParameters, {
+      path_params=(DeviceApprovalOrganizationIdApproveAllPostPathParameters, {
         "organizationId": organization_id
       }),
     )
@@ -110,7 +110,7 @@ class DeviceApproval(Resource):
       "POST",
       "/device-approval/{organizationId}/deny/{request-id}",
       path_params=(
-        DeviceApprovalOrganizationIdDenyRequestIdPostParameters, {
+        DeviceApprovalOrganizationIdDenyRequestIdPostPathParameters, {
           "organizationId": organization_id,
           "request-id": request_id
         }
@@ -131,7 +131,7 @@ class DeviceApproval(Resource):
     return self._request(
       "POST",
       "/device-approval/{organizationId}/deny-all",
-      path_params=(DeviceApprovalOrganizationIdDenyAllPostParameters, {
+      path_params=(DeviceApprovalOrganizationIdDenyAllPostPathParameters, {
         "organizationId": organization_id
       }),
     )
@@ -153,7 +153,7 @@ class DeviceApproval(Resource):
     return self._request(
       "GET",
       "/device-approval/{organizationId}",
-      path_params=(DeviceApprovalOrganizationIdGetParameters, {
+      path_params=(DeviceApprovalOrganizationIdGetPathParameters, {
         "organizationId": organization_id
       }),
       response_type=list[DeviceApprovalPropertiesSchema],

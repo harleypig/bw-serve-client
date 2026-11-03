@@ -16,7 +16,7 @@ from typing import Any, Optional, TYPE_CHECKING, Union
 from ._generated.models import LockUnlockDataSchema
 from ._generated.models import StatusDataSchema
 from ._generated.models import SyncMessageSchema
-from ._generated.models import SyncPostParameters
+from ._generated.models import SyncPostQueryParameters
 from ._generated.models import TemplateSchema
 from ._generated.models import UnlockPostRequestSchema
 from .errors import ExternalServiceError
@@ -94,7 +94,7 @@ class VaultControl(Resource):
     Returns:
         bw serve's confirmation; its ``title`` reads "Syncing complete."
     """
-    return self._request("POST", "/sync", query=(SyncPostParameters, {"force": force}), response_type=SyncMessageSchema)
+    return self._request("POST", "/sync", query=(SyncPostQueryParameters, {"force": force}), response_type=SyncMessageSchema)
 
   # ---------------------------------------------------------------------------
   @route("GET", "/status")

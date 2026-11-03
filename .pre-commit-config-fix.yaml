@@ -183,3 +183,20 @@ repos:
       - id: yamllint
         description: Lint YAML files
         args: ['-d', 'relaxed']
+
+  # 13. Drift guard: this config and .pre-commit-config.yaml run the same hooks
+  # The test suite's tox env has no PyYAML, so the test runs here, where
+  # its dependencies are pinned. --noconftest skips the suite's fixtures,
+  # which import the package; -B and no:cacheprovider keep it from writing.
+  - repo: local
+    hooks:
+      - id: precommit-configs-match
+        name: precommit-configs-match
+        description: Check the check and fix configs run the same hooks
+        language: python
+        entry: python -B -m pytest --noconftest -p no:cacheprovider -o addopts= tests/test_precommit_configs.py
+        files: ^(\.pre-commit-config(-fix)?\.yaml|tests/test_precommit_configs\.py)$
+        pass_filenames: false
+        additional_dependencies:
+          - pytest==8.4.2
+          - pyyaml==6.0.3

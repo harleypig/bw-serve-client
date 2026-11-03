@@ -16,8 +16,24 @@
 ---
 repos:
   # 1. Basic file checks (fastest, most fundamental)
-  # Note: trailing-whitespace and end-of-file-fixer removed - they modify files
-  # Use .pre-commit-config-fix.yaml to fix these issues
+  # The upstream trailing-whitespace and end-of-file-fixer hooks rewrite
+  # files, so these pygrep hooks report what they would change instead.
+  # end-of-file-fixer flags a missing final newline or trailing blank lines.
+  - repo: local
+    hooks:
+      - id: trailing-whitespace
+        name: trailing-whitespace
+        description: Check for trailing whitespace
+        language: pygrep
+        entry: '[ \t]+$'
+        types: [text]
+      - id: end-of-file-fixer
+        name: end-of-file-fixer
+        description: Check files end in exactly one newline
+        language: pygrep
+        entry: '[^\n]\Z|\n\n\Z'
+        args: ['--multiline']
+        types: [text]
 
   # 2. Syntax validation (catches fundamental issues early)
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -51,7 +67,7 @@ repos:
         description: Check pyproject.toml and lock file consistency
         pass_filenames: false
         always_run: true
-      - id: poetry-lock-check
+      - id: poetry-lock
         name: poetry-lock-check
         entry: poetry check --lock
         language: system
@@ -59,14 +75,13 @@ repos:
         pass_filenames: false
         always_run: true
 
-  # # 4. Python import organization checks
-  # #    Check used in flake8 (XXX: needs validation)
-  # - repo: https://github.com/pycqa/isort
-  #   rev: 7.0.0
-  #   hooks:
-  #     - id: isort
-  #       description: Check Python import sorting with isort
-  #       args: ['--check-only', '--diff']
+  # 4. Python import organization checks
+  - repo: https://github.com/pycqa/isort
+    rev: 7.0.0
+    hooks:
+      - id: isort
+        description: Check Python import sorting with isort
+        args: ['--check-only', '--diff']
 
   # 5. Python code formatting checks
   - repo: https://github.com/google/yapf
@@ -151,13 +166,12 @@ repos:
           - pytest>=7.2.1
           - pytest-mock>=3.12.0
 
-  # # 9. Documentation checks (after docstring formatting checks)
-  # #    Handled in flake8
-  # - repo: https://github.com/pycqa/pydocstyle
-  #   rev: 6.3.0
-  #  hooks:
-  #     - id: pydocstyle
-  #       description: Check Python docstring conventions
+  # 9. Documentation checks (after docstring formatting checks)
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        description: Check Python docstring conventions
 
   # 10. Security scanning (after code is properly checked)
   - repo: https://github.com/PyCQA/bandit
@@ -187,3 +201,20 @@ repos:
       - id: yamllint
         description: Lint YAML files
         args: ['-d', 'relaxed']
+
+  # 13. Drift guard: this config and .pre-commit-config-fix.yaml run the same hooks
+  # The test suite's tox env has no PyYAML, so the test runs here, where
+  # its dependencies are pinned. --noconftest skips the suite's fixtures,
+  # which import the package; -B and no:cacheprovider keep it from writing.
+  - repo: local
+    hooks:
+      - id: precommit-configs-match
+        name: precommit-configs-match
+        description: Check the check and fix configs run the same hooks
+        language: python
+        entry: python -B -m pytest --noconftest -p no:cacheprovider -o addopts= tests/test_precommit_configs.py
+        files: ^(\.pre-commit-config(-fix)?\.yaml|tests/test_precommit_configs\.py)$
+        pass_filenames: false
+        additional_dependencies:
+          - pytest==8.4.2
+          - pyyaml==6.0.3

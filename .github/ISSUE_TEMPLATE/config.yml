@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/harleypig/bw-serve-client/security/advisories/new
+    about: Report it privately, so it is not public before a fix ships.
+  - name: A problem in bw serve or the Bitwarden CLI itself
+    url: https://github.com/bitwarden/clients/issues
+    about: Bugs in bw serve's own behaviour belong in Bitwarden's tracker.

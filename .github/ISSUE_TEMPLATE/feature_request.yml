@@ -1,0 +1,39 @@
+name: Feature request
+description: Ask for something the library, the update pipeline or the docs does not do yet.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What you want to be able to do, in a sentence or two.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Why
+      description: What you are trying to build, and what stops you today.
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it belongs
+      options:
+        - The library (bw_serve_client)
+        - The update pipeline (pipeline.py, upstream/, codegen/)
+        - The docs or examples
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: done-when
+    attributes:
+      label: Done when
+      description: How you would know it works, such as a call that returns what you need.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you have tried instead
+      description: A workaround, or calling `bw` directly.

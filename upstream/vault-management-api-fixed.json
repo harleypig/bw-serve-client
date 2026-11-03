@@ -3818,7 +3818,7 @@
             "description": "The URI/URL value"
           }
         },
-        "description": "URI collection schema for login items",
+        "description": "One URI of a login item, with how it is matched",
         "title": "UrisSchema"
       },
       "field": {

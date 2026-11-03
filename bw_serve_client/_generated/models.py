@@ -100,7 +100,7 @@ class MatchSchema(IntEnum):
 
 
 class UrisSchema(BaseModel):
-  """URI collection schema for login items."""
+  """One URI of a login item, with how it is matched."""
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,

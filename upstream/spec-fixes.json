@@ -612,7 +612,8 @@
         "schema",
         "title"
       ],
-      "value": "MoveItemRequestSchema"
+      "value": "MoveItemRequestSchema",
+      "why": "Kept apart from the /object/item-collections/{id} PUT body (ObjectItemCollectionsIdPutRequest), which has the same shape, an array of collection ids. Both are public models, and one shared schema would remove a name callers may import; the two bodies also mean different things: here the collections a personal item moves into, there the full set an item ends up in. Decided on #107."
     },
     {
       "op": "add",
@@ -1594,7 +1595,7 @@
         "uris",
         "description"
       ],
-      "value": "URI collection schema for login items"
+      "value": "One URI of a login item, with how it is matched"
     },
     {
       "op": "add",

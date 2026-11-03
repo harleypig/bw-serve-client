@@ -213,3 +213,7 @@ class TestDescriptions:
     placeholders = [cls.__name__ for cls in model_classes() if "fixme" in (cls.__doc__ or "").lower()]
 
     assert placeholders == []
+
+  def test_uris_schema_is_one_uri(self: TestDescriptions) -> None:
+    """A login's ``uris`` is the list, so UrisSchema describes one URI (#107 - model descriptions)."""
+    assert "collection" not in (models.UrisSchema.__doc__ or "").lower()

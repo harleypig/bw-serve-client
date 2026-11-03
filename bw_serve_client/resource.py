@@ -1,4 +1,4 @@
-"""The common base for resource classes, one per tag of the Vault Management API.
+"""The common base for resource classes, one per Vault Management API tag.
 
 A resource method declares its route with ``@route``, which is how the
 route coverage and docstring tests find it, and names its models;
@@ -190,7 +190,7 @@ class Resource:
   Args:
     client: Shared :class:`ApiClient` for HTTP transport.
     logger: Logger for this resource; the client's when ``None``.
-    error_handler: Failure handler for this resource; the client's when ``None``.
+    error_handler: This resource's error handler; the client's when ``None``.
   """
 
   def __init__(
@@ -228,7 +228,7 @@ class Resource:
   # ---------------------------------------------------------------------------
   @staticmethod
   def _member(result: Any, model: type[BaseModel], name: str) -> Any:
-    """Take one member of a parsed response, passing a handler's value through.
+    """Take one member of a parsed response; pass a handler's value through.
 
     Args:
       result: ``_request``'s return: the parsed model, or a handler's value.

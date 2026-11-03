@@ -526,7 +526,7 @@ class TestApiClient:
 
   @pytest.mark.parametrize(
     ("status", "error"),
-    [(400, ValidationError), (401, UserError), (403, UserError), (404, ValidationError), (500, ExternalServiceError),
+    [(400, ValidationError), (401, UserError), (403, ValidationError), (404, ValidationError), (500, ExternalServiceError),
      (418, ValidationError)],
   )
   def test_make_request_error_status(self: "TestApiClient", status: int, error: type, make_client: MakeClient) -> None:
@@ -547,6 +547,30 @@ class TestApiClient:
       client.get("/list/object/folders")
 
     assert exc_info.value.status_code == 400
+
+  # bw serve allows localhost, 127.0.0.1 and [::1] at its port, so a 403
+  # comes from some other name, a port a proxy rewrote, or an Origin.
+  @pytest.mark.parametrize(
+    ("base_url", "host"),
+    [
+      ("http://127.0.0.2:8087", "127.0.0.2:8087"),
+      ("http://[::1]:9000", "[::1]:9000"),
+      ("http://localhost:8088", "localhost:8088"),
+      ("http://vault.example.com:8087", "vault.example.com:8087"),
+    ],
+  )
+  def test_forbidden_names_the_host(self: "TestApiClient", base_url: str, host: str, make_client: MakeClient) -> None:
+    """Bw serve's Host-check 403 is a ValidationError naming the Host sent, not a vault state."""
+    client = make_client(status=403, text_body="Forbidden", base_url=base_url)
+
+    with pytest.raises(ValidationError) as exc_info:  # act
+      client.get("/status")
+
+    message = str(exc_info.value)
+    assert message.startswith("Forbidden: ")
+    assert f"sent Host {host!r}" in message
+    assert "Origin" in message
+    assert exc_info.value.status_code == 403
 
   def test_put_request(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test PUT request method."""

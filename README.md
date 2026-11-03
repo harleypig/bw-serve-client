@@ -172,7 +172,10 @@ client = ApiClient(base_url="unix:///run/user/1000/bw.sock")
 
 The client sends `Host: localhost:8087` over a socket, because `bw serve`
 refuses requests whose `Host` it does not expect. If the server was started
-with `--port`, pass the same `port=` to `ApiClient`.
+with `--port`, pass the same `port=` to `ApiClient`. Over TCP, connect by
+`localhost`, `127.0.0.1`, `[::1]` or the `--hostname` `bw serve` was started
+with, at the port it listens on: any other `Host` gets a 403, which raises a
+`ValidationError` naming the `Host` sent.
 [`examples/serve_socket.py`][serve-socket] starts `bw serve` on a socket,
 makes one call through it and stops the server.
 
@@ -224,10 +227,11 @@ as [bitwarden/clients#23283][bw-23283] (open).
 ### Handling errors
 
 Every failure raises a subclass of `BitwardenError`: `ValidationError` for a
-bad request or an id that names nothing, `UserError` for a locked vault or a
-wrong password, `ExternalServiceError` when `bw serve` fails or cannot be
-reached, and `InternalError` for a bug in this library. Each carries the
-HTTP `status_code`, or `None` when there was no response.
+bad request, an id that names nothing or a `Host` that `bw serve` refuses,
+`UserError` for a locked vault or a wrong password, `ExternalServiceError`
+when `bw serve` fails or cannot be reached, and `InternalError` for a bug in
+this library. Each carries the HTTP `status_code`, or `None` when there was no
+response.
 
 ```python
 from bw_serve_client import ApiClient, UserError, ValidationError, VaultItems

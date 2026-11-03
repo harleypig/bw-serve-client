@@ -404,6 +404,15 @@ class ApiClient:
     except (json.JSONDecodeError, UnicodeDecodeError, KeyError):
       error_message = response.text or error_message
 
+    # bw serve's only 403 is its Host/Origin guard, whose body says just
+    # "Forbidden"; name the header so the caller can fix the client's URL.
+    if response.status_code == 403:
+      host = response.request.headers.get('Host')
+      error_message = (
+        f"{error_message}: bw serve accepts only Host localhost, 127.0.0.1 or [::1], or the --hostname it was"
+        f" started with, at the port it listens on, and no Origin header; this request sent Host {host!r}"
+      )
+
     category = category_for_status(response.status_code, error_message)
 
     return handler.handle(category, error_message, status_code=response.status_code)

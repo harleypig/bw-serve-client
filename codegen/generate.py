@@ -5,7 +5,9 @@
 Writes three modules, each with an ``__all__``:
 
 - ``models.py``: the pydantic v2 models, by datamodel-code-generator, with
-  its settings from ``pyproject.toml``.
+  its settings from ``pyproject.toml``. It is handed a copy of the spec with
+  one object schema added per route and parameter location, so each route
+  gets a path model and a query model of its own (#112).
 - ``routes.py``: one ``Route`` per operation in the spec.
 - ``__init__.py``: re-exports both.
 
@@ -45,6 +47,10 @@ Operation = Tuple[str, str, Dict[str, Any]]
 SCHEMA_REF = "#/components/schemas/"
 PARAMETER_REF = "#/components/parameters/"
 ROUTE_EXPORTS = ["Parameter", "Route", "ROUTES"]
+
+# The model name suffix for each parameter location a request is built from.
+# Other locations get no model, as the generator gave them none.
+LOCATION_SUFFIXES = {"path": "PathParameters", "query": "QueryParameters"}
 
 # The longest literal, quotes and escapes included. Long text is split into
 # adjacent literals so no line runs past the 132-column code limit once yapf
@@ -146,6 +152,74 @@ def parameters(spec: Dict[str, Any], path: str, operation: Dict[str, Any]) -> Li
     merged[(parameter["name"], parameter["in"])] = parameter
 
   return list(merged.values())
+
+
+# -----------------------------------------------------------------------------
+def model_name(method: str, path: str, suffix: str) -> str:
+  """Name a route's model the way datamodel-code-generator names its own.
+
+  ``DELETE /object/item/{id}`` with ``PathParameters`` is
+  ``ObjectItemIdDeletePathParameters``.
+
+  Arguments:
+      method: The HTTP method.
+      path: The path template.
+      suffix: What the model holds.
+
+  Returns:
+      str: The model name.
+  """
+  words = re.findall(r"[A-Za-z0-9]+", path)
+  return "".join(word[0].upper() + word[1:] for word in words) + method.capitalize() + suffix
+
+
+# -----------------------------------------------------------------------------
+def parameter_schemas(spec: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+  """Build an object schema for each route's parameters in each location.
+
+  Each is titled with its model name, so the generator names the model
+  after it (``use-title-as-name``).
+
+  Arguments:
+      spec: The patched spec.
+
+  Raises:
+      GenerateError: When a parameter has no schema, or a name is taken by
+          a schema in the spec or by another route.
+
+  Returns:
+      Dict[str, Dict[str, Any]]: The schemas by model name, in the spec's
+      order.
+  """
+  taken = set(spec.get("components", {}).get("schemas", {}))
+  built: Dict[str, Dict[str, Any]] = {}
+
+  for method, path, operation in operations(spec):
+    declared = parameters(spec, path, operation)
+
+    for location, suffix in LOCATION_SUFFIXES.items():
+      found = [parameter for parameter in declared if parameter["in"] == location]
+      if not found:
+        continue
+
+      name = model_name(method, path, suffix)
+      if name in taken or name in built:
+        raise GenerateError(f"{method.upper()} {path}: model name {name} is already taken")
+
+      if any("schema" not in parameter for parameter in found):
+        raise GenerateError(f"{method.upper()} {path}: a {location} parameter has no schema")
+
+      built[name] = {
+        "type": "object",
+        "title": name,
+        "properties": {
+          parameter["name"]: parameter["schema"]
+          for parameter in found
+        },
+        "required": [parameter["name"] for parameter in found if parameter.get("required")],
+      }
+
+  return built
 
 
 # -----------------------------------------------------------------------------
@@ -362,10 +436,11 @@ def render_init(models: List[str]) -> str:
 
 
 # -----------------------------------------------------------------------------
-def generate_models(ignore: List[str]) -> List[str]:
+def generate_models(spec: Dict[str, Any], ignore: List[str]) -> List[str]:
   """Run datamodel-code-generator, then add ``__all__`` to its module.
 
   Arguments:
+      spec: The patched spec.
       ignore: The models that ignore unknown fields.
 
   Raises:
@@ -378,12 +453,19 @@ def generate_models(ignore: List[str]) -> List[str]:
   # Quoted, because the generator writes the value into the source as is.
   overrides = {name: {"config": {"extra": "'ignore'"}} for name in ignore}
 
+  # The generator has no option for a model of path parameters alone, so
+  # each route's parameter models come from schemas added to a copy.
+  augmented = {**spec, "components": {**spec.get("components", {})}}
+  augmented["components"]["schemas"] = {**augmented["components"].get("schemas", {}), **parameter_schemas(spec)}
+
   # The generator reads template data only from a named file.
   with tempfile.TemporaryDirectory() as scratch:
     data = Path(scratch) / "template-data.json"
     data.write_text(json.dumps(overrides), encoding="utf-8")
+    source_spec = Path(scratch) / "spec.json"
+    source_spec.write_text(json.dumps(augmented), encoding="utf-8")
     result = subprocess.run(  # noqa: S603 - fixed arguments. # nosec B603
-      [sys.executable, "-m", "datamodel_code_generator", "--extra-template-data", str(data)],
+      [sys.executable, "-m", "datamodel_code_generator", "--input", str(source_spec), "--extra-template-data", str(data)],
       cwd=ROOT,
       capture_output=True,
       text=True,
@@ -426,7 +508,7 @@ def main() -> int:
   try:
     spec = json.loads(PATCHED_SPEC.read_text(encoding="utf-8"))
     PACKAGE.mkdir(exist_ok=True)
-    models = generate_models(response_models(spec))
+    models = generate_models(spec, response_models(spec))
     ROUTES.write_text(render_routes(spec), encoding="utf-8")
     INIT.write_text(render_init(models), encoding="utf-8")
 

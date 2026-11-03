@@ -1010,20 +1010,11 @@ class SyncMessageSuccessSchema(BaseModel):
   data: SyncMessageSchema | None = None
 
 
-class UnlockPostRequestSchema(BaseModel):
-  """Request schema for unlocking the vault with master password."""
-  model_config = ConfigDict(
-    extra='forbid',
-    populate_by_name=True,
-  )
-  password: SecretStr | None = None
-
-
 class IdSchema(RootModel[UUID]):
   root: Annotated[UUID, Field(title='IdSchema')]
 
 
-class ObjectItemIdPutParameters(BaseModel):
+class ObjectItemIdPutPathParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1031,36 +1022,35 @@ class ObjectItemIdPutParameters(BaseModel):
   id: Annotated[UUID, Field(title='IdSchema')]
 
 
-class ObjectItemIdGetParameters(ObjectItemIdPutParameters):
+class ObjectItemIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectItemIdDeleteParameters(BaseModel):
+class ObjectItemIdDeletePathParameters(ObjectItemIdPutPathParameters):
+  pass
+
+
+class ObjectItemIdDeleteQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
-  id: Annotated[UUID, Field(title='IdSchema')]
   permanent: Annotated[bool | None, Field(title='PermanentSchema')] = None
 
 
-class ObjectItemCollectionsIdGetParameters(ObjectItemIdPutParameters):
+class ObjectItemCollectionsIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectItemCollectionsIdPutParameters(ObjectItemIdPutParameters):
+class ObjectItemCollectionsIdPutPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectItemCollectionsIdPutRequest(RootModel[Sequence[UUID]]):
-  root: Sequence[UUID]
-
-
-class RestoreItemIdPostParameters(ObjectItemIdPutParameters):
+class RestoreItemIdPostPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ArchiveObjectIdPostParameters(BaseModel):
+class ArchiveObjectIdPostPathParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1077,7 +1067,7 @@ class SearchSchema(RootModel[str]):
   root: Annotated[str, Field(title='SearchSchema')]
 
 
-class ListObjectItemsGetParameters(BaseModel):
+class ListObjectItemsGetQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1095,76 +1085,75 @@ class ItemIdSchema(RootModel[UUID]):
   root: Annotated[UUID, Field(title='ItemIdSchema')]
 
 
-class AttachmentPostParameters(BaseModel):
+class AttachmentPostQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
   itemid: Annotated[UUID, Field(title='ItemIdSchema')]
-
-
-class AttachmentRequestSchema(BaseModel):
-  model_config = ConfigDict(
-    extra='forbid',
-    populate_by_name=True,
-  )
-  file: bytes | None = None
 
 
 class AttachmentIdSchema(RootModel[str]):
   root: Annotated[str, Field(pattern='^[A-Za-z0-9-]+$', title='AttachmentIdSchema')]
 
 
-class ObjectAttachmentIdGetParameters(BaseModel):
+class ObjectAttachmentIdGetPathParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
   id: Annotated[str, Field(pattern='^[A-Za-z0-9-]+$', title='AttachmentIdSchema')]
-  itemid: Annotated[UUID, Field(title='ItemIdSchema')]
 
 
-class ObjectAttachmentIdDeleteParameters(ObjectAttachmentIdGetParameters):
+class ObjectAttachmentIdGetQueryParameters(AttachmentPostQueryParameters):
   pass
 
 
-class ObjectUsernameIdGetParameters(ObjectItemIdPutParameters):
+class ObjectAttachmentIdDeletePathParameters(ObjectAttachmentIdGetPathParameters):
   pass
 
 
-class ObjectPasswordIdGetParameters(ObjectItemIdPutParameters):
+class ObjectAttachmentIdDeleteQueryParameters(AttachmentPostQueryParameters):
   pass
 
 
-class ObjectUriIdGetParameters(ObjectItemIdPutParameters):
+class ObjectUsernameIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectTotpIdGetParameters(ObjectItemIdPutParameters):
+class ObjectPasswordIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectNotesIdGetParameters(ObjectItemIdPutParameters):
+class ObjectUriIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectExposedIdGetParameters(ObjectItemIdPutParameters):
+class ObjectTotpIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectFolderIdPutParameters(ObjectItemIdPutParameters):
+class ObjectNotesIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectFolderIdGetParameters(ObjectItemIdPutParameters):
+class ObjectExposedIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectFolderIdDeleteParameters(ObjectItemIdPutParameters):
+class ObjectFolderIdPutPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ListObjectFoldersGetParameters(BaseModel):
+class ObjectFolderIdGetPathParameters(ObjectItemIdPutPathParameters):
+  pass
+
+
+class ObjectFolderIdDeletePathParameters(ObjectItemIdPutPathParameters):
+  pass
+
+
+class ListObjectFoldersGetQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1172,31 +1161,31 @@ class ListObjectFoldersGetParameters(BaseModel):
   search: Annotated[str | None, Field(title='SearchSchema')] = None
 
 
-class ObjectSendIdPutParameters(ObjectItemIdPutParameters):
+class ObjectSendIdPutPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectSendIdGetParameters(ObjectItemIdPutParameters):
+class ObjectSendIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectSendIdDeleteParameters(ObjectItemIdPutParameters):
+class ObjectSendIdDeletePathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ListObjectSendGetParameters(ListObjectFoldersGetParameters):
+class ListObjectSendGetQueryParameters(ListObjectFoldersGetQueryParameters):
   pass
 
 
-class SendListGetParameters(ListObjectFoldersGetParameters):
+class SendListGetQueryParameters(ListObjectFoldersGetQueryParameters):
   pass
 
 
-class SendIdRemovePasswordPostParameters(ObjectItemIdPutParameters):
+class SendIdRemovePasswordPostPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class MoveItemidOrganizationIdPostParameters(BaseModel):
+class MoveItemidOrganizationIdPostPathParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1205,11 +1194,7 @@ class MoveItemidOrganizationIdPostParameters(BaseModel):
   organization_id: Annotated[UUID, Field(alias='organizationId', title='OrganizationIdSchema')]
 
 
-class MoveItemRequestSchema(RootModel[Sequence[UUID]]):
-  root: Annotated[Sequence[UUID], Field(title='MoveItemRequestSchema')]
-
-
-class ObjectOrgCollectionPostParameters(BaseModel):
+class ObjectOrgCollectionPostQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1217,24 +1202,31 @@ class ObjectOrgCollectionPostParameters(BaseModel):
   organization_id: Annotated[UUID, Field(alias='organizationId', title='OrganizationIdSchema')]
 
 
-class ObjectOrgCollectionIdPutParameters(BaseModel):
-  model_config = ConfigDict(
-    extra='forbid',
-    populate_by_name=True,
-  )
-  id: Annotated[UUID, Field(title='IdSchema')]
-  organization_id: Annotated[UUID, Field(alias='organizationId', title='OrganizationIdSchema')]
-
-
-class ObjectOrgCollectionIdGetParameters(ObjectOrgCollectionIdPutParameters):
+class ObjectOrgCollectionIdPutPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectOrgCollectionIdDeleteParameters(ObjectOrgCollectionIdPutParameters):
+class ObjectOrgCollectionIdPutQueryParameters(ObjectOrgCollectionPostQueryParameters):
   pass
 
 
-class ListObjectOrgCollectionsGetParameters(BaseModel):
+class ObjectOrgCollectionIdGetPathParameters(ObjectItemIdPutPathParameters):
+  pass
+
+
+class ObjectOrgCollectionIdGetQueryParameters(ObjectOrgCollectionPostQueryParameters):
+  pass
+
+
+class ObjectOrgCollectionIdDeletePathParameters(ObjectItemIdPutPathParameters):
+  pass
+
+
+class ObjectOrgCollectionIdDeleteQueryParameters(ObjectOrgCollectionPostQueryParameters):
+  pass
+
+
+class ListObjectOrgCollectionsGetQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1243,31 +1235,35 @@ class ListObjectOrgCollectionsGetParameters(BaseModel):
   search: Annotated[str | None, Field(title='SearchSchema')] = None
 
 
-class ListObjectCollectionsGetParameters(ListObjectFoldersGetParameters):
+class ListObjectCollectionsGetQueryParameters(ListObjectFoldersGetQueryParameters):
   pass
 
 
-class ListObjectOrganizationsGetParameters(ListObjectFoldersGetParameters):
+class ListObjectOrganizationsGetQueryParameters(ListObjectFoldersGetQueryParameters):
   pass
 
 
-class ListObjectOrgMembersGetParameters(ObjectOrgCollectionPostParameters):
+class ListObjectOrgMembersGetQueryParameters(ObjectOrgCollectionPostQueryParameters):
   pass
 
 
-class ObjectCollectionIdGetParameters(ObjectItemIdPutParameters):
+class ObjectCollectionIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ObjectOrganizationIdGetParameters(ObjectItemIdPutParameters):
+class ObjectOrganizationIdGetPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class ConfirmOrgMemberIdPostParameters(ObjectOrgCollectionIdPutParameters):
+class ConfirmOrgMemberIdPostPathParameters(ObjectItemIdPutPathParameters):
   pass
 
 
-class DeviceApprovalOrganizationIdGetParameters(ObjectOrgCollectionPostParameters):
+class ConfirmOrgMemberIdPostQueryParameters(ObjectOrgCollectionPostQueryParameters):
+  pass
+
+
+class DeviceApprovalOrganizationIdGetPathParameters(ObjectOrgCollectionPostQueryParameters):
   pass
 
 
@@ -1275,7 +1271,7 @@ class RequestIdSchema(RootModel[UUID]):
   root: Annotated[UUID, Field(title='RequestIdSchema')]
 
 
-class DeviceApprovalOrganizationIdApproveRequestIdPostParameters(BaseModel):
+class DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1284,19 +1280,19 @@ class DeviceApprovalOrganizationIdApproveRequestIdPostParameters(BaseModel):
   request_id: Annotated[UUID, Field(alias='request-id', title='RequestIdSchema')]
 
 
-class DeviceApprovalOrganizationIdApproveAllPostParameters(ObjectOrgCollectionPostParameters):
+class DeviceApprovalOrganizationIdApproveAllPostPathParameters(ObjectOrgCollectionPostQueryParameters):
   pass
 
 
-class DeviceApprovalOrganizationIdDenyRequestIdPostParameters(DeviceApprovalOrganizationIdApproveRequestIdPostParameters):
+class DeviceApprovalOrganizationIdDenyRequestIdPostPathParameters(DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters):
   pass
 
 
-class DeviceApprovalOrganizationIdDenyAllPostParameters(ObjectOrgCollectionPostParameters):
+class DeviceApprovalOrganizationIdDenyAllPostPathParameters(ObjectOrgCollectionPostQueryParameters):
   pass
 
 
-class SyncPostParameters(BaseModel):
+class SyncPostQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1304,7 +1300,7 @@ class SyncPostParameters(BaseModel):
   force: Annotated[bool | None, Field(title='ForceSchema')] = None
 
 
-class GenerateGetParameters(BaseModel):
+class GenerateGetQueryParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -1341,12 +1337,37 @@ class TypeSchema(Enum):
   ORG_COLLECTION = 'org-collection'
 
 
-class ObjectTemplateTypeGetParameters(BaseModel):
+class ObjectTemplateTypeGetPathParameters(BaseModel):
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
   )
   type: Annotated[TypeSchema, Field(title='TypeSchema')]
+
+
+class UnlockPostRequestSchema(BaseModel):
+  """Request schema for unlocking the vault with master password."""
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  password: SecretStr | None = None
+
+
+class ObjectItemCollectionsIdPutRequest(RootModel[Sequence[UUID]]):
+  root: Sequence[UUID]
+
+
+class AttachmentRequestSchema(BaseModel):
+  model_config = ConfigDict(
+    extra='forbid',
+    populate_by_name=True,
+  )
+  file: bytes | None = None
+
+
+class MoveItemRequestSchema(RootModel[Sequence[UUID]]):
+  root: Annotated[Sequence[UUID], Field(title='MoveItemRequestSchema')]
 
 
 class ItemLoginSchema(BaseModel):
@@ -1376,7 +1397,7 @@ class SendTemplateSchema(BaseModel):
   max_access_count: Annotated[int | None, Field(alias='maxAccessCount', title='SendMaxAccessCountSchema')] = None
   deletion_date: Annotated[AwareDatetime | None, Field(alias='deletionDate', title='SendDeletionDateSchema')] = None
   expiration_date: Annotated[AwareDatetime | None, Field(alias='expirationDate', title='SendExpirationDateSchema')] = None
-  password: Annotated[str | None, Field(title='SendPasswordSchema')] = None
+  password: Annotated[SecretStr | None, Field(title='SendPasswordSchema')] = None
   emails: Sequence[EmailStr] | None = None
   disabled: Annotated[bool, Field(title='SendDisabledSchema')] = False
   hide_email: Annotated[bool | None, Field(alias='hideEmail', title='SendHideEmailSchema')] = None
@@ -1472,24 +1493,28 @@ __all__ = [
   "OrgMemberListSchema", "SuccessSchema", "ItemSuccessSchema", "ItemListSuccessSchema", "StringSuccessSchema",
   "SecretStringSuccessSchema", "FolderSuccessSchema", "FolderListSuccessSchema", "SendSuccessSchema", "SendListSuccessSchema",
   "OrganizationSuccessSchema", "OrganizationListSuccessSchema", "CollectionSuccessSchema", "CollectionListSuccessSchema",
-  "OrgCollectionSuccessSchema", "OrgMemberListSuccessSchema", "TemplateSuccessSchema", "SyncMessageSuccessSchema",
-  "UnlockPostRequestSchema", "IdSchema", "ObjectItemIdPutParameters", "ObjectItemIdGetParameters", "ObjectItemIdDeleteParameters",
-  "ObjectItemCollectionsIdGetParameters", "ObjectItemCollectionsIdPutParameters", "ObjectItemCollectionsIdPutRequest",
-  "RestoreItemIdPostParameters", "ArchiveObjectIdPostParameters", "OrganizationIdSchema1", "SearchSchema",
-  "ListObjectItemsGetParameters", "ItemIdSchema", "AttachmentPostParameters", "AttachmentRequestSchema", "AttachmentIdSchema",
-  "ObjectAttachmentIdGetParameters", "ObjectAttachmentIdDeleteParameters", "ObjectUsernameIdGetParameters",
-  "ObjectPasswordIdGetParameters", "ObjectUriIdGetParameters", "ObjectTotpIdGetParameters", "ObjectNotesIdGetParameters",
-  "ObjectExposedIdGetParameters", "ObjectFolderIdPutParameters", "ObjectFolderIdGetParameters", "ObjectFolderIdDeleteParameters",
-  "ListObjectFoldersGetParameters", "ObjectSendIdPutParameters", "ObjectSendIdGetParameters", "ObjectSendIdDeleteParameters",
-  "ListObjectSendGetParameters", "SendListGetParameters", "SendIdRemovePasswordPostParameters",
-  "MoveItemidOrganizationIdPostParameters", "MoveItemRequestSchema", "ObjectOrgCollectionPostParameters",
-  "ObjectOrgCollectionIdPutParameters", "ObjectOrgCollectionIdGetParameters", "ObjectOrgCollectionIdDeleteParameters",
-  "ListObjectOrgCollectionsGetParameters", "ListObjectCollectionsGetParameters", "ListObjectOrganizationsGetParameters",
-  "ListObjectOrgMembersGetParameters", "ObjectCollectionIdGetParameters", "ObjectOrganizationIdGetParameters",
-  "ConfirmOrgMemberIdPostParameters", "DeviceApprovalOrganizationIdGetParameters", "RequestIdSchema",
-  "DeviceApprovalOrganizationIdApproveRequestIdPostParameters", "DeviceApprovalOrganizationIdApproveAllPostParameters",
-  "DeviceApprovalOrganizationIdDenyRequestIdPostParameters", "DeviceApprovalOrganizationIdDenyAllPostParameters",
-  "SyncPostParameters", "GenerateGetParameters", "TypeSchema", "ObjectTemplateTypeGetParameters", "ItemLoginSchema",
-  "SendTemplateSchema", "CollectionSchema", "DeviceApprovalRequestListSchema", "DeviceApprovalRequestListSuccessSchema",
-  "ItemTemplateSchema"
+  "OrgCollectionSuccessSchema", "OrgMemberListSuccessSchema", "TemplateSuccessSchema", "SyncMessageSuccessSchema", "IdSchema",
+  "ObjectItemIdPutPathParameters", "ObjectItemIdGetPathParameters", "ObjectItemIdDeletePathParameters",
+  "ObjectItemIdDeleteQueryParameters", "ObjectItemCollectionsIdGetPathParameters", "ObjectItemCollectionsIdPutPathParameters",
+  "RestoreItemIdPostPathParameters", "ArchiveObjectIdPostPathParameters", "OrganizationIdSchema1", "SearchSchema",
+  "ListObjectItemsGetQueryParameters", "ItemIdSchema", "AttachmentPostQueryParameters", "AttachmentIdSchema",
+  "ObjectAttachmentIdGetPathParameters", "ObjectAttachmentIdGetQueryParameters", "ObjectAttachmentIdDeletePathParameters",
+  "ObjectAttachmentIdDeleteQueryParameters", "ObjectUsernameIdGetPathParameters", "ObjectPasswordIdGetPathParameters",
+  "ObjectUriIdGetPathParameters", "ObjectTotpIdGetPathParameters", "ObjectNotesIdGetPathParameters",
+  "ObjectExposedIdGetPathParameters", "ObjectFolderIdPutPathParameters", "ObjectFolderIdGetPathParameters",
+  "ObjectFolderIdDeletePathParameters", "ListObjectFoldersGetQueryParameters", "ObjectSendIdPutPathParameters",
+  "ObjectSendIdGetPathParameters", "ObjectSendIdDeletePathParameters", "ListObjectSendGetQueryParameters",
+  "SendListGetQueryParameters", "SendIdRemovePasswordPostPathParameters", "MoveItemidOrganizationIdPostPathParameters",
+  "ObjectOrgCollectionPostQueryParameters", "ObjectOrgCollectionIdPutPathParameters", "ObjectOrgCollectionIdPutQueryParameters",
+  "ObjectOrgCollectionIdGetPathParameters", "ObjectOrgCollectionIdGetQueryParameters", "ObjectOrgCollectionIdDeletePathParameters",
+  "ObjectOrgCollectionIdDeleteQueryParameters", "ListObjectOrgCollectionsGetQueryParameters",
+  "ListObjectCollectionsGetQueryParameters", "ListObjectOrganizationsGetQueryParameters", "ListObjectOrgMembersGetQueryParameters",
+  "ObjectCollectionIdGetPathParameters", "ObjectOrganizationIdGetPathParameters", "ConfirmOrgMemberIdPostPathParameters",
+  "ConfirmOrgMemberIdPostQueryParameters", "DeviceApprovalOrganizationIdGetPathParameters", "RequestIdSchema",
+  "DeviceApprovalOrganizationIdApproveRequestIdPostPathParameters", "DeviceApprovalOrganizationIdApproveAllPostPathParameters",
+  "DeviceApprovalOrganizationIdDenyRequestIdPostPathParameters", "DeviceApprovalOrganizationIdDenyAllPostPathParameters",
+  "SyncPostQueryParameters", "GenerateGetQueryParameters", "TypeSchema", "ObjectTemplateTypeGetPathParameters",
+  "UnlockPostRequestSchema", "ObjectItemCollectionsIdPutRequest", "AttachmentRequestSchema", "MoveItemRequestSchema",
+  "ItemLoginSchema", "SendTemplateSchema", "CollectionSchema", "DeviceApprovalRequestListSchema",
+  "DeviceApprovalRequestListSuccessSchema", "ItemTemplateSchema"
 ]

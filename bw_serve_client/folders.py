@@ -18,10 +18,10 @@ from pydantic import field_validator
 
 from ._generated.models import FolderResponseSchema
 from ._generated.models import FolderSchema
-from ._generated.models import ListObjectFoldersGetParameters
-from ._generated.models import ObjectFolderIdDeleteParameters
-from ._generated.models import ObjectFolderIdGetParameters
-from ._generated.models import ObjectFolderIdPutParameters
+from ._generated.models import ListObjectFoldersGetQueryParameters
+from ._generated.models import ObjectFolderIdDeletePathParameters
+from ._generated.models import ObjectFolderIdGetPathParameters
+from ._generated.models import ObjectFolderIdPutPathParameters
 from .resource import ObjectId
 from .resource import Resource
 from .resource import route
@@ -93,7 +93,7 @@ class Folders(Resource):
     return self._request(
       "PUT",
       "/object/folder/{id}",
-      path_params=(ObjectFolderIdPutParameters, {
+      path_params=(ObjectFolderIdPutPathParameters, {
         "id": folder_id
       }),
       body=(FolderSchema, {
@@ -114,7 +114,7 @@ class Folders(Resource):
         The :class:`Folder`.
     """
     return self._request(
-      "GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetParameters, {
+      "GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetPathParameters, {
         "id": folder_id
       }), response_type=Folder
     )
@@ -133,7 +133,7 @@ class Folders(Resource):
     Returns:
         ``None``, or the error handler's return value.
     """
-    return self._request("DELETE", "/object/folder/{id}", path_params=(ObjectFolderIdDeleteParameters, {"id": folder_id}))
+    return self._request("DELETE", "/object/folder/{id}", path_params=(ObjectFolderIdDeletePathParameters, {"id": folder_id}))
 
   # ---------------------------------------------------------------------------
   @route("GET", "/list/object/folders")
@@ -149,6 +149,6 @@ class Folders(Resource):
     Returns:
         List of matching :class:`Folder` objects (empty if none match).
     """
-    query = (ListObjectFoldersGetParameters, {"search": search or None})
+    query = (ListObjectFoldersGetQueryParameters, {"search": search or None})
 
     return self._request("GET", "/list/object/folders", query=query, response_type=list[Folder])

@@ -22,14 +22,15 @@ from typing import Any, Optional, TYPE_CHECKING, Union
 
 from pydantic import SecretStr
 
-from ._generated.models import ListObjectSendGetParameters
-from ._generated.models import ObjectSendIdDeleteParameters
-from ._generated.models import ObjectSendIdGetParameters
-from ._generated.models import ObjectSendIdPutParameters
-from ._generated.models import SendIdRemovePasswordPostParameters
+from ._generated.models import ListObjectSendGetQueryParameters
+from ._generated.models import ObjectSendIdDeletePathParameters
+from ._generated.models import ObjectSendIdGetPathParameters
+from ._generated.models import ObjectSendIdPutPathParameters
+from ._generated.models import SendIdRemovePasswordPostPathParameters
 from ._generated.models import SendSchema
 from ._generated.models import SendTemplateSchema
 from ._generated.models import SendTypeSchema
+from .resource import _masked
 from .resource import ObjectId
 from .resource import Resource
 from .resource import route
@@ -61,9 +62,6 @@ def _template(
   Returns:
     The body's fields, keyed by the template's field names.
   """
-  if isinstance(password, SecretStr):
-    password = password.get_secret_value()
-
   return {
     "name": name,
     "type": SendTypeSchema.INTEGER_0,
@@ -137,6 +135,8 @@ class Sends(Resource):
     Returns:
         The created Send, with its server-assigned id and access URL.
     """
+    password = _masked(password)
+
     body = _template(
       name, text, hidden, notes, password, deletion_date, expiration_date, max_access_count, emails, disabled, hide_email
     )
@@ -187,6 +187,8 @@ class Sends(Resource):
     Returns:
         The updated Send.
     """
+    password = _masked(password)
+
     body = _template(
       name, text, hidden, notes, password, deletion_date, expiration_date, max_access_count, emails, disabled, hide_email
     )
@@ -194,7 +196,7 @@ class Sends(Resource):
     return self._request(
       "PUT",
       "/object/send/{id}",
-      path_params=(ObjectSendIdPutParameters, {
+      path_params=(ObjectSendIdPutPathParameters, {
         "id": send_id
       }),
       body=(SendTemplateSchema, body),
@@ -215,7 +217,7 @@ class Sends(Resource):
         The Send.
     """
     return self._request(
-      "GET", "/object/send/{id}", path_params=(ObjectSendIdGetParameters, {
+      "GET", "/object/send/{id}", path_params=(ObjectSendIdGetPathParameters, {
         "id": send_id
       }), response_type=SendSchema
     )
@@ -233,7 +235,7 @@ class Sends(Resource):
     Returns:
         ``None``, or the error handler's return value.
     """
-    return self._request("DELETE", "/object/send/{id}", path_params=(ObjectSendIdDeleteParameters, {"id": send_id}))
+    return self._request("DELETE", "/object/send/{id}", path_params=(ObjectSendIdDeletePathParameters, {"id": send_id}))
 
   # ---------------------------------------------------------------------------
   @route("GET", "/list/object/send")
@@ -249,7 +251,7 @@ class Sends(Resource):
     Returns:
         The matching Sends (empty if none match).
     """
-    query = (ListObjectSendGetParameters, {"search": search or None})
+    query = (ListObjectSendGetQueryParameters, {"search": search or None})
 
     return self._request("GET", "/list/object/send", query=query, response_type=list[SendSchema])
 
@@ -269,7 +271,7 @@ class Sends(Resource):
     return self._request(
       "POST",
       "/send/{id}/remove-password",
-      path_params=(SendIdRemovePasswordPostParameters, {
+      path_params=(SendIdRemovePasswordPostPathParameters, {
         "id": send_id
       }),
       response_type=SendSchema,

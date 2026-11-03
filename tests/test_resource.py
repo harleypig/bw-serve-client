@@ -11,9 +11,9 @@ from pydantic import BaseModel
 import pytest
 
 from bw_serve_client._generated.models import FolderSchema
-from bw_serve_client._generated.models import ListObjectFoldersGetParameters
+from bw_serve_client._generated.models import ListObjectFoldersGetQueryParameters
 from bw_serve_client._generated.models import MoveItemRequestSchema
-from bw_serve_client._generated.models import ObjectFolderIdGetParameters
+from bw_serve_client._generated.models import ObjectFolderIdGetPathParameters
 from bw_serve_client.errors import DefaultErrorHandler
 from bw_serve_client.errors import ExternalServiceError
 from bw_serve_client.errors import UserError
@@ -100,7 +100,7 @@ class TestValidation:
     """A validated path parameter is formatted into the path."""
     resource = Resource(make_client(json_body=_ok({"id": FOLDER_ID, "name": "Notes"})))
 
-    resource._request("GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetParameters, {"id": FOLDER_ID}))  # act
+    resource._request("GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetPathParameters, {"id": FOLDER_ID}))  # act
 
     [request] = sent
     assert request.url.path == f"/object/folder/{FOLDER_ID}"
@@ -109,7 +109,7 @@ class TestValidation:
     """A query field that is None is not sent."""
     resource = Resource(make_client(json_body=_ok(None)))
 
-    resource._request("GET", "/list/object/folders", query=(ListObjectFoldersGetParameters, {"search": None}))  # act
+    resource._request("GET", "/list/object/folders", query=(ListObjectFoldersGetQueryParameters, {"search": None}))  # act
 
     [request] = sent
     assert request.url.query == b""
@@ -118,7 +118,7 @@ class TestValidation:
     """A set query field is sent as a query parameter."""
     resource = Resource(make_client(json_body=_ok(None)))
 
-    resource._request("GET", "/list/object/folders", query=(ListObjectFoldersGetParameters, {"search": "Notes"}))  # act
+    resource._request("GET", "/list/object/folders", query=(ListObjectFoldersGetQueryParameters, {"search": "Notes"}))  # act
 
     [request] = sent
     assert request.url.params["search"] == "Notes"
@@ -127,12 +127,12 @@ class TestValidation:
     "kwargs",
     [
       {
-        "path_params": (ObjectFolderIdGetParameters, {
+        "path_params": (ObjectFolderIdGetPathParameters, {
           "id": "not-a-uuid"
         })
       },
       {
-        "query": (ListObjectFoldersGetParameters, {
+        "query": (ListObjectFoldersGetQueryParameters, {
           "search": 5
         })
       },
@@ -165,7 +165,7 @@ class TestValidation:
     """A handler that returns has its value come back, and nothing is sent."""
     resource = Resource(make_client(), error_handler=returning_handler)
 
-    result = resource._request("GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetParameters, {"id": "nope"}))  # act
+    result = resource._request("GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetPathParameters, {"id": "nope"}))  # act
 
     assert result is returning_handler.result
     [(category, _, status_code, cause)] = returning_handler.calls
@@ -235,7 +235,7 @@ class TestRequestBody:
     """Without a body, the request has none."""
     resource = Resource(make_client(json_body=_ok(None)))
 
-    resource._request("DELETE", "/object/folder/{id}", path_params=(ObjectFolderIdGetParameters, {"id": FOLDER_ID}))  # act
+    resource._request("DELETE", "/object/folder/{id}", path_params=(ObjectFolderIdGetPathParameters, {"id": FOLDER_ID}))  # act
 
     [request] = sent
     assert request.content == b""
@@ -380,7 +380,7 @@ class TestStatusHandling:
     resource = Resource(make_client(json_body=_ok(None)), logger=logging.getLogger("test.resource.log"))
 
     with caplog.at_level(logging.DEBUG, logger="test.resource.log"):  # act
-      resource._request("GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetParameters, {"id": str(uuid4())}))
+      resource._request("GET", "/object/folder/{id}", path_params=(ObjectFolderIdGetPathParameters, {"id": str(uuid4())}))
 
     assert any(r.name == "test.resource.log" and r.message.startswith("GET /object/folder/") for r in caplog.records)
 

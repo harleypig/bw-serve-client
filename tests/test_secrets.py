@@ -27,6 +27,7 @@ from bw_serve_client.errors import BitwardenError
 from bw_serve_client.errors import ExternalServiceError
 from bw_serve_client.errors import ValidationError
 from bw_serve_client.resource import Resource
+from bw_serve_client.sends import Sends
 from bw_serve_client.vault_control import VaultControl
 from bw_serve_client.vault_items import VaultItems
 
@@ -650,12 +651,19 @@ class TestTracebackLocals:
     [_answer_400, _answer_400_streamed, _refuse, _break_mid_write],
     ids=["rejected", "rejected-streamed", "refused", "write-failed"],
   )
-  def test_password_is_in_no_frame(self: TestTracebackLocals, answer: Callable[[httpx.Request], httpx.Response]) -> None:
-    """Every frame of the raised error, and of its chain, is free of the password."""
+  @pytest.mark.parametrize("given", ["secret", "str"])
+  def test_password_is_in_no_frame(
+    self: TestTracebackLocals, given: str, answer: Callable[[httpx.Request], httpx.Response]
+  ) -> None:
+    """Every frame of the raised error, and of its chain, is free of the password.
+
+    A plain ``str`` is wrapped as ``unlock`` is entered (#160). It is
+    passed inline, so this test's own frame holds no plaintext local.
+    """
     vault = VaultControl(ApiClient(transport=httpx.MockTransport(answer)))
 
     with pytest.raises(BitwardenError) as exc_info:  # act
-      vault.unlock(SecretStr(PASSWORD))
+      vault.unlock(PASSWORD if given == "str" else SecretStr(PASSWORD))
 
     assert _leaking_frames(exc_info.value) == []
 
@@ -681,6 +689,45 @@ class TestTracebackLocals:
     error = _reject_item(method, item)  # act
 
     assert _leaking_frames(error, tuple(ITEM_SECRETS.values())) == []
+
+  @pytest.mark.parametrize("given", ["secret", "str"])
+  @pytest.mark.parametrize("method", ["add", "modify"])
+  def test_send_password_is_in_no_frame(self: TestTracebackLocals, method: str, given: str) -> None:
+    """A rejected add or modify of a Send leaves its password in no frame (#160)."""
+    error = _reject_send(method, given)  # act
+
+    assert _leaking_frames(error) == []
+
+
+def _reject_send(method: str, given: str) -> BitwardenError:
+  """Send a passworded Send to a server that rejects it, and catch the error.
+
+  The password is built inline in the call, so this frame, which the
+  searched traceback starts at, holds no plaintext local.
+
+  Args:
+    method: ``add`` or ``modify``.
+    given: ``str`` to pass the password plain, ``secret`` for ``SecretStr``.
+
+  Returns:
+    The error the rejection raised.
+
+  Raises:
+    AssertionError: When nothing was raised.
+  """
+  sends = Sends(ApiClient(transport=httpx.MockTransport(_answer_400)))
+
+  try:
+    if method == "add":
+      sends.add("n", "t", password=PASSWORD if given == "str" else SecretStr(PASSWORD))
+
+    else:
+      sends.modify(ITEM_ID, "n", "t", password=PASSWORD if given == "str" else SecretStr(PASSWORD))
+
+  except BitwardenError as e:
+    return e
+
+  raise AssertionError("the rejected Send raised nothing")
 
 
 def _reject_item(method: str, item: models.ItemSchema | models.ItemTemplateSchema) -> BitwardenError:

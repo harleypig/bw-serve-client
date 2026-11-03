@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from typing import Any, Optional, TYPE_CHECKING, Union
 
-from ._generated.models import GenerateGetParameters
-from ._generated.models import ObjectTemplateTypeGetParameters
+from ._generated.models import GenerateGetQueryParameters
+from ._generated.models import ObjectTemplateTypeGetPathParameters
 from ._generated.models import SecretStringResponseSchema
 from ._generated.models import StringResponseSchema
 from ._generated.models import TemplateResponseSchema
@@ -56,7 +56,7 @@ class Utilities(Resource):
     result = self._request(
       "GET",
       "/object/template/{type}",
-      path_params=(ObjectTemplateTypeGetParameters, {
+      path_params=(ObjectTemplateTypeGetPathParameters, {
         "type": object_type
       }),
       response_type=TemplateResponseSchema
@@ -145,6 +145,6 @@ class Utilities(Resource):
       "includeNumber": include_number,
     }
 
-    result = self._request("GET", "/generate", query=(GenerateGetParameters, query), response_type=SecretStringResponseSchema)
+    result = self._request("GET", "/generate", query=(GenerateGetQueryParameters, query), response_type=SecretStringResponseSchema)
 
     return self._member(result, SecretStringResponseSchema, "data")

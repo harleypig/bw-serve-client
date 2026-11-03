@@ -24,6 +24,7 @@ if TYPE_CHECKING:
   from types import ModuleType
 
 ROOT = Path(__file__).resolve().parent.parent
+ITEM_ID = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
 SPEC = json.loads((ROOT / "upstream" / "vault-management-api-fixed.json").read_text(encoding="utf-8"))
 
 
@@ -184,6 +185,69 @@ class TestRoutes:
       assert actual == expected
 
 
+class TestParameterModels:
+  """Each route has its own path model and query model (#112)."""
+
+  def test_every_route_has_its_own_models(self: TestParameterModels) -> None:
+    """A route's path model holds exactly its path parameters, and its query model its query ones.
+
+    Checked by alias against the route list, so a model borrowed from
+    another route, or one mixing both locations, fails here.
+    """
+    checked = 0
+
+    for route in routes.ROUTES:
+      for location, suffix in generate.LOCATION_SUFFIXES.items():
+        expected = {(p.name, p.required) for p in route.parameters if p.location == location}
+        model = getattr(models, generate.model_name(route.method, route.path, suffix), None)
+
+        if not expected:
+          assert model is None, f"{route.method} {route.path} has no {location} parameters"
+          continue
+
+        assert model is not None, f"{route.method} {route.path} has no {location} model"
+        actual = {(field.alias or name, field.is_required()) for name, field in model.model_fields.items()}
+        assert actual == expected, f"{route.method} {route.path} {location}"
+        checked += 1
+
+    # Every route with a parameter counted, so the loop cannot pass empty.
+    assert checked == len({(r.method, r.path, p.location)
+                           for r in routes.ROUTES
+                           for p in r.parameters
+                           if p.location in generate.LOCATION_SUFFIXES})
+    assert checked > 0
+
+  def test_no_mixed_model_is_left(self: TestParameterModels) -> None:
+    """The generator's own mixed parameter models are not generated."""
+    assert [
+      name for name in models.__all__ if name.endswith("Parameters") and not name.endswith(("PathParameters", "QueryParameters"))
+    ] == []
+
+  def test_route_with_both_kinds_accepts_each_location(self: TestParameterModels) -> None:
+    """DELETE /object/item/{id}: the id validates in the path model, permanent in the query model."""
+    path = models.ObjectItemIdDeletePathParameters.model_validate({"id": ITEM_ID})
+    query = models.ObjectItemIdDeleteQueryParameters.model_validate({"permanent": True})
+
+    assert str(path.id) == ITEM_ID
+    assert query.permanent is True
+
+  @pytest.mark.parametrize(("model", "fields"), [
+    (models.ObjectItemIdDeletePathParameters, {
+      "id": ITEM_ID,
+      "permanent": True
+    }),
+    (models.ObjectItemIdDeleteQueryParameters, {
+      "id": ITEM_ID
+    }),
+  ])
+  def test_route_with_both_kinds_refuses_the_other_location(
+    self: TestParameterModels, model: type[pydantic.BaseModel], fields: dict[str, object]
+  ) -> None:
+    """Neither of DELETE /object/item/{id}'s models takes the other location's parameter."""
+    with pytest.raises(pydantic.ValidationError, match="Extra inputs are not permitted"):
+      model.model_validate(fields)
+
+
 class TestOptionalFields:
   """A field the spec does not require may be left out."""
 
@@ -200,7 +264,7 @@ class TestOptionalFields:
   def test_required_fields_stay_required(self: TestOptionalFields) -> None:
     """A field the spec requires still fails when missing."""
     with pytest.raises(pydantic.ValidationError, match="Field required"):
-      models.ObjectItemIdPutParameters.model_validate({})
+      models.ObjectItemIdPutPathParameters.model_validate({})
 
 
 class TestDescriptions:

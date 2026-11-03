@@ -371,6 +371,24 @@ class TestDelete:
     [request] = sent
     assert request.url.raw_path == recorded["request"]["path"].encode()
 
+  def test_bad_id_fails_as_the_path(self: TestDelete, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """The id is validated by the route's own path model (#112)."""
+    items = VaultItems(make_client())
+
+    with pytest.raises(ValidationError, match=r"invalid path for DELETE /object/item/\{id\}: id: "):
+      items.delete("not-a-uuid")
+
+    assert sent == []
+
+  def test_bad_permanent_fails_as_the_query(self: TestDelete, make_client: MakeClient, sent: list[httpx.Request]) -> None:
+    """Permanent is validated by the route's own query model (#112)."""
+    items = VaultItems(make_client())
+
+    with pytest.raises(ValidationError, match=r"invalid query for DELETE /object/item/\{id\}: permanent: "):
+      items.delete(str(uuid4()), permanent="maybe")  # type: ignore[arg-type]
+
+    assert sent == []
+
 
 # -----------------------------------------------------------------------------
 class TestRestoreAndArchive:

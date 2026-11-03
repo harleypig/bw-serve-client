@@ -115,9 +115,13 @@ runs, and no endpoint asks a client for one. The key is valid until `bw lock`
 or `bw logout`, or `POST /lock` (`VaultControl.lock`), invalidates it.
 
 While the server runs, anything that can reach it can read the vault. It
-binds to `localhost` unless told otherwise, and `--hostname all` exposes it
-to the network ([CLI: serve][cli-serve]). A Unix socket, readable only by
-its owner, is the tighter choice on a shared machine.
+binds to `localhost` unless told otherwise ([CLI: serve][cli-serve]).
+`--hostname all` exposes it to the network and turns off its `Host` check;
+`--disable-origin-protection` turns off its `Host` and `Origin` checks both.
+Use neither. `bw serve` has no TLS, so reach one on another machine through
+an SSH tunnel, never over plain HTTP. A Unix socket is the tighter choice on
+a shared machine, but `bw serve` sets no permissions on it: create it in a
+directory only you can enter, such as `$XDG_RUNTIME_DIR`.
 
 [cli-session]: https://bitwarden.com/help/cli/#using-a-session-key
 [cli-serve]: https://bitwarden.com/help/cli/#serve
@@ -187,7 +191,8 @@ makes one call through it and stops the server.
 
 Results come back as pydantic models, and secrets as `SecretStr`, which
 stays hidden in a `repr`, a log record or an error message until you call
-`get_secret_value()`.
+`get_secret_value()`. Pickling a model writes its secrets in plain text, so
+do not pickle or cache models that hold them.
 
 A custom field's `value` is typed `str | SecretStr`. A hidden field, of
 `type` 1, holds a `SecretStr` in both the items you read back and the
@@ -292,15 +297,18 @@ the error handler.
 A server started locked can be unlocked through the library. The method
 sends the master password to `bw serve` and returns the session key as a
 `SecretStr`; nothing in this library needs it afterwards, since `bw serve`
-keeps the session.
+keeps the session. Pass the password as a `SecretStr` too, so it is masked
+wherever it is held, your own code's frames included.
 
 ```python
 from getpass import getpass
 
+from pydantic import SecretStr
+
 from bw_serve_client import ApiClient, VaultControl
 
 with ApiClient() as client:
-  VaultControl(client).unlock(getpass("Master password: "))
+  VaultControl(client).unlock(SecretStr(getpass("Master password: ")))
 ```
 
 ## Reference

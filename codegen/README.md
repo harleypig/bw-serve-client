@@ -17,7 +17,7 @@ edited by hand.
 
 | Generated module | What it holds |
 |------------------|---------------|
-| `models.py` | The pydantic 2 models, by [datamodel-code-generator][dcg], with its settings in `pyproject.toml` under `[tool.datamodel-codegen]`. |
+| `models.py` | The pydantic 2 models, by [datamodel-code-generator][dcg], with its settings in `pyproject.toml` under `[tool.datamodel-codegen]`, among them a path and a query parameter model per route (*Parameter models*, below). |
 | `routes.py` | `ROUTES`: one `Route` per operation in the spec, with its method, path, parameters, summary, description and tags. |
 | `__init__.py` | Re-exports both. |
 
@@ -35,6 +35,24 @@ It applies the spec fixes, runs `generate.py`, and formats the result with
 the pre-commit fix config's formatters. A second run changes nothing. CI
 runs it on every pull request and fails if anything it writes differs from
 what is committed. See `upstream/README.md` for the rest of the pipeline.
+
+## Parameter models
+
+Decided on #112: each route gets a model for its path parameters and a model
+for its query parameters, named after the route the way the generator names
+its own models. `DELETE /object/item/{id}` has
+`ObjectItemIdDeletePathParameters` (`id`) and
+`ObjectItemIdDeleteQueryParameters` (`permanent`). A route with no parameters
+in a location has no model for it, and other locations get none.
+
+The generator emits only one model per route, mixing both locations or
+holding the query alone. So `pyproject.toml` leaves out its `parameters`
+scope, and `generate.py` hands it a copy of the spec with an object schema
+added per route and location, titled with the model name. Two cases stop the
+build:
+
+- A model name that a spec schema or another route already has.
+- A parameter with no `schema`, such as one typed by `content`.
 
 ## Model strictness
 

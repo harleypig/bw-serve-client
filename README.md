@@ -185,6 +185,18 @@ Results come back as pydantic models, and secrets as `SecretStr`, which
 stays hidden in a `repr`, a log record or an error message until you call
 `get_secret_value()`.
 
+A custom field's `value` is typed `str | SecretStr`. A hidden field, of
+`type` 1, holds a `SecretStr` in both the items you read back and the
+templates you build; text, boolean and linked fields hold a plain `str`.
+Code that reads field values checks which it has:
+
+```python
+from pydantic import SecretStr
+
+for field in item.fields or []:
+  value = field.value.get_secret_value() if isinstance(field.value, SecretStr) else field.value
+```
+
 ```python
 from bw_serve_client import ApiClient, Folders, ItemFields, VaultItems
 

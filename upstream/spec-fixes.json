@@ -1687,7 +1687,7 @@
         "field",
         "description"
       ],
-      "value": "Custom field schema for vault items"
+      "value": "Custom field schema for vault items. The value of a hidden field (type 1) is a SecretStr; read it with get_secret_value()."
     },
     {
       "op": "add",
@@ -3287,7 +3287,7 @@
       "value": {
         "type": "object",
         "title": "FieldResponseSchema",
-        "description": "A custom field on a vault item",
+        "description": "A custom field on a vault item. The value of a hidden field (type 1) is a SecretStr; read it with get_secret_value().",
         "properties": {
           "name": {
             "type": "string"
@@ -6151,6 +6151,60 @@
         }
       },
       "why": "The example is the bare array; wrapped in the list envelope bw serve sends, with the object and fingerprintPhrase each request carries."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "field",
+        "properties",
+        "value"
+      ],
+      "from": {
+        "type": "string",
+        "title": "FieldValueSchema",
+        "description": "Value of the custom field"
+      },
+      "value": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "format": "password"
+          }
+        ],
+        "title": "FieldValueSchema",
+        "description": "Value of the custom field"
+      },
+      "why": "A hidden custom field (type 1) holds a secret, but a format cannot depend on the sibling type, so the value is typed string or SecretStr; the model's base class wraps it in SecretStr when type is 1. Decided on #127."
+    },
+    {
+      "op": "set",
+      "path": [
+        "components",
+        "schemas",
+        "response.field",
+        "properties",
+        "value"
+      ],
+      "from": {
+        "type": "string"
+      },
+      "value": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "format": "password"
+          }
+        ]
+      },
+      "why": "A hidden custom field (type 1) holds a secret, but a format cannot depend on the sibling type, so the value is typed string or SecretStr; the model's base class wraps it in SecretStr when type is 1. Decided on #127."
     }
   ]
 }

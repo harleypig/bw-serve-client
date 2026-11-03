@@ -18,6 +18,7 @@ a feature request; a problem in `bw serve` itself belongs in
 Do not open a public issue for a vulnerability. Report it privately through
 GitHub's [private vulnerability reporting][advisory]. Only the repository's
 maintainers can read the report, so it stays private until a fix ships.
+The [security policy][security] says which versions get fixes.
 
 Each issue carries one `area:` label, chosen by where the fix lands:
 
@@ -110,5 +111,6 @@ and the one-time setup for publishing to PyPI, is [Releasing][releasing].
 [issues]: https://github.com/harleypig/bw-serve-client/issues
 [project]: https://github.com/users/harleypig/projects/3
 [releasing]: releasing.md
+[security]: ../../.github/SECURITY.md
 [tests]: ../../.claude/TESTS.md
 [workflow]: ../../.claude/WORKFLOW.md

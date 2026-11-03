@@ -3916,7 +3916,8 @@
           },
           "password": {
             "type": "string",
-            "title": "SendPasswordSchema"
+            "title": "SendPasswordSchema",
+            "format": "password"
           },
           "emails": {
             "type": "array",

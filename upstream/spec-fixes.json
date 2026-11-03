@@ -2542,6 +2542,19 @@
       "why": "A card's security code is a secret; `password` format makes it a SecretStr. Decided on #94."
     },
     {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
+        "send.template",
+        "properties",
+        "password",
+        "format"
+      ],
+      "value": "password",
+      "why": "A Send's password is a secret; `password` format makes its request model field a SecretStr, so it never shows in a repr or sits in plain text in a traceback frame. Decided on #160."
+    },
+    {
       "op": "delete",
       "path": [
         "paths",

@@ -16,6 +16,8 @@ from getpass import getpass
 import os
 import sys
 
+from pydantic import SecretStr
+
 from bw_serve_client import ApiClient
 from bw_serve_client import ExternalServiceError
 from bw_serve_client import UserError
@@ -56,7 +58,7 @@ def main() -> int:
       print(vault.lock().title)
 
     try:
-      session = vault.unlock(getpass("Master password: "))
+      session = vault.unlock(SecretStr(getpass("Master password: ")))
 
     except UserError as error:
       print(f"Unlock refused: {error}", file=sys.stderr)

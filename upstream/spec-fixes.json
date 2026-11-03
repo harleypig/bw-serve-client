@@ -6027,6 +6027,23 @@
       "path": [
         "components",
         "schemas",
+        "deviceapprovalproperties",
+        "properties",
+        "object"
+      ],
+      "value": {
+        "type": "string",
+        "enum": [
+          "auth-request"
+        ]
+      },
+      "why": "PendingAuthRequestResponse sends `object = \"auth-request\"` on every request (bitwarden/clients cli-v2026.10.1, bitwarden_license/bit-cli/src/admin-console/device-approval/pending-auth-request.response.ts), but the schema omits it, so the response model dropped it."
+    },
+    {
+      "op": "add",
+      "path": [
+        "components",
+        "schemas",
         "response.list.DeviceApproval"
       ],
       "value": {
@@ -6119,6 +6136,7 @@
           "object": "list",
           "data": [
             {
+              "object": "auth-request",
               "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
               "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
               "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
@@ -6132,7 +6150,7 @@
           ]
         }
       },
-      "why": "The example is the bare array; wrapped in the list envelope bw serve sends, with the fingerprintPhrase it carries."
+      "why": "The example is the bare array; wrapped in the list envelope bw serve sends, with the object and fingerprintPhrase each request carries."
     }
   ]
 }

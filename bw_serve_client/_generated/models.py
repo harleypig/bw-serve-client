@@ -263,6 +263,7 @@ class DeviceApprovalPropertiesSchema(BaseModel):
   creation_date: Annotated[str | None, Field(alias='creationDate')] = None
   organization_user_id: Annotated[str | None, Field(alias='organizationUserId')] = None
   fingerprint_phrase: Annotated[str | None, Field(alias='fingerprintPhrase')] = None
+  object: Literal['auth-request'] | None = None
 
 
 class PasswordHistorySchema(BaseModel):

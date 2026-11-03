@@ -101,6 +101,7 @@ class TestDeviceApprovalList:
     assert isinstance(pending, DeviceApprovalPropertiesSchema)
     assert (pending.id, pending.email, pending.organization_user_id) == (REQUEST_ID, "orguser@bitwarden.com", ORG_ID)
     assert pending.fingerprint_phrase == "alarm-unfold-steering-deftly-pretext"
+    assert pending.object == "auth-request"
 
   def test_bare_array_reply_is_an_external_service_error(self: TestDeviceApprovalList, make_client: MakeClient) -> None:
     """A reply of the requests alone, without the envelope, is not accepted."""

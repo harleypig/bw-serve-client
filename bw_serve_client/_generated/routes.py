@@ -35,6 +35,7 @@ class Route:
       parameters: The path, query and header parameters.
       summary: The spec's summary, or an empty string.
       description: The spec's description, or an empty string.
+      tags: The spec's tags, in the spec's order; empty when it has none.
   """
 
   method: str
@@ -42,6 +43,7 @@ class Route:
   parameters: Tuple[Parameter, ...]
   summary: str
   description: str
+  tags: Tuple[str, ...]
 
 
 ROUTES: Tuple[Route, ...] = (
@@ -52,6 +54,7 @@ ROUTES: Tuple[Route, ...] = (
     summary='Lock your vault.',
     description=('Lock your vault. This action will destroy the session key required to authorize requests to '
                  'most endpoints.'),
+    tags=('Lock & Unlock',),
   ),
   Route(
     method='POST',
@@ -60,6 +63,7 @@ ROUTES: Tuple[Route, ...] = (
     summary='Unlock your vault.',
     description=('Unlock your vault. This action will create the session key required to authorize requests to '
                  'most endpoints.'),
+    tags=('Lock & Unlock',),
   ),
   Route(
     method='POST',
@@ -67,6 +71,7 @@ ROUTES: Tuple[Route, ...] = (
     parameters=(),
     summary='Add a new item to your vault.',
     description='Add a new login, card, secure note, or identity to your vault.',
+    tags=('Vault Items',),
   ),
   Route(
     method='PUT',
@@ -88,6 +93,7 @@ ROUTES: Tuple[Route, ...] = (
       'organization to another is not supported by the API &ndash; delete the item and recreate it '
       'in the target organization.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='GET',
@@ -101,6 +107,7 @@ ROUTES: Tuple[Route, ...] = (
       'term matches more than one item, the response instead contains an array of the matching items '
       'so you can identify the one you want.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='DELETE',
@@ -114,6 +121,7 @@ ROUTES: Tuple[Route, ...] = (
       'Delete an existing item from your vault by specifying the unique object identifier (e.g. '
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='GET',
@@ -125,6 +133,7 @@ ROUTES: Tuple[Route, ...] = (
       'identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path. Returns a '
       'template-shaped object listing the Collection identifiers the item currently belongs to.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='PUT',
@@ -138,6 +147,7 @@ ROUTES: Tuple[Route, ...] = (
       'placed into exactly the Collections you specify, so this is the only way over the API to '
       '**remove** an item from a Collection. The item must already belong to an organization.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='POST',
@@ -149,6 +159,7 @@ ROUTES: Tuple[Route, ...] = (
       "`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path. Depending on the item's current state, "
       'this restores the item either from the trash or from the archive.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='POST',
@@ -163,6 +174,7 @@ ROUTES: Tuple[Route, ...] = (
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path. Only `item` is supported as the object '
       'type. Archived items can be restored using `POST /restore/item/{id}`.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='GET',
@@ -183,6 +195,7 @@ ROUTES: Tuple[Route, ...] = (
       'parameters to narrow list results.<br><br>Using multiple filters will perform a logical `OR` '
       'operation. Using filters **and** search terms will perform a logical `AND` operation.'
     ),
+    tags=('Vault Items',),
   ),
   Route(
     method='POST',
@@ -193,6 +206,7 @@ ROUTES: Tuple[Route, ...] = (
       "Attach a file to an existing vault item by specifying a the vault item's identifier (e.g. "
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) as a query parameter and the file in the request body.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='GET',
@@ -209,6 +223,7 @@ ROUTES: Tuple[Route, ...] = (
       'file type other than plaintext, we recommend posting the request through a browser window for '
       'immediate download.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='DELETE',
@@ -223,6 +238,7 @@ ROUTES: Tuple[Route, ...] = (
       '`o4lrz575u84koanvu9f5gqv9a9ab92gf`) in the path and item id (e.g. '
       '`ba624b21-1c8a-43b3-a713-ae0000eabdec`) as a query parameter.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='GET',
@@ -233,6 +249,7 @@ ROUTES: Tuple[Route, ...] = (
       "Retrieve the username of a login item by specifying the item's unique object identifier (e.g. "
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='GET',
@@ -243,6 +260,7 @@ ROUTES: Tuple[Route, ...] = (
       "Retrieve the password of a login item by specifying the item's unique object identifier (e.g. "
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='GET',
@@ -253,6 +271,7 @@ ROUTES: Tuple[Route, ...] = (
       "Retrieve the URI of a login item by specifying the item's unique object identifier (e.g. "
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='GET',
@@ -263,6 +282,7 @@ ROUTES: Tuple[Route, ...] = (
       "Retrieve the TOTP code of a login item by specifying the item's unique object identifier "
       '(e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='GET',
@@ -273,6 +293,7 @@ ROUTES: Tuple[Route, ...] = (
       "Retrieve the notes of an item by specifying the item's unique object identifier (e.g. "
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.'
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='GET',
@@ -283,6 +304,7 @@ ROUTES: Tuple[Route, ...] = (
       'Retrieve the number of times a password has been exposed for a login item by specifying the '
       "item's unique object identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path."
     ),
+    tags=('Attachments & Fields',),
   ),
   Route(
     method='POST',
@@ -290,6 +312,7 @@ ROUTES: Tuple[Route, ...] = (
     parameters=(),
     summary='Add a folder to your vault.',
     description='Add a folder to your vault.',
+    tags=('Folders',),
   ),
   Route(
     method='PUT',
@@ -301,6 +324,7 @@ ROUTES: Tuple[Route, ...] = (
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and the new folder `"name":` in the '
       'request body.'
     ),
+    tags=('Folders',),
   ),
   Route(
     method='GET',
@@ -311,6 +335,7 @@ ROUTES: Tuple[Route, ...] = (
       'Retrieve an existing folder from your vault by specifying the unique folder identifier (e.g. '
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.'
     ),
+    tags=('Folders',),
   ),
   Route(
     method='DELETE',
@@ -322,6 +347,7 @@ ROUTES: Tuple[Route, ...] = (
       '`3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path.<br><br>Deleting a folder **will not** '
       'delete the items in it.'
     ),
+    tags=('Folders',),
   ),
   Route(
     method='GET',
@@ -332,6 +358,7 @@ ROUTES: Tuple[Route, ...] = (
       'Retrieve a list of folders in your vault. By default, this will return a list of all folders, '
       'however you can specify search terms as query parameters to narrow list results.'
     ),
+    tags=('Folders',),
   ),
   Route(
     method='POST',
@@ -339,6 +366,7 @@ ROUTES: Tuple[Route, ...] = (
     parameters=(),
     summary='Create a Send.',
     description='Create a Send.<br><br>**Only Text Sends are supported.**',
+    tags=('Send',),
   ),
   Route(
     method='PUT',
@@ -350,6 +378,7 @@ ROUTES: Tuple[Route, ...] = (
       '`e813e187-70e3-4feb-950a-ae52010c4b56`) in the path and the new object contents in the '
       'request body.<br><br> **Only Text Sends are supported.**'
     ),
+    tags=('Send',),
   ),
   Route(
     method='GET',
@@ -360,6 +389,7 @@ ROUTES: Tuple[Route, ...] = (
       'Retrieve a Send by specifying the unique object identifier (e.g. '
       '`e813e187-70e3-4feb-950a-ae52010c4b56`) in the path.<br><br>**Only Text Sends are supported.**'
     ),
+    tags=('Send',),
   ),
   Route(
     method='DELETE',
@@ -370,6 +400,7 @@ ROUTES: Tuple[Route, ...] = (
       'Delete an existing Send by specifying the unique object identifier (e.g. '
       '`e813e187-70e3-4feb-950a-ae52010c4b56`) in the path.<br><br>**Only Text Sends are supported.**'
     ),
+    tags=('Send',),
   ),
   Route(
     method='GET',
@@ -381,6 +412,7 @@ ROUTES: Tuple[Route, ...] = (
       'you can specify search terms as query parameters to narrow list results.<br><br>**Only Text '
       'Sends are supported.**'
     ),
+    tags=('Send',),
   ),
   Route(
     method='GET',
@@ -391,6 +423,7 @@ ROUTES: Tuple[Route, ...] = (
       'Retrieve a list of Sends. This is an alias for `GET /list/object/send` and behaves '
       'identically.<br><br>**Only Text Sends are supported.**'
     ),
+    tags=('Send',),
   ),
   Route(
     method='POST',
@@ -398,6 +431,7 @@ ROUTES: Tuple[Route, ...] = (
     parameters=(Parameter(name='id', location='path', required=True),),
     summary='Remove the password from a Send.',
     description='Remove the password from a Send.<br><br>**Only Text Sends are supported.**',
+    tags=('Send',),
   ),
   Route(
     method='POST',
@@ -413,6 +447,7 @@ ROUTES: Tuple[Route, ...] = (
       'works for items that do not yet belong to an organization (personal items). To move an item '
       'from one organization to another, delete the item and recreate it in the target organization.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='POST',
@@ -424,6 +459,7 @@ ROUTES: Tuple[Route, ...] = (
       'identifier as a query parameter and Collection information in the request body, including its '
       '`"name":` and an array of `"groups":` to add it to.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='PUT',
@@ -438,6 +474,7 @@ ROUTES: Tuple[Route, ...] = (
       'identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path, an Organization '
       'identifier as a query parameter, and Collection information in the request body.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -452,6 +489,7 @@ ROUTES: Tuple[Route, ...] = (
       'Collection identifier (e.g. `3a84be8d-12e7-4223-98cd-ae0000eabdec`) in the path and an '
       'Organization identifier as a query parameter .'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='DELETE',
@@ -467,6 +505,7 @@ ROUTES: Tuple[Route, ...] = (
       'Organization identifier as a query parameter.<br><br>Deleting a Collection **will not** '
       'delete the items in it.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -482,6 +521,7 @@ ROUTES: Tuple[Route, ...] = (
       'listed.<br><br>By default, this will return a list of all Collections, however you can '
       'specify search terms as additional query parameters to narrow list results.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -493,6 +533,7 @@ ROUTES: Tuple[Route, ...] = (
       'have access to will not be listed.<br><br>By default, this will return a list of all '
       'Collections, however you can specify search terms as query parameters to narrow list results.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -504,6 +545,7 @@ ROUTES: Tuple[Route, ...] = (
       'Organizations, however you can specify search terms as query parameters to narrow list '
       'results.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -512,6 +554,7 @@ ROUTES: Tuple[Route, ...] = (
     summary='List members of a specified Organization.',
     description=('List members of a specified Organization by specifying an Organization identifier as a query '
                  'parameter.'),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -524,6 +567,7 @@ ROUTES: Tuple[Route, ...] = (
       '/object/org-collection/{id}`, which fetches a Collection directly from the server and is '
       'restricted to certain administrative roles and the **Can Manage** permission.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -534,6 +578,7 @@ ROUTES: Tuple[Route, ...] = (
       'Retrieve a single Organization that you are a member of from local state by specifying its '
       'unique identifier (e.g. `3c89a31d-f1cc-4673-8d5a-ae2700f9860d`) in the path.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='POST',
@@ -548,6 +593,7 @@ ROUTES: Tuple[Route, ...] = (
       '`6b39c966-c776-4ba9-9489-ae320149af01`) in the path and the Organization identifier (e.g. '
       '`b64d6e40-adf2-4f46-b4d2-acd40147548a`) as a query parameter.'
     ),
+    tags=('Collections & Organizations',),
   ),
   Route(
     method='GET',
@@ -556,6 +602,7 @@ ROUTES: Tuple[Route, ...] = (
     summary='Retrieve a list of pending device approval requests.',
     description=('Retrieve a list of pending device approval requests by specifying an `organizationId` in the '
                  'path.'),
+    tags=('Trusted Device Approval',),
   ),
   Route(
     method='POST',
@@ -571,6 +618,7 @@ ROUTES: Tuple[Route, ...] = (
       '`organizationId` and specific `request-id` in the path.<br><br>Request identifiers can be '
       'retrieved using `GET /device-approval/{organizationId}`.'
     ),
+    tags=('Trusted Device Approval',),
   ),
   Route(
     method='POST',
@@ -582,6 +630,7 @@ ROUTES: Tuple[Route, ...] = (
       'more](https://bitwarden.com/help/approve-a-trusted-device/)) by specifying an '
       '`organizationId` in the path.'
     ),
+    tags=('Trusted Device Approval',),
   ),
   Route(
     method='POST',
@@ -597,6 +646,7 @@ ROUTES: Tuple[Route, ...] = (
       '`organizationId` and specific `request-id` in the path.<br><br>Request identifiers can be '
       'retrieved using `GET /device-approval/{organizationId}`.'
     ),
+    tags=('Trusted Device Approval',),
   ),
   Route(
     method='POST',
@@ -608,6 +658,7 @@ ROUTES: Tuple[Route, ...] = (
       'more](https://bitwarden.com/help/approve-a-trusted-device/)) by specifying an '
       '`organizationId` in the path.'
     ),
+    tags=('Trusted Device Approval',),
   ),
   Route(
     method='POST',
@@ -615,6 +666,7 @@ ROUTES: Tuple[Route, ...] = (
     parameters=(Parameter(name='force', location='query', required=False),),
     summary='Sync your vault.',
     description='Sync your vault.',
+    tags=('Miscellaneous',),
   ),
   Route(
     method='GET',
@@ -623,6 +675,7 @@ ROUTES: Tuple[Route, ...] = (
     summary='Get the status of the Bitwarden CLI.',
     description=('Get the current `serverURL`, `lastSync`, `userEmail`, `userId`, and `status` of your '
                  'Bitwarden CLI client.'),
+    tags=('Miscellaneous',),
   ),
   Route(
     method='GET',
@@ -647,6 +700,7 @@ ROUTES: Tuple[Route, ...] = (
       'Generate a password or passphrase. By default, `/generate` will generate a 14-character '
       'password with uppercase characters, lowercase characters, and numbers.'
     ),
+    tags=('Miscellaneous',),
   ),
   Route(
     method='GET',
@@ -657,6 +711,7 @@ ROUTES: Tuple[Route, ...] = (
       'Retreive a JSON template for any object, including vault items, sends, folders, and more. '
       'Templates can be used to guide you in creation of new objects.'
     ),
+    tags=('Miscellaneous',),
   ),
   Route(
     method='GET',
@@ -668,6 +723,7 @@ ROUTES: Tuple[Route, ...] = (
       "You may also supply another user's identifier (GUID) in place of `me` in the path to look up "
       "that user's fingerprint phrase via the API."
     ),
+    tags=('Miscellaneous',),
   ),
 )
 

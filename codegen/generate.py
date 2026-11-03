@@ -88,6 +88,7 @@ class Route:
       parameters: The path, query and header parameters.
       summary: The spec's summary, or an empty string.
       description: The spec's description, or an empty string.
+      tags: The spec's tags, in the spec's order; empty when it has none.
   """
 
   method: str
@@ -95,6 +96,7 @@ class Route:
   parameters: Tuple[Parameter, ...]
   summary: str
   description: str
+  tags: Tuple[str, ...]
 
 '''
 
@@ -335,6 +337,7 @@ def render_routes(spec: Dict[str, Any]) -> str:
       f"    parameters=({rendered}),\n"
       f"    summary={literal(operation.get('summary', ''), '    ')},\n"
       f"    description={literal(operation.get('description', ''), '    ')},\n"
+      f"    tags={tuple(operation.get('tags', ()))!r},\n"
       "  ),\n"
     )
 

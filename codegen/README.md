@@ -12,7 +12,7 @@ edited by hand.
 | Generated module | What it holds |
 |------------------|---------------|
 | `models.py` | The pydantic 2 models, by [datamodel-code-generator][dcg], with its settings in `pyproject.toml` under `[tool.datamodel-codegen]`. |
-| `routes.py` | `ROUTES`: one `Route` per operation in the spec, with its method, path, parameters, summary and description. |
+| `routes.py` | `ROUTES`: one `Route` per operation in the spec, with its method, path, parameters, summary, description and tags. |
 | `__init__.py` | Re-exports both. |
 
 Each module defines `__all__`. The package root, `bw_serve_client`,

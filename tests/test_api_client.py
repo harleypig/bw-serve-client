@@ -8,7 +8,7 @@ import logging
 import socketserver
 import tempfile
 import threading
-from typing import Any, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -23,6 +23,7 @@ from bw_serve_client.errors import UserError
 from bw_serve_client.errors import ValidationError
 
 if TYPE_CHECKING:
+  from conftest import MakeClient
   from conftest import ReturningHandler
   from pytest_mock import MockerFixture
 
@@ -199,13 +200,13 @@ class TestApiClient:
     with pytest.raises(ExternalServiceError, match="Server Error"):  # act
       client._handle_error(response, client.error_handler)
 
-  def test_get_request(self: "TestApiClient") -> None:
+  def test_get_request(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test GET request method."""
-    client, seen = _recording_client(json_body={"data": "test"})
+    client = make_client(json_body={"data": "test"})
 
     result = client.get("/test", params={"key": "value"})  # act
 
-    [request] = seen
+    [request] = sent
     assert request.method == "GET"
     assert str(request.url) == "http://localhost:8087/test?key=value"
     assert request.headers["Accept"] == "application/json"
@@ -213,29 +214,29 @@ class TestApiClient:
     assert request.content == b""
     assert result == {"data": "test"}
 
-  def test_post_request(self: "TestApiClient") -> None:
+  def test_post_request(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test POST request method."""
-    client, seen = _recording_client(json_body={"created": True})
+    client = make_client(json_body={"created": True})
     data = {"name": "test"}
 
     result = client.post("/test", data=data)  # act
 
-    [request] = seen
+    [request] = sent
     assert request.method == "POST"
     assert str(request.url) == "http://localhost:8087/test"
     assert request.headers["Content-Type"] == "application/json"
     assert json.loads(request.content) == data
     assert result == {"created": True}
 
-  def test_post_request_with_files(self: "TestApiClient") -> None:
+  def test_post_request_with_files(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test POST request method with file upload."""
-    client, seen = _recording_client(json_body={"uploaded": True})
+    client = make_client(json_body={"uploaded": True})
     data = {"name": "test"}
     files = {"file": ("note.txt", b"file content")}
 
     result = client.post("/test", data=data, files=files)  # act
 
-    [request] = seen
+    [request] = sent
     assert request.headers["Content-Type"].startswith("multipart/form-data; boundary=")
     assert b'name="name"' in request.content
     assert b'filename="note.txt"' in request.content
@@ -502,14 +503,14 @@ class TestApiClient:
     with pytest.raises(ValidationError, match="I'm a teapot"):  # act
       client._handle_error(response, client.error_handler)
 
-  def test_make_request_with_headers(self: "TestApiClient") -> None:
+  def test_make_request_with_headers(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test _make_request with custom headers."""
-    client, seen = _recording_client(json_body={"data": "test"})
+    client = make_client(json_body={"data": "test"})
     custom_headers = {"Authorization": "Bearer token"}
 
     client._make_request("GET", "/test", headers=custom_headers)  # act
 
-    [request] = seen
+    [request] = sent
     assert request.headers["Authorization"] == "Bearer token"
     assert request.headers["Accept"] == "application/json"
     assert request.headers["User-Agent"] == "bw-serve-client/0.1.1"
@@ -528,9 +529,9 @@ class TestApiClient:
     [(400, ValidationError), (401, UserError), (403, UserError), (404, ValidationError), (500, ExternalServiceError),
      (418, ValidationError)],
   )
-  def test_make_request_error_status(self: "TestApiClient", status: int, error: type) -> None:
+  def test_make_request_error_status(self: "TestApiClient", status: int, error: type, make_client: MakeClient) -> None:
     """An error status from the server raises its domain error, keeping the status."""
-    client, _ = _recording_client(status=status, json_body={"message": "nope"})
+    client = make_client(status=status, json_body={"message": "nope"})
 
     with pytest.raises(error, match="nope") as exc_info:  # act
       client.get("/test")
@@ -538,43 +539,43 @@ class TestApiClient:
     assert exc_info.value.status_code == status
 
   @pytest.mark.parametrize("message", ["Vault is locked.", "You are not logged in."])
-  def test_locked_vault_400_is_user_error(self: "TestApiClient", message: str) -> None:
+  def test_locked_vault_400_is_user_error(self: "TestApiClient", message: str, make_client: MakeClient) -> None:
     """Bw serve's 400 for a locked vault or no login is a user-side error."""
-    client, _ = _recording_client(status=400, json_body={"success": False, "message": message})
+    client = make_client(status=400, json_body={"success": False, "message": message})
 
     with pytest.raises(UserError, match=message) as exc_info:  # act
       client.get("/list/object/folders")
 
     assert exc_info.value.status_code == 400
 
-  def test_put_request(self: "TestApiClient") -> None:
+  def test_put_request(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test PUT request method."""
-    client, seen = _recording_client(json_body={"updated": True})
+    client = make_client(json_body={"updated": True})
     data = {"name": "updated"}
 
     result = client.put("/test", data=data)  # act
 
-    [request] = seen
+    [request] = sent
     assert request.method == "PUT"
     assert str(request.url) == "http://localhost:8087/test"
     assert json.loads(request.content) == data
     assert result == {"updated": True}
 
-  def test_delete_request(self: "TestApiClient") -> None:
+  def test_delete_request(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test DELETE request method."""
-    client, seen = _recording_client(json_body={"deleted": True})
+    client = make_client(json_body={"deleted": True})
 
     result = client.delete("/test")  # act
 
-    [request] = seen
+    [request] = sent
     assert request.method == "DELETE"
     assert str(request.url) == "http://localhost:8087/test"
     assert request.content == b""
     assert result == {"deleted": True}
 
-  def test_serialization_integration_post(self: "TestApiClient") -> None:
+  def test_serialization_integration_post(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test serialization integration with POST request."""
-    client, seen = _recording_client(json_body={"created": True})
+    client = make_client(json_body={"created": True})
     complex_data = {
       "user": {
         "name": "Test User",
@@ -592,11 +593,11 @@ class TestApiClient:
 
     result = client.post("/users", data=complex_data)  # act
 
-    [request] = seen
+    [request] = sent
     assert json.loads(request.content) == complex_data
     assert result == {"created": True}
 
-  def test_deserialization_integration_get(self: "TestApiClient") -> None:
+  def test_deserialization_integration_get(self: "TestApiClient", make_client: MakeClient) -> None:
     """Test deserialization integration with GET request."""
     complex_response = {
       "data": [
@@ -623,37 +624,37 @@ class TestApiClient:
         "per_page": 10
       }
     }
-    client, _ = _recording_client(json_body=complex_response)
+    client = make_client(json_body=complex_response)
 
     result = client.get("/items")  # act
 
     assert result == complex_response
 
-  def test_serialization_string_data_post(self: "TestApiClient") -> None:
+  def test_serialization_string_data_post(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test serialization with string data in POST request."""
-    client, seen = _recording_client(json_body={"processed": True})
+    client = make_client(json_body={"processed": True})
     json_string = '{"name": "test", "value": 123}'
 
     result = client.post("/process", data=json_string)  # act
 
     # The string is parsed by _serialize_data and sent as a JSON object.
-    [request] = seen
+    [request] = sent
     assert json.loads(request.content) == {"name": "test", "value": 123}
     assert result == {"processed": True}
 
-  def test_deserialization_error_fallback(self: "TestApiClient") -> None:
+  def test_deserialization_error_fallback(self: "TestApiClient", make_client: MakeClient) -> None:
     """Test deserialization error fallback to text."""
-    client, _ = _recording_client(text_body="Invalid JSON response", content_type="application/json")
+    client = make_client(text_body="Invalid JSON response", content_type="application/json")
 
     result = client.get("/test")  # act
 
     assert result == "Invalid JSON response"
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
-  def test_serialize_data_called_in_post(self: "TestApiClient", mock_serialize: Mock) -> None:
+  def test_serialize_data_called_in_post(self: "TestApiClient", mock_serialize: Mock, make_client: MakeClient) -> None:
     """Test that _serialize_data is called during POST requests."""
     mock_serialize.return_value = {"name": "test"}
-    client, _ = _recording_client(json_body={"created": True})
+    client = make_client(json_body={"created": True})
     data = {"name": "test"}
 
     client.post("/test", data=data)  # act
@@ -661,10 +662,10 @@ class TestApiClient:
     mock_serialize.assert_called_once_with(data, "application/json")
 
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
-  def test_serialize_data_called_in_put(self: "TestApiClient", mock_serialize: Mock) -> None:
+  def test_serialize_data_called_in_put(self: "TestApiClient", mock_serialize: Mock, make_client: MakeClient) -> None:
     """Test that _serialize_data is called during PUT requests."""
     mock_serialize.return_value = {"name": "updated"}
-    client, _ = _recording_client(json_body={"updated": True})
+    client = make_client(json_body={"updated": True})
     data = {"name": "updated"}
 
     client.put("/test", data=data)  # act
@@ -674,14 +675,16 @@ class TestApiClient:
   # httpx still sends a str passed as data=, with a DeprecationWarning; the
   # filter is what tells content= from data= here.
   @pytest.mark.filterwarnings("error::DeprecationWarning")
-  def test_serialize_data_with_custom_content_type(self: "TestApiClient") -> None:
+  def test_serialize_data_with_custom_content_type(
+    self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]
+  ) -> None:
     """A non-JSON content type sends the serialized text as the raw body."""
-    client, seen = _recording_client(text_body="Success", content_type="text/plain")
+    client = make_client(text_body="Success", content_type="text/plain")
     data = {"name": "test"}
 
     result = client._make_request("POST", "/test", data=data, headers={"Content-Type": "text/plain"})  # act
 
-    [request] = seen
+    [request] = sent
     assert request.headers["Content-Type"] == "text/plain"
     assert request.content == str(data).encode()
     assert result.text == "Success"
@@ -696,57 +699,63 @@ class TestApiClient:
     assert "Unsupported HTTP method: PATCH" in str(exc_info.value)
     assert "Supported methods are: DELETE, GET, POST, PUT" in str(exc_info.value)
 
-  def test_make_request_case_insensitive_method(self: "TestApiClient") -> None:
+  def test_make_request_case_insensitive_method(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """Test that _make_request accepts case-insensitive HTTP methods."""
-    client, seen = _recording_client(json_body={"success": True})
+    client = make_client(json_body={"success": True})
 
     result = client._make_request("get", "/test")  # act
 
-    [request] = seen
+    [request] = sent
     assert result.status_code == 200
     assert request.method == "GET"
     assert str(request.url) == "http://localhost:8087/test"
 
-  def test_none_query_params_are_omitted(self: "TestApiClient") -> None:
+  def test_none_query_params_are_omitted(self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """A query parameter whose value is None is left out, not sent empty."""
-    client, seen = _recording_client(json_body={})
+    client = make_client(json_body={})
 
     client.get("/list/object/items", params={"search": None, "folderid": "abc"})  # act
 
-    [request] = seen
+    [request] = sent
     assert request.url.query == b"folderid=abc"
 
-  def test_json_content_type_with_parameters_sends_json(self: "TestApiClient") -> None:
+  def test_json_content_type_with_parameters_sends_json(
+    self: "TestApiClient", make_client: MakeClient, sent: list[httpx.Request]
+  ) -> None:
     """A JSON content type with a charset still sends the data as a JSON body."""
-    client, seen = _recording_client(json_body={})
+    client = make_client(json_body={})
 
     client._make_request("POST", "/test", data={"name": "x"}, headers={"Content-Type": "application/json; charset=utf-8"})  # act
 
-    [request] = seen
+    [request] = sent
     assert json.loads(request.content) == {"name": "x"}
 
 
 class TestApiClientConnection:
   """How the client reaches bw serve: URL, Unix socket, or a transport."""
 
-  def test_base_url_replaces_components(self: "TestApiClientConnection") -> None:
+  def test_base_url_replaces_components(
+    self: "TestApiClientConnection", make_client: MakeClient, sent: list[httpx.Request]
+  ) -> None:
     """A base_url is used instead of the URL built from its parts."""
-    client, seen = _recording_client(json_body={}, base_url="https://vault.example:9000/")
+    client = make_client(json_body={}, base_url="https://vault.example:9000/")
 
     client.get("/status")  # act
 
-    [request] = seen
+    [request] = sent
     assert client.base_url == "https://vault.example:9000"
     assert str(request.url) == "https://vault.example:9000/status"
 
   @pytest.mark.parametrize("kwargs", [{"path": "/api"}, {"base_url": "http://vault.example:9000/api/"}], ids=["path", "base_url"])
-  def test_base_path_is_kept(self: "TestApiClientConnection", kwargs: dict[str, Any]) -> None:
+  def test_base_path_is_kept(
+    self: "TestApiClientConnection", kwargs: dict[str, Any], make_client: MakeClient, sent: list[httpx.Request]
+  ) -> None:
     """The base URL's path prefixes every endpoint."""
-    client, seen = _recording_client(json_body={}, **kwargs)
+    client = make_client(json_body={}, **kwargs)
 
     client.get("/object/folder")  # act
 
-    [request] = seen
+    [request] = sent
     assert request.url.path == "/api/object/folder"
 
   def test_default_transport_retries_connections(self: "TestApiClientConnection", mocker: MockerFixture) -> None:
@@ -801,13 +810,13 @@ class TestApiClientConnection:
     with pytest.raises(ValueError, match="not both"):  # act
       ApiClient(base_url="unix:///run/bw.sock", transport=httpx.MockTransport(_ok))
 
-  def test_caller_transport_used_as_is(self: "TestApiClientConnection") -> None:
+  def test_caller_transport_used_as_is(self: "TestApiClientConnection", make_client: MakeClient, sent: list[httpx.Request]) -> None:
     """A caller's transport carries every request, and no Host override is set."""
-    client, seen = _recording_client(json_body={"ok": True}, domain="vault", port=9000)
+    client = make_client(json_body={"ok": True}, domain="vault", port=9000)
 
     result = client.get("/status")  # act
 
-    [request] = seen
+    [request] = sent
     assert request.headers["Host"] == "vault:9000"
     assert result == {"ok": True}
 
@@ -833,11 +842,11 @@ class TestApiClientErrorHandling:
     assert client.error_handler.logger is logger
 
   def test_returning_handler_result_replaces_response(
-    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler
+    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler, make_client: MakeClient
   ) -> None:
     """A handler that returns has its value come back from the request method."""
     handler = returning_handler
-    client, _ = _recording_client(status=500, json_body={"message": "boom"}, error_handler=handler)
+    client = make_client(status=500, json_body={"message": "boom"}, error_handler=handler)
 
     result = client.get("/test")  # act
 
@@ -859,15 +868,17 @@ class TestApiClientErrorHandling:
     assert status_code is None
     assert isinstance(cause, httpx.ConnectError)
 
-  def test_invalid_url_goes_to_handler(self: "TestApiClientErrorHandling", returning_handler: ReturningHandler) -> None:
+  def test_invalid_url_goes_to_handler(
+    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler, make_client: MakeClient, sent: list[httpx.Request]
+  ) -> None:
     """A URL httpx cannot build is a ValidationError for the handler, not a raw httpx error."""
     handler = returning_handler
-    client, seen = _recording_client(json_body={}, error_handler=handler)
+    client = make_client(json_body={}, error_handler=handler)
 
     result = client.post("/object/folder\x00", data={"password": "hunter2"})  # act
 
     assert result is handler.result
-    assert seen == []
+    assert sent == []
     [(category, message, status_code, cause)] = handler.calls
     assert category is ValidationError
     assert message.startswith("Invalid URL:")
@@ -875,9 +886,9 @@ class TestApiClientErrorHandling:
     assert status_code is None
     assert isinstance(cause, httpx.InvalidURL)
 
-  def test_invalid_url_raises_without_context(self: "TestApiClientErrorHandling") -> None:
+  def test_invalid_url_raises_without_context(self: "TestApiClientErrorHandling", make_client: MakeClient) -> None:
     """The default handler raises it with httpx's error as cause and no context."""
-    client, _ = _recording_client(json_body={})
+    client = make_client(json_body={})
 
     with pytest.raises(ValidationError, match="Invalid URL") as exc_info:  # act
       client.get("/status\x00")
@@ -896,10 +907,10 @@ class TestApiClientErrorHandling:
     assert exc_info.value.__context__ is None
 
   def test_per_request_handler_overrides_client_handler(
-    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler
+    self: "TestApiClientErrorHandling", returning_handler: ReturningHandler, make_client: MakeClient
   ) -> None:
     """A handler passed to one request is used instead of the client's."""
-    client, _ = _recording_client(status=404, json_body={"message": "Not found."})
+    client = make_client(status=404, json_body={"message": "Not found."})
     handler = returning_handler
 
     result = client._make_request("GET", "/test", error_handler=handler)  # act
@@ -940,39 +951,6 @@ def _refuse(request: httpx.Request) -> httpx.Response:
       ConnectError: Always.
   """
   raise httpx.ConnectError("Connection failed", request=request)
-
-
-def _recording_client(
-  status: int = 200,
-  json_body: Any = None,
-  text_body: Optional[str] = None,
-  content_type: Optional[str] = None,
-  **kwargs: Any,
-) -> Tuple[ApiClient, List[httpx.Request]]:
-  """Build an ApiClient whose transport records each request and answers it.
-
-  Args:
-      status: Status code of every response.
-      json_body: JSON response body; used when ``text_body`` is None.
-      text_body: Raw response body.
-      content_type: Response Content-Type; overrides the one httpx sets.
-      kwargs: Passed through to ApiClient.
-
-  Returns:
-      The client and the list each request is appended to.
-  """
-  seen: List[httpx.Request] = []
-
-  def handler(request: httpx.Request) -> httpx.Response:
-    seen.append(request)
-    headers = {"Content-Type": content_type} if content_type else None
-
-    if text_body is not None:
-      return httpx.Response(status, text=text_body, headers=headers)
-
-    return httpx.Response(status, json=json_body, headers=headers)
-
-  return ApiClient(transport=httpx.MockTransport(handler), **kwargs), seen
 
 
 class _UnixHTTPServer(socketserver.UnixStreamServer):

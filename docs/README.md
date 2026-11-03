@@ -22,6 +22,8 @@ from the docstrings, is published at
 - [Contributing][contrib] — issues, pull requests and releases.
 - [Update pipeline][pipeline] — how `pipeline.py` detects upstream
   changes and regenerates the models.
+- [Security review][security] — credential handling, defaults and
+  transport, reviewed 2026-11-03, with its findings.
 
 ## Bitwarden
 
@@ -39,5 +41,6 @@ from the docstrings, is published at
 [pipeline]: developer/update-pipeline.md
 [pages]: https://harleypig.github.io/bw-serve-client/
 [quick]: user/quick-start.md
+[security]: developer/security-review.md
 [vm-api]: https://bitwarden.com/help/vault-management-api/
 [when]: when-to-use.md

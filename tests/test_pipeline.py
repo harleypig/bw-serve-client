@@ -2,21 +2,18 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
-import sys
 from typing import List, TYPE_CHECKING
 
+from _loader import load_tool
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "upstream"))
-
-import detect  # noqa: E402 - importable only once upstream/ is on the path.
-
-import pipeline  # noqa: E402 - importable only once the repository root is on the path.
+detect = load_tool("upstream/detect.py", "_bw_test_pipeline_detect")
+pipeline = load_tool("pipeline.py", "_bw_test_pipeline_pipeline")
 
 if TYPE_CHECKING:
+  from pathlib import Path
+
   from pytest_mock import MockerFixture
 
 

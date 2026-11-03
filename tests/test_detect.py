@@ -8,15 +8,13 @@ import io
 import json
 import os
 from pathlib import Path
-import sys
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
+from _loader import load_tool
 import pytest
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "upstream"))
-
-import detect  # noqa: E402 - importable only once upstream/ is on the path.
+detect = load_tool("upstream/detect.py", "_bw_test_detect_detect")
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 TODAY = "2026-10-31"

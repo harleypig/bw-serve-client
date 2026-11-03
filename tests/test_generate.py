@@ -10,11 +10,10 @@ import sys
 import tempfile
 from typing import Any, Dict, TYPE_CHECKING
 
+from _loader import load_tool
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "codegen"))
-
-import generate  # noqa: E402 - importable only once codegen/ is on the path.
+generate = load_tool("codegen/generate.py", "_bw_test_generate_generate")
 
 if TYPE_CHECKING:
   from pytest_mock import MockerFixture

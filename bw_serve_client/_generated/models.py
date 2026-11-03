@@ -100,7 +100,7 @@ class MatchSchema(IntEnum):
 
 
 class UrisSchema(BaseModel):
-  """URI collection schema for login items."""
+  """One URI of a login item, with how it is matched."""
   model_config = ConfigDict(
     extra='forbid',
     populate_by_name=True,
@@ -211,7 +211,7 @@ class StatusDataSchema(BaseModel):
 
 
 class StatusSchema(BaseModel):
-  """AGENT: fixme."""
+  """The /status response: the vault's lock state, server URL, last sync time and logged-in user."""
   model_config = ConfigDict(
     extra='ignore',
     populate_by_name=True,

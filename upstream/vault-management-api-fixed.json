@@ -3818,7 +3818,7 @@
             "description": "The URI/URL value"
           }
         },
-        "description": "URI collection schema for login items",
+        "description": "One URI of a login item, with how it is matched",
         "title": "UrisSchema"
       },
       "field": {
@@ -4042,7 +4042,7 @@
             "title": "StatusDataSchema"
           }
         },
-        "description": "AGENT: fixme",
+        "description": "The /status response: the vault's lock state, server URL, last sync time and logged-in user",
         "title": "StatusSchema"
       },
       "lockunlock.success": {

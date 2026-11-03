@@ -9,6 +9,8 @@ Writes three modules, each with an ``__all__``:
 - ``routes.py``: one ``Route`` per operation in the spec.
 - ``__init__.py``: re-exports both.
 
+The fixed text it writes into them is read from ``codegen/snippets/``.
+
 Request models reject unknown fields and response models ignore them (#22).
 ``pyproject.toml`` sets ``forbid`` for every model, and this passes the
 generator a per-class ``ignore`` for each model a response uses. A model both
@@ -34,6 +36,7 @@ PACKAGE = ROOT / "bw_serve_client" / "_generated"
 MODELS = PACKAGE / "models.py"
 ROUTES = PACKAGE / "routes.py"
 INIT = PACKAGE / "__init__.py"
+SNIPPETS = ROOT / "codegen" / "snippets"
 
 METHODS = ("get", "put", "post", "delete", "patch")
 
@@ -48,61 +51,47 @@ ROUTE_EXPORTS = ["Parameter", "Route", "ROUTES"]
 # indents them.
 CHUNK = 96
 
-HEADER = '''"""{summary}
-
-Generated from the patched OpenAPI spec by ``codegen/generate.py``.
-DO NOT EDIT MANUALLY.
-"""
-'''
-
-ROUTE_TYPES = '''
-
-from __future__ import annotations
-
-from dataclasses import dataclass
-from typing import Tuple
-
-
-@dataclass(frozen=True)
-class Parameter:
-  """One parameter of a route.
-
-  Attributes:
-      name: The parameter's name in the spec.
-      location: Where it goes: ``path``, ``query``, ``header`` or ``cookie``.
-      required: Whether the route needs it.
-  """
-
-  name: str
-  location: str
-  required: bool
-
-
-@dataclass(frozen=True)
-class Route:
-  """One operation in the spec.
-
-  Attributes:
-      method: The HTTP method, upper case.
-      path: The path, with ``{name}`` parameters.
-      parameters: The path, query and header parameters.
-      summary: The spec's summary, or an empty string.
-      description: The spec's description, or an empty string.
-      tags: The spec's tags, in the spec's order; empty when it has none.
-  """
-
-  method: str
-  path: str
-  parameters: Tuple[Parameter, ...]
-  summary: str
-  description: str
-  tags: Tuple[str, ...]
-
-'''
-
 
 class GenerateError(Exception):
   """Generation could not finish."""
+
+
+# -----------------------------------------------------------------------------
+def snippet(name: str) -> str:
+  """Read a file from ``codegen/snippets/``.
+
+  Arguments:
+      name: The file's name.
+
+  Returns:
+      str: The file's text.
+  """
+  return (SNIPPETS / name).read_text(encoding="utf-8")
+
+
+# -----------------------------------------------------------------------------
+def header(summary: str) -> str:
+  """Render the module docstring every generated module opens with.
+
+  ``header.txt`` is also handed to datamodel-code-generator as is, so it
+  carries the models' summary as its first line; this swaps that line for
+  another module's summary and keeps the rest of the wording.
+
+  Arguments:
+      summary: The module's one-line summary.
+
+  Raises:
+      GenerateError: When the header does not open a docstring on its first
+          line.
+
+  Returns:
+      str: The docstring and a newline.
+  """
+  first, rest = snippet("header.txt").split("\n", 1)
+  if not first.startswith('"""'):
+    raise GenerateError("codegen/snippets/header.txt must open with a docstring summary line")
+
+  return f'"""{summary}\n{rest}'
 
 
 # -----------------------------------------------------------------------------
@@ -323,6 +312,7 @@ def render_routes(spec: Dict[str, Any]) -> str:
   Returns:
       str: The module's source.
   """
+  route = snippet("route.txt")
   entries = []
 
   for method, path, operation in operations(spec):
@@ -331,19 +321,19 @@ def render_routes(spec: Dict[str, Any]) -> str:
       for parameter in parameters(spec, path, operation)
     )
     entries.append(
-      "  Route(\n"
-      f"    method={method.upper()!r},\n"
-      f"    path={path!r},\n"
-      f"    parameters=({rendered}),\n"
-      f"    summary={literal(operation.get('summary', ''), '    ')},\n"
-      f"    description={literal(operation.get('description', ''), '    ')},\n"
-      f"    tags={tuple(operation.get('tags', ()))!r},\n"
-      "  ),\n"
+      route.format(
+        method=repr(method.upper()),
+        path=repr(path),
+        parameters=rendered,
+        summary=literal(operation.get("summary", ""), "    "),
+        description=literal(operation.get("description", ""), "    "),
+        tags=repr(tuple(operation.get("tags", ()))),
+      )
     )
 
   return (
-    HEADER.format(summary="Every route in the Bitwarden Vault Management API spec.") + ROUTE_TYPES
-    + "\nROUTES: Tuple[Route, ...] = (\n" + "".join(entries) + ")\n\n" + all_line(ROUTE_EXPORTS)
+    header("Every route in the Bitwarden Vault Management API spec.") + "\n\n" + snippet("route-types.txt").strip("\n")
+    + "\n\n\nROUTES: Tuple[Route, ...] = (\n" + "".join(entries) + ")\n\n" + all_line(ROUTE_EXPORTS)
   )
 
 
@@ -365,7 +355,7 @@ def render_init(models: List[str]) -> str:
     raise GenerateError(f"model name(s) clash with the route list: {', '.join(clash)}")
 
   return (
-    HEADER.format(summary="Generated models and route list for the Bitwarden Vault Management API.") + "\n"
+    header("Generated models and route list for the Bitwarden Vault Management API.") + "\n"
     + "".join(f"from .models import {name}\n" for name in models)
     + "".join(f"from .routes import {name}\n" for name in ROUTE_EXPORTS) + "\n" + all_line(models + ROUTE_EXPORTS)
   )

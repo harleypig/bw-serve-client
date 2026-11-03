@@ -4,6 +4,8 @@ This module provides the core HTTP communication functionality for interacting
 with the Bitwarden Vault Management API via the 'bw serve' command.
 """
 
+import contextlib
+import ipaddress
 import json
 import logging
 from typing import Any, Dict, List, Optional, Union
@@ -88,7 +90,7 @@ class ApiClient:
 
   Args:
       protocol: Protocol to use (http, https) - default: http
-      domain: Domain or IP address - default: localhost
+      domain: Domain or IP address - default: localhost; a bare IPv6 address is bracketed
       port: Port number - default: 8087
       path: Base path - default: empty string
       timeout: Request timeout in seconds
@@ -165,7 +167,13 @@ class ApiClient:
       headers['Host'] = f"localhost:{port}"
 
     elif base_url is None:
-      base_url = f"{protocol}://{domain}:{port}{path}"
+      host = domain
+
+      with contextlib.suppress(ValueError):
+        if ipaddress.ip_address(domain).version == 6:
+          host = f"[{domain}]"
+
+      base_url = f"{protocol}://{host}:{port}{path}"
 
     if transport is None:
       transport = httpx.HTTPTransport(retries=max_retries)

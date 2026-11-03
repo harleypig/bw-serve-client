@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import contextlib
 import http.server
 import json
 import logging
 import socketserver
 import tempfile
 import threading
-from typing import Any, TYPE_CHECKING
+from typing import Any, Callable, Iterator, TYPE_CHECKING
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -720,6 +721,16 @@ class TestApiClient:
     assert result == "Invalid JSON response"
     assert any(record.getMessage().startswith("Failed to parse JSON response") for record in caplog.records)
 
+  def test_query_values_are_not_logged(self: "TestApiClient", make_client: MakeClient, caplog: pytest.LogCaptureFixture) -> None:
+    """The debug log names the query parameters and leaves their values out."""
+    client = make_client(json_body={})
+    caplog.set_level(logging.DEBUG, logger="bw_serve_client.api_client")
+
+    client.get("/list/object/items", params={"search": "first-national-bank", "folderid": "f1"})  # act
+
+    assert "Query parameters: ['folderid', 'search']" in caplog.messages
+    assert "first-national-bank" not in caplog.text
+
   @patch('bw_serve_client.api_client.ApiClient._serialize_data')
   def test_serialize_data_called_in_post(self: "TestApiClient", mock_serialize: Mock, make_client: MakeClient) -> None:
     """Test that _serialize_data is called during POST requests."""
@@ -890,6 +901,78 @@ class TestApiClientConnection:
     assert request.headers["Host"] == "vault:9000"
     assert result == {"ok": True}
 
+  @pytest.mark.parametrize(("key", "value"), [("domain", "localhost"), ("base_url", "unix:///run/bw.sock"),
+                                              ("transport", httpx.MockTransport(lambda request: httpx.Response(200)))],
+                           ids=["default", "socket", "caller"])
+  def test_session_ignores_environment_and_redirects(self: "TestApiClientConnection", key: str, value: Any) -> None:
+    """However the transport is chosen, the session trusts no environment settings and follows no redirect."""
+    client = ApiClient(**{key: value})  # act
+
+    assert client.session.trust_env is False
+    assert client.session.follow_redirects is False
+
+  # Followed, every hop would redirect again until httpx gives up and the
+  # request raises.
+  def test_redirect_is_not_followed(self: "TestApiClientConnection") -> None:
+    """A redirect's own body comes back; its Location is never requested."""
+    client = ApiClient(transport=httpx.MockTransport(_redirect))
+
+    result = client.get("/status")  # act
+
+    assert result == "moved"
+
+  # Two real servers, because a proxy only matters once a request leaves
+  # the process: a MockTransport would bypass the environment either way.
+  def test_proxy_in_environment_is_not_used(
+    self: "TestApiClientConnection", start_server: Callable[[], _Server], monkeypatch: pytest.MonkeyPatch
+  ) -> None:
+    """HTTP_PROXY and ALL_PROXY in the environment receive nothing; the request goes straight to bw serve."""
+    proxy = start_server()
+    target = start_server()
+    for name in ("HTTP_PROXY", "http_proxy", "ALL_PROXY", "all_proxy"):
+      monkeypatch.setenv(name, proxy.url)
+    for name in ("NO_PROXY", "no_proxy"):
+      monkeypatch.delenv(name, raising=False)
+    client = ApiClient(base_url=target.url, max_retries=0)
+
+    client.get("/status")  # act
+
+    assert proxy.received == []
+    assert target.received == ["/status"]
+
+  @pytest.mark.parametrize(("key", "value"), [("domain", "vault.example"), ("domain", "192.168.1.5"), ("domain", "fe80::1%eth0"),
+                                              ("base_url", "http://vault.example:9000/api")],
+                           ids=["hostname", "ipv4", "link-local", "base_url"])
+  def test_plain_http_to_other_host_warns(
+    self: "TestApiClientConnection", key: str, value: Any, caplog: pytest.LogCaptureFixture
+  ) -> None:
+    """Plain HTTP to a host other than this machine logs a warning that secrets cross the network unencrypted."""
+    caplog.set_level(logging.WARNING, logger="bw_serve_client.api_client")
+
+    client = ApiClient(**{key: value})  # act
+
+    [record] = caplog.records
+    assert record.levelno == logging.WARNING
+    assert record.getMessage().startswith(f"{client.base_url} is plain HTTP to another machine")
+
+  @pytest.mark.parametrize(("key", "value"), [("domain", "localhost"), ("domain", "LocalHost"), ("domain", "127.0.0.2"),
+                                              ("domain", "::1"), ("base_url", "http://[::1]:8087"),
+                                              ("base_url", "https://vault.example:8087"), ("base_url", "unix:///run/bw.sock"),
+                                              ("base_url", "http://vault\x00.example")],
+                           ids=[
+                             "default", "localhost-any-case", "ipv4-loopback", "ipv6-loopback", "base_url-loopback", "https",
+                             "socket", "unparseable"
+                           ])
+  def test_local_or_encrypted_target_does_not_warn(
+    self: "TestApiClientConnection", key: str, value: Any, caplog: pytest.LogCaptureFixture
+  ) -> None:
+    """Loopback, a Unix socket and HTTPS log nothing; an unparseable URL is left for the request to report."""
+    caplog.set_level(logging.WARNING, logger="bw_serve_client.api_client")
+
+    ApiClient(**{key: value})  # act
+
+    assert caplog.records == []
+
 
 class TestApiClientErrorHandling:
   """Failures go through the injected or default error handler."""
@@ -988,6 +1071,31 @@ class TestApiClientErrorHandling:
     assert result is handler.result
     assert handler.calls == [(ValidationError, "Not found.", 404, None)]
 
+  # 500 is the cap: the body below puts a marker just past it.
+  def test_long_non_json_error_body_is_cut(
+    self: "TestApiClientErrorHandling", make_client: MakeClient, caplog: pytest.LogCaptureFixture
+  ) -> None:
+    """A non-JSON error body over 500 characters is cut in the error and its log record, which give its length."""
+    body = "x" * 500 + "s3cret" + "y" * 994
+    client = make_client(status=502, text_body=body)
+
+    with pytest.raises(ExternalServiceError) as exc_info:  # act
+      client.get("/status")
+
+    assert str(exc_info.value) == "x" * 500 + "... (1500 characters)"
+    assert caplog.records
+    assert "s3cret" not in caplog.text
+
+  def test_short_non_json_error_body_is_kept(self: "TestApiClientErrorHandling", make_client: MakeClient) -> None:
+    """A non-JSON error body of 500 characters or fewer is the whole message."""
+    body = "x" * 500
+    client = make_client(status=502, text_body=body)
+
+    with pytest.raises(ExternalServiceError) as exc_info:  # act
+      client.get("/status")
+
+    assert str(exc_info.value) == body
+
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -1021,6 +1129,63 @@ def _refuse(request: httpx.Request) -> httpx.Response:
       ConnectError: Always.
   """
   raise httpx.ConnectError("Connection failed", request=request)
+
+
+def _redirect(request: httpx.Request) -> httpx.Response:  # noqa: U100 - MockTransport passes it; no use for it here.
+  """Answer any request with a redirect to another host.
+
+  Returns:
+      A 302 response with a body of its own.
+  """
+  return httpx.Response(302, text="moved", headers={"Location": "http://elsewhere.example/"})
+
+
+class _Server:
+  """A loopback HTTP server's URL, and the request target of every GET it got.
+
+  A direct request's target is a path; a proxied one's is a full URL.
+  """
+
+  def __init__(self: "_Server", url: str) -> None:
+    self.url = url
+    self.received: list[str] = []
+
+
+@pytest.fixture
+def start_server() -> Iterator[Callable[[], _Server]]:
+  """Start _EchoHostHandler servers on free loopback ports, each stopped after the test."""
+  with contextlib.ExitStack() as stack:
+    yield lambda: stack.enter_context(_http_server())
+
+
+@contextlib.contextmanager
+def _http_server() -> Iterator[_Server]:
+  """Serve _EchoHostHandler on a free loopback port for the block.
+
+  Yields:
+      The running server.
+  """
+  served = _Server("")
+
+  class Handler(_EchoHostHandler):
+
+    def do_GET(self: "Handler") -> None:  # noqa: N802 - BaseHTTPRequestHandler's dispatch name.
+      """Record the request target, then echo."""
+      served.received.append(self.path)
+      super().do_GET()
+
+  server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+  served.url = f"http://127.0.0.1:{server.server_address[1]}"
+  thread = threading.Thread(target=server.serve_forever, daemon=True)
+  thread.start()
+
+  try:
+    yield served
+
+  finally:
+    server.shutdown()
+    server.server_close()
+    thread.join()
 
 
 class _UnixHTTPServer(socketserver.UnixStreamServer):

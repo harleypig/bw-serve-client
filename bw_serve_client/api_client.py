@@ -26,6 +26,10 @@ QueryParams = Optional[Dict[str, Any]]
 
 UNIX_SCHEME = "unix://"
 
+# A non-JSON error body can be any page that answered on the port, secrets
+# and all; this many characters are enough to recognise it.
+_ERROR_BODY_LIMIT = 500
+
 
 # -----------------------------------------------------------------------------
 def _media_type(content_type: str) -> str:
@@ -60,6 +64,33 @@ def _reveal(value: Any) -> Any:
     return [_reveal(item) for item in value]
 
   return value
+
+
+# -----------------------------------------------------------------------------
+def _is_local(url: str) -> bool:
+  """Say whether a URL's host is this machine.
+
+  Args:
+      url: A base URL.
+
+  Returns:
+      True for ``localhost`` or a loopback address, and for a URL httpx
+      cannot parse, which fails on its first request instead.
+  """
+  try:
+    host = httpx.URL(url).host
+
+  except httpx.InvalidURL:
+    return True
+
+  if host == 'localhost':
+    return True
+
+  try:
+    return ipaddress.ip_address(host).is_loopback
+
+  except ValueError:
+    return False
 
 
 class ApiClient:
@@ -183,9 +214,18 @@ class ApiClient:
     self.logger = logger if logger is not None else logging.getLogger(__name__)
     self.error_handler = error_handler if error_handler is not None else DefaultErrorHandler(logger=self.logger)
 
+    if self.base_url.startswith('http://') and not _is_local(self.base_url):
+      self.logger.warning(
+        f"{self.base_url} is plain HTTP to another machine: bw serve has no TLS, so the master password and vault"
+        " secrets would cross the network unencrypted; reach it through an SSH tunnel instead"
+      )
+
     # No default Content-Type: httpx sets it per body (JSON, multipart
     # with its boundary), and a client default would override that.
-    self.session = httpx.Client(transport=transport, headers=headers, timeout=timeout)
+    # trust_env=False keeps HTTP_PROXY and its kin from carrying the
+    # master password elsewhere. Passing a transport also switches them
+    # off, but only as a side effect httpx does not document.
+    self.session = httpx.Client(transport=transport, headers=headers, timeout=timeout, trust_env=False, follow_redirects=False)
 
   def _make_request(
     self: "ApiClient",
@@ -244,10 +284,11 @@ class ApiClient:
     self.logger.debug(f"Making {method} request to {url}")
 
     if params:
-      self.logger.debug(f"Query parameters: {params}")
+      self.logger.debug(f"Query parameters: {sorted(params)}")
 
-    # Field names only: a body can carry the master password or vault
-    # secrets, and a debug log is no place for either.
+    # Names only, for the query and the body: a search term can name what
+    # is in the vault, a body can carry the master password or vault
+    # secrets, and a debug log is no place for any of them.
     if isinstance(data, dict) and not files:
       self.logger.debug(f"Request fields: {sorted(data)}")
 
@@ -410,7 +451,12 @@ class ApiClient:
         error_message = error_data['message']
 
     except (json.JSONDecodeError, UnicodeDecodeError, KeyError):
-      error_message = response.text or error_message
+      text = response.text
+
+      if len(text) > _ERROR_BODY_LIMIT:
+        text = f"{text[:_ERROR_BODY_LIMIT]}... ({len(text)} characters)"
+
+      error_message = text or error_message
 
     # bw serve's only 403 is its Host/Origin guard, whose body says just
     # "Forbidden"; name the header so the caller can fix the client's URL.
@@ -454,6 +500,10 @@ class ApiClient:
     store the wrong thing, on a value it does not expect, so use a resource
     class where one covers the route.
 
+    Results are not validated or masked either: they come back as parsed
+    JSON, so a secret such as a login password is a plain ``str``, not a
+    ``SecretStr``.
+
     Args:
         endpoint: API endpoint
         params: Query parameters
@@ -470,6 +520,10 @@ class ApiClient:
     model checks a resource class makes first. ``bw serve`` can crash, or
     store the wrong thing, on a value it does not expect, so use a resource
     class where one covers the route.
+
+    Results are not validated or masked either: they come back as parsed
+    JSON, so a secret such as a login password is a plain ``str``, not a
+    ``SecretStr``.
 
     Args:
         endpoint: API endpoint
@@ -489,6 +543,10 @@ class ApiClient:
     store the wrong thing, on a value it does not expect, so use a resource
     class where one covers the route.
 
+    Results are not validated or masked either: they come back as parsed
+    JSON, so a secret such as a login password is a plain ``str``, not a
+    ``SecretStr``.
+
     Args:
         endpoint: API endpoint
         data: Request body data
@@ -505,6 +563,10 @@ class ApiClient:
     model checks a resource class makes first. ``bw serve`` can crash, or
     store the wrong thing, on a value it does not expect, so use a resource
     class where one covers the route.
+
+    Results are not validated or masked either: they come back as parsed
+    JSON, so a secret such as a login password is a plain ``str``, not a
+    ``SecretStr``.
 
     Args:
         endpoint: API endpoint

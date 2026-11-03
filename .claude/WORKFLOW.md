@@ -45,8 +45,9 @@ object or logging implementation:
 
 Each API class generated from a route MUST:
 
-- Mirror the route name in the method name. When one route name maps to
-  multiple HTTP methods, dispatch internally based on parameters.
+- Declare its route with `@route(METHOD, path)`; each public method calls
+  one route, named for the operation (`add`, `modify`, `get`, `delete`,
+  `list`, and so on).
 - Validate parameters with pydantic before issuing the request.
 - Format outgoing data into the correct content type for the API.
 - Parse responses back into pydantic models.

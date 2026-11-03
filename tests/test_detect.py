@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import errno
 import io
 import json
@@ -247,8 +248,10 @@ def fail_writing(monkeypatch: pytest.MonkeyPatch, name: str, error: BaseExceptio
   monkeypatch.setattr(io, "open", wrap(io.open))
 
 
+DISK_FULL = OSError(errno.ENOSPC, "No space left on device")
+
 # The two ways a run stops short: a signal, and a write that fails.
-STOPS = [Interrupted(), OSError(errno.ENOSPC, "No space left on device")]
+STOPS = [Interrupted(), DISK_FULL]
 
 
 def older_upstream(repo: Path) -> None:
@@ -267,17 +270,18 @@ def older_upstream(repo: Path) -> None:
 
 
 def stopped_run(repo: Path, error: BaseException) -> None:
-  """Run detection with the lock file's write failing, and expect it to stop.
+  """Run detection with the lock file's write failing.
+
+  A signal propagates and a failed write ends the run with exit 1; either
+  way the run stops before the lock lands.
 
   Arguments:
       repo: The temporary upstream directory.
       error: What writing the lock raises.
   """
-  with pytest.MonkeyPatch.context() as patch:
+  with pytest.MonkeyPatch.context() as patch, contextlib.suppress(Interrupted):
     fail_writing(patch, "lock.json", error)
-
-    with pytest.raises(type(error)):
-      run(repo, upstream_routes())
+    run(repo, upstream_routes())
 
 
 @pytest.fixture
@@ -793,19 +797,59 @@ class TestRun:
     assert "## Regenerated" in report
     assert "## Work created" in report
 
-  @pytest.mark.parametrize("error", STOPS, ids=["interrupt", "disk-full"])
-  def test_run_stopped_at_the_lock_changes_nothing(
-    self: TestRun, repo: Path, monkeypatch: pytest.MonkeyPatch, error: BaseException
-  ) -> None:
-    """A run stopped while writing the lock leaves every recorded file as it was."""
+  def test_run_interrupted_at_the_lock_changes_nothing(self: TestRun, repo: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A run interrupted while writing the lock leaves every file as it was."""
     older_upstream(repo)
     before = snapshot(repo)
-    fail_writing(monkeypatch, "lock.json", error)
+    fail_writing(monkeypatch, "lock.json", Interrupted())
 
-    with pytest.raises(type(error)):
+    with pytest.raises(Interrupted):
       run(repo, upstream_routes())
 
     assert snapshot(repo) == before
+
+  def test_failed_write_is_an_error_and_writes_only_the_report(
+    self: TestRun, repo: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+  ) -> None:
+    """A write that fails exits 1, says why, and leaves the recorded state alone."""
+    older_upstream(repo)
+    before = snapshot(repo)
+    capsys.readouterr()
+    fail_writing(monkeypatch, "lock.json", DISK_FULL)
+
+    code = run(repo, upstream_routes())
+
+    after = snapshot(repo)
+    report = (repo / "change-report.md").read_text(encoding="utf-8")
+    stderr = capsys.readouterr().err
+    assert code == 1
+    assert "## Errors" in report
+    assert "No space left on device" in report
+    assert "No space left on device" in stderr
+    assert {
+      k: v
+      for k, v in after.items()
+      if k != "change-report.md"
+    } == {
+      k: v
+      for k, v in before.items()
+      if k != "change-report.md"
+    }
+
+  def test_unwritable_report_is_still_an_error(
+    self: TestRun, repo: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+  ) -> None:
+    """A run that cannot write even the error report exits 1 and says so on stderr."""
+    fail_writing(monkeypatch, "change-report.md", DISK_FULL)
+
+    code = run(repo, upstream_routes())
+
+    stderr = capsys.readouterr().err
+    assert code == 1
+    assert "could not write" in stderr
+    assert "No space left on device" in stderr
+    assert not (repo / "change-report.md").exists()
+    assert not (repo / "lock.json").exists()
 
   @pytest.mark.parametrize("error", STOPS, ids=["interrupt", "disk-full"])
   def test_run_after_a_stopped_one_reports_the_spec_diff(self: TestRun, repo: Path, error: BaseException) -> None:

@@ -1011,6 +1011,30 @@ def read_json(path: Path, default: Any) -> Any:
 
 
 # -----------------------------------------------------------------------------
+def fail(report_path: Path, exc: Exception) -> int:
+  """Report a failed run on stderr and, where it can be written, in the report.
+
+  Arguments:
+      report_path: Where to write the error report.
+      exc: What stopped the run.
+
+  Returns:
+      int: 1, the error exit code.
+  """
+  print(f"detect: error:\n{exc}", file=sys.stderr)
+
+  # The failure may be the one that stops the report being written too, so
+  # stderr is the record that always lands.
+  try:
+    write_files([(report_path, render_error_report(str(exc).splitlines()))])
+
+  except OSError as report_exc:
+    print(f"detect: error: could not write {report_path}:\n{report_exc}", file=sys.stderr)
+
+  return 1
+
+
+# -----------------------------------------------------------------------------
 def run(session: requests.Session, report_path: Path, today: str) -> int:
   """Run detection once.
 
@@ -1035,9 +1059,7 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
     upstream = fetch_all(session, watch)
 
   except (FetchError, spec_fixes.FixError, OSError, ValueError, AttributeError) as exc:
-    write_files([(report_path, render_error_report(str(exc).splitlines()))])
-    print(f"detect: error:\n{exc}", file=sys.stderr)
-    return 1
+    return fail(report_path, exc)
 
   new_lock = build_lock(upstream, previous_lock, today)
   changes = compare(previous_lock, new_lock, old_spec, old_routes, upstream)
@@ -1061,7 +1083,12 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
   files.append((ROUTES_SNAPSHOT, "".join(f"{route}\n" for route in upstream.routes)))
   files.append((report_path, render_report(changes, new_lock)))
   files.append((LOCK_FILE, json_text(new_lock)))
-  write_files(files)
+
+  try:
+    write_files(files)
+
+  except OSError as exc:
+    return fail(report_path, exc)
 
   if changes.changed:
     print(f"detect: {len(changes.sources)} source(s) changed; see {report_path}")

@@ -420,6 +420,16 @@ def main() -> int:
   Returns:
       int: 0 on success, 1 when generation could not finish.
   """
+  # ICEBOX: 2026-11-03 - atomic write / crash safety for generated files.
+  # These plain write_text calls, the models rewrite in generate_models,
+  # spec_fixes.py writing the patched spec and pipeline.py writing the
+  # change report and the changelog are not atomic: an interrupted run
+  # (signal, crash, disk full) can leave a partial, half-written, truncated
+  # file. A considered "not now": CI's "Generated code is current" check
+  # regenerates and fails on any drift, so a broken generated file does not
+  # land. If revisited, model it on detect's staged writer (#85 - staged
+  # writes): write each file to a temp file beside it, then rename into
+  # place.
   try:
     spec = json.loads(PATCHED_SPEC.read_text(encoding="utf-8"))
     PACKAGE.mkdir(exist_ok=True)

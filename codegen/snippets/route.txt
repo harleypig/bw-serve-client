@@ -1,0 +1,8 @@
+  Route(
+    method={method},
+    path={path},
+    parameters=({parameters}),
+    summary={summary},
+    description={description},
+    tags={tags},
+  ),

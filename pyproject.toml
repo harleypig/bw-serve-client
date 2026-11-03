@@ -375,7 +375,7 @@ use-schema-description = true
 use-title-as-name = true
 
 # Template Customization
-custom-file-header-path = "codegen/generated-header.txt"
+custom-file-header-path = "codegen/snippets/header.txt"
 encoding = "utf8"
 use-double-quotes = true
 wrap-string-literal = true

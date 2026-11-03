@@ -1,0 +1,40 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Tuple
+
+
+@dataclass(frozen=True)
+class Parameter:
+  """One parameter of a route.
+
+  Attributes:
+      name: The parameter's name in the spec.
+      location: Where it goes: ``path``, ``query``, ``header`` or ``cookie``.
+      required: Whether the route needs it.
+  """
+
+  name: str
+  location: str
+  required: bool
+
+
+@dataclass(frozen=True)
+class Route:
+  """One operation in the spec.
+
+  Attributes:
+      method: The HTTP method, upper case.
+      path: The path, with ``{name}`` parameters.
+      parameters: The path, query and header parameters.
+      summary: The spec's summary, or an empty string.
+      description: The spec's description, or an empty string.
+      tags: The spec's tags, in the spec's order; empty when it has none.
+  """
+
+  method: str
+  path: str
+  parameters: Tuple[Parameter, ...]
+  summary: str
+  description: str
+  tags: Tuple[str, ...]

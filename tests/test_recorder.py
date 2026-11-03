@@ -132,6 +132,34 @@ class TestSecretsOf:
 
     assert result == []
 
+  @pytest.mark.parametrize(
+    ("name", "body"),
+    [
+      ("send-create", {
+        "data": {
+          "key": "k"
+        }
+      }),
+      ("send-create", {
+        "success": True
+      }),
+      ("attachment-create", {
+        "data": {
+          "id": "i"
+        }
+      }),
+      ("attachment-create", {
+        "data": {
+          "attachments": None
+        }
+      }),
+    ],
+  )
+  def test_missing_member_names_case(self: TestSecretsOf, name: str, body: object) -> None:
+    """A success lacking a member to redact fails as RuntimeError naming the case."""
+    with pytest.raises(RuntimeError, match=f"^{name}: the response lacks a member to redact"):
+      record.secrets_of(_case(name), 200, body)
+
 
 # -----------------------------------------------------------------------------
 class TestWritePayloads:

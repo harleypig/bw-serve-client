@@ -34,9 +34,9 @@ to review.
 ## Before you start
 
 - A checkout set up as in [Development setup][dev]: Poetry 2.x and
-  `poetry install`, which brings the model generator.
-- `pre-commit` on `PATH`. `build` runs its formatter hooks over the
-  generated files and fails if it cannot find it.
+  `poetry install`, which brings the model generator and pre-commit.
+  `build` runs pre-commit's formatter hooks over the generated files and
+  fails if it cannot find it on `PATH`, so run it with `poetry run`.
 - Network access for `detect`. `GITHUB_TOKEN` raises the GitHub API rate
   limit; a run makes about ten requests, so it works without one.
 - Docker, only if the run calls for re-recording the `bw serve` fixtures

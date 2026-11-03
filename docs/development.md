@@ -14,9 +14,6 @@ call and replays responses recorded from a real one.
   `PATH`, and the lint env needs 3.12. `uv python install 3.10 3.11 3.12
   3.13 3.14` is one way to get them.
 - **[Poetry][poetry] 2.x.** CI pins 2.5.1.
-- **[pre-commit][pre-commit]**, installed on its own (for example with
-  `pipx install pre-commit`). It is not one of the project's Poetry
-  dependencies, so `poetry install` does not provide it.
 - **Git.**
 
 ## Install
@@ -25,13 +22,14 @@ call and replays responses recorded from a real one.
 git clone https://github.com/harleypig/bw-serve-client.git
 cd bw-serve-client
 poetry install
-pre-commit install
+poetry run pre-commit install
 ```
 
 `poetry install` creates the virtualenv and installs the package with every
 dependency group: the runtime dependencies plus `dev`, `test` and `docs`.
-`pre-commit install` adds the git hook that runs the check config on each
-commit.
+pre-commit is one of the `dev` dependencies, so it needs no separate
+install. `pre-commit install` adds the git hook that runs the check config
+on each commit.
 
 ## Run the tests
 
@@ -79,8 +77,8 @@ Run both before you push. To check only the files you changed, pass them to
 pre-commit directly:
 
 ```bash
-pre-commit run --config .pre-commit-config-fix.yaml --files <files>
-pre-commit run --files <files>
+poetry run pre-commit run --config .pre-commit-config-fix.yaml --files <files>
+poetry run pre-commit run --files <files>
 ```
 
 pyright is the only type checker. Run it, and flake8 and bandit, through
@@ -126,7 +124,6 @@ Open `docs/html/_build/html/index.html` to read the result.
 [contrib]: developer/contributing.md
 [conventions]: ../.claude/CONVENTIONS.md
 [poetry]: https://python-poetry.org/docs/#installation
-[pre-commit]: https://pre-commit.com/#install
 [pipeline]: developer/update-pipeline.md
 [tests]: ../.claude/TESTS.md
 [workflow]: ../.claude/WORKFLOW.md

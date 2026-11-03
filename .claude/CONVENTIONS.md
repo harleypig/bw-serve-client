@@ -24,6 +24,9 @@ at 78 columns per the global `code-style.md`; widen a comment past 78
 only when absolutely needed (e.g., an unbreakable URL or a long literal
 that would mislead if split).
 
+The one standing exception is separator comment lines: thin (`# ---…`)
+and thick (`####…`) separators run to column 79, at every indent.
+
 `flake8` is configured in `pyproject.toml` under `[tool.flake8]` with
 `max-line-length = 132` to match yapf, and disables the rules that
 conflict with 2-space indent and the yapf/pydocstringformatter ruleset

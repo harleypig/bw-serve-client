@@ -2962,6 +2962,7 @@
                     "object": "list",
                     "data": [
                       {
+                        "object": "auth-request",
                         "id": "ba624b21-1c8a-43b3-a713-ae0000eabdec",
                         "userId": "3a84be8d-12e7-4223-98cd-ae0000eabdec",
                         "organizationUserId": "3c89a31d-f1cc-4673-8d5a-ae2700f9860d",
@@ -4115,6 +4116,12 @@
           },
           "fingerprintPhrase": {
             "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "auth-request"
+            ]
           }
         },
         "description": "Device approval properties schema for organization management",

@@ -81,14 +81,13 @@ jobs:
           path: ~/.cache/pre-commit
           key: pre-commit-fix-${{ runner.os }}-${{ hashFiles('.pre-commit-config-fix.yaml') }}
 
-      - name: Install Poetry and pre-commit
+      - name: Install Poetry
         shell: bash
         run: |
           pipx install poetry==2.5.1
-          pipx install pre-commit
 
-      # The generator is a dev dependency; build also runs the formatter
-      # hooks from the pre-commit fix config.
+      # The generator and pre-commit are dev dependencies; build runs the
+      # formatter hooks from the pre-commit fix config.
       - name: Install dependencies
         run: poetry install --only main,dev
 

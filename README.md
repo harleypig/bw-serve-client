@@ -115,9 +115,13 @@ runs, and no endpoint asks a client for one. The key is valid until `bw lock`
 or `bw logout`, or `POST /lock` (`VaultControl.lock`), invalidates it.
 
 While the server runs, anything that can reach it can read the vault. It
-binds to `localhost` unless told otherwise, and `--hostname all` exposes it
-to the network ([CLI: serve][cli-serve]). A Unix socket, readable only by
-its owner, is the tighter choice on a shared machine.
+binds to `localhost` unless told otherwise ([CLI: serve][cli-serve]).
+`--hostname all` exposes it to the network and turns off its `Host` check;
+`--disable-origin-protection` turns off its `Host` and `Origin` checks both.
+Use neither. `bw serve` has no TLS, so reach one on another machine through
+an SSH tunnel, never over plain HTTP. A Unix socket is the tighter choice on
+a shared machine, but `bw serve` sets no permissions on it: create it in a
+directory only you can enter, such as `$XDG_RUNTIME_DIR`.
 
 [cli-session]: https://bitwarden.com/help/cli/#using-a-session-key
 [cli-serve]: https://bitwarden.com/help/cli/#serve
@@ -145,6 +149,10 @@ To work on the library itself, see [Development Setup][development].
 The examples below need a running `bw serve`, unlocked except in
 [Unlocking over HTTP](#unlocking-over-http). A snippet that only builds an
 `ApiClient` makes no request, and runs without one.
+
+Tutorials and a troubleshooting guide are on the [docs site][guides].
+
+[guides]: https://harleypig.github.io/bw-serve-client/#guides
 
 ### Connecting
 

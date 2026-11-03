@@ -12,6 +12,7 @@ from the docstrings, is published at
 - [Quick start][quick] — reading and writing the vault, and handling
   errors.
 - [Examples][examples] — one runnable script per resource class.
+- [Tutorials and troubleshooting][guides] — on the docs site.
 - [API architecture][arch] — every resource class, its methods and the
   routes they call.
 
@@ -23,6 +24,8 @@ from the docstrings, is published at
   changes and regenerates the models.
 - [Releasing][releasing] — cutting a version, the release workflow, and
   publishing to PyPI.
+- [Security review][security] — credential handling, defaults and
+  transport, reviewed 2026-11-03, with its findings.
 
 ## Bitwarden
 
@@ -35,10 +38,12 @@ from the docstrings, is published at
 [contrib]: developer/contributing.md
 [dev]: development.md
 [examples]: https://github.com/harleypig/bw-serve-client/tree/master/examples
+[guides]: https://harleypig.github.io/bw-serve-client/#guides
 [install]: user/installation.md
 [pipeline]: developer/update-pipeline.md
 [pages]: https://harleypig.github.io/bw-serve-client/
 [quick]: user/quick-start.md
 [releasing]: developer/releasing.md
+[security]: developer/security-review.md
 [vm-api]: https://bitwarden.com/help/vault-management-api/
 [when]: when-to-use.md

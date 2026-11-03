@@ -203,3 +203,13 @@ class TestOptionalFields:
     """A field the spec requires still fails when missing."""
     with pytest.raises(pydantic.ValidationError, match="Field required"):
       models.ObjectItemIdPutParameters.model_validate({})
+
+
+class TestDescriptions:
+  """No spec fix leaves a placeholder where a description belongs."""
+
+  def test_no_model_docstring_is_a_placeholder(self: TestDescriptions) -> None:
+    """A public model's docstring describes it, never a spec-fix placeholder (#89 - status schema)."""
+    placeholders = [cls.__name__ for cls in model_classes() if "fixme" in (cls.__doc__ or "").lower()]
+
+    assert placeholders == []

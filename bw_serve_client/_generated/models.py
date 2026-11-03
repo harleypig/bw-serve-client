@@ -211,7 +211,7 @@ class StatusDataSchema(BaseModel):
 
 
 class StatusSchema(BaseModel):
-  """AGENT: fixme."""
+  """The /status response: the vault's lock state, server URL, last sync time and logged-in user."""
   model_config = ConfigDict(
     extra='ignore',
     populate_by_name=True,

@@ -2100,7 +2100,7 @@
         "status",
         "description"
       ],
-      "value": "AGENT: fixme"
+      "value": "The /status response: the vault's lock state, server URL, last sync time and logged-in user"
     },
     {
       "op": "add",

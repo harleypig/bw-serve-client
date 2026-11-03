@@ -25,6 +25,12 @@ Exit codes:
   the spec and bw serve disagree on a route with no decision recorded in
   ``upstream/route-decisions.json``.
 
+The report also lists the recorded ``bw serve`` payloads in
+``tests/fixtures/serve/`` that were not recorded with the pinned CLI
+release. That never changes the exit code: a pin that moves makes every
+payload stale at once, and the pipeline must not stop until someone
+re-records them.
+
 Set ``GITHUB_TOKEN`` to raise the GitHub API rate limit; it is optional.
 """
 
@@ -69,6 +75,7 @@ WATCH_FILE = UPSTREAM_DIR / "watch.json"
 FIXES_FILE = UPSTREAM_DIR / "spec-fixes.json"
 DECISIONS_FILE = UPSTREAM_DIR / "route-decisions.json"
 REPORT_FILE = UPSTREAM_DIR / "change-report.md"
+SERVE_FIXTURES_DIR = UPSTREAM_DIR.parent / "tests" / "fixtures" / "serve"
 
 ROUTE_RE = re.compile(r"""router\.(get|post|put|delete|patch)\(\s*["'`]([^"'`]+)["'`]""")
 ROUTE_PARAM_RE = re.compile(r":([A-Za-z_][A-Za-z0-9_]*)")
@@ -114,6 +121,7 @@ class Changes:
       stale_fixes: The fixes that no longer match the raw spec.
       routes_compared: How the spec's routes and bw serve's disagree.
       behaviour: Recorded behaviour the routes cannot show, by route.
+      fixtures: The recorded payloads not recorded with the pinned CLI.
       changed: Whether any recorded source changed, or the lock file is new.
   """
 
@@ -124,6 +132,7 @@ class Changes:
   stale_fixes: List[str] = field(default_factory=list)
   routes_compared: "RouteComparison" = field(default_factory=lambda: RouteComparison())
   behaviour: List[str] = field(default_factory=list)
+  fixtures: List[str] = field(default_factory=list)
 
   @property
   def changed(self: "Changes") -> bool:
@@ -867,6 +876,61 @@ def compare_routes(spec: Dict[str, Any], cli_routes: List[str], decisions: Dict[
   return result
 
 
+# -----------------------------------------------------------------------------
+def stale_fixtures(directory: Path, release: str) -> List[str]:
+  """List the recorded payloads not recorded with the pinned CLI release.
+
+  Each payload names the CLI version it was recorded with under
+  ``recorded.cli``, without the ``cli-v`` tag prefix. Payloads are grouped
+  by what they recorded, so a moved pin gives one line, not one per file.
+
+  Arguments:
+      directory: The recorded payloads, ``*.json``.
+      release: The pinned CLI release tag.
+
+  Returns:
+      List[str]: One line per recorded version that differs from the pin,
+      then one for payloads naming no version, then one for payloads that
+      could not be read; empty when every payload matches.
+  """
+  pinned = release.removeprefix(CLI_TAG_PREFIX)
+  by_version: Dict[str, List[str]] = {}
+  unversioned: List[str] = []
+  unreadable: List[str] = []
+
+  for path in sorted(directory.glob("*.json")):
+    try:
+      recorded = json.loads(path.read_text(encoding="utf-8")).get("recorded")
+
+    except (OSError, ValueError, AttributeError):
+      unreadable.append(path.name)
+      continue
+
+    version = recorded.get("cli") if isinstance(recorded, dict) else None
+
+    if not isinstance(version, str) or not version:
+      unversioned.append(path.name)
+
+    elif version != pinned:
+      by_version.setdefault(version, []).append(path.name)
+
+  def names(files: List[str]) -> str:
+    return ", ".join(f"`{name}`" for name in files)
+
+  lines = [
+    f"{len(files)} recorded with bw CLI {version}, not the pinned {pinned}: {names(files)}"
+    for version, files in sorted(by_version.items())
+  ]
+
+  if unversioned:
+    lines.append(f"{len(unversioned)} record no bw CLI version: {names(unversioned)}")
+
+  if unreadable:
+    lines.append(f"{len(unreadable)} could not be read as JSON: {names(unreadable)}")
+
+  return lines
+
+
 ###############################################################################
 # Writing
 
@@ -923,6 +987,9 @@ def render_report(changes: Changes, lock: Dict[str, Any]) -> str:
     if undecided:
       lines.extend([f"{undecided} spec-vs-CLI route difference(s) or decision(s) need attention; see below.", ""])
 
+    if changes.fixtures:
+      lines.extend(["Some recorded fixtures name another CLI version; see below. They leave the exit code alone.", ""])
+
   else:
     lines.extend([f"{len(changes.sources)} recorded source(s) changed. Review, then run `make build` and `make check`.", ""])
     lines.extend(["| Source | Was | Now |", "|--------|-----|-----|"])
@@ -939,6 +1006,7 @@ def render_report(changes: Changes, lock: Dict[str, Any]) -> str:
   compared = changes.routes_compared
   lines.extend(_section("Spec vs CLI routes", compared.gaps + compared.stale + compared.known, "No differences."))
   lines.extend(_section("Recorded behaviour", changes.behaviour, "None."))
+  lines.extend(_section("Recorded fixtures", changes.fixtures, "None; every fixture was recorded with the pinned CLI."))
   lines.extend(_section("Regenerated", [], "Not run. `make build` fills this in."))
   lines.extend(_section("Work created", [], "Not run. `make check` fills this in."))
 
@@ -1069,6 +1137,7 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
   patched, changes.stale_fixes = spec_fixes.apply_fixes(upstream.spec, fixes)
   changes.routes_compared = compare_routes(patched, upstream.routes, decisions)
   changes.behaviour = [f"`{route}`: {note}" for route, note in behaviour.items()]
+  changes.fixtures = stale_fixtures(SERVE_FIXTURES_DIR, new_lock["cli"]["release"])
 
   # Bitwarden can reorder keys without changing content; rewriting the file
   # then would leave a diff behind a run that reports no change.
@@ -1089,6 +1158,10 @@ def run(session: requests.Session, report_path: Path, today: str) -> int:
 
   except OSError as exc:
     return fail(report_path, exc)
+
+  # Reported, never counted toward the exit code; see the module docstring.
+  if changes.fixtures:
+    print(f"detect: warning: recorded fixtures differ from the pinned CLI; see Recorded fixtures in {report_path}")
 
   if changes.changed:
     print(f"detect: {len(changes.sources)} source(s) changed; see {report_path}")

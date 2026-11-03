@@ -1,0 +1,57 @@
+---
+# Minor and patch bumps arrive grouped, one pull request per ecosystem;
+# each major arrives alone so it gets its own review. The cooldown delays
+# version updates only: security updates are raised as soon as an alert is.
+#
+# The pre-commit hook revs are not covered: the check and fix configs pin
+# the same hooks, and an update to one of them alone would split the pair.
+version: 2
+
+updates:
+  # Poetry: pyproject.toml and poetry.lock.
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  # The bw CLI recorder image. Dependabot raises no security updates for
+  # Docker, so there is no security group here.
+  - package-ecosystem: "docker"
+    directory: "/tests/fixtures/recorder"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]

@@ -3,7 +3,7 @@
 # Built and run by record.py, which pairs it with a throwaway Vaultwarden
 # on a private network. Nothing here is installed on the host.
 
-FROM node:22.23.4-bookworm-slim
+FROM node:26.12.0-bookworm-slim
 
 # The CLI release the payloads are recorded against. record.py passes the
 # version from upstream/lock.json; this default only covers a bare build.

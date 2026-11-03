@@ -84,7 +84,9 @@ ignores it. Copy it somewhere first if you need to keep it.
 
 - **No upstream changes.** Followed, when it applies, by a count of fixes
   that no longer match or route differences that need a decision. Either
-  one still makes detect exit 2.
+  one still makes detect exit 2. A note that some recorded fixtures were
+  not recorded with the pinned CLI can follow too; that one leaves the
+  exit code alone.
 - **N recorded source(s) changed.** Followed by a table of each source
   that moved:
 
@@ -111,6 +113,7 @@ when it is empty.
 | Fixes that no longer match | detect | Each fix in `upstream/spec-fixes.json` that failed against the new raw spec, by number, op and path |
 | Spec vs CLI routes | detect | Each route the spec and `bw serve` disagree on: undecided ones, then stale decisions, then decided ones |
 | Recorded behaviour | detect | The hand-recorded differences the route comparison cannot see, from `upstream/route-decisions.json` |
+| Recorded fixtures | detect | Payloads in `tests/fixtures/serve/` naming another CLI version than the pin, or none; never changes the exit code |
 | Regenerated | build | The files build changed, or *Nothing; the generated files were already current* |
 | Work created | check | Each failing or erroring test, or *None; every test passes* |
 | Changelog | detect | Whether a changelog entry was drafted; present only when a source changed |
@@ -212,7 +215,11 @@ release, and the lock file now names a new one:
    and the spec fix that sets that enum; last, set `READ_AT` to the new
    release.
 2. **The recorded fixtures.** The payloads in `tests/fixtures/serve/` were
-   recorded against the pinned CLI. Re-record them against the new release:
+   recorded against the pinned CLI, and the report's *Recorded fixtures*
+   section now lists every one that names the old release. detect also
+   prints a warning, but its exit code does not count them, so the
+   pipeline runs on until they are re-recorded. Re-record them against
+   the new release:
 
    ```bash
    poetry run python tests/fixtures/recorder/record.py   # needs Docker

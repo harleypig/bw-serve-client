@@ -146,6 +146,10 @@ The examples below need a running `bw serve`, unlocked except in
 [Unlocking over HTTP](#unlocking-over-http). A snippet that only builds an
 `ApiClient` makes no request, and runs without one.
 
+Tutorials and a troubleshooting guide are on the [docs site][guides].
+
+[guides]: https://harleypig.github.io/bw-serve-client/#guides
+
 ### Connecting
 
 `ApiClient` holds the connection. Each group of routes is a resource class

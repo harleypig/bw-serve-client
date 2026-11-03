@@ -12,6 +12,7 @@ from the docstrings, is published at
 - [Quick start][quick] — reading and writing the vault, and handling
   errors.
 - [Examples][examples] — one runnable script per resource class.
+- [Tutorials and troubleshooting][guides] — on the docs site.
 - [API architecture][arch] — every resource class, its methods and the
   routes they call.
 
@@ -33,6 +34,7 @@ from the docstrings, is published at
 [contrib]: developer/contributing.md
 [dev]: development.md
 [examples]: https://github.com/harleypig/bw-serve-client/tree/master/examples
+[guides]: https://harleypig.github.io/bw-serve-client/#guides
 [install]: user/installation.md
 [pipeline]: developer/update-pipeline.md
 [pages]: https://harleypig.github.io/bw-serve-client/

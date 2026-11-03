@@ -118,6 +118,10 @@ for each in [`examples/`][examples]:
 Each example's docstring says what it needs and how to run it. Every method
 and the route it calls is listed in [API architecture][arch].
 
+The docs site has two step-by-step tutorials, [creating and organising
+items][tut-items] and [a script over a Unix socket][tut-socket], and a
+[troubleshooting guide][trouble] that maps each common error to its fix.
+
 [arch]: ../api-architecture.md
 [examples]: https://github.com/harleypig/bw-serve-client/tree/master/examples
 [ex-attachments]: https://github.com/harleypig/bw-serve-client/blob/master/examples/attachments.py
@@ -132,3 +136,6 @@ and the route it calls is listed in [API architecture][arch].
 [ex-vault-control]: https://github.com/harleypig/bw-serve-client/blob/master/examples/vault_control.py
 [ex-vault-items]: https://github.com/harleypig/bw-serve-client/blob/master/examples/vault_items.py
 [install]: installation.md
+[trouble]: https://harleypig.github.io/bw-serve-client/guides/troubleshooting.html
+[tut-items]: https://harleypig.github.io/bw-serve-client/guides/organise-items.html
+[tut-socket]: https://harleypig.github.io/bw-serve-client/guides/script-over-socket.html

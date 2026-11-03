@@ -45,7 +45,8 @@ the `0.0.4a0` tag; this section covers that rebuild.
   registers, and tests replaying payloads recorded from a real `bw serve`.
   Detection writes every file before renaming any into place, lock file
   last. An interrupted or failed run therefore leaves the snapshots and
-  the lock in step, and the next run reports the whole change.
+  the lock in step, and the next run reports the whole change. A failed
+  write ends in the error report and exit 1, as a failed fetch does.
 - This changelog, with entries drafted by `make update` from the upstream
   change report.
 - `examples/serve_socket.py`: starts `bw serve` on a Unix socket, makes one

@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-import sys
 from typing import Any, Dict, List
 
+from _loader import load_tool
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "upstream"))
-
-import spec_fixes  # noqa: E402 - importable only once upstream/ is on the path.
+spec_fixes = load_tool("upstream/spec_fixes.py", "_bw_test_spec_fixes_spec_fixes")
 
 UPSTREAM = Path(__file__).resolve().parent.parent / "upstream"
 

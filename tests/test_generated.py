@@ -7,9 +7,9 @@ from enum import Enum
 import inspect
 import json
 from pathlib import Path
-import sys
 from typing import List, TYPE_CHECKING
 
+from _loader import load_tool
 import pydantic
 import pytest
 
@@ -18,9 +18,7 @@ from bw_serve_client import _generated
 from bw_serve_client._generated import models
 from bw_serve_client._generated import routes
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "codegen"))
-
-import generate  # noqa: E402 - importable only once codegen/ is on the path.
+generate = load_tool("codegen/generate.py", "_bw_test_generated_generate")
 
 if TYPE_CHECKING:
   from types import ModuleType

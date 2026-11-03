@@ -1,25 +1,14 @@
 """Simple tests for API Specification Tool."""
 
-import importlib.util
 import json
 import os
-import sys
 import tempfile
 from typing import Any, Dict
 
+from _loader import load_tool
 import pytest
 
-# Import the tool from the upstream directory
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'upstream'))
-
-spec = importlib.util.spec_from_file_location(
-  "api_spect_tool", os.path.join(os.path.dirname(__file__), '..', 'upstream', 'api-spec-tool.py')
-)
-if spec is None or spec.loader is None:
-  raise ImportError("Could not load api_spect_tool module")
-
-api_spect_tool = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(api_spect_tool)
+api_spect_tool = load_tool("upstream/api-spec-tool.py", "_bw_test_api_spec_tool_simple")
 
 APISpecTool = api_spect_tool.APISpecTool
 

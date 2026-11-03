@@ -10,6 +10,7 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 import re
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -69,6 +70,25 @@ def test_resource_classes_are_found() -> None:
 def test_every_resource_class_has_an_example(name: str) -> None:
   """``examples/<snake_case>.py`` exists for each exported resource class."""
   assert (EXAMPLES / f"{_snake(name)}.py").is_file()
+
+
+# -----------------------------------------------------------------------------
+def test_stdlib_names_are_found() -> None:
+  """The stdlib name set is the interpreter's, so it must hold a known module."""
+  assert "collections" in sys.stdlib_module_names
+
+
+# -----------------------------------------------------------------------------
+@pytest.mark.parametrize("path", sorted(EXAMPLES.glob("*.py")), ids=lambda path: path.name)
+def test_example_does_not_shadow_stdlib(path: Path) -> None:
+  """No example is named for a stdlib module.
+
+  ``python examples/<name>.py`` puts ``examples/`` first on ``sys.path``, so
+  an example named ``collections.py`` would be imported in place of the
+  stdlib module it shadows. Loading by path, as ``_load`` does, cannot see
+  that.
+  """
+  assert path.stem not in sys.stdlib_module_names
 
 
 # -----------------------------------------------------------------------------

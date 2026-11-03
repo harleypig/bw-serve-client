@@ -99,7 +99,7 @@ class TestCategoryForStatus:
     [
       (400, ValidationError),
       (401, UserError),
-      (403, UserError),
+      (403, ValidationError),
       (404, ValidationError),
       (409, ValidationError),
       (418, ValidationError),

@@ -52,8 +52,8 @@ Every failed `bw` command exits with status 1 (0 if `BW_CLEANEXIT` is set)
 and prints a message, so telling a locked vault from a missing item means
 reading the message. The library raises a typed exception for each kind:
 `UserError` for a locked vault or a wrong password, `ValidationError` for a
-bad request or an id that names nothing, `ExternalServiceError` when
-`bw serve` fails or cannot be reached.
+bad request, an id that names nothing or a `Host` `bw serve` refuses,
+`ExternalServiceError` when `bw serve` fails or cannot be reached.
 
 ### No arguments to encode
 

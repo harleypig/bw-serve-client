@@ -55,7 +55,7 @@ subclass says whose problem it is:
 | Error | Raised when |
 |-------|-------------|
 | `UserError` | The vault is locked or no one is logged in. |
-| `ValidationError` | The request is wrong: a bad argument, or an id that names nothing. |
+| `ValidationError` | The request is wrong: a bad argument, an id that names nothing, or a `Host` that `bw serve` refuses. |
 | `ExternalServiceError` | `bw serve` is unreachable, times out, fails, or answers with something unparseable. |
 | `InternalError` | A bug in this library. |
 
@@ -87,6 +87,9 @@ you construct logs errors to its own `logger`, so pass it the same one.
 
 - **Another host or port:** pass it in `base_url`, such as
   `ApiClient(base_url="http://localhost:9000")` for `bw serve --port 9000`.
+  `bw serve` answers 403 to a `Host` other than `localhost`, `127.0.0.1`,
+  `[::1]` or its `--hostname`, at the port it listens on, so connect by one
+  of those names and that port; the `ValidationError` names the `Host` sent.
 - **A Unix socket:** start `bw serve --hostname unix:///path/to/bw.sock` and
   pass `base_url="unix:///path/to/bw.sock"`. If `bw serve` also had
   `--port`, pass the same `port=` to `ApiClient`, which sends it in the

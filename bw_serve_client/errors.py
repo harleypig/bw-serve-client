@@ -41,9 +41,10 @@ failure happens:
 | that the master password did   |                          |
 | not decrypt the vault          |                          |
 +--------------------------------+--------------------------+
-| 400 and other unlisted 4xx     | ``ValidationError``      |
+| 400, 403 and other unlisted    | ``ValidationError``      |
+| 4xx                            |                          |
 +--------------------------------+--------------------------+
-| 401, 403                       | ``UserError``            |
+| 401                            | ``UserError``            |
 +--------------------------------+--------------------------+
 | 404                            | ``ValidationError``      |
 +--------------------------------+--------------------------+
@@ -61,8 +62,10 @@ failure happens:
 ``bw serve`` answers every failed command with a 400 and a
 ``{"success": false, "message": ...}`` body, a locked vault included, so
 the message is the only thing that tells a user-side state from a bad
-request. It has no endpoint authentication, so a 401/403 can only mean a
-user-side state too. A 404 means the caller's id or path names nothing,
+request. It has no endpoint authentication, so a 401 can only mean a
+user-side state too. Its only 403 is its Host and Origin check: the request
+carried a ``Host`` it does not allow or an ``Origin`` at all, which is how
+the client was configured, not the state of the vault. A 404 means the caller's id or path names nothing,
 which is a fault in the request rather than in the user's vault state; the
 status code is kept on the error for a caller that needs to tell it apart
 from a 400.
@@ -172,7 +175,7 @@ def category_for_status(status_code: int, message: str = "") -> type[BitwardenEr
   if status_code >= 500:
     return ExternalServiceError
 
-  if status_code in (401, 403):
+  if status_code == 401:
     return UserError
 
   if status_code == 400 and any(text in message.lower() for text in _USER_STATE_MESSAGES):

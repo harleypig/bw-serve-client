@@ -52,4 +52,14 @@ rather than guess:
 
 `RootModel` classes take no `extra` setting.
 
+## Hidden custom fields
+
+A hidden custom field (`type` 1) holds a secret, but a spec `format` cannot
+depend on a sibling field's value (#127). So two spec fixes type the `value`
+of `FieldSchema` and `FieldResponseSchema` as `str | SecretStr`, and
+`base-class-map` in `pyproject.toml` gives both models the hand-written base
+`CustomField` (in `bw_serve_client/_custom_field.py`), whose validator wraps a
+hidden field's value in `SecretStr`. The base must not import the generated
+models, since they import it.
+
 [dcg]: https://github.com/koxudaxi/datamodel-code-generator

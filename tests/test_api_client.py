@@ -470,6 +470,27 @@ class TestApiClient:
 
     assert result == payload
 
+  def test_deserialize_data_json_media_type_any_case(self: "TestApiClient") -> None:
+    """The application/json media type is parsed whatever its case and parameters."""
+    client = ApiClient()
+    response = httpx.Response(200, content=b'{"key": "value"}', headers={"Content-Type": "Application/JSON; charset=utf-8"})
+
+    result = client._deserialize_data(response)  # act
+
+    assert result == {"key": "value"}
+
+  @pytest.mark.parametrize(
+    "content_type", ["application/json-seq", "application/problem+json", "text/plain; note=application/json"]
+  )
+  def test_deserialize_data_other_type_containing_json_is_text(self: "TestApiClient", content_type: str) -> None:
+    """A Content-Type that contains application/json but is another media type comes back as text."""
+    client = ApiClient()
+    response = httpx.Response(200, content=b'{"key": "value"}', headers={"Content-Type": content_type})
+
+    result = client._deserialize_data(response)  # act
+
+    assert result == '{"key": "value"}'
+
   def test_get_returns_downloaded_file_bytes(self: "TestApiClient") -> None:
     """ApiClient.get hands back a binary download byte for byte."""
     payload = bytes(range(256))

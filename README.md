@@ -191,7 +191,8 @@ makes one call through it and stops the server.
 
 Results come back as pydantic models, and secrets as `SecretStr`, which
 stays hidden in a `repr`, a log record or an error message until you call
-`get_secret_value()`.
+`get_secret_value()`. Pickling a model writes its secrets in plain text, so
+do not pickle or cache models that hold them.
 
 A custom field's `value` is typed `str | SecretStr`. A hidden field, of
 `type` 1, holds a `SecretStr` in both the items you read back and the

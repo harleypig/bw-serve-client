@@ -1,0 +1,17 @@
+# gitleaks configuration: the default rules, plus the false positives this
+# repository is known to carry.
+[extend]
+useDefault = true
+
+# Bitwarden's published Vault Management API spec carries a sample Send
+# whose "key" field is example data, not a credential. The spec has lived
+# under several paths over the repository's history, so the path matches
+# the file name wherever it sits; both conditions must hold, so a real
+# secret anywhere else in that file is still reported.
+[[allowlists]]
+description = "Example Send key in Bitwarden's published API spec"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(^|/)vault-management-api[^/]*\.json$''']
+regexTarget = "match"
+regexes = ['''^key"\s*:\s*"''']

@@ -168,6 +168,19 @@ repos:
           - '--configfile'
           - 'pyproject.toml'
 
+  # The upstream hook scans only staged changes, which are empty under
+  # --all-files, so CI's lint job would scan nothing. The second scan
+  # covers the commits HEAD reaches: the branch's history locally, and the
+  # whole tree in CI's shallow checkout, where the one commit is a root.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        description: Detect hardcoded secrets with gitleaks
+        entry: >-
+          bash -c 'gitleaks git --pre-commit --staged --redact --verbose --no-banner
+          && gitleaks git --redact --verbose --no-banner --log-opts=HEAD'
+
   # 11. Markdown formatting
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.45.0
